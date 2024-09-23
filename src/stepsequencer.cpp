@@ -254,20 +254,20 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
         {
             trellisColor = TRELLIS_BLACK;
             //   tftColor = ILI9341_DARKGREY;
-            break;
+            
         }
         else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) < NO_NOTE)
         {
-            trellisColor = trellisTrackColor[MIDI_channel_in - 1];
+            trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
             // tftColor = trackColor[my_Arranger_Y_axis - 1] + (this->parameter[SET_CLIP2_EDIT] * 20);
             break;
         }
     }
     //byte note = get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
     if (active_track == my_Arranger_Y_axis - 1)
-        //draw_note_on_tick(search_free_voice, onTick);
+        draw_note_on_tick(search_free_voice, onTick);
 
-    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (onTick / 6), (MIDI_channel_in - 1), trellisColor);
+    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (onTick / 6), (my_Arranger_Y_axis - 1), trellisColor);
 }
 
 // stepsequencer

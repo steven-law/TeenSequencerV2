@@ -169,7 +169,8 @@ void loop()
 
     neotrellis_recall_control_buffer();
     neotrellis_show();
-
+    //trellis_recall_main_buffer(trellisScreen);
+    trellis_writeDisplay();
     if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
       mouse(2, 14);
@@ -186,6 +187,7 @@ void loop()
   if (updateTFTScreen)
   {
     tft_show();
+    // trellis_recall_main_buffer(trellisScreen);
 
     updateTFTScreen = false;
     // trellis.writeDisplay();
@@ -195,7 +197,7 @@ void loop()
   {
     trellisRestartPreviousMillis = trellisRestartMillis;
     // trellis.trellisReset();
-    Serial.println("restart trellis");
+    Serial.printf("restart trellis @ %d\n", loopEndTime - loopStartTime);
     neotrellis.begin();
     neotrellis_setup(0);
   }
@@ -454,7 +456,7 @@ void trellis_show_tft_mixer()
       clearWorkSpace();
       draw_mixer_FX_page1();
       show_active_page_info("FX Vol", 1);
-      trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[2])
     {
@@ -468,7 +470,7 @@ void trellis_show_tft_mixer()
       clearWorkSpace();
       draw_mixer_FX_page2();
       show_active_page_info("FX Vol", 2);
-      trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[3])
     {
@@ -483,7 +485,7 @@ void trellis_show_tft_mixer()
       fx_1.draw_plugin();
       show_active_page_info("FX Ctrl", 1);
 
-      trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[4])
     {
@@ -498,7 +500,7 @@ void trellis_show_tft_mixer()
       fx_2.draw_plugin();
       show_active_page_info("FX Ctrl", 2);
 
-      trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[5])
     {
@@ -513,7 +515,7 @@ void trellis_show_tft_mixer()
       fx_3.draw_plugin();
       show_active_page_info("FX Ctrl", 3);
 
-      trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[6])
     {
@@ -531,7 +533,7 @@ void trellis_show_tft_mixer()
       set_perform_page(lastPotRow);
       show_active_page_info("Perform", 0);
 
-      trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
+      //trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
     }
   }
 }

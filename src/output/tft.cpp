@@ -481,10 +481,10 @@ void draw_arrangment_line(byte _trackNr, byte _bar) // b= 0-255; which bar
         _color = ILI9341_DARKGREY;
         _trelliscolor = TRELLIS_BLACK;
     }
-    else
+    else  if (allTracks[_trackNr]->clip_to_play[_bar] < MAX_CLIPS - 1)
     {
         // for other clips
-        _color = trackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[active_track]->clip_to_play[_bar] * 20);
+        _color = trackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[_trackNr]->clip_to_play[_bar] * 20);
         _trelliscolor = trellisTrackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[_trackNr]->clip_to_play[_bar] * 20);
     }
     for (int thickness = -10; thickness < 10; thickness++)
@@ -501,6 +501,7 @@ void draw_arrangment_line(byte _trackNr, byte _bar) // b= 0-255; which bar
         draw_offset_arranger(_trackNr, _bar);
     }
     trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), allTracks[_trackNr]->my_Arranger_Y_axis - 1, _trelliscolor);
+    trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
 }
 void draw_offset_arranger(byte _trackNr, byte _bar)
 {
