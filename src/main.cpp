@@ -56,8 +56,8 @@ void midi_setup(byte dly);
 void midi_read();
 void sendClock();
 
-void sendNoteOn(byte Note, byte Velo, byte Channel);
-void sendNoteOff(byte Note, byte Velo, byte Channel);
+void sendNoteOn(byte _track,byte Note, byte Velo, byte Channel);
+void sendNoteOff(byte _track,byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte Channel);
 
 void myNoteOn(byte channel, byte note, byte velocity);
@@ -166,10 +166,8 @@ void loop()
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
   {
     trellisReadPreviousMillis = neotrellisCurrentMillis;
-
     neotrellis_recall_control_buffer();
     neotrellis_show();
-    //trellis_recall_main_buffer(trellisScreen);
     trellis_writeDisplay();
     if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
@@ -177,20 +175,21 @@ void loop()
       moveCursor(pixelTouchX, gridTouchY, 1, TRACK_FRAME_H);
     }
     else
-    { // Serial.printf("should move cursor x= %d, y=%d\n", pixelTouchX, gridTouchY);
+    { 
       mouse(2, 14);
       moveCursor(pixelTouchX, gridTouchY, 1, STEP_FRAME_H);
     }
-    // tftUpdate(pixelTouchX, gridTouchY);
-    // tftUpdateClock(myClock.barTick, myClock.barTick, myClock.startOfLoop, myClock.endOfLoop);
+
   }
   if (updateTFTScreen)
   {
     tft_show();
-    // trellis_recall_main_buffer(trellisScreen);
-
+    //Serial.printf("active encoder page: %d\n", activeScreen);
     updateTFTScreen = false;
-    // trellis.writeDisplay();
+    enc_moved[0] = false;
+    enc_moved[1] = false;
+    enc_moved[2] = false;
+    enc_moved[3] = false;
   }
 
   if (loopEndTime - loopStartTime > 500 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
@@ -205,9 +204,7 @@ void loop()
 
 void input_behaviour()
 {
-  neotrellis_start_clock();
-  neotrellis_stop_clock();
-  neotrellis_set_potRow();
+
   // if we are in one of the sequencer pages
   if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
   {
@@ -231,6 +228,7 @@ void input_behaviour()
     allTracks[gridTouchY - 1]->set_arranger_parameters(lastPotRow);
     if (neotrellisPressed[TRELLIS_POTROW])
     {
+      change_plugin_row = true;
       draw_arranger_parameters(lastPotRow);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
@@ -252,10 +250,7 @@ void input_behaviour()
     // if Shift button is NOT pressed
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
-      /* for (int i = 0; i < NUM_TRACKS; i++)
-       {
-           allTracks[i]->set_seq_mode_parameters(lastPotRow);
-       }*/
+      
       allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
     }
   }
@@ -325,10 +320,12 @@ void sendClock()
   usbMidi1.sendRealTime(usbMIDI.Clock);
 }
 
-void sendNoteOn(byte Note, byte Velo, byte Channel)
+void sendNoteOn(byte _track,byte Note, byte Velo, byte Channel)
 {
   if (Note < NO_NOTE)
   {
+    if (Channel == 0)
+    sendNoteOn_CV_Gate( _track, Note);
     if (Channel > 0 && Channel <= 16)
       MIDI1.sendNoteOn(Note, Velo, Channel);
     if (Channel > 16 && Channel <= 32)
@@ -340,9 +337,10 @@ void sendNoteOn(byte Note, byte Velo, byte Channel)
     // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
   }
 }
-void sendNoteOff(byte Note, byte Velo, byte Channel)
+void sendNoteOff(byte _track,byte Note, byte Velo, byte Channel)
 {
-
+if (Channel == 0)
+    sendNoteOff_CV_Gate( _track, Note);
   if (Channel > 0 && Channel <= 16)
     MIDI1.sendNoteOff(Note, Velo, Channel);
   if (Channel > 16 && Channel <= 32)
@@ -375,7 +373,7 @@ void myNoteOn(byte channel, byte note, byte velocity)
       allTracks[channel - 1]->record_noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
   if (channel >= 9)
-    sendNoteOn(note, velocity, channel);
+    sendNoteOn(channel - 1,note, velocity, channel);
   Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 }
 void myNoteOff(byte channel, byte note, byte velocity)
@@ -387,7 +385,7 @@ void myNoteOff(byte channel, byte note, byte velocity)
       allTracks[channel - 1]->record_noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
   if (channel >= 9)
-    sendNoteOff(note, velocity, channel);
+    sendNoteOff(channel - 1,note, velocity, channel);
 }
 void detect_USB_device()
 {
@@ -456,7 +454,7 @@ void trellis_show_tft_mixer()
       clearWorkSpace();
       draw_mixer_FX_page1();
       show_active_page_info("FX Vol", 1);
-      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      // trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[2])
     {
@@ -470,7 +468,7 @@ void trellis_show_tft_mixer()
       clearWorkSpace();
       draw_mixer_FX_page2();
       show_active_page_info("FX Vol", 2);
-      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      // trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[3])
     {
@@ -485,7 +483,7 @@ void trellis_show_tft_mixer()
       fx_1.draw_plugin();
       show_active_page_info("FX Ctrl", 1);
 
-      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      // trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[4])
     {
@@ -500,7 +498,7 @@ void trellis_show_tft_mixer()
       fx_2.draw_plugin();
       show_active_page_info("FX Ctrl", 2);
 
-      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      // trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[5])
     {
@@ -515,7 +513,7 @@ void trellis_show_tft_mixer()
       fx_3.draw_plugin();
       show_active_page_info("FX Ctrl", 3);
 
-      //trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
+      // trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[6])
     {
@@ -533,7 +531,7 @@ void trellis_show_tft_mixer()
       set_perform_page(lastPotRow);
       show_active_page_info("Perform", 0);
 
-      //trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
+      // trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
     }
   }
 }
@@ -948,12 +946,12 @@ void trellis_perform()
           }
           if (_nr % TRELLIS_PADS_X_DIM == 14)
           {
-            byte _stepDivision[Y_DIM]{1, 2, 3, 4, 6, 8, 12, 16};
+            byte _stepDivision[Y_DIM]{0, 1, 2, 3, 4, 6, 8, 16};
             for (int s = 0; s < NUM_TRACKS; s++)
             {
               if (allTracks[s]->performIsActive)
               {
-                allTracks[s]->parameter[SET_STEP_DIVIVISION] = _stepDivision[t];
+                allTracks[s]->performStepDivision = _stepDivision[t];
                 if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
                   sendControlChange(performCC[14], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
               }
@@ -1032,6 +1030,7 @@ void set_mixer_gain(byte XPos, byte YPos, const char *name, byte trackn)
 
     allTracks[trackn]->mixGainPot = constrain(allTracks[trackn]->mixGainPot + encoded[XPos], 0, MIDI_CC_RANGE);
     allTracks[trackn]->mixGain = (float)(allTracks[trackn]->mixGainPot / MIDI_CC_RANGE_FLOAT);
+    Serial.printf("set mixgainpot: %d for track %d\n", allTracks[trackn]->mixGainPot, trackn);
     /*for (int i = 0; i < NUM_PLUGINS; i++)
    {
      if (allTracks[trackn]->MIDI_channel_out == i+17)

@@ -231,6 +231,9 @@ void neotrellis_show()
 }
 void neotrellis_update()
 {
+  neotrellis_start_clock();
+  neotrellis_stop_clock();
+  neotrellis_set_potRow();
   trellis_show_tft_mixer();
   neo_trellis_select_trackClips();
   neo_trellis_save_load();
@@ -856,21 +859,6 @@ void trellis_setStepsequencer()
             neotrellisPressed[TRELLIS_BUTTON_SEQUENCER] = false;
             allTracks[track]->set_note_on_tick(keyTick, trellisNote);
             Serial.printf("step: %d, tick: %d, track: %D \n", step, keyTick, track);
-            /*
-            for (int v = 0; v < MAX_VOICES; v++)
-            {
-              if (allTracks[_key / TRELLIS_PADS_X_DIM]->get_active_note(allTracks[track]->parameter[SET_CLIP2_EDIT], keyTick, v) < NO_NOTE)
-              {
-                trellis_set_buffer(_key, trellisTrackColor[track]);
-                break;
-              }
-              else if (allTracks[_key / TRELLIS_PADS_X_DIM]->get_active_note(allTracks[_key / TRELLIS_PADS_X_DIM]->parameter[SET_CLIP2_EDIT], keyTick, v) == NO_NOTE)
-              {
-                trellis_set_buffer(_key, TRELLIS_BLACK);
-                break;
-              }
-            }
-*/
           }
         }
       }
@@ -1094,8 +1082,8 @@ void trellis_set_main_buffer(int _page, int _x, int _y, int color)
   trellis.setLED(TrellisLED[_nr]);
   if (trellisMainGridBuffer[_page][_x][_y] == TRELLIS_BLACK)
     trellis.clrLED(TrellisLED[_nr]);
-  Serial.printf("set main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, _x, _y, color, TrellisLED[_nr]);
-  // trellis.writeDisplay();
+  // Serial.printf("set main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, _x, _y, color, TrellisLED[_nr]);
+  //  trellis.writeDisplay();
 }
 void trellis_recall_main_buffer(int _page)
 {

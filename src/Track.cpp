@@ -222,7 +222,7 @@ void Track::load_track(byte songNr)
 void Track::play_sequencer_mode(byte cloock, byte start, byte end)
 {
 
-    if (cloock % parameter[SET_STEP_DIVIVISION] == 0)
+    if (cloock % (parameter[SET_STEP_DIVIVISION] +performStepDivision)== 0)
     {
         internal_clock++;
         internal_clock_is_on = true;
@@ -304,14 +304,8 @@ void Track::draw_sequencer_modes(byte mode)
 void Track::noteOn(byte Note, byte Velo, byte Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-    sendNoteOn(Note, Velo, Channel);
-    if (Note <= 64)
-    {
-        cvNoteOn = true;
-        cvNote = Note;
-        // Serial.printf("Tracks frees cv note: %d\n", cvNote);
-        //  sendNoteOn_CV_Gate(Note, Channel);
-    }
+    sendNoteOn(my_Arranger_Y_axis-1, Note, Velo, Channel);
+   
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
     //
@@ -319,11 +313,8 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
 void Track::noteOff(byte Note, byte Velo, byte Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-    sendNoteOff(Note, Velo, Channel);
-    if (Note <= 64)
-    {
-        cvNoteOff = true;
-    }
+    sendNoteOff(my_Arranger_Y_axis-1, Note, Velo, Channel);
+  
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
 }
@@ -405,7 +396,7 @@ void Track::set_clip_to_play(byte n, byte b)
             }
             // updateTFTScreen = true;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
-            enc_moved[n] = false;
+          //  enc_moved[n] = false;
         }
     }
 }
@@ -437,7 +428,7 @@ void Track::set_note_offset(byte _encoder, int b)
             Serial.printf("set NOteOffset: %d, when: %d\n", noteOffset[when], when);
             // updateTFTScreen = true;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Trns", noteOffset[when], "NO_NAME");
-            enc_moved[_encoder] = false;
+           // enc_moved[_encoder] = false;
         }
     }
 }
@@ -453,7 +444,7 @@ void Track::set_barVelocity(byte _encoder, int b)
             {
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
-            enc_moved[_encoder] = false;
+           // enc_moved[_encoder] = false;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Velo", barVelocity[when], "NO_NAME");
         }
     }
@@ -469,7 +460,7 @@ void Track::set_play_presetNr_ccChannel(byte n, byte lastProw)
         change_plugin_row = true;
         // draw_MIDI_CC_screen();
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccChannel[bar_to_edit], "NO_NAME");
-        enc_moved[n] = false;
+       // enc_moved[n] = false;
     }
 }
 void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
@@ -482,7 +473,7 @@ void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
         // draw_MIDI_CC_screen();
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccValue[bar_to_edit], "NO_NAME");
 
-        enc_moved[n] = false;
+       // enc_moved[n] = false;
     }
 }
 

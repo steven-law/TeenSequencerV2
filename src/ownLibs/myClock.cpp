@@ -106,7 +106,7 @@ void MyClock::set_start_of_loop(byte n)
 
         draw_clock_option(POSITION_START_LOOP_BUTTON, startOfLoop);
 
-        enc_moved[n] = false;
+       // enc_moved[n] = false;
     }
 }
 
@@ -118,7 +118,7 @@ void MyClock::set_end_of_loop(byte n)
 
         draw_clock_option(POSITION_END_LOOP_BUTTON, endOfLoop);
 
-        enc_moved[n] = false;
+       // enc_moved[n] = false;
     }
 }
 

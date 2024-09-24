@@ -24,8 +24,8 @@ void encoder_setup(int dly)
         encButtons[i].interval(25);                         // interval in ms
     }
     Serial.println("Initializing Encoders");
-    //tft.println("Initializing Encoders");
-    //tft.updateScreenAsync();
+    // tft.println("Initializing Encoders");
+    // tft.updateScreenAsync();
     delay(dly);
 }
 void readEncoders()
@@ -54,32 +54,34 @@ void readEncoders()
 
         if (newEnc[i] > oldEnc[i])
         {
-            change_plugin_row = true;
+            if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER || activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+                change_plugin_row = true;
             enc_moved[i] = true;
             updateTFTScreen = true;
             encoded[i] = encMultiplier[i];
             oldEnc[i] = newEnc[i];
-            // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
+          //  Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
         }
         if (newEnc[i] < oldEnc[i])
         {
-            change_plugin_row = true;
+            if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER || activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+                change_plugin_row = true;
             enc_moved[i] = true;
             updateTFTScreen = true;
             encoded[i] = -encMultiplier[i];
             oldEnc[i] = newEnc[i];
-            // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
+           // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
         }
     }
     if (encButtons[0].fell())
     {
         neotrellisPressed[TRELLIS_BUTTON_ENTER] = true;
-         //Serial.printf("EncButton: %d\n", 0);
+        // Serial.printf("EncButton: %d\n", 0);
     }
     if (encButtons[0].rose())
     {
         neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-         //Serial.printf("EncButton: %d\n", i);
+        // Serial.printf("EncButton: %d\n", i);
     }
 }
 void encoder_SetCursor(byte deltaX, byte maxY)
@@ -89,7 +91,7 @@ void encoder_SetCursor(byte deltaX, byte maxY)
     if (enc_moved[0])
     {
         pixelTouchX = constrain(pixelTouchX + encoded[0] * deltaX, 0, 304);
-       // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", pixelTouchX / 16 - 2, "NO_NAME");
+        // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", pixelTouchX / 16 - 2, "NO_NAME");
 
         // Serial.printf("encoder: %d + deltaX: %d = pixelTouchX %d\n", encoded[0], deltaX, pixelTouchX);
         // enc_moved[0] = false;
@@ -97,7 +99,7 @@ void encoder_SetCursor(byte deltaX, byte maxY)
     if (enc_moved[1])
     {
         gridTouchY = constrain(gridTouchY + encoded[1], 0, maxY);
-       // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
+        // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
 
         // enc_moved[1] = false;
     }

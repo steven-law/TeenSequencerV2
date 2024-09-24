@@ -44,7 +44,7 @@ void Track::set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *
     if (enc_moved[XPos])
     {
         byte index = XPos + (YPos * NUM_ENCODERS);
-        enc_moved[XPos] = false;
+        //enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s\n", index, parameter[index], name);
         if (index == SET_OCTAVE || index == SET_CLIP2_EDIT)
@@ -60,7 +60,7 @@ void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *n
     if (enc_moved[XPos])
     {
         byte index = XPos + (YPos * NUM_ENCODERS);
-        enc_moved[XPos] = false;
+       // enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s, text %s\n", index, parameter[index], name, text);
         //draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, NO_VALUE, text);
@@ -75,7 +75,7 @@ void Track::set_CCchannel(byte XPos, byte YPos)
     {
         CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + encoded[XPos], 1, 128);
         draw_MIDI_CC(XPos, YPos);
-        enc_moved[XPos] = false;
+       // enc_moved[XPos] = false;
     }
 }
 void Track::set_CCvalue(byte XPos, byte YPos)
@@ -86,7 +86,7 @@ void Track::set_CCvalue(byte XPos, byte YPos)
         CCvalue[edit_presetNr_ccValue][n] = constrain(CCvalue[edit_presetNr_ccValue][n] + encoded[XPos], 0, 127);
         draw_MIDI_CC(XPos, YPos);
         sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], parameter[SET_MIDICH_OUT]);
-        enc_moved[XPos] = false;
+       // enc_moved[XPos] = false;
     }
 }
 void Track::set_MIDI_CC(byte row)
@@ -170,7 +170,7 @@ void Track::set_edit_presetNr_ccChannel(byte n, byte lastProw)
         change_plugin_row = true;
         draw_MIDI_CC_screen();
         draw_edit_presetNr_ccChannel(n, lastProw);
-        enc_moved[n] = false;
+       // enc_moved[n] = false;
     }
 }
 void Track::set_edit_presetNr_ccValue(byte n, byte lastProw)
@@ -182,7 +182,7 @@ void Track::set_edit_presetNr_ccValue(byte n, byte lastProw)
         change_plugin_row = true;
         draw_MIDI_CC_screen();
         draw_edit_presetNr_ccValue(n, lastProw);
-        enc_moved[n] = false;
+       // enc_moved[n] = false;
     }
 }
 

@@ -46,8 +46,8 @@ extern byte activeScreen;
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte active_track;
-void sendNoteOn(byte Note, byte Velo, byte Channel);
-void sendNoteOff(byte Note, byte Velo, byte Channel);
+void sendNoteOn(byte _track, byte Note, byte Velo, byte Channel);
+void sendNoteOff(byte _track,byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte channel);
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
 void neotrellis_show();
@@ -93,6 +93,7 @@ public:
     bool muteThruSolo;
     bool performIsActive = false;
     int performNoteOffset = 0;
+    byte performStepDivision =0;
     bool cvNoteOn;
     bool cvNoteOff;
     byte cvNote;

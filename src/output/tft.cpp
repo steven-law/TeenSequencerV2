@@ -160,8 +160,8 @@ void reset_infobox_background()
 }
 void tft_show()
 {
-    Serial.println("redraw Display");
-    // if (updateClock)
+    //Serial.println("redraw Display");
+     if (myClock.isPlaying)
     {
         drawstepPosition();
         drawbarPosition();
@@ -249,7 +249,7 @@ void moveCursor(int pixelOnX, int pixelOnY,  int cursorDeltaX, int cursorDeltaY)
 }
 void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
 {
-    enc_moved[XPos] = false;
+   // enc_moved[XPos] = false;
     // xposition, yposition, value 1-100, value to draw, name to draw, color
     // drawPot Variables
     static float circlePos[4];
@@ -301,7 +301,7 @@ void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25), STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
     circlePos_old[XPos] = circlePos[XPos];
-
+Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
     dname_old[XPos] = dname;
 }
 void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release)
