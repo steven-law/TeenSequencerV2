@@ -17,6 +17,7 @@ unsigned long infoboxTimeAtPress = 0;
 unsigned long infoboxWaitingTime = 1000;
 bool infoboxShow = false;
 bool infoboxClear = false;
+//DMAMEM uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 
 void tft_setup(int dly)
 {
@@ -24,7 +25,7 @@ void tft_setup(int dly)
     tft.setRotation(3);
     // ts.begin();
     // ts.setRotation(1);
-    // tft.setFrameBuffer(fb1);
+    // tft.setFrameBuffer(tft_frame_buffer);
     // tft.useFrameBuffer(true);
 
     tft.fillScreen(ILI9341_BLACK); // Xmin, Ymin, Xlength, Ylength, color
@@ -160,8 +161,8 @@ void reset_infobox_background()
 }
 void tft_show()
 {
-    //Serial.println("redraw Display");
-     if (myClock.isPlaying)
+    // Serial.println("redraw Display");
+    if (myClock.isPlaying)
     {
         drawstepPosition();
         drawbarPosition();
@@ -214,9 +215,9 @@ void drawbarPosition()
         // tft->fillRect(STEP_FRAME_W * 2, GRID_POSITION_POINTER_Y, STEP_FRAME_W * 1, 4, ILI9341_GREEN);
     }
 }
-void moveCursor(int pixelOnX, int pixelOnY,  int cursorDeltaX, int cursorDeltaY)
+void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
 {
-   static int last_xPos;
+    static int last_xPos;
     static int last_yPos;
 
     if (pixelOnX != last_xPos || pixelOnY != last_yPos)
@@ -225,12 +226,18 @@ void moveCursor(int pixelOnX, int pixelOnY,  int cursorDeltaX, int cursorDeltaY)
         if (cursorDeltaY == TRACK_FRAME_H)
             if (pixelOnY >= 1)
                 arranger_offset = 4;
+                /*
         for (int pixel = 0; pixel < 16; pixel++)
         {
-            tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, tftRAM[0][pixel]);  // draw upper line X1
-            tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, tftRAM[1][pixel]); // draw bottom line X2
-            tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[2][pixel]);  // draw left line Y1
-            tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[3][pixel]); // draw right line Y2
+             tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, ILI9341_DARKGREY);  // draw upper line X1
+            tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, ILI9341_DARKGREY); // draw bottom line X2
+            tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY);  // draw left line Y1
+            tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY); // draw right line Y2
+
+            //tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, tftRAM[0][pixel]);  // draw upper line X1
+           // tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, tftRAM[1][pixel]); // draw bottom line X2
+           // tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[2][pixel]);  // draw left line Y1
+           // tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[3][pixel]); // draw right line Y2
         }
         for (int pixel = 0; pixel < 16; pixel++)
         {
@@ -238,10 +245,13 @@ void moveCursor(int pixelOnX, int pixelOnY,  int cursorDeltaX, int cursorDeltaY)
             tftRAM[1][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 15 + arranger_offset); // save bottom line
             tftRAM[2][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 1, pixel + (cursorDeltaY * pixelOnY) + arranger_offset);  // save left line
             tftRAM[3][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 15, pixel + (cursorDeltaY * pixelOnY) + arranger_offset); // save right line
-        }
+        }*/
 
+        tft.drawRect((cursorDeltaX * last_xPos) + 1, (cursorDeltaY * last_yPos) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_DARKGREY);
+
+        byte test = tft.readPixel(18,18); // save right line
         tft.drawRect((cursorDeltaX * pixelOnX) + 1, (cursorDeltaY * pixelOnY) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_WHITE);
-
+        Serial.printf("read pixel = %d\n", test);
         last_xPos = pixelOnX;
         last_yPos = pixelOnY;
     }
@@ -249,7 +259,7 @@ void moveCursor(int pixelOnX, int pixelOnY,  int cursorDeltaX, int cursorDeltaY)
 }
 void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
 {
-   // enc_moved[XPos] = false;
+    // enc_moved[XPos] = false;
     // xposition, yposition, value 1-100, value to draw, name to draw, color
     // drawPot Variables
     static float circlePos[4];
@@ -301,7 +311,7 @@ void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25), STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
     circlePos_old[XPos] = circlePos[XPos];
-Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
+    Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
     dname_old[XPos] = dname;
 }
 void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release)
@@ -447,7 +457,7 @@ void draw_arranger_parameters(byte lastProw)
         change_plugin_row = false;
         if (lastProw == 0)
         {
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", (pixelTouchX / 16) - 2, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / 16) + (arrangerpage*BARS_PER_PAGE)) - 2, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[(pixelTouchX / 16) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Trns", allTracks[gridTouchY - 1]->noteOffset[(pixelTouchX / 16) - 2], "NO_NAME");
@@ -481,7 +491,7 @@ void draw_arrangment_line(byte _trackNr, byte _bar) // b= 0-255; which bar
         _color = ILI9341_DARKGREY;
         _trelliscolor = TRELLIS_BLACK;
     }
-    else  if (allTracks[_trackNr]->clip_to_play[_bar] < MAX_CLIPS - 1)
+    else if (allTracks[_trackNr]->clip_to_play[_bar] < MAX_CLIPS - 1)
     {
         // for other clips
         _color = trackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[_trackNr]->clip_to_play[_bar] * 20);

@@ -916,7 +916,7 @@ void trellis_perform()
           }
           if (_nr % TRELLIS_PADS_X_DIM == 13)
           {
-            byte _clipLength[Y_DIM]{96, 72, 60, 48, 36, 24, 12, 6};
+            byte _clipLength[Y_DIM]{MAX_TICKS, 72, 60, MAX_TICKS/2, 36, MAX_TICKS/4, MAX_TICKS/8, MAX_TICKS/16};
             for (int s = 0; s < NUM_TRACKS; s++)
             {
               if (allTracks[s]->performIsActive)

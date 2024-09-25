@@ -21,7 +21,7 @@ void Track::set_stepSequencer_parameters(byte row)
     case 1:
         set_stepSequencer_parameter_value(ENCODER_SEQUENCE_LENGTH, 1, "seqL", 1, MAX_TICKS);
         set_stepSequencer_parameter_value(ENCODER_STEP_DIVISION, 1, "sDiv", 1, 16);
-        set_stepSequencer_parameter_value(ENCODER_STEP_LENGTH, 1, "stpL", 1, 96);
+        set_stepSequencer_parameter_value(ENCODER_STEP_LENGTH, 1, "stpL", 1, MAX_TICKS);
         set_stepSequencer_parameter_value(ENCODER_OCTAVE, 1, "Oct", 0, 11);
 
         break;
@@ -216,6 +216,7 @@ byte Track::get_active_stepFX(byte _clip, byte _tick, byte _voice)
 }
 void Track::set_note_on_tick(int x, int y)
 {
+    byte note2set;
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
     {
         sTick = x + i;

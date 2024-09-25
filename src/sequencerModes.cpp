@@ -4,7 +4,7 @@
 
 void Track::play_seq_mode0(byte cloock)
 {
-    // Serial.printf("track= %d,tick: %d, array note= %d on voice: %d\n", MIDI_channel_in, cloock, this->array[clip_to_play[internal_clock_bar]][cloock][0], 0);
+    // Serial.printf("track= %d,tick: %d, array note= %d on voice: %d\n", my_Arranger_Y_axis, cloock, this->array[clip_to_play[internal_clock_bar]][cloock][0], 0);
     for (int v = 0; v < MAX_VOICES; v++)
     {
 

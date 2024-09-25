@@ -6,11 +6,7 @@
 void Track::update(int PixelX, byte gridY)
 {
     // MIDI1.read();
-    if (PixelX > SEQ_GRID_LEFT && PixelX < 14 * STEP_FRAME_W && gridY >= 1 && gridY < 13)
-    {
-        // note2set = (gridY - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-        // tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
-    }
+
     bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
     // save_track();
     // load_track();
@@ -21,7 +17,7 @@ void Track::save_track(byte songNr)
     // Serial.println("in save mode:");
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
+    sprintf(_trackname, "%dtrack%d.txt\0", songNr, my_Arranger_Y_axis);
     Serial.println(_trackname);
 
     // delete the file:
@@ -54,7 +50,7 @@ void Track::save_track(byte songNr)
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            // Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
+            // Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", my_Arranger_Y_axis, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array saved:");
         for (int i = 0; i < 256; i++)
@@ -116,12 +112,12 @@ void Track::load_track(byte songNr)
     {
         for (int i = 0; i < NUM_STEPS; i++)
         {
-            trellis_set_main_buffer(p, i, (MIDI_channel_in - 1), TRELLIS_BLACK);
+            trellis_set_main_buffer(p, i, (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
         }
     }
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
-    sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
+    sprintf(_trackname, "%dtrack%d.txt\0", songNr, my_Arranger_Y_axis);
     Serial.println(_trackname);
     //  open the file for reading:
     myFile = SD.open(_trackname, FILE_READ);
@@ -150,13 +146,13 @@ void Track::load_track(byte songNr)
             {
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
                 {
-                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
                 }
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            // Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
+            // Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", my_Arranger_Y_axis, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array loaded:");
 
@@ -170,7 +166,7 @@ void Track::load_track(byte songNr)
             if (clip_to_play[i] <= NUM_USER_CLIPS)
             {
                 Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
-                trellis_set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1] + (clip_to_play[i] * 20));
+                trellis_set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
             }
         }
         // Serial.println("song loaded:");
@@ -222,7 +218,7 @@ void Track::load_track(byte songNr)
 void Track::play_sequencer_mode(byte cloock, byte start, byte end)
 {
 
-    if (cloock % (parameter[SET_STEP_DIVIVISION] +performStepDivision)== 0)
+    if (cloock % (parameter[SET_STEP_DIVIVISION] + performStepDivision) == 0)
     {
         internal_clock++;
         internal_clock_is_on = true;
@@ -304,8 +300,8 @@ void Track::draw_sequencer_modes(byte mode)
 void Track::noteOn(byte Note, byte Velo, byte Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-    sendNoteOn(my_Arranger_Y_axis-1, Note, Velo, Channel);
-   
+    sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
+
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
     //
@@ -313,8 +309,8 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
 void Track::noteOff(byte Note, byte Velo, byte Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-    sendNoteOff(my_Arranger_Y_axis-1, Note, Velo, Channel);
-  
+    sendNoteOff(my_Arranger_Y_axis - 1, Note, Velo, Channel);
+
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
 }
@@ -336,7 +332,7 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
         }
     }
 }
@@ -347,19 +343,19 @@ void Track::set_arranger_parameters(byte lastProw)
     switch (lastProw)
     {
     case 0:
-         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
         set_clip_to_play(2, pixelTouchX);
         set_note_offset(3, pixelTouchX);
         break;
     case 1:
-         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
         set_barVelocity(2, pixelTouchX);
         // myClock.set_tempo(1);
         // myClock.set_start_of_loop(2); // Encoder: 2
         // myClock.set_end_of_loop(3);   // Encoder: 3
         break;
     case 2:
-         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
         set_play_presetNr_ccChannel(2, 2);
         set_play_presetNr_ccValue(3, 2);
         break;
@@ -396,7 +392,7 @@ void Track::set_clip_to_play(byte n, byte b)
             }
             // updateTFTScreen = true;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
-          //  enc_moved[n] = false;
+            //  enc_moved[n] = false;
         }
     }
 }
@@ -428,7 +424,7 @@ void Track::set_note_offset(byte _encoder, int b)
             Serial.printf("set NOteOffset: %d, when: %d\n", noteOffset[when], when);
             // updateTFTScreen = true;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Trns", noteOffset[when], "NO_NAME");
-           // enc_moved[_encoder] = false;
+            // enc_moved[_encoder] = false;
         }
     }
 }
@@ -444,7 +440,7 @@ void Track::set_barVelocity(byte _encoder, int b)
             {
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
-           // enc_moved[_encoder] = false;
+            // enc_moved[_encoder] = false;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Velo", barVelocity[when], "NO_NAME");
         }
     }
@@ -460,7 +456,7 @@ void Track::set_play_presetNr_ccChannel(byte n, byte lastProw)
         change_plugin_row = true;
         // draw_MIDI_CC_screen();
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccChannel[bar_to_edit], "NO_NAME");
-       // enc_moved[n] = false;
+        // enc_moved[n] = false;
     }
 }
 void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
@@ -473,7 +469,7 @@ void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
         // draw_MIDI_CC_screen();
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccValue[bar_to_edit], "NO_NAME");
 
-       // enc_moved[n] = false;
+        // enc_moved[n] = false;
     }
 }
 

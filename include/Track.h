@@ -57,7 +57,7 @@ class Track
 
 public:
     byte my_Arranger_Y_axis;
-    byte parameter[16]{0, 0, 128, 99, 96, 1, 3, 4, 0, 0, 0, 0};
+    byte parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0};
     // Stepsequencer
     struct tick_t
     {
@@ -94,9 +94,6 @@ public:
     bool performIsActive = false;
     int performNoteOffset = 0;
     byte performStepDivision =0;
-    bool cvNoteOn;
-    bool cvNoteOff;
-    byte cvNote;
     byte bar_to_edit = 0;
 
     // arranger
@@ -116,7 +113,6 @@ public:
         // MIDI1.begin();
         // SD.begin(BUILTIN_SDCARD);
         my_Arranger_Y_axis = Y;
-        MIDI_channel_in = Y;
         parameter[SET_MIDICH_OUT] = Y;
         // allocate tracks0-7 "array"
         clip = static_cast<clip_t *>(calloc(MAX_CLIPS, sizeof(clip_t)));
@@ -211,12 +207,7 @@ private:
     void set_seq_mode4_value(byte XPos, byte YPos, const char *name);
     void draw_seq_mode4();
 
-
-    byte MIDI_channel_in;
-
-    byte note2set;
     byte setStepFX = 74;
-    byte tickStart;
     byte noteToPlay[MAX_VOICES];
 
     byte sTick;
@@ -227,7 +218,6 @@ private:
     byte recordLastNote[MAX_VOICES];
     byte recordVelocity[MAX_VOICES];
     byte recordVoice;
-    byte sequence_length = MAX_TICKS;
 
     byte search_free_voice = 0;
     byte oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
