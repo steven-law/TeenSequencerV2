@@ -55,11 +55,11 @@ public:
     AudioEffectEnvelope outEnv;
     //AudioMixer4 mixer;
     AudioAmplifier MixGain;
-    AudioAmplifier SongVol;
-    AudioConnection *patchCord[5]; // total patchCordCount:50 including array typed ones.
+    //AudioAmplifier SongVol;
+    AudioConnection *patchCord[4]; // total patchCordCount:50 including array typed ones.
     // AudioAnalyzePeak peak;
     //  constructor (this is called when class-object is created)
-    Plugin_3(const char *Name, byte ID) : PluginControll(Name, ID)
+    Plugin_3(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
@@ -71,32 +71,33 @@ public:
         patchCord[pci++] = new AudioConnection(carrier, 0, outEnv, 0);
         //patchCord[pci++] = new AudioConnection(outEnv, 0, mixer, 0);
         patchCord[pci++] = new AudioConnection(outEnv, 0, MixGain, 0);
-        patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        //patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+      //  patchCord[pci++] = new AudioConnection(MixGain, 0, dacOut, 0);
     }
     virtual ~Plugin_3() = default;
 
     virtual void setup() override;
-    virtual void noteOn(byte notePlayed, float velocity, byte voice) override;
-    virtual void noteOff(byte notePlayed, byte voice) override;
-    virtual void set_parameters(byte row) override;
+    virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
+    virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
+    virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
 virtual void change_preset() override;
 
     void get_peak();
-    void set_mod_waveform(byte XPos, byte YPos, const char *name);
-    void set_mod_amplitude(byte XPos, byte YPos, const char *name);
-    void set_mod_ratio(byte XPos, byte YPos, const char *name);
-    void set_car_waveform(byte XPos, byte YPos, const char *name);
+    void set_mod_waveform(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_mod_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_mod_ratio(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_car_waveform(uint8_t XPos, uint8_t YPos, const char *name);
 
-    void set_envelope_attack(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_envelope_decay(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_envelope_sustain(byte XPos, byte YPos, const char *name);
-    void set_envelope_release(byte XPos, byte YPos, const char *name, int min, int max);
+    void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
 
-    void set_envelope_mattack(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_envelope_mdecay(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_envelope_msustain(byte XPos, byte YPos, const char *name);
-    void set_envelope_mrelease(byte XPos, byte YPos, const char *name, int min, int max);
+    void set_envelope_mattack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_envelope_mdecay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_envelope_msustain(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_envelope_mrelease(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
 };
 
 #endif // PLUGIN_3_H

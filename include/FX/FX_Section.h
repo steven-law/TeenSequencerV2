@@ -15,8 +15,8 @@
 class FX_Section
 {
 public:
-    //   byte FX2_Potentiomer[2];
-    byte FX3_Potentiomer[2];
+    //   uint8_t FX2_Potentiomer[2];
+    uint8_t FX3_Potentiomer[2];
     // AudioAnalyzePeak peak3;
     // AudioAnalyzePeak peak2;
     AudioAmplifier dry[NUM_PLUGINS];
@@ -33,17 +33,18 @@ public:
         // patchCord[pci++] = new AudioConnection(plugin_3.modulator[0], 0, peak3, 0);
         // patchCord[pci++] = new AudioConnection(plugin_2.waveform[0], 0, peak2, 0);
 
-        patchCord[pci++] = new AudioConnection(plugin_1.SongVol, 0, dry[0], 0);
-        patchCord[pci++] = new AudioConnection(plugin_2.SongVol, 0, dry[1], 0);
-        patchCord[pci++] = new AudioConnection(plugin_3.SongVol, 0, dry[2], 0);
-        patchCord[pci++] = new AudioConnection(plugin_4.SongVol, 0, dry[3], 0);
-        patchCord[pci++] = new AudioConnection(plugin_5.SongVol, 0, dry[4], 0);
-        patchCord[pci++] = new AudioConnection(plugin_6.SongVol, 0, dry[5], 0);
-        patchCord[pci++] = new AudioConnection(plugin_7.SongVol, 0, dry[6], 0);
-        patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, dry[7], 0);
-        patchCord[pci++] = new AudioConnection(plugin_9.SongVol, 0, dry[8], 0);
-        patchCord[pci++] = new AudioConnection(plugin_10.SongVol, 0, dry[9], 0);
-        patchCord[pci++] = new AudioConnection(plugin_11.SongVol, 0, dry[10], 0);
+        patchCord[pci++] = new AudioConnection(plugin_1.MixGain, 0, dry[0], 0);
+        patchCord[pci++] = new AudioConnection(plugin_2.MixGain, 0, dry[1], 0);
+        patchCord[pci++] = new AudioConnection(plugin_3.MixGain, 0, dry[2], 0);
+        patchCord[pci++] = new AudioConnection(plugin_4.MixGain, 0, dry[3], 0);
+        patchCord[pci++] = new AudioConnection(plugin_5.MixGain, 0, dry[4], 0);
+        patchCord[pci++] = new AudioConnection(plugin_6.MixGain, 0, dry[5], 0);
+        patchCord[pci++] = new AudioConnection(plugin_7.MixGain, 0, dry[6], 0);
+        patchCord[pci++] = new AudioConnection(plugin_8.MixGain, 0, dry[7], 0);
+        patchCord[pci++] = new AudioConnection(plugin_9.MixGain, 0, dry[8], 0);
+        patchCord[pci++] = new AudioConnection(plugin_10.MixGain, 0, dry[9], 0);
+        patchCord[pci++] = new AudioConnection(plugin_11.MixGain, 0, dry[10], 0);
+        patchCord[pci++] = new AudioConnection(plugin_12.MixGain, 0, dry[11], 0);
 
         for (int i = 0; i < NUM_PLUGINS; i++)
         {
@@ -69,6 +70,9 @@ public:
         dry_mixer.gain(6, 1);
         dry_mixer.gain(7, 1);
         dry_mixer.gain(8, 1);
+        dry_mixer.gain(9, 1);
+        dry_mixer.gain(10, 1);
+        dry_mixer.gain(11, 1);
 
         endmixer.gain(0, 1);
         endmixer.gain(1, 1);

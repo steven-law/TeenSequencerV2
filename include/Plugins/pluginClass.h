@@ -1,5 +1,6 @@
 #ifndef PLUGIN_CLASS
 #define PLUGIN_CLASS
+
 #include <SD.h>
 #include <projectVariables.h>
 
@@ -18,17 +19,18 @@ extern const char *filterName[4];
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
-//void drawPot(int XPos, byte YPos, int dvalue, const char *dname);
+//void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 
 class PluginControll
 {
 public:
-    byte myID;
-    byte potentiometer[NUM_PLUGIN_PRESETS][16];
-    byte presetNr = 0;
+    uint8_t myID;
+    uint8_t potentiometer[NUM_PLUGIN_PRESETS][16];
+    uint8_t presetNr = 0;
+   // AudioAnalyzePeak dacOut;
 
     const char *name;
-    PluginControll(const char *Name, byte ID)
+    PluginControll(const char *Name, uint8_t ID)
     {
         name = Name;
         myID = ID;
@@ -40,19 +42,19 @@ public:
     }
     virtual ~PluginControll() = default;
     virtual const char *get_Name() { return name; }
-    virtual byte get_ID() { return myID; }
+    virtual uint8_t get_ID() { return myID; }
 
     virtual void setup() = 0;
-    virtual void noteOn(byte notePlayed, float velocity, byte voice) = 0;
-    virtual void noteOff(byte notePlayed, byte voice) = 0;
-    virtual void set_parameters(byte row) = 0;
+    virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) = 0;
+    virtual void noteOff(uint8_t notePlayed, uint8_t voice) = 0;
+    virtual void set_parameters(uint8_t row) = 0;
     virtual void draw_plugin() = 0;
     virtual void change_preset() = 0;
 
     virtual void set_presetNr();
-    virtual void save_plugin(byte _songNr);
-    virtual void load_plugin(byte _songNr);
-    virtual byte get_Potentiometer(byte XPos, byte YPos, const char *name);
+    virtual void save_plugin(uint8_t _songNr);
+    virtual void load_plugin(uint8_t _songNr);
+    virtual uint8_t get_Potentiometer(uint8_t XPos, uint8_t YPos, const char *name);
 };
 extern PluginControll *allPlugins[NUM_PLUGINS];
 

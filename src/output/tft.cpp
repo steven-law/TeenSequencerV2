@@ -118,7 +118,7 @@ void show_active_track()
     draw_value_box(4, 3, 0, 0, 2, active_track + 1, NO_NAME, ILI9341_WHITE, 1, false, false);
     draw_value_box(4, 1, 0, 0, 2, NO_VALUE, "Trk:", ILI9341_WHITE, 3, false, false);
 }
-void show_active_page_info(const char *_pagename, byte _pagenumber)
+void show_active_page_info(const char *_pagename, uint8_t _pagenumber)
 {
     draw_value_box(0, 3, 0, 8, 3, _pagenumber, NO_NAME, ILI9341_WHITE, 1, false, false);
     draw_value_box(0, 1, 0, 2, 3, NO_VALUE, _pagename, ILI9341_WHITE, 2, false, false);
@@ -144,7 +144,7 @@ void set_infobox_background(int _DisplayTime)
     infoboxTimeAtCall = millis();
     infoboxShow = true;
 }
-void set_infobox_next_line(byte _lineNumber)
+void set_infobox_next_line(uint8_t _lineNumber)
 {
     tft.setCursor(INFOBOX_TEXT_OFFSET, INFOBOX_TEXT_OFFSET + (20 * _lineNumber));
 }
@@ -249,7 +249,7 @@ void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
 
         tft.drawRect((cursorDeltaX * last_xPos) + 1, (cursorDeltaY * last_yPos) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_DARKGREY);
 
-        byte test = tft.readPixel(18,18); // save right line
+        uint8_t test = tft.readPixel(18,18); // save right line
         tft.drawRect((cursorDeltaX * pixelOnX) + 1, (cursorDeltaY * pixelOnY) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_WHITE);
         Serial.printf("read pixel = %d\n", test);
         last_xPos = pixelOnX;
@@ -257,7 +257,7 @@ void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
     }
     //
 }
-void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
+void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
 {
     // enc_moved[XPos] = false;
     // xposition, yposition, value 1-100, value to draw, name to draw, color
@@ -265,7 +265,7 @@ void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
     static float circlePos[4];
     static float circlePos_old[4];
     static const char *dname_old[4];
-    // byte fvalue = map(dvalue, 0, 127, min, max);
+    // uint8_t fvalue = map(dvalue, 0, 127, min, max);
     int xPos;
     int color;
     if (XPos == 0)
@@ -314,7 +314,7 @@ void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
     Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
     dname_old[XPos] = dname;
 }
-void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release)
+void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release)
 {
     // int yPos;
     int colorA = ILI9341_BLUE;
@@ -329,27 +329,27 @@ void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release
         colorS = ILI9341_LIGHTGREY;
         colorR = ILI9341_LIGHTGREY;
     }
-    byte ypos = ((YPos + 1) * 3);
+    uint8_t ypos = ((YPos + 1) * 3);
     int yPos = (ypos + 1) * STEP_FRAME_H;
-    byte envStart = 48;
-    byte envTop = yPos - 32;
+    uint8_t envStart = 48;
+    uint8_t envTop = yPos - 32;
 
-    static byte old_attackEnd;
-    static byte old_decayEnd;
-    static byte old_sustainLevel;
-    static byte old_sustainEnd;
-    static byte old_releaseEnd;
+    static uint8_t old_attackEnd;
+    static uint8_t old_decayEnd;
+    static uint8_t old_sustainLevel;
+    static uint8_t old_sustainEnd;
+    static uint8_t old_releaseEnd;
 
     tft.drawLine(envStart, yPos, old_attackEnd, envTop, ILI9341_DARKGREY);
     tft.drawLine(old_attackEnd, envTop, old_decayEnd + old_attackEnd, old_sustainLevel, ILI9341_DARKGREY);
     tft.drawLine(old_decayEnd + old_attackEnd, old_sustainLevel, old_decayEnd + old_attackEnd + old_sustainEnd, old_sustainLevel, ILI9341_DARKGREY);
     tft.drawLine(old_decayEnd + old_attackEnd + old_sustainEnd, old_sustainLevel, old_decayEnd + old_attackEnd + old_sustainEnd + old_releaseEnd, yPos, ILI9341_DARKGREY);
 
-    byte attackEnd = map(attack, 0, 127, 0, 50) + envStart;
-    byte decayEnd = map(decay, 0, 127, 0, 30);
-    byte sustainLevel = yPos - map(sustain, 0, 127, 0, 32);
-    byte sustainEnd = 30;
-    byte releaseEnd = map(release, 0, 127, 0, 50);
+    uint8_t attackEnd = map(attack, 0, 127, 0, 50) + envStart;
+    uint8_t decayEnd = map(decay, 0, 127, 0, 30);
+    uint8_t sustainLevel = yPos - map(sustain, 0, 127, 0, 32);
+    uint8_t sustainEnd = 30;
+    uint8_t releaseEnd = map(release, 0, 127, 0, 50);
 
     tft.drawLine(envStart, yPos, attackEnd, envTop, colorA);
     tft.drawLine(attackEnd, envTop, decayEnd + attackEnd, sustainLevel, colorD);
@@ -367,25 +367,25 @@ void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release
     old_sustainEnd = sustainEnd;
     old_releaseEnd = releaseEnd;
 }
-void draw_sequencer_arranger_parameter(byte _track, byte _encoder, const char *_name, int _value, const char *_valuedName)
+void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const char *_name, int _value, const char *_valuedName)
 {
     Serial.printf("drawing seq-Arr parameter %s\n", _name);
-    byte _ypos = _encoder * 2;
+    uint8_t _ypos = _encoder * 2;
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 5, 4, 4, NO_VALUE, _name, encoder_colour[_encoder], 2, false, false);
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, _value, NO_NAME, encoder_colour[_encoder], 2, true, false);
     if (_valuedName != "NO_NAME")
         draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, NO_VALUE, _valuedName, encoder_colour[_encoder], 2, true, false);
 }
-void draw_value_box(byte lastPRow, byte XPos, byte YPos, byte offest_X, int offset_Y, int _value, const char *name, int color, byte _size, bool drawRect, bool drawFilling)
+void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, uint8_t _size, bool drawRect, bool drawFilling)
 {
 
     int xPos = XPos * STEP_FRAME_W;
-    byte yPos = YPos * STEP_FRAME_H;
+    uint8_t yPos = YPos * STEP_FRAME_H;
 
     tft.setFont(Arial_8);
     // tft.setTextColor(ILI9341_DARKGREY);
     // tft.setCursor(xPos + offest_X, yPos + offset_Y);
-    tft.fillRect(xPos, yPos + offset_Y, _size * STEP_FRAME_W + offest_X, STEP_FRAME_H, ILI9341_DARKGREY);
+    tft.fillRect(xPos + offest_X, yPos + offset_Y, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
@@ -441,7 +441,7 @@ void gridSongMode(int songpageNumber)
 
     show_active_page_info("Song:", songpageNumber);
 }
-void draw_arrangment_lines(byte _track, byte _page) // b= active page
+void draw_arrangment_lines(uint8_t _track, uint8_t _page) // b= active page
 {
     for (int i = 0; i < 16; i++)
     {
@@ -449,7 +449,7 @@ void draw_arrangment_lines(byte _track, byte _page) // b= active page
         // Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b - SONGMODE_PAGE_1)));
     }
 }
-void draw_arranger_parameters(byte lastProw)
+void draw_arranger_parameters(uint8_t lastProw)
 {
     if (change_plugin_row)
     {
@@ -480,7 +480,7 @@ void draw_arranger_parameters(byte lastProw)
         }
     }
 }
-void draw_arrangment_line(byte _trackNr, byte _bar) // b= 0-255; which bar
+void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar) // b= 0-255; which bar
 {
 
     int minY = map(allTracks[_trackNr]->barVelocity[_bar], 0, 127, 0, 10);
@@ -513,7 +513,7 @@ void draw_arrangment_line(byte _trackNr, byte _bar) // b= 0-255; which bar
     trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), allTracks[_trackNr]->my_Arranger_Y_axis - 1, _trelliscolor);
     trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
 }
-void draw_offset_arranger(byte _trackNr, byte _bar)
+void draw_offset_arranger(uint8_t _trackNr, uint8_t _bar)
 {
     int xoffset;
     if (allTracks[_trackNr]->noteOffset[_bar] < 0)
@@ -526,7 +526,7 @@ void draw_offset_arranger(byte _trackNr, byte _bar)
     tft.setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + xoffset, (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + 11);
     tft.print(allTracks[_trackNr]->noteOffset[_bar]);
 }
-void draw_clipNr_arranger(byte _trackNr, byte _bar)
+void draw_clipNr_arranger(uint8_t _trackNr, uint8_t _bar)
 {
     // draw clipnumber in the arranger
     tft.setFont(Arial_8);
@@ -598,7 +598,7 @@ void draw_Clipselector()
         tft.print(ClipNr);
     }
 }
-void draw_stepSequencer_parameters(byte lastProw)
+void draw_stepSequencer_parameters(uint8_t lastProw)
 {
     if (change_plugin_row)
     {
@@ -618,12 +618,12 @@ void draw_stepSequencer_parameters(byte lastProw)
         if (lastProw == 1)
         {
             draw_sequencer_arranger_parameter(active_track, 0, "seqL", allTracks[active_track]->parameter[4], NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 1, "sDiv", allTracks[active_track]->parameter[5], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 1, "cDiv", allTracks[active_track]->parameter[5], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 2, "stpL", allTracks[active_track]->parameter[6], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 3, "Oct", allTracks[active_track]->parameter[7], NO_NAME);
 
             // draw_stepSequencer_parameter_value(1, ENCODER_SEQUENCE_LENGTH, 1, allTracks[active_track]->parameter[4], "seqL");
-            // draw_stepSequencer_parameter_value(1, ENCODER_STEP_DIVISION, 1, allTracks[active_track]->parameter[5], "sDiv");
+            // draw_stepSequencer_parameter_value(1, ENCODER_CLOCK_DIVISION, 1, allTracks[active_track]->parameter[5], "cDiv");
             // draw_stepSequencer_parameter_value(1, ENCODER_STEP_LENGTH, 1, allTracks[active_track]->parameter[6], "stpL");
             //  draw_stepSequencer_parameter_value(1, ENCODER_OCTAVE, 1, allTracks[active_track]->parameter[7], "Oct");
         }
@@ -640,15 +640,15 @@ void draw_stepSequencer_parameters(byte lastProw)
         }
     }
 }
-void draw_note_on_tick(byte _note, byte _when)
+void draw_note_on_tick(uint8_t _note, uint8_t _when)
 {
 
     int _color;
-    // byte Note = _note % NOTES_PER_OCTAVE;
+    // uint8_t Note = _note % NOTES_PER_OCTAVE;
 
     // Serial.printf("draw velocity: %d tick: %d for note: %d on voice: %d\n", velo, dr_X, note, i);
-    byte note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_note];
-    byte velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_note];
+    uint8_t note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_note];
+    uint8_t velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_note];
     if (note == NO_NOTE)
         _color = ILI9341_DARKGREY;
     else
@@ -676,12 +676,12 @@ void draw_notes_in_grid()
     }
 }
 
-void draw_edit_presetNr_ccValue(byte n, byte lastProw)
+void draw_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw)
 {
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 5, 0, 4, NO_VALUE, "vl-Set", encoder_colour[active_track], 2, false, false);
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 6, 4, 4, allTracks[active_track]->edit_presetNr_ccValue, NO_NAME, encoder_colour[active_track], 2, true, false);
 }
-void draw_edit_presetNr_ccChannel(byte n, byte lastProw)
+void draw_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw)
 {
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 5, 0, 4, NO_VALUE, "cc-Set", encoder_colour[active_track], 2, false, false);
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 6, 4, 4, allTracks[active_track]->edit_presetNr_ccChannel, NO_NAME, encoder_colour[active_track], 2, true, false);
@@ -717,7 +717,7 @@ void draw_MIDI_CC_screen()
         draw_edit_presetNr_ccValue(3, 0);
     }
 }
-void draw_MIDI_CC(byte XPos, byte YPos)
+void draw_MIDI_CC(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
     drawPot(XPos, YPos, allTracks[active_track]->CCvalue[allTracks[active_track]->edit_presetNr_ccValue][n], CCnames[allTracks[active_track]->CCchannel[allTracks[active_track]->edit_presetNr_ccChannel][n]]);

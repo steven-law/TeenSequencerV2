@@ -7,15 +7,15 @@
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
-//void drawPot(int XPos, byte YPos, int dvalue, const char *dname);
+//void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 // plugins
 float *note_frequency;
 int tuning = 440;
 const char *filterName[4]{"LPF", "BPF", "HPF", "LPF2"};
 void PluginControll::setup() {}
-void PluginControll::noteOn(byte notePlayed, float velocity, byte voice) {}
-void PluginControll::noteOff(byte notePlayed, byte voice) {}
-void PluginControll::set_parameters(byte row) {}
+void PluginControll::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
+void PluginControll::noteOff(uint8_t notePlayed, uint8_t voice) {}
+void PluginControll::set_parameters(uint8_t row) {}
 void PluginControll::draw_plugin() {}
 void PluginControll::change_preset() {}
 
@@ -28,7 +28,7 @@ void PluginControll::set_presetNr()
         draw_plugin();
     }
 }
-byte PluginControll::get_Potentiometer(byte XPos, byte YPos, const char *name)
+uint8_t PluginControll::get_Potentiometer(uint8_t XPos, uint8_t YPos, const char *name)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
     potentiometer[presetNr][n] = constrain(potentiometer[presetNr][n] + encoded[XPos], 0, MIDI_CC_RANGE);
@@ -37,7 +37,7 @@ byte PluginControll::get_Potentiometer(byte XPos, byte YPos, const char *name)
     return potentiometer[presetNr][n];
 }
 
-void PluginControll::save_plugin(byte _songNr)
+void PluginControll::save_plugin(uint8_t _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
@@ -84,7 +84,7 @@ void PluginControll::save_plugin(byte _songNr)
     }
     Serial.println("plugin saving Done:");
 }
-void PluginControll::load_plugin(byte _songNr)
+void PluginControll::load_plugin(uint8_t _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");

@@ -1,12 +1,12 @@
 #include <ownLibs/myClock.h>
 
 // ILI9341_t3n *MyClock::tft = nullptr; // Hier wird der Display-Pointer auf `nullptr` gesetzt, muss aber im Code richtig initialisiert werden
-byte MyClock::tempo = 120;
-byte MyClock::startOfLoop = 0;
-byte MyClock::endOfLoop = 4;
+uint8_t MyClock::tempo = 120;
+uint8_t MyClock::startOfLoop = 0;
+uint8_t MyClock::endOfLoop = 4;
 bool MyClock::isPlaying = false;
-byte MyClock::stepTick = -1;
-byte MyClock::barTick = -1;
+uint8_t MyClock::stepTick = -1;
+uint8_t MyClock::barTick = -1;
 MyClock *MyClock::instance = nullptr;
 
 MyClock::MyClock(int index)
@@ -30,7 +30,7 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
     // Send MIDI_CLOCK to external gears
     // Serial.write(MIDI_CLOCK);
     tick = tick % MAX_TICKS;
-    
+
     // Serial.printf("tick: %d\n", tick);
 
     sendClock();
@@ -66,14 +66,14 @@ void MyClock::onClockStop() // The callback function wich will be called when cl
     // Serial.write(MIDI_STOP);
 }
 
-void MyClock::set_tempo(byte _encoder)
+void MyClock::set_tempo(uint8_t _encoder)
 {
-    static byte tempo;
+    static uint8_t tempo;
     if (enc_moved[_encoder])
     {
         tempo = constrain(tempo + encoded[_encoder], 50, 255);
         uClock.setTempo(tempo);
-        draw_clock_option(POSITION_BPM_BUTTON, tempo);
+        draw_value_box(3, POSITION_BPM_BUTTON, 0, 4, 4, tempo, NO_NAME, ILI9341_WHITE, 2, true, false);
     }
 }
 void MyClock::set_start()
@@ -87,7 +87,7 @@ void MyClock::set_stop()
     barTick = -1;
     isPlaying = false;
 }
-void MyClock::draw_clock_option(byte x, byte v)
+void MyClock::draw_clock_option(uint8_t x, uint8_t v)
 {
     /*tft->setCursor(STEP_FRAME_W * x + 2, 3);
     tft.setFont(Arial_10);
@@ -98,31 +98,30 @@ void MyClock::draw_clock_option(byte x, byte v)
     tft.updateScreenAsync();*/
 }
 
-void MyClock::set_start_of_loop(byte n)
+void MyClock::set_start_of_loop(uint8_t n)
 {
     if (enc_moved[n])
     {
         startOfLoop = constrain(startOfLoop + encoded[n], 0, 254);
+        draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 
-        draw_clock_option(POSITION_START_LOOP_BUTTON, startOfLoop);
-
-       // enc_moved[n] = false;
+        // enc_moved[n] = false;
     }
 }
 
-void MyClock::set_end_of_loop(byte n)
+void MyClock::set_end_of_loop(uint8_t n)
 {
     if (enc_moved[n])
     {
         endOfLoop = constrain(endOfLoop + encoded[n], 2, 255);
 
-        draw_clock_option(POSITION_END_LOOP_BUTTON, endOfLoop);
+        draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 
-       // enc_moved[n] = false;
+        // enc_moved[n] = false;
     }
 }
 
-void MyClock::save_clock(byte _songNr)
+void MyClock::save_clock(uint8_t _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
@@ -147,9 +146,9 @@ void MyClock::save_clock(byte _songNr)
         // save tracks
         // Serial.println("Writing track:");
         // Serial.println("settings & seqmodes saved:");
-        byte _tempo = tempo / 2;
-        byte _startOfLoop = startOfLoop / 2;
-        byte _endOfLoop = endOfLoop / 2;
+        uint8_t _tempo = tempo / 2;
+        uint8_t _startOfLoop = startOfLoop / 2;
+        uint8_t _endOfLoop = endOfLoop / 2;
         myFile.print((char)_tempo);
         myFile.print((char)_startOfLoop);
         myFile.print((char)_endOfLoop);
@@ -166,11 +165,11 @@ void MyClock::save_clock(byte _songNr)
     Serial.println("clock saving Done:");
     // startUpScreen();
 }
-void MyClock::load_clock(byte _songNr)
+void MyClock::load_clock(uint8_t _songNr)
 {
-    byte _tempo;
-    byte _startOfLoop;
-    byte _endOfLoop;
+    uint8_t _tempo;
+    uint8_t _startOfLoop;
+    uint8_t _endOfLoop;
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
     sprintf(_trackname, "%dclock.txt\0", _songNr);

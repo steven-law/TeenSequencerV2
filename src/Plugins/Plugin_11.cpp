@@ -17,19 +17,19 @@ void Plugin_11::setup()
 {  
     NoteGain.gain(0);
     MixGain.gain(1);
-    SongVol.gain(1);
+    //SongVol.gain(1);
 }
-void Plugin_11::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_11::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
     
 {
 NoteGain.gain(1);
 }
-void Plugin_11::noteOff(byte notePlayed, byte voice)
+void Plugin_11::noteOff(uint8_t notePlayed, uint8_t voice)
 {
     NoteGain.gain(0);
 
 }
-void Plugin_11::set_parameters(byte row)
+void Plugin_11::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -72,7 +72,7 @@ void Plugin_11::draw_plugin()
 
 
 
-void Plugin_11::set_voice_amplitude(byte XPos, byte YPos, const char *name)
+void Plugin_11::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {

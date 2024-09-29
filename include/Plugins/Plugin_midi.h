@@ -9,15 +9,15 @@ extern bool change_plugin_row;
 class Plugin_Midi
 {
 public:
-    void noteOn(byte note, byte velocity, byte channel)
+    void noteOn(uint8_t note, uint8_t velocity, uint8_t channel)
     {
         usbMIDI.sendNoteOn(note, 127, channel); // Send a Note (pitch 42, velo 127 on channel 1)
     }
-    void noteOff(byte note, byte velocity, byte channel)
+    void noteOff(uint8_t note, uint8_t velocity, uint8_t channel)
     {
         usbMIDI.sendNoteOff(note, 0, channel); // Send a Note (pitch 42, velo 127 on channel 1)
     }
-    void set_parameters(byte row)
+    void set_parameters(uint8_t row)
     {
         draw_plugin();
         if (row == 0)

@@ -1,5 +1,5 @@
-#ifndef PLUGIN_2_H
-#define PLUGIN_2_H
+#ifndef PLUGIN_12_H
+#define PLUGIN_12_H
 
 #include <Arduino.h>
 #include <Audio.h>
@@ -10,6 +10,7 @@
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
 #include "ownLibs/filter_ladderlite.h"
+#include "TeensyVariablePlayback.h"
 ////#include "hardware/tftClass.h"
 //class tftClass;
 // TeensyDAW: begin automatically generated code
@@ -44,11 +45,13 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-class Plugin_2 : public PluginControll
+
+class Plugin_12 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
-    AudioSynthWaveform waveform;
+   // AudioSynthWaveform waveform;
+    AudioPlaySdResmp waveform;
     AudioEffectEnvelope Fenv;
     AudioFilterStateVariable filter;
     AudioMixer4 fMixer;
@@ -57,9 +60,9 @@ public:
     AudioAmplifier MixGain;
     //AudioAmplifier SongVol;
     AudioConnection *patchCord[9]; // total patchCordCount:98 including array typed ones.
-
+ char* _filename = "C0.RAW";
     // constructor (this is called when class-object is created)
-    Plugin_2(const char *Name, uint8_t ID) : PluginControll(Name, ID)
+    Plugin_12(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
 
         int pci = 0; // used only for adding new patchcords
@@ -78,7 +81,7 @@ public:
             patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
         
     }
-    virtual ~Plugin_2() = default;
+    virtual ~Plugin_12() = default;
 
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
@@ -88,6 +91,8 @@ public:
     virtual void draw_plugin() override;
 virtual void change_preset() override;
 
+
+    void set_voice_bank(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
     void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
     void set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
 
@@ -103,6 +108,7 @@ virtual void change_preset() override;
     void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
     void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name,  int max);
 
+   void  assign_voice_bank(uint8_t value);
     void assign_voice_waveform(uint8_t value); // make virtual in baseclass but override
     void assign_voice_amplitude(uint8_t value);
     
@@ -117,4 +123,4 @@ virtual void change_preset() override;
 };
 
 #endif // PLUGIN_2_H
-extern Plugin_2 plugin_2;
+extern Plugin_12 plugin_12;

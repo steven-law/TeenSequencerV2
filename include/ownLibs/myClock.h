@@ -10,6 +10,7 @@
 #include "uClock.h"
 #include "input/encoder.h"
 #include <projectVariables.h>
+#include "output/tft.h"
 
 //extern tftClass *mytft;
 void sendClock();
@@ -21,11 +22,11 @@ class MyClock
 public:
   //static ILI9341_t3n *tft; // Pointer to the display object
   static MyClock *instance;
-  static byte tempo;
-  static byte startOfLoop;
-  static byte endOfLoop;
-  static byte stepTick;
-  static byte barTick;
+  static uint8_t tempo;
+  static uint8_t startOfLoop;
+  static uint8_t endOfLoop;
+  static uint8_t stepTick;
+  static uint8_t barTick;
   static bool isPlaying;
   MyClock(int index);
   void setup();
@@ -36,17 +37,17 @@ public:
   static void onClockStop();
   static void onClockStart();
 
-  void set_tempo(byte _encoder);
+  void set_tempo(uint8_t _encoder);
   void set_start();
   void set_stop();
 
-  void draw_clock_option(byte x, byte v);
+  void draw_clock_option(uint8_t x, uint8_t v);
 
 
-  void set_start_of_loop(byte n);
-  void set_end_of_loop(byte n);
-  void save_clock(byte _songNr);
-  void load_clock(byte _songNr);
+  void set_start_of_loop(uint8_t n);
+  void set_end_of_loop(uint8_t n);
+  void save_clock(uint8_t _songNr);
+  void load_clock(uint8_t _songNr);
 };
 extern MyClock myClock;
 #endif // MY_CLOCK

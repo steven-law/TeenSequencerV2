@@ -60,11 +60,11 @@ public:
     AudioSynthSimpleDrum tomH;
     AudioMixer12 mixer;
     AudioAmplifier MixGain;
-    AudioAmplifier SongVol;
-    AudioConnection *patchCord[12]; // total patchCordCount:12 including array typed ones.
+    //AudioAmplifier SongVol;
+    AudioConnection *patchCord[11]; // total patchCordCount:12 including array typed ones.
 
     // constructor (this is called when class-object is created)
-    Plugin_5(const char *Name, byte ID) : PluginControll(Name, ID)
+    Plugin_5(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
@@ -72,49 +72,52 @@ public:
         patchCord[pci++] = new AudioConnection(pink, 0, filter, 0);
         patchCord[pci++] = new AudioConnection(hhFilterEnv, 0, filter, 1);
         patchCord[pci++] = new AudioConnection(filter, 2, hhEnv, 0);
+
         patchCord[pci++] = new AudioConnection(fm_drum, 0, mixer, 0);
         patchCord[pci++] = new AudioConnection(fm_snare, 0, mixer, 1);
         patchCord[pci++] = new AudioConnection(hhEnv, 0, mixer, 2);
         patchCord[pci++] = new AudioConnection(tomL, 0, mixer, 3);
+
         patchCord[pci++] = new AudioConnection(tomM, 0, mixer, 4);
         patchCord[pci++] = new AudioConnection(tomH, 0, mixer, 5);
         patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        //patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+       // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }
     virtual ~Plugin_5() = default;
 
     virtual void setup() override;
-    virtual void noteOn(byte notePlayed, float velocity, byte voice) override;
-    virtual void noteOff(byte notePlayed, byte voice) override;
-    virtual void set_parameters(byte row) override;
+    virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
+    virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
+    virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
 virtual void change_preset() override;
 
-    void set_fmsnare_frequency(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_fmsnare_pitchMod(byte XPos, byte YPos, const char *name);
-    void set_fmsnare_decay(byte XPos, byte YPos, const char *name);
-    void set_fmsnare_noise(byte XPos, byte YPos, const char *name);
-    void set_fmsnare_overdrive(byte XPos, byte YPos, const char *name);
+    void set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_fmsnare_pitchMod(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_fmsnare_decay(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_fmsnare_noise(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_fmsnare_overdrive(uint8_t XPos, uint8_t YPos, const char *name);
 
-    void set_fmdrum_frequency(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_fmdrum_pitchMod(byte XPos, byte YPos, const char *name);
-    void set_fmdrum_decay(byte XPos, byte YPos, const char *name);
-    void set_fmdrum_noise(byte XPos, byte YPos, const char *name);
-    void set_fmdrum_overdrive(byte XPos, byte YPos, const char *name);
+    void set_fmdrum_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_fmdrum_decay(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_fmdrum_noise(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_fmdrum_overdrive(uint8_t XPos, uint8_t YPos, const char *name);
 
-    void set_hhfilter_frequency(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_hhfilter_resonance(byte XPos, byte YPos, const char *name, float min, float max);
-    void set_hhfilter_sweep(byte XPos, byte YPos, const char *name, float min, float max);
+    void set_hhfilter_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_hhfilter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
+    void set_hhfilter_sweep(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
 
-    void set_hhEnv_attack(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_hhEnv_decay(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_hhEnv_sustain(byte XPos, byte YPos, const char *name);
-    void set_hhEnv_release(byte XPos, byte YPos, const char *name, int min, int max);
+    void set_hhEnv_attack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_hhEnv_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_hhEnv_sustain(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_hhEnv_release(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
 
-    void set_tomL_frequency(byte XPos, byte YPos, const char *name);
-    void set_tomM_frequency(byte XPos, byte YPos, const char *name);
-    void set_tomH_frequency(byte XPos, byte YPos, const char *name);
-    void set_toms_decay(byte XPos, byte YPos, const char *name, int min, int max);
+    void set_tomL_frequency(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_tomM_frequency(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_tomH_frequency(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_toms_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
 };
 #endif // PLUGIN_5_H
 

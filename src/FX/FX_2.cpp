@@ -17,9 +17,9 @@ void FX_2::setup()
     FX_mixer.gain(3, 1);
     FX_mixer.gain(4, 1);
 }
-void FX_2::noteOn(byte notePlayed, float velocity, byte voice) {}
-void FX_2::noteOff(byte notePlayed, byte voice) {}
-void FX_2::set_parameters(byte row)
+void FX_2::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
+void FX_2::noteOff(uint8_t notePlayed, uint8_t voice) {}
+void FX_2::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (row == 0)
@@ -38,14 +38,14 @@ void FX_2::draw_plugin()
     }
 }
 
-void FX_2::set_BC_bits(byte XPos, byte YPos, const char *name)
+void FX_2::set_BC_bits(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         bitcrusher.bits(map(get_Potentiometer(XPos,YPos,name), 0, 127, 1, 16));
     }
 }
-void FX_2::set_BC_smplRate(byte XPos, byte YPos, const char *name)
+void FX_2::set_BC_smplRate(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {

@@ -71,7 +71,7 @@ void trellis_perform();
 
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 
-extern byte trellisPianoTrack;
+extern uint8_t trellisPianoTrack;
 extern int trellisTrackColor[9];
 extern int trellisControllBuffer[X_DIM][Y_DIM];
 
@@ -84,7 +84,7 @@ extern const long trellisRestartInterval;          // interval at which to blink
 extern unsigned long trellisRestartPreviousMillis; // will store last time LED was updated
 extern unsigned long trellisReadPreviousMillis;    // will store last time LED was updated
 extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
-extern const byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+extern const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 
 
@@ -101,13 +101,13 @@ void neotrellis_start_clock();
 void neotrellis_stop_clock();
 
 // 2nd row
-void neotrellis_SetCursor(byte maxY);
+void neotrellis_SetCursor(uint8_t maxY);
 // 3rd row
 void trellis_show_arranger();
 void neotrellis_perform_set_active();
-void set_performCC(byte XPos, byte YPos, const char *name);
+void set_performCC(uint8_t XPos, uint8_t YPos, const char *name);
 
-void set_perform_page(byte row);
+void set_perform_page(uint8_t row);
 
 void neotrellis_show_tft_seqMode();
 void neotrellis_show_tft_plugin();
@@ -129,10 +129,10 @@ void trellis_update();
 void trellis_writeDisplay();
 
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
-void trellis_assign_start_buffer(byte _lastPotRow);
+void trellis_assign_start_buffer(uint8_t _lastPotRow);
 void trellis_clear_main_buffer(int _page);
 int trellis_get_main_buffer(int _page, int _x, int _y);
 void trellis_recall_main_buffer(int _page);
 
-void trellis_show_clockbar(byte trackNr, byte step);
+void trellis_show_clockbar(uint8_t trackNr, uint8_t step);
 #endif

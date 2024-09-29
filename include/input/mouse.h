@@ -11,7 +11,7 @@ extern USBHost myusb;
 extern USBHIDParser hid1;
 // USBHIDParser hid2(myusb);
 extern MouseController mouse1;
-void mouse(byte deltaX, byte maxY);
+void mouse(uint8_t deltaX, uint8_t maxY);
 void detect_mouse();
 
 #endif

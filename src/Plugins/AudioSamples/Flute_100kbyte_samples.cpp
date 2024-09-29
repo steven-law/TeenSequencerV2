@@ -1,6 +1,6 @@
 #include "Plugins/AudioSamples/AudioSamples.h"
 
-static const uint32_t sample_0_Flute_100kbyte_FluteD4[7936] PROGMEM = {
+static const uint32_t sample_0_Flute_100kuint8_t_FluteD4[7936] PROGMEM = {
 0xfbfffc4b,0xfba4fbac,0xfbbffbb2,0xfc00fbdc,0xfc3afc16,0xfcb8fc57,0xfcf9fcf3,0xfc87fcad,
 0xfcabfc77,0xfd8cfd0c,0xfe7dfe0c,0xff24fee0,0xffc4ff61,0x006a002d,0x002d004c,0xffe90000,
 0x002effe9,0x00f60099,0x014b0134,0x0192014c,0x01f001d8,0x01ab01d9,0x011f0165,0x00e900e9,
@@ -989,7 +989,7 @@ static const uint32_t sample_0_Flute_100kbyte_FluteD4[7936] PROGMEM = {
 };
 
 PROGMEM
-static const uint32_t sample_1_Flute_100kbyte_FluteE5[9472] = {
+static const uint32_t sample_1_Flute_100kuint8_t_FluteE5[9472] = {
 0x03f00410,0x03f003c0,0x04500410,0x04500460,0x04200410,0x03800400,0x02f00320,0x01900230,
 0x005000c0,0xff30ffb0,0xff70ff40,0xfe10fe90,0xfd70fde0,0xfc70fcc0,0xfc30fc00,0xfc40fca0,
 0xfba0fbb0,0xfca0fc00,0xfd90fd10,0xff30fe40,0xff60ff60,0xffc0ff70,0x00e00010,0x01f00160,
@@ -2171,7 +2171,7 @@ static const uint32_t sample_1_Flute_100kbyte_FluteE5[9472] = {
 };
 
 PROGMEM
-static const uint32_t sample_2_Flute_100kbyte_FluteE6[7936] = {
+static const uint32_t sample_2_Flute_100kuint8_t_FluteE6[7936] = {
 0x01b003e0,0x02e00250,0x01300150,0x003000f0,0x01400180,0xffc0fed0,0xff600100,0x0080ffc0,
 0xffd0feb0,0xff500130,0x0070feb0,0xfed00060,0x00d0ffc0,0xff10ff50,0xff500030,0x0080ff60,
 0xffb00020,0x00600000,0xff30ffb0,0x007000c0,0x0030ffa0,0xfe90ff80,0x0070ffe0,0x0080ffc0,
@@ -3159,9 +3159,9 @@ static const uint32_t sample_2_Flute_100kbyte_FluteE6[7936] = {
 0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,
 };
 PROGMEM
-static const AudioSynthWavetable::sample_data Flute_100kbyte_samples[3] = {
+static const AudioSynthWavetable::sample_data Flute_100kuint8_t_samples[3] = {
 	{
-		(int16_t*)sample_0_Flute_100kbyte_FluteD4, // sample
+		(int16_t*)sample_0_Flute_100kuint8_t_FluteD4, // sample
 		true, // LOOP
 		14, // LENGTH_BITS
 		(1 << (32 - 14)) * WAVETABLE_CENTS_SHIFT(0) * 37248.0 / WAVETABLE_NOTE_TO_FREQUENCY(63) / AUDIO_SAMPLE_RATE_EXACT + 0.5, // PER_HERTZ_PHASE_INCREMENT
@@ -3187,7 +3187,7 @@ static const AudioSynthWavetable::sample_data Flute_100kbyte_samples[3] = {
 		int32_t(UINT16_MAX * (1.0 - WAVETABLE_DECIBEL_SHIFT(0))) * 4, // MODULATION_AMPLITUDE_FINAL_GAIN
 	},
 	{
-		(int16_t*)sample_1_Flute_100kbyte_FluteE5, // sample
+		(int16_t*)sample_1_Flute_100kuint8_t_FluteE5, // sample
 		true, // LOOP
 		15, // LENGTH_BITS
 		(1 << (32 - 15)) * WAVETABLE_CENTS_SHIFT(0) * 33622.0 / WAVETABLE_NOTE_TO_FREQUENCY(76) / AUDIO_SAMPLE_RATE_EXACT + 0.5, // PER_HERTZ_PHASE_INCREMENT
@@ -3213,7 +3213,7 @@ static const AudioSynthWavetable::sample_data Flute_100kbyte_samples[3] = {
 		int32_t(UINT16_MAX * (1.0 - WAVETABLE_DECIBEL_SHIFT(0))) * 4, // MODULATION_AMPLITUDE_FINAL_GAIN
 	},
 	{
-		(int16_t*)sample_2_Flute_100kbyte_FluteE6, // sample
+		(int16_t*)sample_2_Flute_100kuint8_t_FluteE6, // sample
 		true, // LOOP
 		14, // LENGTH_BITS
 		(1 << (32 - 14)) * WAVETABLE_CENTS_SHIFT(0) * 35601.0 / WAVETABLE_NOTE_TO_FREQUENCY(88) / AUDIO_SAMPLE_RATE_EXACT + 0.5, // PER_HERTZ_PHASE_INCREMENT
@@ -3240,6 +3240,6 @@ static const AudioSynthWavetable::sample_data Flute_100kbyte_samples[3] = {
 	},
 };
 PROGMEM
-static const uint8_t Flute_100kbyte_ranges[] = {68, 83, 127, };
+static const uint8_t Flute_100kuint8_t_ranges[] = {68, 83, 127, };
 PROGMEM
-const AudioSynthWavetable::instrument_data Flute_100kbyte = {3, Flute_100kbyte_ranges, Flute_100kbyte_samples };
+const AudioSynthWavetable::instrument_data Flute_100kuint8_t = {3, Flute_100kuint8_t_ranges, Flute_100kuint8_t_samples };

@@ -30,13 +30,13 @@ void dac_setup(int dly)
   }
   Serial.println("DAC´s started");
 }
-void sendNoteOn_CV_Gate(byte _track, byte _note)
+void sendNoteOn_CV_Gate(uint8_t _track, uint8_t _note)
 {
   if (_note < 64)
   {
     if (_track == 0)
     {
-      // byte _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
+      // uint8_t _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
       mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * _note);
       digitalWrite(gateOutputPin[0], true);
       Serial.printf("cv Note On: %d\n", _note);
@@ -81,9 +81,11 @@ void sendNoteOn_CV_Gate(byte _track, byte _note)
     }
   }
 }
-void sendNoteOff_CV_Gate(byte _track, byte _note)
+void sendNoteOff_CV_Gate(uint8_t _track, uint8_t _note)
 {
 
   digitalWrite(gateOutputPin[_track], false);
   Serial.println("cv Note Off");
 }
+
+

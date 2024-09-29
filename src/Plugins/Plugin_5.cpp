@@ -33,7 +33,7 @@ void Plugin_5::setup()
     hhEnv.release(200);
 
     MixGain.gain(1);
-    SongVol.gain(1);
+    //SongVol.gain(1);
     tomL.secondMix(0);
     tomL.pitchMod(0.7);
     tomM.secondMix(0);
@@ -41,7 +41,7 @@ void Plugin_5::setup()
     tomH.secondMix(0);
     tomH.pitchMod(0.7);
 }
-void Plugin_5::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_5::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     if (voice == 0)
         fm_drum.noteOn();
@@ -59,7 +59,7 @@ void Plugin_5::noteOn(byte notePlayed, float velocity, byte voice)
     if (voice == 5)
         tomH.noteOn();
 }
-void Plugin_5::noteOff(byte notePlayed, byte voice)
+void Plugin_5::noteOff(uint8_t notePlayed, uint8_t voice)
 {
     if (notePlayed == 50)
     {
@@ -68,7 +68,7 @@ void Plugin_5::noteOff(byte notePlayed, byte voice)
     }
 }
 
-void Plugin_5::set_parameters(byte row)
+void Plugin_5::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -143,7 +143,7 @@ void Plugin_5::draw_plugin()
     }
 }
 void Plugin_5::change_preset(){}
-void Plugin_5::set_fmsnare_frequency(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_5::set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -151,7 +151,7 @@ void Plugin_5::set_fmsnare_frequency(byte XPos, byte YPos, const char *name, int
         fm_snare.frequency(freq);
     }
 }
-void Plugin_5::set_fmsnare_pitchMod(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmsnare_pitchMod(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -159,7 +159,7 @@ void Plugin_5::set_fmsnare_pitchMod(byte XPos, byte YPos, const char *name)
         fm_snare.fm(sustain);
     }
 }
-void Plugin_5::set_fmsnare_decay(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmsnare_decay(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -167,7 +167,7 @@ void Plugin_5::set_fmsnare_decay(byte XPos, byte YPos, const char *name)
         fm_snare.decay(sustain);
     }
 }
-void Plugin_5::set_fmsnare_noise(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmsnare_noise(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -176,7 +176,7 @@ void Plugin_5::set_fmsnare_noise(byte XPos, byte YPos, const char *name)
         fm_snare.overdrive(sustain);
     }
 }
-void Plugin_5::set_fmsnare_overdrive(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmsnare_overdrive(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -185,7 +185,7 @@ void Plugin_5::set_fmsnare_overdrive(byte XPos, byte YPos, const char *name)
     }
 }
 
-void Plugin_5::set_fmdrum_frequency(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_5::set_fmdrum_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -196,7 +196,7 @@ void Plugin_5::set_fmdrum_frequency(byte XPos, byte YPos, const char *name, int 
         fm_drum.frequency(freq);
     }
 }
-void Plugin_5::set_fmdrum_pitchMod(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -204,7 +204,7 @@ void Plugin_5::set_fmdrum_pitchMod(byte XPos, byte YPos, const char *name)
         fm_drum.fm(sustain);
     }
 }
-void Plugin_5::set_fmdrum_decay(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmdrum_decay(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -212,7 +212,7 @@ void Plugin_5::set_fmdrum_decay(byte XPos, byte YPos, const char *name)
         fm_drum.decay(sustain);
     }
 }
-void Plugin_5::set_fmdrum_noise(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmdrum_noise(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -220,7 +220,7 @@ void Plugin_5::set_fmdrum_noise(byte XPos, byte YPos, const char *name)
         fm_drum.noise(sustain);
     }
 }
-void Plugin_5::set_fmdrum_overdrive(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_fmdrum_overdrive(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -229,7 +229,7 @@ void Plugin_5::set_fmdrum_overdrive(byte XPos, byte YPos, const char *name)
     }
 }
 
-void Plugin_5::set_hhfilter_frequency(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_5::set_hhfilter_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -237,7 +237,7 @@ void Plugin_5::set_hhfilter_frequency(byte XPos, byte YPos, const char *name, in
         filter.frequency(frequency);
     }
 }
-void Plugin_5::set_hhfilter_resonance(byte XPos, byte YPos, const char *name, float min, float max)
+void Plugin_5::set_hhfilter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max)
 {
     if (enc_moved[XPos])
     {
@@ -248,7 +248,7 @@ void Plugin_5::set_hhfilter_resonance(byte XPos, byte YPos, const char *name, fl
         }
     }
 }
-void Plugin_5::set_hhfilter_sweep(byte XPos, byte YPos, const char *name, float min, float max)
+void Plugin_5::set_hhfilter_sweep(uint8_t XPos, uint8_t YPos, const char *name, float min, float max)
 {
     if (enc_moved[XPos])
     {
@@ -260,7 +260,7 @@ void Plugin_5::set_hhfilter_sweep(byte XPos, byte YPos, const char *name, float 
     }
 }
 
-void Plugin_5::set_hhEnv_attack(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_5::set_hhEnv_attack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -268,7 +268,7 @@ void Plugin_5::set_hhEnv_attack(byte XPos, byte YPos, const char *name, int min,
         hhEnv.attack(attack);
     }
 }
-void Plugin_5::set_hhEnv_decay(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_5::set_hhEnv_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -277,7 +277,7 @@ void Plugin_5::set_hhEnv_decay(byte XPos, byte YPos, const char *name, int min, 
         hhFilterEnv.decay(decay);
     }
 }
-void Plugin_5::set_hhEnv_sustain(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_hhEnv_sustain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -286,7 +286,7 @@ void Plugin_5::set_hhEnv_sustain(byte XPos, byte YPos, const char *name)
         hhFilterEnv.sustain(sustain);
     }
 }
-void Plugin_5::set_hhEnv_release(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_5::set_hhEnv_release(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -298,7 +298,7 @@ void Plugin_5::set_hhEnv_release(byte XPos, byte YPos, const char *name, int min
     }
 }
 
-void Plugin_5::set_tomL_frequency(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_tomL_frequency(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -306,7 +306,7 @@ void Plugin_5::set_tomL_frequency(byte XPos, byte YPos, const char *name)
         tomL.frequency(freq);
     }
 }
-void Plugin_5::set_tomM_frequency(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_tomM_frequency(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -314,7 +314,7 @@ void Plugin_5::set_tomM_frequency(byte XPos, byte YPos, const char *name)
         tomM.frequency(freq);
     }
 }
-void Plugin_5::set_tomH_frequency(byte XPos, byte YPos, const char *name)
+void Plugin_5::set_tomH_frequency(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -322,7 +322,7 @@ void Plugin_5::set_tomH_frequency(byte XPos, byte YPos, const char *name)
         tomH.frequency(freq);
     }
 }
-void Plugin_5::set_toms_decay(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_5::set_toms_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {

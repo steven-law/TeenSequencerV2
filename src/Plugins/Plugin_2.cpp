@@ -55,21 +55,21 @@ void Plugin_2::setup()
     // mixer.gain(0, 1);
 
     MixGain.gain(1);
-    SongVol.gain(1);
+    //SongVol.gain(1);
 }
-void Plugin_2::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_2::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
     waveform.frequency(frequency);
     Fenv.noteOn();
     Aenv.noteOn();
 }
-void Plugin_2::noteOff(byte notePlayed, byte voice)
+void Plugin_2::noteOff(uint8_t notePlayed, uint8_t voice)
 {
     Fenv.noteOff();
     Aenv.noteOff();
 }
-void Plugin_2::set_parameters(byte row)
+void Plugin_2::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -148,42 +148,42 @@ void Plugin_2::change_preset()
     assign_envelope_release(potentiometer[presetNr][15], 2000);
 }
 
-void Plugin_2::set_voice_waveform(byte XPos, byte YPos, const char *name)
+void Plugin_2::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_voice_waveform(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_voice_waveform(byte value)
+void Plugin_2::assign_voice_waveform(uint8_t value)
 {
-    byte walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
+    uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
 
     waveform.begin(walveform);
 }
 
-void Plugin_2::set_voice_amplitude(byte XPos, byte YPos, const char *name)
+void Plugin_2::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_voice_amplitude(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_voice_amplitude(byte value)
+void Plugin_2::assign_voice_amplitude(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
 
     waveform.amplitude(ampl);
 }
 
-void Plugin_2::set_filter_frequency(byte XPos, byte YPos, const char *name)
+void Plugin_2::set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_filter_frequency(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_filter_frequency(byte value)
+void Plugin_2::assign_filter_frequency(uint8_t value)
 {
 
     int frequency = note_frequency[value] * tuning;
@@ -192,14 +192,14 @@ void Plugin_2::assign_filter_frequency(byte value)
     // ladder[i].frequency(frequency);
 }
 
-void Plugin_2::set_filter_resonance(byte XPos, byte YPos, const char *name, float min, float max)
+void Plugin_2::set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max)
 {
     if (enc_moved[XPos])
     {
         assign_filter_resonance(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_filter_resonance(byte value)
+void Plugin_2::assign_filter_resonance(uint8_t value)
 {
 
     float reso = value / 25.40;
@@ -207,28 +207,28 @@ void Plugin_2::assign_filter_resonance(byte value)
     filter.resonance(reso);
     // ladder[i].resonance(reso);
 }
-void Plugin_2::set_filter_sweep(byte XPos, byte YPos, const char *name)
+void Plugin_2::set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_filter_sweep(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_filter_sweep(byte value)
+void Plugin_2::assign_filter_sweep(uint8_t value)
 {
     float swp = value / 18.14;
 
     filter.octaveControl(swp);
     // ladder[i].octaveControl(swp);
 }
-void Plugin_2::set_filter_type(byte XPos, byte YPos, const char *name)
+void Plugin_2::set_filter_type(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         selectFilterType(constrain(get_Potentiometer(XPos, YPos, name), 0, 3));
     }
 }
-void Plugin_2::selectFilterType(byte mixerchannel)
+void Plugin_2::selectFilterType(uint8_t mixerchannel)
 {
 
     fMixer.gain(0, 0);
@@ -238,40 +238,40 @@ void Plugin_2::selectFilterType(byte mixerchannel)
     fMixer.gain(mixerchannel, 1);
 }
 
-void Plugin_2::assign_envelope_attack(byte value, int max)
+void Plugin_2::assign_envelope_attack(uint8_t value, int max)
 {
     int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
 
     Fenv.attack(attack);
     Aenv.attack(attack);
 }
-void Plugin_2::assign_envelope_decay(byte value, int max)
+void Plugin_2::assign_envelope_decay(uint8_t value, int max)
 {
     int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
 
     Fenv.decay(decay);
     Aenv.decay(decay);
 }
-void Plugin_2::assign_envelope_sustain(byte value)
+void Plugin_2::assign_envelope_sustain(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
 
     Fenv.sustain(ampl);
     Aenv.sustain(ampl);
 }
-void Plugin_2::assign_envelope_release(byte value, int max)
+void Plugin_2::assign_envelope_release(uint8_t value, int max)
 {
     int release = map(value, 0, MIDI_CC_RANGE, 0, max);
 
     Fenv.release(release);
     Aenv.release(release);
 }
-void Plugin_2::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
+void Plugin_2::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
 {
 
     if (enc_moved[0])
     {
-        byte rowIx = YPos * 4;
+        uint8_t rowIx = YPos * 4;
         potentiometer[presetNr][0 + rowIx] = constrain(potentiometer[presetNr][0 + rowIx] + encoded[0], 0, MIDI_CC_RANGE);
         assign_envelope_attack(potentiometer[presetNr][0 + rowIx], maxA);
         drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
@@ -279,7 +279,7 @@ void Plugin_2::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
     }
     if (enc_moved[1])
     {
-        byte rowIx = YPos * 4;
+        uint8_t rowIx = YPos * 4;
         potentiometer[presetNr][1 + rowIx] = constrain(potentiometer[presetNr][1 + rowIx] + encoded[1], 0, MIDI_CC_RANGE);
         assign_envelope_decay(potentiometer[presetNr][1 + rowIx], maxD);
         drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
@@ -287,7 +287,7 @@ void Plugin_2::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
     }
     if (enc_moved[2])
     {
-        byte rowIx = YPos * 4;
+        uint8_t rowIx = YPos * 4;
         potentiometer[presetNr][2 + rowIx] = constrain(potentiometer[presetNr][2 + rowIx] + encoded[2], 0, MIDI_CC_RANGE);
         assign_envelope_sustain(potentiometer[presetNr][2 + rowIx]);
         drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
@@ -295,28 +295,28 @@ void Plugin_2::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
     }
     if (enc_moved[3])
     {
-        byte rowIx = YPos * 4;
+        uint8_t rowIx = YPos * 4;
         potentiometer[presetNr][3 + rowIx] = constrain(potentiometer[presetNr][3 + rowIx] + encoded[3], 0, MIDI_CC_RANGE);
         assign_envelope_release(potentiometer[presetNr][3 + rowIx], maxR);
         drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
 }
-void Plugin_2::set_envelope_attack(byte XPos, byte YPos, const char *name, int max)
+void Plugin_2::set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
         assign_envelope_attack(get_Potentiometer(XPos, YPos, name), max);
     }
 }
-void Plugin_2::set_envelope_decay(byte XPos, byte YPos, const char *name, int max)
+void Plugin_2::set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
         assign_envelope_decay(get_Potentiometer(XPos, YPos, name), max);
     }
 }
-void Plugin_2::set_envelope_sustain(byte XPos, byte YPos, const char *name)
+void Plugin_2::set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -324,7 +324,7 @@ void Plugin_2::set_envelope_sustain(byte XPos, byte YPos, const char *name)
         assign_envelope_sustain(get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT);
     }
 }
-void Plugin_2::set_envelope_release(byte XPos, byte YPos, const char *name, int max)
+void Plugin_2::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {

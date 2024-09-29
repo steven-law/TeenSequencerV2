@@ -4,7 +4,7 @@
 
 #include "Track.h"
 
-void Track::set_stepSequencer_parameters(byte row)
+void Track::set_stepSequencer_parameters(uint8_t row)
 {
 
     switch (row)
@@ -20,7 +20,7 @@ void Track::set_stepSequencer_parameters(byte row)
         break;
     case 1:
         set_stepSequencer_parameter_value(ENCODER_SEQUENCE_LENGTH, 1, "seqL", 1, MAX_TICKS);
-        set_stepSequencer_parameter_value(ENCODER_STEP_DIVISION, 1, "sDiv", 1, 16);
+        set_stepSequencer_parameter_value(ENCODER_CLOCK_DIVISION, 1, "cDiv", 1, 16);
         set_stepSequencer_parameter_value(ENCODER_STEP_LENGTH, 1, "stpL", 1, MAX_TICKS);
         set_stepSequencer_parameter_value(ENCODER_OCTAVE, 1, "Oct", 0, 11);
 
@@ -38,12 +38,12 @@ void Track::set_stepSequencer_parameters(byte row)
     draw_stepSequencer_parameters(row);
 }
 
-void Track::set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name, byte min, byte max)
+void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max)
 {
 
     if (enc_moved[XPos])
     {
-        byte index = XPos + (YPos * NUM_ENCODERS);
+        uint8_t index = XPos + (YPos * NUM_ENCODERS);
         //enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s\n", index, parameter[index], name);
@@ -55,11 +55,11 @@ void Track::set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *
     }
 }
 
-void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *name, const char *text, byte min, byte max)
+void Track::set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max)
 {
     if (enc_moved[XPos])
     {
-        byte index = XPos + (YPos * NUM_ENCODERS);
+        uint8_t index = XPos + (YPos * NUM_ENCODERS);
        // enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s, text %s\n", index, parameter[index], name, text);
@@ -68,7 +68,7 @@ void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *n
 }
 
 // MIDI CC
-void Track::set_CCchannel(byte XPos, byte YPos)
+void Track::set_CCchannel(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
     if (enc_moved[XPos])
@@ -78,7 +78,7 @@ void Track::set_CCchannel(byte XPos, byte YPos)
        // enc_moved[XPos] = false;
     }
 }
-void Track::set_CCvalue(byte XPos, byte YPos)
+void Track::set_CCvalue(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
     if (enc_moved[XPos])
@@ -89,7 +89,7 @@ void Track::set_CCvalue(byte XPos, byte YPos)
        // enc_moved[XPos] = false;
     }
 }
-void Track::set_MIDI_CC(byte row)
+void Track::set_MIDI_CC(uint8_t row)
 {
 
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT] && !neotrellisPressed[TRELLIS_BUTTON_ENTER])
@@ -161,7 +161,7 @@ void Track::set_MIDI_CC(byte row)
     }
     draw_MIDI_CC_screen();
 }
-void Track::set_edit_presetNr_ccChannel(byte n, byte lastProw)
+void Track::set_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw)
 {
     if (enc_moved[n])
     {
@@ -173,7 +173,7 @@ void Track::set_edit_presetNr_ccChannel(byte n, byte lastProw)
        // enc_moved[n] = false;
     }
 }
-void Track::set_edit_presetNr_ccValue(byte n, byte lastProw)
+void Track::set_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw)
 {
     if (enc_moved[n])
     {
@@ -190,33 +190,33 @@ void Track::set_edit_presetNr_ccValue(byte n, byte lastProw)
 
 // helpers
 // sequencer note input stuff
-void Track::set_active_note(byte _clip, byte _tick, byte _voice, byte _note)
+void Track::set_active_note(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _note)
 {
     this->clip[_clip].tick[_tick].voice[_voice] = _note;
 }
-byte Track::get_active_note(byte _clip, byte _tick, byte _voice)
+uint8_t Track::get_active_note(uint8_t _clip, uint8_t _tick, uint8_t _voice)
 {
     return this->clip[_clip].tick[_tick].voice[_voice];
 }
-void Track::set_active_velo(byte _clip, byte _tick, byte _voice, byte _velo)
+void Track::set_active_velo(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _velo)
 {
     this->clip[_clip].tick[_tick].velo[_voice] = _velo;
 }
-byte Track::get_active_velo(byte _clip, byte _tick, byte _voice)
+uint8_t Track::get_active_velo(uint8_t _clip, uint8_t _tick, uint8_t _voice)
 {
     return this->clip[_clip].tick[_tick].velo[_voice];
 }
-void Track::set_active_stepFX(byte _clip, byte _tick, byte _voice, byte _stepFX)
+void Track::set_active_stepFX(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _stepFX)
 {
     this->clip[_clip].tick[_tick].stepFX = _stepFX;
 }
-byte Track::get_active_stepFX(byte _clip, byte _tick, byte _voice)
+uint8_t Track::get_active_stepFX(uint8_t _clip, uint8_t _tick, uint8_t _voice)
 {
     return this->clip[_clip].tick[_tick].stepFX;
 }
 void Track::set_note_on_tick(int x, int y)
 {
-    byte note2set;
+    uint8_t note2set;
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
     {
         sTick = x + i;
@@ -225,7 +225,7 @@ void Track::set_note_on_tick(int x, int y)
         this->check_for_free_voices(sTick, note2set);
     }
 }
-void Track::check_for_free_voices(byte onTick, byte newNote)
+void Track::check_for_free_voices(uint8_t onTick, uint8_t newNote)
 {
     Serial.printf("newNote: %d onTick: %d\n", newNote, onTick);
 
@@ -264,11 +264,11 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
             break;
         }
     }
-    //byte note = get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
+    //uint8_t note = get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
     if (active_track == my_Arranger_Y_axis - 1)
         draw_note_on_tick(search_free_voice, onTick);
 
-    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (onTick / 6), (my_Arranger_Y_axis - 1), trellisColor);
+    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (onTick /  TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisColor);
 }
 
 // stepsequencer

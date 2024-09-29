@@ -117,10 +117,10 @@ void Adafruit_Trellis::clrLED(uint8_t x) {
 boolean Adafruit_Trellis::readSwitches(void) {
   memcpy(lastkeys, keys, sizeof(keys));
 
-  Wire1.beginTransmission((byte)i2c_addr);
+  Wire1.beginTransmission((uint8_t)i2c_addr);
   Wire1.write(0x40);
   Wire1.endTransmission();
-  Wire1.requestFrom((byte)i2c_addr, (byte)6);
+  Wire1.requestFrom((uint8_t)i2c_addr, (uint8_t)6);
   for (uint8_t i=0; i<6; i++) 
     keys[i] = Wire1.read();
 

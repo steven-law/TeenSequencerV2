@@ -31,7 +31,7 @@ void encoder_setup(int dly)
 void readEncoders()
 {
     long newEnc[NUM_ENCODERS];
-    byte encMultiplier[NUM_ENCODERS];
+    uint8_t encMultiplier[NUM_ENCODERS];
     for (int i = 0; i < NUM_ENCODERS; i++)
     {
         encoded[i] = 0;
@@ -84,7 +84,7 @@ void readEncoders()
         // Serial.printf("EncButton: %d\n", i);
     }
 }
-void encoder_SetCursor(byte deltaX, byte maxY)
+void encoder_SetCursor(uint8_t deltaX, uint8_t maxY)
 
 {
 

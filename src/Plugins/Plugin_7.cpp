@@ -55,19 +55,19 @@ void Plugin_7::setup()
     dynamics.autoMakeupGain(6.0f);
     dynamics.makeupGain(6.0f);
     MixGain.gain(1);
-    SongVol.gain(1);
+    //SongVol.gain(1);
     Serial.println("pl7 setup done");
 }
-void Plugin_7::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_7::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequence = note_frequency[notePlayed] * tuning;
     fm_drum.frequency(frequence);
     fm_drum.noteOn();
 }
-void Plugin_7::noteOff(byte notePlayed, byte voice)
+void Plugin_7::noteOff(uint8_t notePlayed, uint8_t voice)
 {
 }
-void Plugin_7::set_parameters(byte row)
+void Plugin_7::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -138,7 +138,7 @@ void Plugin_7::draw_plugin()
 void Plugin_7::change_preset(){}
 
 //test
-void Plugin_7::set_fmdrum_pitchMod(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -146,7 +146,7 @@ void Plugin_7::set_fmdrum_pitchMod(byte XPos, byte YPos, const char *name)
         fm_drum.fm(sustain); // float 0-1
     }
 }
-void Plugin_7::set_fmdrum_decay(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_fmdrum_decay(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -154,7 +154,7 @@ void Plugin_7::set_fmdrum_decay(byte XPos, byte YPos, const char *name)
         fm_drum.decay(sustain); // float 0-1
     }
 }
-void Plugin_7::set_fmdrum_noise(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_fmdrum_noise(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -162,7 +162,7 @@ void Plugin_7::set_fmdrum_noise(byte XPos, byte YPos, const char *name)
         fm_drum.noise(sustain); // float 0-1
     }
 }
-void Plugin_7::set_fmdrum_overdrive(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_fmdrum_overdrive(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -171,7 +171,7 @@ void Plugin_7::set_fmdrum_overdrive(byte XPos, byte YPos, const char *name)
     }
 }
 
-void Plugin_7::set_dynamics_threshold(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_threshold(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -181,7 +181,7 @@ void Plugin_7::set_dynamics_threshold(byte XPos, byte YPos, const char *name)
         dynamics.limit(threshold, attack, release);                         // float -110.0f-0.0f ;; 0.03f-4.00f ;; 0.03f-4.00f ;; 0.0f-6.0f
     }
 }
-void Plugin_7::set_dynamics_attack(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_attack(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -191,7 +191,7 @@ void Plugin_7::set_dynamics_attack(byte XPos, byte YPos, const char *name)
         dynamics.limit(threshold, attack, release);                         // float -110.0f-0.0f ;; 0.03f-4.00f ;; 0.03f-4.00f ;; 0.0f-6.0f
     }
 }
-void Plugin_7::set_dynamics_release(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_release(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -201,7 +201,7 @@ void Plugin_7::set_dynamics_release(byte XPos, byte YPos, const char *name)
         dynamics.limit(threshold, attack, release);                         // float -110.0f-0.0f ;; 0.03f-4.00f ;; 0.03f-4.00f ;; 0.0f-6.0f
     }
 }
-void Plugin_7::set_dynamics_hysterisis(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_hysterisis(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -210,7 +210,7 @@ void Plugin_7::set_dynamics_hysterisis(byte XPos, byte YPos, const char *name)
     }
 }
 
-void Plugin_7::set_dynamics_ratio(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_ratio(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -218,7 +218,7 @@ void Plugin_7::set_dynamics_ratio(byte XPos, byte YPos, const char *name)
         dynamics.compression(threshold, attack, release, ratio, kneeWidth); // float -110.0f-0.0f ;; 0.03f-4.00f ;; 0.03f-4.00f ;; 1.0f-60.0f ;; 0.0f-32.0f
     }
 }
-void Plugin_7::set_dynamics_kneeWidth(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_kneeWidth(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -226,7 +226,7 @@ void Plugin_7::set_dynamics_kneeWidth(byte XPos, byte YPos, const char *name)
         dynamics.compression(threshold, attack, release, ratio, kneeWidth); // float -110.0f-0.0f ;; 0.03f-4.00f ;; 0.03f-4.00f ;; 1.0f-60.0f ;; 0.0f-32.0f
     }
 }
-void Plugin_7::set_dynamics_makeupGain(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_makeupGain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -234,7 +234,7 @@ void Plugin_7::set_dynamics_makeupGain(byte XPos, byte YPos, const char *name)
         dynamics.makeupGain(sustain); // float -12.0f, 24.0f
     }
 }
-void Plugin_7::set_dynamics_autoMakeupGain(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_dynamics_autoMakeupGain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -242,7 +242,7 @@ void Plugin_7::set_dynamics_autoMakeupGain(byte XPos, byte YPos, const char *nam
         dynamics.autoMakeupGain(sustain); // float 0.0f, 60.0f
     }
 }
-void Plugin_7::set_amp_gain(byte XPos, byte YPos, const char *name)
+void Plugin_7::set_amp_gain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {

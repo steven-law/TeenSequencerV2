@@ -44,10 +44,10 @@ void Plugin_3::setup()
     // mixer.gain(0, 1);
 
     MixGain.gain(1);
-    SongVol.gain(1);
+    //SongVol.gain(1);
     Serial.println("Setup Pl3 Done");
 }
-void Plugin_3::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     Serial.println("2FM-NoteOn");
     float carrier_frequency = note_frequency[notePlayed] * tuning;
@@ -57,12 +57,12 @@ void Plugin_3::noteOn(byte notePlayed, float velocity, byte voice)
     modEnv.noteOn();
     outEnv.noteOn();
 }
-void Plugin_3::noteOff(byte notePlayed, byte voice)
+void Plugin_3::noteOff(uint8_t notePlayed, uint8_t voice)
 {
     modEnv.noteOff();
     outEnv.noteOff();
 }
-void Plugin_3::set_parameters(byte row)
+void Plugin_3::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -139,7 +139,7 @@ void Plugin_3::get_peak()
     // Serial.printf("Pl3: %f  ", peak.read());
 }
 
-void Plugin_3::set_mod_waveform(byte XPos, byte YPos, const char *name)
+void Plugin_3::set_mod_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -148,7 +148,7 @@ void Plugin_3::set_mod_waveform(byte XPos, byte YPos, const char *name)
         modulator.begin(walveform);
     }
 }
-void Plugin_3::set_mod_amplitude(byte XPos, byte YPos, const char *name)
+void Plugin_3::set_mod_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -157,7 +157,7 @@ void Plugin_3::set_mod_amplitude(byte XPos, byte YPos, const char *name)
         modulator.amplitude(ampl);
     }
 }
-void Plugin_3::set_mod_ratio(byte XPos, byte YPos, const char *name)
+void Plugin_3::set_mod_ratio(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -167,7 +167,7 @@ void Plugin_3::set_mod_ratio(byte XPos, byte YPos, const char *name)
     }
 }
 
-void Plugin_3::set_car_waveform(byte XPos, byte YPos, const char *name)
+void Plugin_3::set_car_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -177,7 +177,7 @@ void Plugin_3::set_car_waveform(byte XPos, byte YPos, const char *name)
     }
 }
 
-void Plugin_3::set_envelope_attack(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -186,7 +186,7 @@ void Plugin_3::set_envelope_attack(byte XPos, byte YPos, const char *name, int m
         outEnv.attack(attack);
     }
 }
-void Plugin_3::set_envelope_decay(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -195,7 +195,7 @@ void Plugin_3::set_envelope_decay(byte XPos, byte YPos, const char *name, int mi
         outEnv.decay(decay);
     }
 }
-void Plugin_3::set_envelope_sustain(byte XPos, byte YPos, const char *name)
+void Plugin_3::set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -204,7 +204,7 @@ void Plugin_3::set_envelope_sustain(byte XPos, byte YPos, const char *name)
         outEnv.sustain(sustain);
     }
 }
-void Plugin_3::set_envelope_release(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -214,7 +214,7 @@ void Plugin_3::set_envelope_release(byte XPos, byte YPos, const char *name, int 
     }
 }
 
-void Plugin_3::set_envelope_mattack(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_mattack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -223,7 +223,7 @@ void Plugin_3::set_envelope_mattack(byte XPos, byte YPos, const char *name, int 
         modEnv.attack(attack);
     }
 }
-void Plugin_3::set_envelope_mdecay(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_mdecay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {
@@ -232,7 +232,7 @@ void Plugin_3::set_envelope_mdecay(byte XPos, byte YPos, const char *name, int m
         modEnv.decay(decay);
     }
 }
-void Plugin_3::set_envelope_msustain(byte XPos, byte YPos, const char *name)
+void Plugin_3::set_envelope_msustain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -241,7 +241,7 @@ void Plugin_3::set_envelope_msustain(byte XPos, byte YPos, const char *name)
         modEnv.sustain(sustain);
     }
 }
-void Plugin_3::set_envelope_mrelease(byte XPos, byte YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_mrelease(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
     {

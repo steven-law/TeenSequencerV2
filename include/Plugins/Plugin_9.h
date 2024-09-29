@@ -12,11 +12,11 @@
 #include "projectVariables.h"
 
 ////#include "hardware/tftClass.h"
-//class tftClass;
-// TeensyDAW: begin automatically generated code
-// Name: mDrm
-// Description: Plays 12 Samplesounds stored on Flash (PROGMEM)
-// Voices: 12
+// class tftClass;
+//  TeensyDAW: begin automatically generated code
+//  Name: mDrm
+//  Description: Plays 12 Samplesounds stored on Flash (PROGMEM)
+//  Voices: 12
 
 // Pot 1: Vol1
 // Pot 2: Vol2
@@ -43,16 +43,18 @@ public:
     AudioPlaySdRaw playSD[MAX_VOICES];
     AudioMixer12 mixer;
     AudioAmplifier MixGain;
-    AudioAmplifier SongVol;
-    AudioConnection *patchCord[MAX_VOICES+2]; // total patchCordCount:14 including array typed ones.
-
+    // AudioAmplifier SongVol;
+    AudioConnection *patchCord[MAX_VOICES + 1]; // total patchCordCount:14 including array typed ones.
+    int8_t bankSelect[MAX_VOICES];
+    char *_9filename[MAX_VOICES];
     // constructor (this is called when class-object is created)
-    Plugin_9(const char *Name, byte ID) : PluginControll(Name, ID)
+    Plugin_9(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
         patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        //  patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
         for (int i = 0; i < MAX_VOICES; i++)
         {
             patchCord[pci++] = new AudioConnection(playSD[i], 0, mixer, i);
@@ -60,14 +62,18 @@ public:
     }
     virtual ~Plugin_9() = default;
     virtual void setup() override;
-    virtual void noteOn(byte notePlayed, float velocity, byte voice) override;
-    virtual void noteOff(byte notePlayed, byte voice) override;
-    virtual void set_parameters(byte row) override;
+    virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
+    virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
+    virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
-    
- virtual void change_preset() override;
-    void set_mixer_gain(byte XPos, byte YPos, const char *name);
-    void assign_mixer_gain(byte value, byte channel);
+
+    virtual void change_preset() override;
+    void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name);
+    void assign_mixer_gain(uint8_t value, uint8_t channel);
+   // void set_voice_bank(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
+   // void assign_voice_bank(uint8_t voice, uint8_t value);
+   // void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
+   // void assign_voice_waveform(uint8_t voice,uint8_t value);                             // make virtual in baseclass but override
 };
 #endif // PLUGIN_9_H
 

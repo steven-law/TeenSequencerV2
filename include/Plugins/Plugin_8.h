@@ -62,69 +62,73 @@ public:
     AudioMixer4 fMixer;
     AudioEffectEnvelope Aenv;
     AudioAmplifier MixGain;
-    AudioAmplifier SongVol;
-    AudioConnection *patchCord[13]; // total patchCordCount:122 including array typed ones.
+    //AudioAmplifier SongVol;
+    AudioConnection *patchCord[12]; // total patchCordCount:122 including array typed ones.
 
     // constructor (this is called when class-object is created)
-    Plugin_8(const char *Name, byte ID) : PluginControll(Name, ID)
+    Plugin_8(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
         patchCord[pci++] = new AudioConnection(waveform, 0, vcoMixer, 0);
         patchCord[pci++] = new AudioConnection(waveform1, 0, vcoMixer, 1);
         patchCord[pci++] = new AudioConnection(dc, 0, Fenv, 0);
         patchCord[pci++] = new AudioConnection(vcoMixer, 0, filter, 0);
+
         patchCord[pci++] = new AudioConnection(vcoMixer, 0, ladder, 0);
         patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
         patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
         patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
+
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(ladder, 0, fMixer, 3);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+
+        //patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        //patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }
     virtual ~Plugin_8() = default;
     virtual void setup() override;
-    virtual void noteOn(byte notePlayed, float velocity, byte voice) override;
-    virtual void noteOff(byte notePlayed, byte voice) override;
-    virtual void set_parameters(byte row) override;
+    virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
+    virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
+    virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
     virtual void change_preset() override;
     
-    void set_voice_waveform(byte XPos, byte YPos, const char *name);
-    void set_voice_amplitude(byte XPos, byte YPos, const char *name);
-    void set_voice_detune(byte XPos, byte YPos, const char *name);
-    void set_voice1_waveform(byte XPos, byte YPos, const char *name);
-    void set_voice1_amplitude(byte XPos, byte YPos, const char *name);
-    void set_voice1_detune(byte XPos, byte YPos, const char *name);
+    void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_voice_detune(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_voice1_waveform(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_voice1_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_voice1_detune(uint8_t XPos, uint8_t YPos, const char *name);
 
-    void set_filter_frequency(byte XPos, byte YPos, const char *name);
-    void set_filter_resonance(byte XPos, byte YPos, const char *name, float min, float max);
-    void set_filter_sweep(byte XPos, byte YPos, const char *name, float min, float max);
-    void set_filter_type(byte XPos, byte YPos, const char *name);
-    void selectFilterType(byte mixerchannel);
+    void set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
+    void set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
+    void set_filter_type(uint8_t XPos, uint8_t YPos, const char *name);
+    void selectFilterType(uint8_t mixerchannel);
 
-    void set_envelope_attack(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_envelope_decay(byte XPos, byte YPos, const char *name, int min, int max);
-    void set_envelope_sustain(byte XPos, byte YPos, const char *name);
-    void set_envelope_release(byte XPos, byte YPos, const char *name, int min, int max);
-    void assign_voice1_waveform(byte value); // make virtual in baseclass but override
-    void assign_voice1_amplitude(byte value);
-    // void set_voice1_detune(byte XPos, byte YPos, const char *name);
-    void assign_voice2_waveform(byte value); // make virtual in baseclass but override
-    void assign_voice2_amplitude(byte value);
-    void set_voice2_detune(byte XPos, byte YPos, const char *name);
+    void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void assign_voice1_waveform(uint8_t value); // make virtual in baseclass but override
+    void assign_voice1_amplitude(uint8_t value);
+    // void set_voice1_detune(uint8_t XPos, uint8_t YPos, const char *name);
+    void assign_voice2_waveform(uint8_t value); // make virtual in baseclass but override
+    void assign_voice2_amplitude(uint8_t value);
+    void set_voice2_detune(uint8_t XPos, uint8_t YPos, const char *name);
 
-    void assign_filter_frequency(byte value);
-    void assign_filter_resonance(byte value);
-    void assign_filter_sweep(byte value);
-    void assign_filter_type(byte mixerchannel);
+    void assign_filter_frequency(uint8_t value);
+    void assign_filter_resonance(uint8_t value);
+    void assign_filter_sweep(uint8_t value);
+    void assign_filter_type(uint8_t mixerchannel);
 
-    void assign_envelope1_attack(byte value, int max);
-    void assign_envelope1_decay(byte value, int max);
-    void assign_envelope1_sustain(byte value);
-    void assign_envelope1_release(byte value, int max);
-    void set_envelope1_ADSR(byte YPos, int maxA, int maxD, int maxR);
+    void assign_envelope1_attack(uint8_t value, int max);
+    void assign_envelope1_decay(uint8_t value, int max);
+    void assign_envelope1_sustain(uint8_t value);
+    void assign_envelope1_release(uint8_t value, int max);
+    void set_envelope1_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
     
 };
 #endif // PLUGIN_8_H

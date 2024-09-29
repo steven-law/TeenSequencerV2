@@ -15,7 +15,7 @@ extern const unsigned int AudioSampleClap[3649] PROGMEM;
 
 
 //flute
-extern const AudioSynthWavetable::instrument_data Flute_100kbyte;
+extern const AudioSynthWavetable::instrument_data Flute_100kuint8_t;
 //basicflute
 extern const AudioSynthWavetable::sample_data BasicFlute1_samples[2];
 const uint8_t BasicFlute1_ranges[] = {54, 127, };

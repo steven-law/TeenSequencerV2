@@ -9,7 +9,7 @@ extern File myFile;
 #define NO_VALUE 6789
 #define NO_NAME "NO_NAME"
 
-#define NUM_PLUGINS 11
+#define NUM_PLUGINS 12
 
 #define NUM_TRACKS 8
 #define NUM_STEPS 16
@@ -36,13 +36,14 @@ extern File myFile;
 #define NUM_USER_CLIPS 7
 #define NUM_PRESETS 8
 #define MAX_TICKS 96
+#define TICKS_PER_STEP 6
 #define MAX_VOICES 12
 #define MAX_SONGS 9
 
 #define SET_STEP_FX 2
 #define SET_VELO2SET 3
 #define SET_SEQUENCE_LENGTH 4
-#define SET_STEP_DIVIVISION 5
+#define SET_CLOCK_DIVISION 5
 #define SET_STEP_LENGTH 6
 #define SET_OCTAVE 7
 #define SET_SEQ_MODE 8
@@ -112,15 +113,15 @@ extern const char FLASHMEM *songNames[MAX_SONGS];
 extern char _trackname[20];
 extern int pixelTouchX;
 extern int gridTouchY;
-extern byte lastPotRow;
-extern byte activeScreen;
-extern byte trellisScreen;
-extern byte active_track;
-extern byte arrangerpage;
+extern uint8_t lastPotRow;
+extern uint8_t activeScreen;
+extern uint8_t trellisScreen;
+extern uint8_t active_track;
+extern uint8_t arrangerpage;
 extern bool change_plugin_row;
 extern const int encoder_colour[NUM_ENCODERS];
 extern unsigned long neotrellisReadPreviousMillis; // will store last time LED was updated
-extern uint16_t tftRAM[16][16];
+//extern uint16_t tftRAM[16][16];
 
 #define Y_DIM 12 // number of rows of key
 #define X_DIM 4  // number of columns of keys
@@ -176,13 +177,14 @@ extern bool trellisShowClockPixel[TRELLIS_PADS_Y_DIM];
 extern int trellisTrackColor[9];
 extern int trackColor[9];
 
-extern byte trellisPerformIndex[TRELLIS_PADS_X_DIM];
-extern byte performCC[TRELLIS_PADS_X_DIM];
+extern uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
+extern uint8_t performCC[TRELLIS_PADS_X_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
-extern byte FLASHMEM gateOutputPin[8];
+extern uint8_t FLASHMEM gateOutputPin[8];
 
 extern bool updateTFTScreen;
+ extern const char *bankNames[7];
 extern const char FLASHMEM *CCnames[129];
 extern const char FLASHMEM *seqModname[5];
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];

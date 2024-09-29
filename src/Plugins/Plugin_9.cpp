@@ -24,10 +24,12 @@ SD.begin(BUILTIN_SDCARD);
         mixer.gain(i, 1);
     }
     MixGain.gain(1);
-    SongVol.gain(1);
+    //SongVol.gain(1);
 }
-void Plugin_9::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_9::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
+    //playSD[voice].play(_9filename[voice]);
+    
     if (voice == 0)
         playSD[0].play("0.raw");
     if (voice == 1)
@@ -52,12 +54,75 @@ void Plugin_9::noteOn(byte notePlayed, float velocity, byte voice)
         playSD[10].play("10.raw");
     // if (voice == 11)
     // playSD[11].play("1.raw");
+    
 }
-void Plugin_9::noteOff(byte notePlayed, byte voice)
+void Plugin_9::noteOff(uint8_t notePlayed, uint8_t voice)
 {
 }
-void Plugin_9::set_parameters(byte row)
-{
+void Plugin_9::set_parameters(uint8_t row)
+{/*
+    draw_plugin();
+    if (!neotrellisPressed[TRELLIS_BUTTON_ENTER]&&!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+        if (row == 0)
+        {
+            set_voice_waveform(0, 0, bankNames[bankSelect[0]]);
+            set_voice_waveform(1, 0, bankNames[bankSelect[1]]);
+            set_voice_waveform(2, 0,bankNames[bankSelect[2]]);
+            set_voice_waveform(3, 0, bankNames[bankSelect[3]]);
+        }
+
+        if (row == 1)
+        {
+            set_voice_waveform(0, 1, bankNames[bankSelect[4]]);
+            set_voice_waveform(1, 1, bankNames[bankSelect[5]]);
+            set_voice_waveform(2, 1, bankNames[bankSelect[6]]);
+            set_voice_waveform(3, 1, bankNames[bankSelect[7]]);
+        }
+
+        if (row == 2)
+        {
+            set_voice_waveform(0, 2, bankNames[bankSelect[8]]);
+            set_voice_waveform(1, 2, bankNames[bankSelect[9]]);
+            set_voice_waveform(2, 2,bankNames[bankSelect[10]]);
+            set_voice_waveform(3, 2, bankNames[bankSelect[11]]);
+        }
+
+        if (row == 3)
+        {
+        }
+    }
+     if (neotrellisPressed[TRELLIS_BUTTON_ENTER]&& !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+        if (row == 0)
+        {
+            set_voice_bank(0, 0, bankNames[bankSelect[0]]);
+            set_voice_bank(1, 0, bankNames[bankSelect[1]]);
+            set_voice_bank(2, 0,bankNames[bankSelect[2]]);
+            set_voice_bank(3, 0, bankNames[bankSelect[3]]);
+        }
+
+        if (row == 1)
+        {
+            set_voice_bank(0, 1, bankNames[bankSelect[4]]);
+            set_voice_bank(1, 1, bankNames[bankSelect[5]]);
+            set_voice_bank(2, 1, bankNames[bankSelect[6]]);
+            set_voice_bank(3, 1, bankNames[bankSelect[7]]);
+        }
+
+        if (row == 2)
+        {
+            set_voice_bank(0, 2, bankNames[bankSelect[8]]);
+            set_voice_bank(1, 2, bankNames[bankSelect[9]]);
+            set_voice_bank(2, 2, bankNames[bankSelect[10]]);
+            set_voice_bank(3, 2, bankNames[bankSelect[11]]);
+        }
+
+        if (row == 3)
+        {
+        }
+    }
+    */
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
@@ -100,8 +165,23 @@ void Plugin_9::draw_plugin()
     {
         change_plugin_row = false;
         clearWorkSpace();
+/*
+        drawPot(0, 0, potentiometer[presetNr][0],  bankNames[bankSelect[0]]);
+        drawPot(1, 0, potentiometer[presetNr][1],  bankNames[bankSelect[1]]);
+        drawPot(2, 0, potentiometer[presetNr][2],  bankNames[bankSelect[2]]);
+        drawPot(3, 0, potentiometer[presetNr][3], bankNames[bankSelect[3]]);
 
-        drawPot(0, 0, potentiometer[presetNr][0], "Raw1");
+        drawPot(0, 1, potentiometer[presetNr][4],  bankNames[bankSelect[4]]);
+        drawPot(1, 1, potentiometer[presetNr][5],  bankNames[bankSelect[5]]);
+        drawPot(2, 1, potentiometer[presetNr][6],  bankNames[bankSelect[6]]);
+        drawPot(3, 1, potentiometer[presetNr][7], bankNames[bankSelect[7]]);
+
+        drawPot(0, 2, potentiometer[presetNr][8],  bankNames[bankSelect[8]]);
+        drawPot(1, 2, potentiometer[presetNr][9],  bankNames[bankSelect[9]]);
+        drawPot(2, 2, potentiometer[presetNr][10], bankNames[bankSelect[10]]);
+        drawPot(3, 2, potentiometer[presetNr][11],  bankNames[bankSelect[11]]);
+*/
+   drawPot(0, 0, potentiometer[presetNr][0], "Raw1");
         drawPot(1, 0, potentiometer[presetNr][1], "Raw2");
         drawPot(2, 0, potentiometer[presetNr][2], "Raw3");
         drawPot(3, 0, potentiometer[presetNr][3], "Raw4");
@@ -120,7 +200,7 @@ void Plugin_9::draw_plugin()
     }
 }
 
-void Plugin_9::set_mixer_gain(byte XPos, byte YPos, const char *name)
+void Plugin_9::set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -128,7 +208,7 @@ void Plugin_9::set_mixer_gain(byte XPos, byte YPos, const char *name)
         assign_mixer_gain(get_Potentiometer(XPos, YPos, name), n);
     }
 }
-void Plugin_9::assign_mixer_gain(byte value, byte channel)
+void Plugin_9::assign_mixer_gain(uint8_t value, uint8_t channel)
 {
     float sustain = value / MIDI_CC_RANGE_FLOAT;
     mixer.gain(channel, sustain);
@@ -138,6 +218,39 @@ void Plugin_9::change_preset(){
         assign_mixer_gain(potentiometer[presetNr][i], i);
     }
 }
+/*
+void Plugin_9::set_voice_bank(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        int8_t _voice = XPos + (YPos*NUM_ENCODERS);
+        assign_voice_bank(_voice, constrain(get_Potentiometer(XPos, YPos, name),0,7));
+    }
+}
+void Plugin_9::assign_voice_bank(uint8_t voice,uint8_t value)
+{
+   bankSelect[voice]=value;
+    //uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
+    sprintf(_9filename[voice], "%s%d.raw\0", bankNames[value] ,potentiometer[presetNr][voice]);
 
+    //waveform.begin(walveform);
+}
+void Plugin_9::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        int8_t _voice = XPos + (YPos*NUM_ENCODERS);
+        assign_voice_waveform(_voice,get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_9::assign_voice_waveform(uint8_t voice,uint8_t value)
+{
+   
+    //uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
+    sprintf(_9filename[voice], "%s%d.raw\0", bankNames[bankSelect[voice]], value);
+
+    //waveform.begin(walveform);
+}
+*/
 Plugin_9 plugin_9("rDrm", 9);
 // TeensyDAW: end automatically generated code

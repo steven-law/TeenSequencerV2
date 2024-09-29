@@ -4,10 +4,10 @@
 void get_infobox_background();
 void set_infobox_background(int _DisplayTime);
 void reset_infobox_background();
-void set_infobox_next_line(byte _lineNumber); //_lineNumber must be bigger 0
+void set_infobox_next_line(uint8_t _lineNumber); //_lineNumber must be bigger 0
 
 
-void mouse(byte deltaX, byte maxY)
+void mouse(uint8_t deltaX, uint8_t maxY)
 {
 
   if (mouse1.available())

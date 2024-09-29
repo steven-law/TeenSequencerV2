@@ -24,20 +24,20 @@ void Plugin_1::setup()
         mixer.gain(i, 1);
     }
     MixGain.gain(1);
-    SongVol.gain(1);
+    //SongVol.gain(1);
 }
-void Plugin_1::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
     string[voice].noteOn(frequency, velocity);
     // Serial.printf("ON voice: %d, freq: %f \n", voice, frequency);
 }
-void Plugin_1::noteOff(byte notePlayed, byte voice)
+void Plugin_1::noteOff(uint8_t notePlayed, uint8_t voice)
 {
     string[voice].noteOff(0);
     // Serial.printf("OFF voice: %d,  \n", voice);
 }
-void Plugin_1::set_parameters(byte row)
+void Plugin_1::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -102,7 +102,7 @@ void Plugin_1::change_preset(){
     }
 }
 
-void Plugin_1::set_mixer_gain(byte XPos, byte YPos, const char *name)
+void Plugin_1::set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -110,7 +110,7 @@ void Plugin_1::set_mixer_gain(byte XPos, byte YPos, const char *name)
         assign_mixer_gain(get_Potentiometer(XPos, YPos, name), n);
     }
 }
-void Plugin_1::assign_mixer_gain(byte value, byte channel)
+void Plugin_1::assign_mixer_gain(uint8_t value, uint8_t channel)
 {
     float sustain = value / MIDI_CC_RANGE_FLOAT;
     mixer.gain(channel, sustain);

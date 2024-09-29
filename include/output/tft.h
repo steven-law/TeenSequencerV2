@@ -79,16 +79,16 @@ void startUpScreen();
 void get_infobox_background();
 void set_infobox_background(int _DisplayTime);
 void reset_infobox_background();
-void set_infobox_next_line(byte _lineNumber); //_lineNumber must be bigger 0
-void show_active_page_info(const char *_pagename, byte _pagenumber);
+void set_infobox_next_line(uint8_t _lineNumber); //_lineNumber must be bigger 0
+void show_active_page_info(const char *_pagename, uint8_t _pagenumber);
 void moveCursor(int pixelOnX, int pixelOnY,  int cursorDeltaX, int cursorDeltaY);
 
 void tft_show();
 
-void drawPot(int XPos, byte YPos, int dvalue, const char *dname);
-void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release);
-void draw_sequencer_arranger_parameter(byte _track, byte _encoder, const char *_name, int _value, const char *_valuedName);
-void draw_value_box(byte lastPRow, byte XPos, byte YPos, byte offest_X, int offset_Y, int _value, const char *name, int color, byte _size, bool drawRect, bool drawFilling);
+void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
+void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release);
+void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const char *_name, int _value, const char *_valuedName);
+void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, uint8_t _size, bool drawRect, bool drawFilling);
 
 //clock
     void drawstepPosition();
@@ -98,12 +98,12 @@ void draw_value_box(byte lastPRow, byte XPos, byte YPos, byte offest_X, int offs
 
 void gridSongMode(int songpageNumber);
 void drawsongmodepageselector();
-void draw_arranger_parameters(byte lastProw);
-void draw_arrangment_line(byte _trackNr, byte _bar);
-void draw_arrangment_lines(byte _track, byte _page); // b= active page
+void draw_arranger_parameters(uint8_t lastProw);
+void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar);
+void draw_arrangment_lines(uint8_t _track, uint8_t _page); // b= active page
 
-void draw_offset_arranger(byte _trackNr, byte _bar);
-void draw_clipNr_arranger(byte _trackNr, byte _bar);
+void draw_offset_arranger(uint8_t _trackNr, uint8_t _bar);
+void draw_clipNr_arranger(uint8_t _trackNr, uint8_t _bar);
 
 // step sequencer
 void drawStepSequencerStatic();
@@ -111,14 +111,14 @@ void draw_Notenames();
 void drawOctaveTriangle();
 void draw_Clipselector();
 
-void draw_stepSequencer_parameters(byte lastProw);
-void draw_note_on_tick(byte _note, byte _when);
+void draw_stepSequencer_parameters(uint8_t lastProw);
+void draw_note_on_tick(uint8_t _note, uint8_t _when);
 void draw_notes_in_grid();
 
-void draw_MIDI_CC(byte XPos, byte YPos);
+void draw_MIDI_CC(uint8_t XPos, uint8_t YPos);
 void draw_MIDI_CC_screen();
-void draw_edit_presetNr_ccChannel(byte n, byte lastProw);
-void draw_edit_presetNr_ccValue(byte n, byte lastProw);
+void draw_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw);
+void draw_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw);
 
 void draw_mixer();
 void draw_mixer_FX_page1();

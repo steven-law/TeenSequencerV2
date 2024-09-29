@@ -36,7 +36,7 @@ Plugin_9 plugin_9("rDrm", 9);
 Plugin_10 plugin_10("SF2", 9);
 Plugin_11 plugin_11("Ext", 9);*/
 
-PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11};
+PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11,&plugin_12};
 FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
@@ -52,32 +52,35 @@ MouseController mouse1(myusb);
 void input_behaviour();
 // midi
 void clock_to_notes(int _tick);
-void midi_setup(byte dly);
+void midi_setup(uint8_t dly);
 void midi_read();
 void sendClock();
 
-void sendNoteOn(byte _track,byte Note, byte Velo, byte Channel);
-void sendNoteOff(byte _track,byte Note, byte Velo, byte Channel);
-void sendControlChange(byte control, byte value, byte Channel);
+void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
+void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
+void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel);
 
-void myNoteOn(byte channel, byte note, byte velocity);
-void myNoteOff(byte channel, byte note, byte velocity);
+void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
+void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
 void detect_USB_device();
+
+void play_plugin_on_DAC(uint8_t _track, uint8_t _pluginNr);
+
 // some trellis
 void trellis_show_tft_mixer();
 void trellis_play_mixer();
 void trellis_perform();
 
 // mixer
-void set_mixer(byte row);
-void set_mixer_gain(byte XPos, byte YPos, const char *name, byte trackn);
-void set_mixer_FX_page1(byte row);
-void set_mixer_FX_page2(byte row);
-void set_mixer_dry(byte XPos, byte YPos, const char *name, byte trackn);
-void set_mixer_FX1(byte XPos, byte YPos, const char *name, byte trackn);
-void set_mixer_FX2(byte XPos, byte YPos, const char *name, byte trackn);
-void set_mixer_FX3(byte XPos, byte YPos, const char *name, byte trackn);
-
+void set_mixer(uint8_t row);
+void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
+void set_mixer_FX_page1(uint8_t row);
+void set_mixer_FX_page2(uint8_t row);
+void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
+void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
+void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
+void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
+void assign_PSRAM_variables();
 void setup()
 {
   // while (!Serial)
@@ -86,6 +89,7 @@ void setup()
   }
   Serial.begin(115200);
   Wire1.begin();
+  Wire1.setClock(100000);
   tft_setup(100);
   encoder_setup(100);
   trellis_setup(100);
@@ -99,11 +103,8 @@ void setup()
   AudioMemory(320);
   MasterOut.setup();
   Serial.println("Audio & MIDI Setup done");
-  note_frequency = new float[128];
-  for (int r = 0; r < 128; r++)
-  {
-    note_frequency[r] = pow(2.0, ((double)(r - SAMPLE_ROOT) / 12.0));
-  }
+  assign_PSRAM_variables();
+ 
   startUpScreen();
   tft.updateScreenAsync();
   for (int x = 0; x < X_DIM / 4; x++)
@@ -157,7 +158,9 @@ void loop()
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
-    trellis_show_clockbar(i, allTracks[i]->internal_clock / 6);
+    trellis_show_clockbar(i, allTracks[i]->internal_clock /  TICKS_PER_STEP);
+   // if (allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1) >= 0)
+    //  play_plugin_on_DAC(i, allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
   }
   get_infobox_background();
   unsigned long loopEndTime = millis();
@@ -175,16 +178,15 @@ void loop()
       moveCursor(pixelTouchX, gridTouchY, 1, TRACK_FRAME_H);
     }
     else
-    { 
+    {
       mouse(2, 14);
       moveCursor(pixelTouchX, gridTouchY, 1, STEP_FRAME_H);
     }
-
   }
   if (updateTFTScreen)
   {
     tft_show();
-    //Serial.printf("active encoder page: %d\n", activeScreen);
+    // Serial.printf("active encoder page: %d\n", activeScreen);
     updateTFTScreen = false;
     enc_moved[0] = false;
     enc_moved[1] = false;
@@ -250,7 +252,7 @@ void input_behaviour()
     // if Shift button is NOT pressed
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
-      
+
       allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
     }
   }
@@ -287,7 +289,7 @@ void clock_to_notes(int _tick)
   }
   // Serial.printf("LoopStart: %d, LoopEnd: %d\n", myClock.startOfLoop, myClock.endOfLoop);
 }
-void midi_setup(byte dly)
+void midi_setup(uint8_t dly)
 {
   Serial.println("Initializing MIDI");
   tft.println("Initializing MIDI");
@@ -320,12 +322,12 @@ void sendClock()
   usbMidi1.sendRealTime(usbMIDI.Clock);
 }
 
-void sendNoteOn(byte _track,byte Note, byte Velo, byte Channel)
+void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
   if (Note < NO_NOTE)
   {
     if (Channel == 0)
-    sendNoteOn_CV_Gate( _track, Note);
+      sendNoteOn_CV_Gate(_track, Note);
     if (Channel > 0 && Channel <= 16)
       MIDI1.sendNoteOn(Note, Velo, Channel);
     if (Channel > 16 && Channel <= 32)
@@ -337,10 +339,10 @@ void sendNoteOn(byte _track,byte Note, byte Velo, byte Channel)
     // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
   }
 }
-void sendNoteOff(byte _track,byte Note, byte Velo, byte Channel)
+void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
-if (Channel == 0)
-    sendNoteOff_CV_Gate( _track, Note);
+  if (Channel == 0)
+    sendNoteOff_CV_Gate(_track, Note);
   if (Channel > 0 && Channel <= 16)
     MIDI1.sendNoteOff(Note, Velo, Channel);
   if (Channel > 16 && Channel <= 32)
@@ -350,7 +352,7 @@ if (Channel == 0)
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), 0);
 }
-void sendControlChange(byte control, byte value, byte Channel)
+void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
 {
   if (value < 128 && control < 128)
   {
@@ -364,7 +366,7 @@ void sendControlChange(byte control, byte value, byte Channel)
   }
 }
 
-void myNoteOn(byte channel, byte note, byte velocity)
+void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
@@ -373,10 +375,10 @@ void myNoteOn(byte channel, byte note, byte velocity)
       allTracks[channel - 1]->record_noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
   if (channel >= 9)
-    sendNoteOn(channel - 1,note, velocity, channel);
+    sendNoteOn(channel - 1, note, velocity, channel);
   Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 }
-void myNoteOff(byte channel, byte note, byte velocity)
+void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
@@ -385,7 +387,7 @@ void myNoteOff(byte channel, byte note, byte velocity)
       allTracks[channel - 1]->record_noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
   if (channel >= 9)
-    sendNoteOff(channel - 1,note, velocity, channel);
+    sendNoteOff(channel - 1, note, velocity, channel);
 }
 void detect_USB_device()
 {
@@ -411,6 +413,51 @@ void detect_USB_device()
   }
 
   reset_infobox_background();
+}
+
+void play_plugin_on_DAC(uint8_t _track, uint8_t _pluginNr)
+{
+/*
+  if (_track == 0)
+  {
+    // uint8_t _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
+    mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 * allPlugins[_pluginNr]->dacOut.read());
+
+    if (4095 * allPlugins[_pluginNr]->dacOut.read() == 0)
+      Serial.printf("DAC OUT: %d\n", 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+
+  if (_track == 1)
+  {
+    mcp.setChannelValue(MCP4728_CHANNEL_B, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+
+  if (_track == 2)
+  {
+    mcp.setChannelValue(MCP4728_CHANNEL_C, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+
+  if (_track == 3)
+  {
+    mcp.setChannelValue(MCP4728_CHANNEL_D, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+  if (_track == 4)
+  {
+    mcp2.setChannelValue(MCP4728_CHANNEL_A, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+  if (_track == 5)
+  {
+    mcp2.setChannelValue(MCP4728_CHANNEL_B, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+  if (_track == 6)
+  {
+    mcp2.setChannelValue(MCP4728_CHANNEL_C, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+  if (_track == 7)
+  {
+    mcp2.setChannelValue(MCP4728_CHANNEL_D, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  }
+  */
 }
 
 // some trellis
@@ -546,10 +593,10 @@ void trellis_play_mixer()
       {
         trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, s, t, TRELLIS_BLACK);
         trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, allTracks[t]->mixGainPot / 8, t, trackColor[t]);
-        byte _nr = s + (t * TRELLIS_PADS_X_DIM);
+        uint8_t _nr = s + (t * TRELLIS_PADS_X_DIM);
         if (trellisPressed[_nr])
         {
-          byte _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
+          uint8_t _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
           trellisPressed[_nr] = false;
 
           allTracks[t]->mixGainPot = _gain[s];
@@ -574,7 +621,7 @@ void trellis_play_mixer()
         for (int s = 0; s < NUM_STEPS; s++)
         {
 
-          byte _nr = s + (t * TRELLIS_PADS_X_DIM);
+          uint8_t _nr = s + (t * TRELLIS_PADS_X_DIM);
 
           if (trellisPressed[_nr])
           {
@@ -916,7 +963,7 @@ void trellis_perform()
           }
           if (_nr % TRELLIS_PADS_X_DIM == 13)
           {
-            byte _clipLength[Y_DIM]{MAX_TICKS, 72, 60, MAX_TICKS/2, 36, MAX_TICKS/4, MAX_TICKS/8, MAX_TICKS/16};
+            uint8_t _clipLength[Y_DIM]{MAX_TICKS, 72, 60, MAX_TICKS / 2, 36, MAX_TICKS / 4, MAX_TICKS / 8, MAX_TICKS / 16};
             for (int s = 0; s < NUM_TRACKS; s++)
             {
               if (allTracks[s]->performIsActive)
@@ -946,12 +993,12 @@ void trellis_perform()
           }
           if (_nr % TRELLIS_PADS_X_DIM == 14)
           {
-            byte _stepDivision[Y_DIM]{0, 1, 2, 3, 4, 6, 8, 16};
+            uint8_t _clockDivision[Y_DIM]{0, 1, 2, 3, 4, 6, 8, 16};
             for (int s = 0; s < NUM_TRACKS; s++)
             {
               if (allTracks[s]->performIsActive)
               {
-                allTracks[s]->performStepDivision = _stepDivision[t];
+                allTracks[s]->performClockDivision = _clockDivision[t];
                 if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
                   sendControlChange(performCC[14], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
               }
@@ -964,7 +1011,7 @@ void trellis_perform()
             }
             trellisPerformIndex[14] = t;
             set_infobox_background(750);
-            tft.printf("Step Div =  %d ", _stepDivision[t]);
+            tft.printf("Step Div =  %d ", _clockDivision[t]);
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[14], 127 - (t * 16));
             reset_infobox_background();
@@ -995,7 +1042,7 @@ void trellis_perform()
 }
 
 // Mixer
-void set_mixer(byte row)
+void set_mixer(uint8_t row)
 {
   draw_mixer();
   if (row == 0)
@@ -1022,7 +1069,7 @@ void set_mixer(byte row)
   {
   }
 }
-void set_mixer_gain(byte XPos, byte YPos, const char *name, byte trackn)
+void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
 
   if (enc_moved[XPos])
@@ -1058,7 +1105,7 @@ void set_mixer_gain(byte XPos, byte YPos, const char *name, byte trackn)
     drawPot(XPos, YPos, allTracks[trackn]->mixGainPot, name);
   }
 }
-void set_mixer_FX_page1(byte row)
+void set_mixer_FX_page1(uint8_t row)
 {
   draw_mixer_FX_page1();
   if (row == 0)
@@ -1094,7 +1141,7 @@ void set_mixer_FX_page1(byte row)
     set_mixer_FX3(3, 3, "FX2 4", 3);
   }
 }
-void set_mixer_FX_page2(byte row)
+void set_mixer_FX_page2(uint8_t row)
 {
   draw_mixer_FX_page1();
   if (row == 0)
@@ -1130,7 +1177,7 @@ void set_mixer_FX_page2(byte row)
     set_mixer_FX3(3, 3, "FX3 8", 7);
   }
 }
-void set_mixer_dry(byte XPos, byte YPos, const char *name, byte trackn)
+void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
@@ -1147,7 +1194,7 @@ void set_mixer_dry(byte XPos, byte YPos, const char *name, byte trackn)
     }
   }
 }
-void set_mixer_FX1(byte XPos, byte YPos, const char *name, byte trackn)
+void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
@@ -1165,7 +1212,7 @@ void set_mixer_FX1(byte XPos, byte YPos, const char *name, byte trackn)
     }
   }
 }
-void set_mixer_FX2(byte XPos, byte YPos, const char *name, byte trackn)
+void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
@@ -1182,7 +1229,7 @@ void set_mixer_FX2(byte XPos, byte YPos, const char *name, byte trackn)
     }
   }
 }
-void set_mixer_FX3(byte XPos, byte YPos, const char *name, byte trackn)
+void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
 
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -1199,5 +1246,27 @@ void set_mixer_FX3(byte XPos, byte YPos, const char *name, byte trackn)
       }
       drawPot(XPos, YPos, allTracks[trackn]->mixFX3Pot, name);
     }
+  }
+}
+
+
+
+void assign_PSRAM_variables(){
+  /*
+   CCnames = new const char*[129];
+   char *_ccName;
+  for (int i = 0; i <128; i++)
+  {
+    printf(_ccName,  "CC%d", i);
+    CCnames[i] = _ccName;
+    Serial.println(CCnames[i]);
+  }
+  CCnames[128]="none";
+
+*/
+   note_frequency = new float[128];
+  for (int r = 0; r < 128; r++)
+  {
+    note_frequency[r] = pow(2.0, ((double)(r - SAMPLE_ROOT) / 12.0));
   }
 }

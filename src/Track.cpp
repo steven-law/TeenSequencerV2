@@ -3,7 +3,7 @@
 // File myFile;
 //  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
 //   midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> *midi_out_serial = &MIDI1;
-void Track::update(int PixelX, byte gridY)
+void Track::update(int PixelX, uint8_t gridY)
 {
     // MIDI1.read();
 
@@ -11,7 +11,7 @@ void Track::update(int PixelX, byte gridY)
     // save_track();
     // load_track();
 }
-void Track::save_track(byte songNr)
+void Track::save_track(uint8_t songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
@@ -87,7 +87,7 @@ void Track::save_track(byte songNr)
         myFile.print((char)mixFX1Pot);
         myFile.print((char)mixFX2Pot);
         myFile.print((char)mixFX3Pot);
-        byte _tempOffset = performNoteOffset + 64;
+        uint8_t _tempOffset = performNoteOffset + 64;
         myFile.print((char)_tempOffset);
         // close the file:
         myFile.close();
@@ -106,7 +106,7 @@ void Track::save_track(byte songNr)
     Serial.println("track saving Done:");
     // startUpScreen();
 }
-void Track::load_track(byte songNr)
+void Track::load_track(uint8_t songNr)
 {
     for (int p = 0; p < TRELLIS_MAX_PAGES; p++)
     {
@@ -146,7 +146,7 @@ void Track::load_track(byte songNr)
             {
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
                 {
-                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i /  TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
                 }
             }
         }
@@ -215,10 +215,10 @@ void Track::load_track(byte songNr)
     }
     Serial.println("track Loading done");
 }
-void Track::play_sequencer_mode(byte cloock, byte start, byte end)
+void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 {
 
-    if (cloock % (parameter[SET_STEP_DIVIVISION] + performStepDivision) == 0)
+    if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
         internal_clock++;
         internal_clock_is_on = true;
@@ -272,7 +272,7 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
         }
     }
 }
-void Track::set_seq_mode_parameters(byte row)
+void Track::set_seq_mode_parameters(uint8_t row)
 {
     if (parameter[SET_SEQ_MODE] == 1)
         set_seq_mode1_parameters(row);
@@ -283,7 +283,7 @@ void Track::set_seq_mode_parameters(byte row)
     if (parameter[SET_SEQ_MODE] == 4)
         set_seq_mode4_parameters(row);
 }
-void Track::draw_sequencer_modes(byte mode)
+void Track::draw_sequencer_modes(uint8_t mode)
 {
     clearWorkSpace();
     change_plugin_row = true;
@@ -297,7 +297,7 @@ void Track::draw_sequencer_modes(byte mode)
         draw_seq_mode4();
 }
 
-void Track::noteOn(byte Note, byte Velo, byte Channel)
+void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
@@ -306,7 +306,7 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
     //
 }
-void Track::noteOff(byte Note, byte Velo, byte Channel)
+void Track::noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOff(my_Arranger_Y_axis - 1, Note, Velo, Channel);
@@ -314,7 +314,7 @@ void Track::noteOff(byte Note, byte Velo, byte Channel)
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
 }
-void Track::record_noteOn(byte Note, byte Velo, byte Channel)
+void Track::record_noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     recordVoice = Note % NOTES_PER_OCTAVE;
     recordLastNote[recordVoice] = Note;
@@ -323,7 +323,7 @@ void Track::record_noteOn(byte Note, byte Velo, byte Channel)
     // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].voice[0] = Note;
     // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].velo[0] = Velo;
 }
-void Track::record_noteOff(byte Note, byte Velo, byte Channel)
+void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     recordVoice = Note % NOTES_PER_OCTAVE;
     if (recordLastNote[recordVoice] == Note)
@@ -332,12 +332,12 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i /  TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
         }
     }
 }
 //---------------------------arranger stuff-------------------------------------
-void Track::set_arranger_parameters(byte lastProw)
+void Track::set_arranger_parameters(uint8_t lastProw)
 {
 
     switch (lastProw)
@@ -378,14 +378,14 @@ void Track::change_presets()
     }
     Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
 }
-void Track::set_clip_to_play(byte n, byte b)
+void Track::set_clip_to_play(uint8_t n, uint8_t b)
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
         if (enc_moved[n])
         {
 
-            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
             {
                 clip_to_play[bar_to_edit + i] = constrain(clip_to_play[bar_to_edit + i] + encoded[n], 0, NUM_USER_CLIPS + 1);
                 draw_arrangment_line(my_Arranger_Y_axis - 1, bar_to_edit + i);
@@ -396,10 +396,10 @@ void Track::set_clip_to_play(byte n, byte b)
         }
     }
 }
-void Track::set_clip_to_play_trellis(byte _bar, byte _clipNr)
+void Track::set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr)
 {
 
-    for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+    for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
     {
         clip_to_play[_bar + i] = _clipNr;
         draw_arrangment_line(my_Arranger_Y_axis - 1, _bar + i);
@@ -407,16 +407,16 @@ void Track::set_clip_to_play_trellis(byte _bar, byte _clipNr)
     // updateTFTScreen = true;
     // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, 2, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
 }
-void Track::set_note_offset(byte _encoder, int b)
+void Track::set_note_offset(uint8_t _encoder, int b)
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
-        byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
+        uint8_t when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
         if (enc_moved[_encoder])
         {
             int _tempOffset = constrain(noteOffset[when] + encoded[_encoder], -99, +99);
 
-            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
             {
                 noteOffset[when + i] = _tempOffset;
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
@@ -428,15 +428,15 @@ void Track::set_note_offset(byte _encoder, int b)
         }
     }
 }
-void Track::set_barVelocity(byte _encoder, int b)
+void Track::set_barVelocity(uint8_t _encoder, int b)
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
-        byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
+        uint8_t when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
         if (enc_moved[_encoder])
         {
             barVelocity[when] = constrain(barVelocity[when] + encoded[_encoder], 0, 127);
-            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
             {
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
@@ -447,7 +447,7 @@ void Track::set_barVelocity(byte _encoder, int b)
 }
 
 // MIDICC
-void Track::set_play_presetNr_ccChannel(byte n, byte lastProw)
+void Track::set_play_presetNr_ccChannel(uint8_t n, uint8_t lastProw)
 {
     if (enc_moved[n])
     {
@@ -459,7 +459,7 @@ void Track::set_play_presetNr_ccChannel(byte n, byte lastProw)
         // enc_moved[n] = false;
     }
 }
-void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
+void Track::set_play_presetNr_ccValue(uint8_t n, uint8_t lastProw)
 {
     if (enc_moved[n])
     {

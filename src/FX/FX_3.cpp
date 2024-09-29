@@ -16,9 +16,9 @@ void FX_3::setup()
     FX_mixer.gain(3, 1);
     FX_mixer.gain(4, 1);
 }
-void FX_3::noteOn(byte notePlayed, float velocity, byte voice) {}
-void FX_3::noteOff(byte notePlayed, byte voice) {}
-void FX_3::set_parameters(byte row)
+void FX_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
+void FX_3::noteOff(uint8_t notePlayed, uint8_t voice) {}
+void FX_3::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (row == 0)
@@ -37,7 +37,7 @@ void FX_3::draw_plugin()
     }
 }
 
-void FX_3::set_DL_time(byte XPos, byte YPos, const char *name)
+void FX_3::set_DL_time(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -45,7 +45,7 @@ void FX_3::set_DL_time(byte XPos, byte YPos, const char *name)
         delay.delay(0, time);
     }
 }
-void FX_3::set_DL_feedback(byte XPos, byte YPos, const char *name)
+void FX_3::set_DL_feedback(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
