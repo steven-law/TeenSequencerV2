@@ -7,7 +7,7 @@
 #include <MIDI.h>
 #include <USBHost_t36.h>
 #include <Adafruit_MCP4728.h>
-
+#include <SerialFlash.h>
 #include "projectVariables.h"
 
 #include "input/encoder.h"
@@ -36,7 +36,7 @@ Plugin_9 plugin_9("rDrm", 9);
 Plugin_10 plugin_10("SF2", 9);
 Plugin_11 plugin_11("Ext", 9);*/
 
-PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11,&plugin_12};
+PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12};
 FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
@@ -81,6 +81,10 @@ void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void assign_PSRAM_variables();
+bool compareFiles(File &file, SerialFlashFile &ffile);
+
+void error(const char *message);
+
 void setup()
 {
   // while (!Serial)
@@ -102,9 +106,26 @@ void setup()
   myClock.setup();
   AudioMemory(320);
   MasterOut.setup();
+  // for (int i=0; i<NUM_PLUGINS-1;i++)
+  {
+    // allPlugins[i]->change_preset();
+  }
+  assign_PSRAM_variables();
+  allPlugins[0]->change_preset();
+  allPlugins[1]->change_preset();
+  allPlugins[2]->change_preset();
+  allPlugins[3]->change_preset();
+  allPlugins[4]->change_preset();
+  allPlugins[9]->change_preset();
+  allPlugins[11]->change_preset();
   Serial.println("Audio & MIDI Setup done");
   assign_PSRAM_variables();
- 
+  if (!SerialFlash.begin(FlashChipSelect))
+  {
+    error("Unable to access SPI Flash chip");
+  }
+  else
+    Serial.println("Access SPI Chip");
   startUpScreen();
   tft.updateScreenAsync();
   for (int x = 0; x < X_DIM / 4; x++)
@@ -158,8 +179,8 @@ void loop()
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
-    trellis_show_clockbar(i, allTracks[i]->internal_clock /  TICKS_PER_STEP);
-   // if (allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1) >= 0)
+    trellis_show_clockbar(i, allTracks[i]->internal_clock / TICKS_PER_STEP);
+    // if (allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1) >= 0)
     //  play_plugin_on_DAC(i, allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
   }
   get_infobox_background();
@@ -350,7 +371,7 @@ void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
   if (Channel > 32 && Channel <= 48)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
-    MasterOut.noteOff(Note, Velo, Channel - (48 + 1), 0);
+    MasterOut.noteOff(Note, Velo, Channel - (48 + 1), Note % 12);
 }
 void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
 {
@@ -417,47 +438,47 @@ void detect_USB_device()
 
 void play_plugin_on_DAC(uint8_t _track, uint8_t _pluginNr)
 {
-/*
-  if (_track == 0)
-  {
-    // uint8_t _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
-    mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 * allPlugins[_pluginNr]->dacOut.read());
+  /*
+    if (_track == 0)
+    {
+      // uint8_t _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
+      mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 * allPlugins[_pluginNr]->dacOut.read());
 
-    if (4095 * allPlugins[_pluginNr]->dacOut.read() == 0)
-      Serial.printf("DAC OUT: %d\n", 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
+      if (4095 * allPlugins[_pluginNr]->dacOut.read() == 0)
+        Serial.printf("DAC OUT: %d\n", 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
 
-  if (_track == 1)
-  {
-    mcp.setChannelValue(MCP4728_CHANNEL_B, 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
+    if (_track == 1)
+    {
+      mcp.setChannelValue(MCP4728_CHANNEL_B, 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
 
-  if (_track == 2)
-  {
-    mcp.setChannelValue(MCP4728_CHANNEL_C, 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
+    if (_track == 2)
+    {
+      mcp.setChannelValue(MCP4728_CHANNEL_C, 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
 
-  if (_track == 3)
-  {
-    mcp.setChannelValue(MCP4728_CHANNEL_D, 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
-  if (_track == 4)
-  {
-    mcp2.setChannelValue(MCP4728_CHANNEL_A, 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
-  if (_track == 5)
-  {
-    mcp2.setChannelValue(MCP4728_CHANNEL_B, 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
-  if (_track == 6)
-  {
-    mcp2.setChannelValue(MCP4728_CHANNEL_C, 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
-  if (_track == 7)
-  {
-    mcp2.setChannelValue(MCP4728_CHANNEL_D, 4095 * allPlugins[_pluginNr]->dacOut.read());
-  }
-  */
+    if (_track == 3)
+    {
+      mcp.setChannelValue(MCP4728_CHANNEL_D, 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
+    if (_track == 4)
+    {
+      mcp2.setChannelValue(MCP4728_CHANNEL_A, 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
+    if (_track == 5)
+    {
+      mcp2.setChannelValue(MCP4728_CHANNEL_B, 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
+    if (_track == 6)
+    {
+      mcp2.setChannelValue(MCP4728_CHANNEL_C, 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
+    if (_track == 7)
+    {
+      mcp2.setChannelValue(MCP4728_CHANNEL_D, 4095 * allPlugins[_pluginNr]->dacOut.read());
+    }
+    */
 }
 
 // some trellis
@@ -1249,24 +1270,54 @@ void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   }
 }
 
-
-
-void assign_PSRAM_variables(){
+bool compareFiles(File &file, SerialFlashFile &ffile)
+{
+  file.seek(0);
+  ffile.seek(0);
+  unsigned long count = file.size();
+  while (count > 0)
+  {
+    char buf1[128], buf2[128];
+    unsigned long n = count;
+    if (n > 128)
+      n = 128;
+    file.read(buf1, n);
+    ffile.read(buf2, n);
+    if (memcmp(buf1, buf2, n) != 0)
+      return false; // differ
+    count = count - n;
+  }
+  return true; // all data identical
+}
+void assign_PSRAM_variables()
+{
   /*
-   CCnames = new const char*[129];
-   char *_ccName;
+   CCnames = new  char*[129];
+   char _ccName[30];
+  for (int i = 0; i <129; i++)
+  {
+ CCnames[i] = new char[30];
+  }
   for (int i = 0; i <128; i++)
   {
-    printf(_ccName,  "CC%d", i);
+ printf(_ccName,  "CC%d", i);
     CCnames[i] = _ccName;
     Serial.println(CCnames[i]);
   }
   CCnames[128]="none";
-
 */
-   note_frequency = new float[128];
+
+  note_frequency = new float[128];
   for (int r = 0; r < 128; r++)
   {
     note_frequency[r] = pow(2.0, ((double)(r - SAMPLE_ROOT) / 12.0));
+  }
+}
+void error(const char *message)
+{
+  while (1)
+  {
+    Serial.println(message);
+    delay(2500);
   }
 }

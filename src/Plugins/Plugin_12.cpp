@@ -55,6 +55,17 @@ waveform.enableInterpolation(true);
     // mixer.gain(0, 1);
 
     MixGain.gain(1);
+    potentiometer[presetNr][0]=0;
+potentiometer[presetNr][1]=1;
+potentiometer[presetNr][1]=48;
+potentiometer[presetNr][8]=60;
+potentiometer[presetNr][9]=0;
+potentiometer[presetNr][10]=30;
+potentiometer[presetNr][11]=0;
+potentiometer[presetNr][12]=5;
+potentiometer[presetNr][13]=0;
+potentiometer[presetNr][14]=127;
+potentiometer[presetNr][15]=20;
     // SongVol.gain(1);
 }
 void Plugin_12::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
@@ -197,7 +208,10 @@ void Plugin_12::assign_voice_amplitude(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
 
-    // waveform.amplitude(ampl);
+    fMixer.gain(0, ampl);
+    fMixer.gain(1, ampl);
+    fMixer.gain(2, ampl);
+    fMixer.gain(3, ampl);
 }
 
 void Plugin_12::set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name)

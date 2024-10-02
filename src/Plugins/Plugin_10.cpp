@@ -54,6 +54,16 @@ void Plugin_10::setup()
     // mixer.gain(0, 1);
 
     MixGain.gain(1);
+    potentiometer[presetNr][0] = 1;
+    potentiometer[presetNr][1] = 48;
+    potentiometer[presetNr][8] = 60;
+    potentiometer[presetNr][9] = 0;
+    potentiometer[presetNr][10] = 30;
+    potentiometer[presetNr][11] = 0;
+    potentiometer[presetNr][12] = 5;
+    potentiometer[presetNr][13] = 0;
+    potentiometer[presetNr][14] = 127;
+    potentiometer[presetNr][15] = 20;
     // SongVol.gain(1);
 }
 void Plugin_10::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)

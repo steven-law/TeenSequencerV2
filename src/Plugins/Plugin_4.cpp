@@ -19,34 +19,38 @@ void clearWorkSpace();
 void Plugin_4::setup()
 {
 
-    for (int i = 0; i < MAX_VOICES; i++)
+    for (int i = 0; i < PL4_VOICES; i++)
     {
+        playMem[i].begin();
+        playMem[i].enableInterpolation(false);
+        AEnv[i].attack(0);
+        AEnv[i].decay(0);
+        AEnv[i].sustain(1);
+        AEnv[i].release(100);
         mixer.gain(i, 1);
     }
     MixGain.gain(1);
-    //SongVol.gain(1);
+    for (int i = 0; i < PL4_VOICES; i++)
+    {
+        potentiometer[presetNr][i] = 10;
+        potentiometer[presetNr][i + 8] = 127;
+    }
+   // change_preset();
+    // SongVol.gain(1);
 }
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    if (voice ==0)
-        playMem[0].play(AudioSampleKick);
-    if (voice ==1)
-        playMem[1].play(AudioSampleClap);
-    if (voice ==2)
-        playMem[2].play(AudioSampleHihat);
-    if (voice ==3)
-        playMem[3].play(AudioSampleSnare);
-    if (voice ==4)
-        playMem[4].play(AudioSampleP2);
-    if (voice ==5)
-        playMem[5].play(AudioSamplePongblip);
-    if (voice ==6)
-        playMem[6].play(AudioSampleTomtom);
-    if (voice ==6)
-        playMem[7].play(AudioSampleCashregister);
+    AEnv[voice].noteOn();
+    playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize / 2, 1);
+    // playMem[voice].play(_fileName[voice]);
+    //  playMem[voice].playRaw(sample[voice]->sampledata,1);
+
+   // Serial.printf("pl4 play %s on voice %d\n", _fileName[voice], voice);
 }
 void Plugin_4::noteOff(uint8_t notePlayed, uint8_t voice)
 {
+    AEnv[voice].noteOff();
+   // Serial.printf("pl4 Note Off voice: %d\n", voice);
 }
 void Plugin_4::set_parameters(uint8_t row)
 {
@@ -55,30 +59,34 @@ void Plugin_4::set_parameters(uint8_t row)
     {
         if (row == 0)
         {
-            set_mixer_gain(0, 0, "Kick");
-            set_mixer_gain(1, 0, "Clap");
-            set_mixer_gain(2, 0, "HHat");
-            set_mixer_gain(3, 0, "Snare");
+            set_waveform(0, 0, "Kick");
+            set_waveform(1, 0, "Clap");
+            set_waveform(2, 0, "HHat");
+            set_waveform(3, 0, "Snare");
         }
 
         if (row == 1)
         {
-            set_mixer_gain(0, 1, "Tick");
-            set_mixer_gain(1, 1, "Pong");
-            set_mixer_gain(2, 1, "Tom");
-            set_mixer_gain(3, 1, "Cash");
+            set_waveform(0, 1, "Tick");
+            set_waveform(1, 1, "Pong");
+            set_waveform(2, 1, "Tom");
+            set_waveform(3, 1, "Cash");
         }
 
         if (row == 2)
         {
-            //set_mixer_gain(0, 2, "Vol");
-            //set_mixer_gain(1, 2, "Vol");
-            //set_mixer_gain(2, 2, "Vol");
-            //set_mixer_gain(3, 2, "Vol");
+            set_mixer_gain(0, 2, "Vol");
+            set_mixer_gain(1, 2, "Vol");
+            set_mixer_gain(2, 2, "Vol");
+            set_mixer_gain(3, 2, "Vol");
         }
 
         if (row == 3)
         {
+            set_mixer_gain(0, 3, "Vol");
+            set_mixer_gain(1, 3, "Vol");
+            set_mixer_gain(2, 3, "Vol");
+            set_mixer_gain(3, 3, "Vol");
         }
     }
     if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -108,7 +116,11 @@ void Plugin_4::draw_plugin()
         drawPot(2, 2, potentiometer[presetNr][10], "Vol");
         drawPot(3, 2, potentiometer[presetNr][11], "Vol");
 
-        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        drawPot(0, 3, potentiometer[presetNr][12], "Vol");
+        drawPot(1, 3, potentiometer[presetNr][13], "Vol");
+        drawPot(2, 3, potentiometer[presetNr][14], "Vol");
+        drawPot(3, 3, potentiometer[presetNr][15], "Vol");
+        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 
@@ -117,18 +129,37 @@ void Plugin_4::set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name)
     if (enc_moved[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        assign_mixer_gain(get_Potentiometer(XPos, YPos, name),n );
+        assign_mixer_gain(get_Potentiometer(XPos, YPos, name), n);
     }
 }
 void Plugin_4::assign_mixer_gain(uint8_t value, uint8_t channel)
 {
     float sustain = value / MIDI_CC_RANGE_FLOAT;
-    mixer.gain(channel, sustain);
+    mixer.gain(channel - 8, sustain);
 }
-void Plugin_4::change_preset(){
-    for (int i=0;i<MAX_VOICES;i++){
-        assign_mixer_gain(potentiometer[presetNr][i], i);
+void Plugin_4::change_preset()
+{
+    for (int i = 0; i < PL4_VOICES; i++)
+    {
+        assign_mixer_gain(potentiometer[presetNr][i + 8], i);
+        assign_waveform(potentiometer[presetNr][i], i);
     }
+}
+void Plugin_4::set_waveform(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        int n = XPos + (YPos * NUM_ENCODERS);
+        assign_waveform(get_Potentiometer(XPos, YPos, name), n);
+        enc_moved[XPos] = false;
+    }
+}
+void Plugin_4::assign_waveform(uint8_t value, uint8_t channel)
+{
+
+    sprintf(_fileName[channel], "%s%d.raw\0", bankNames[channel], value);
+    newdigate::flashloader loader;
+    sample[channel] = loader.loadSample(_fileName[channel]);
 }
 Plugin_4 plugin_4("mDrm", 4);
 

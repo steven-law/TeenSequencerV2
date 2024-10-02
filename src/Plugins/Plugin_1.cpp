@@ -22,8 +22,10 @@ void Plugin_1::setup()
     for (int i = 0; i < MAX_VOICES; i++)
     {
         mixer.gain(i, 1);
+        potentiometer[presetNr][i]=80;
     }
     MixGain.gain(1);
+    //change_preset();
     //SongVol.gain(1);
 }
 void Plugin_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
@@ -56,10 +58,16 @@ void Plugin_1::set_parameters(uint8_t row)
 
             set_mixer_gain(0, 1, "Vol");
             set_mixer_gain(1, 1, "Vol");
+            set_mixer_gain(2, 1, "Vol");
+            set_mixer_gain(3, 1, "Vol");
         }
 
         if (row == 2)
         {
+            set_mixer_gain(0, 2, "Vol");
+            set_mixer_gain(1, 2, "Vol");
+            set_mixer_gain(2, 2, "Vol");
+            set_mixer_gain(3, 2, "Vol");
         }
 
         if (row == 3)
