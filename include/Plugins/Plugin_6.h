@@ -11,7 +11,7 @@
 #include <Plugins/pluginClass.h>
 ////#include "hardware/tftClass.h"
 //class tftClass;
-#define PL6_VOICES 8
+#define PL6_VOICES 4
 // TeensyDAW: begin automatically generated code
 // Name: Draw
 // Description: Additive Synthesizer
@@ -48,8 +48,8 @@ class Plugin_6 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
-    AudioSynthWaveform waveform[8];
-    AudioMixer12 mixer;
+    AudioSynthWaveform waveform[PL6_VOICES];
+    AudioMixer4 mixer;
     AudioEffectEnvelope Fenv;
     AudioFilterStateVariable filter;
     AudioMixer4 fMixer;
@@ -57,8 +57,8 @@ public:
 
     AudioAmplifier MixGain;
     //AudioAmplifier SongVol;
-    AudioConnection *patchCord[16]; // total patchCordCount:98 including array typed ones.
-
+    AudioConnection *patchCord[9]; // total patchCordCount:98 including array typed ones.
+int8_t pl6Offset[PL6_VOICES]{0,3,7,10};
     // constructor (this is called when class-object is created)
     Plugin_6(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
@@ -69,19 +69,16 @@ public:
         patchCord[pci++] = new AudioConnection(waveform[2], 0, mixer, 2);
         patchCord[pci++] = new AudioConnection(waveform[3], 0, mixer, 3);
 
-        patchCord[pci++] = new AudioConnection(waveform[4], 0, mixer, 4);
-        patchCord[pci++] = new AudioConnection(waveform[5], 0, mixer, 5);
-        patchCord[pci++] = new AudioConnection(waveform[6], 0, mixer, 6);
-        patchCord[pci++] = new AudioConnection(waveform[7], 0, mixer, 7);
+
 
         patchCord[pci++] = new AudioConnection(mixer, 0, filter, 0);
         patchCord[pci++] = new AudioConnection(dc, 0, Fenv, 0);
         patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
-        patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
+       // patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
 
-        patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
-        patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
-        patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
+       // patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
+       // patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
+        patchCord[pci++] = new AudioConnection(filter, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
 
         //patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
@@ -102,6 +99,8 @@ virtual void change_preset() override;
 
     void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
     void set_voice_amplitude(uint8_t voice, uint8_t XPos, uint8_t YPos, const char *name);
+void set_voice_offset(uint8_t XPos, uint8_t YPos, const char *name);
+void assign_voice_offset(uint8_t voice, uint8_t value);
 
     void set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name);
     void set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name);
@@ -115,7 +114,7 @@ virtual void change_preset() override;
     void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
     void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max);
 
-    void assign_voice_waveform(uint8_t value); // make virtual in baseclass but override
+    void assign_voice_waveform(uint8_t voice, uint8_t value); // make virtual in baseclass but override
     void assign_voice_amplitude(uint8_t voice, uint8_t value);
 
     void assign_filter_frequency(uint8_t value);

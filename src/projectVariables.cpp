@@ -29,8 +29,8 @@ uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 uint8_t performCC[TRELLIS_PADS_X_DIM];
 bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 bool neotrellisPressed[X_DIM * Y_DIM];
-const char FLASHMEM *bankNames[NUM_SAMPLE_BANKS] = {"", "C", "F", "H", "K", "P", "S", "X"};
-//char  **CCnames;
+const char FLASHMEM *bankNames[NUM_SAMPLE_BANKS] = {"K", "C", "H", "S", "P", "F", "X", ""};
+// char  **CCnames;
 const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
                                   "CC10", "CC11", "CC12", "CC13", "CC14", "CC15", "CC16", "CC17", "CC18", "CC19",
                                   "CC20", "CC21", "CC22", "CC23", "CC24", "CC25", "CC26", "CC27", "CC28", "CC29",

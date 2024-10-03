@@ -59,18 +59,18 @@ void Plugin_4::set_parameters(uint8_t row)
     {
         if (row == 0)
         {
-            set_waveform(0, 0, "Kick");
-            set_waveform(1, 0, "Clap");
-            set_waveform(2, 0, "HHat");
-            set_waveform(3, 0, "Snare");
+            set_waveform(0, 0, "Bk K");
+            set_waveform(1, 0, "Bk C");
+            set_waveform(2, 0, "Bk H");
+            set_waveform(3, 0, "Bk S");
         }
 
         if (row == 1)
         {
-            set_waveform(0, 1, "Tick");
-            set_waveform(1, 1, "Pong");
-            set_waveform(2, 1, "Tom");
-            set_waveform(3, 1, "Cash");
+            set_waveform(0, 1, "Bk P");
+            set_waveform(1, 1, "Bk F");
+            set_waveform(2, 1, "Bk X");
+            set_waveform(3, 1, "Bk *");
         }
 
         if (row == 2)
@@ -101,15 +101,15 @@ void Plugin_4::draw_plugin()
         change_plugin_row = false;
         clearWorkSpace();
 
-        drawPot(0, 0, potentiometer[presetNr][0], "Kick");
-        drawPot(1, 0, potentiometer[presetNr][1], "Clap");
-        drawPot(2, 0, potentiometer[presetNr][2], "HHat");
-        drawPot(3, 0, potentiometer[presetNr][3], "Snare");
+        drawPot(0, 0, potentiometer[presetNr][0], "Bk K");
+        drawPot(1, 0, potentiometer[presetNr][1], "Bk C");
+        drawPot(2, 0, potentiometer[presetNr][2], "Bk H");
+        drawPot(3, 0, potentiometer[presetNr][3], "Bk S");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Tick");
-        drawPot(1, 1, potentiometer[presetNr][5], "Pong");
-        drawPot(2, 1, potentiometer[presetNr][6], "Tom");
-        drawPot(3, 1, potentiometer[presetNr][7], "Cash");
+        drawPot(0, 1, potentiometer[presetNr][4], "Bk P");
+        drawPot(1, 1, potentiometer[presetNr][5], "Bk F");
+        drawPot(2, 1, potentiometer[presetNr][6], "Bk X");
+        drawPot(3, 1, potentiometer[presetNr][7], "Bk *");
 
         drawPot(0, 2, potentiometer[presetNr][8], "Vol");
         drawPot(1, 2, potentiometer[presetNr][9], "Vol");
