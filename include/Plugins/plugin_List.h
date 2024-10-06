@@ -17,6 +17,8 @@
 #include <Plugins/Plugin_10.h>
 #include <Plugins/Plugin_11.h>
 #include <Plugins/Plugin_12.h>
+#include <Plugins/Plugin_13.h>
+#include <Plugins/Plugin_14.h>
 #include <Plugins/pluginClass.h>
 
 //extern PluginControll *allPlugins[NUM_PLUGINS];

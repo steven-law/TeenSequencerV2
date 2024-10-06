@@ -24,7 +24,7 @@ class FX_1 : public PluginControll
 {
 public:
     AudioAmplifier pl[NUM_PLUGINS];
-    AudioMixer12 FX_mixer;
+    AudioMixer16 FX_mixer;
     AudioEffectFreeverb freeverb;
     
     AudioConnection *patchCord[NUM_PLUGINS * 2 + 1]; // total patchCordCount:46 including array typed ones.
@@ -45,6 +45,8 @@ public:
         patchCord[pci++] = new AudioConnection(plugin_10.MixGain, 0, pl[9], 0);
         patchCord[pci++] = new AudioConnection(plugin_11.MixGain, 0, pl[10], 0);
         patchCord[pci++] = new AudioConnection(plugin_12.MixGain, 0, pl[11], 0);
+        patchCord[pci++] = new AudioConnection(plugin_13.MixGain, 0, pl[12], 0);
+        patchCord[pci++] = new AudioConnection(plugin_14.MixGain, 0, pl[13], 0);
         for (int i = 0; i < NUM_PLUGINS; i++)
         {
             

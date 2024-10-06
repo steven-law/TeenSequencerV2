@@ -20,7 +20,7 @@ public:
     // AudioAnalyzePeak peak3;
     // AudioAnalyzePeak peak2;
     AudioAmplifier dry[NUM_PLUGINS];
-    AudioMixer12 dry_mixer;
+    AudioMixer16 dry_mixer;
     // AudioMixer12 FX3_mixer;
     AudioMixer4 endmixer;
     AudioConnection *patchCord[(NUM_PLUGINS * 2) + 4]; // total patchCordCount:46 including array typed ones.
@@ -45,6 +45,8 @@ public:
         patchCord[pci++] = new AudioConnection(plugin_10.MixGain, 0, dry[9], 0);
         patchCord[pci++] = new AudioConnection(plugin_11.MixGain, 0, dry[10], 0);
         patchCord[pci++] = new AudioConnection(plugin_12.MixGain, 0, dry[11], 0);
+        patchCord[pci++] = new AudioConnection(plugin_13.MixGain, 0, dry[12], 0);
+        patchCord[pci++] = new AudioConnection(plugin_14.MixGain, 0, dry[13], 0);
 
         for (int i = 0; i < NUM_PLUGINS; i++)
         {
@@ -73,6 +75,8 @@ public:
         dry_mixer.gain(9, 1);
         dry_mixer.gain(10, 1);
         dry_mixer.gain(11, 1);
+        dry_mixer.gain(12, 1);
+        dry_mixer.gain(13, 1);
 
         endmixer.gain(0, 1);
         endmixer.gain(1, 1);

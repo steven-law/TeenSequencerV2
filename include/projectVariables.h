@@ -9,7 +9,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_VALUE 6789
 #define NO_NAME "NO_NAME"
 
-#define NUM_PLUGINS 12
+#define NUM_PLUGINS 13
 
 #define NUM_TRACKS 8
 #define NUM_STEPS 16
@@ -195,4 +195,6 @@ extern const char FLASHMEM *noteNames[12];
 #define POSITION_END_LOOP_BUTTON 18
 #define TRELLIS_BUTTON_ENTER 8
 
+//touch
+extern bool isTouched;
 #endif

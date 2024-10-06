@@ -160,6 +160,31 @@ void AudioMixer12::update(void)
 		release(out);
 	}
 }
+void AudioMixer16::update(void)
+{
+	audio_block_t *in, *out=NULL;
+	unsigned int channel;
+
+	for (channel=0; channel < 16; channel++) {
+		if (!out) {
+			out = receiveWritable(channel);
+			if (out) {
+				int32_t mult = multiplier[channel];
+				if (mult != MULTI_UNITYGAIN) applyGain(out->data, mult);
+			}
+		} else {
+			in = receiveReadOnly(channel);
+			if (in) {
+				applyGainThenAdd(out->data, in->data, multiplier[channel]);
+				release(in);
+			}
+		}
+	}
+	if (out) {
+		transmit(out);
+		release(out);
+	}
+}
 void AudioMixer2::update(void)
 {
 	audio_block_t *in, *out=NULL;

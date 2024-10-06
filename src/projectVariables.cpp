@@ -52,5 +52,8 @@ const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3",
                                                       "UD9", "UD10", "UD11", "UD12", "UD13", "UD14", "UD15", "UD16",
                                                       "Ua1", "Ua2", "Ua3", "Ua4", "Ua5", "Ua6", "Ua7", "Ua8",
                                                       "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16",
-                                                      "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "rDrm", "SF2", "Ext", "REC"};
+                                                      "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "rDrm", "SF2", "Ext", "Raw", "Draw"};
 const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
+//touch
+bool isTouched;

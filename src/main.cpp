@@ -13,6 +13,7 @@
 #include "input/encoder.h"
 #include "input/trellis.h"
 #include "input/mouse.h"
+#include "input/touch.h"
 
 #include "output/tft.h"
 #include "output/dac.h"
@@ -36,7 +37,7 @@ Plugin_9 plugin_9("rDrm", 9);
 Plugin_10 plugin_10("SF2", 9);
 Plugin_11 plugin_11("Ext", 9);*/
 
-PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12};
+PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12,&plugin_13};
 FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
@@ -80,6 +81,8 @@ void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
+void show_trellisFX_mixerPage();
+
 void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
 
@@ -87,7 +90,7 @@ void error(const char *message);
 
 void setup()
 {
-  // while (!Serial)
+   while (!Serial)
   {
     /* code */
   }
@@ -98,13 +101,14 @@ void setup()
   encoder_setup(100);
   trellis_setup(100);
   neotrellis_setup(100);
+  touch_setup();
   dac_setup(100);
   Serial.println("neotrellis Setup done");
   delay(1500);
   midi_setup(100);
 
   myClock.setup();
-  AudioMemory(320);
+  AudioMemory(330);
   MasterOut.setup();
   // for (int i=0; i<NUM_PLUGINS-1;i++)
   {
@@ -121,12 +125,12 @@ void setup()
   allPlugins[11]->change_preset();
   Serial.println("Audio & MIDI Setup done");
   assign_PSRAM_variables();
-  if (!SerialFlash.begin(FlashChipSelect))
+  //if (!SerialFlash.begin(FlashChipSelect))
   {
-    error("Unable to access SPI Flash chip");
+  //  error("Unable to access SPI Flash chip");
   }
-  else
-    Serial.println("Access SPI Chip");
+  //else
+  //  Serial.println("Access SPI Chip");
   startUpScreen();
   tft.updateScreenAsync();
   for (int x = 0; x < X_DIM / 4; x++)
@@ -176,7 +180,7 @@ void loop()
   neotrellis_update();
   midi_read();
   input_behaviour();
-
+  touch_update();
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
@@ -514,6 +518,7 @@ void trellis_show_tft_mixer()
     if (trellisPressed[1])
     {
       trellis.clear();
+      show_trellisFX_mixerPage();
       trellis.writeDisplay();
       trellisPressed[1] = false;
       trellisScreen = TRELLIS_SCREEN_MIXER;
@@ -528,6 +533,7 @@ void trellis_show_tft_mixer()
     if (trellisPressed[2])
     {
       trellis.clear();
+      show_trellisFX_mixerPage();
       trellis.writeDisplay();
       trellisPressed[2] = false;
       trellisScreen = TRELLIS_SCREEN_MIXER;
@@ -542,6 +548,7 @@ void trellis_show_tft_mixer()
     if (trellisPressed[3])
     {
       trellis.clear();
+      show_trellisFX_mixerPage();
       trellis.writeDisplay();
       trellisPressed[3] = false;
       trellisScreen = TRELLIS_SCREEN_MIXER;
@@ -557,6 +564,7 @@ void trellis_show_tft_mixer()
     if (trellisPressed[4])
     {
       trellis.clear();
+      show_trellisFX_mixerPage();
       trellis.writeDisplay();
       trellisPressed[4] = false;
       trellisScreen = TRELLIS_SCREEN_MIXER;
@@ -572,6 +580,7 @@ void trellis_show_tft_mixer()
     if (trellisPressed[5])
     {
       trellis.clear();
+      show_trellisFX_mixerPage();
       trellis.writeDisplay();
       trellisPressed[5] = false;
       trellisScreen = TRELLIS_SCREEN_MIXER;
@@ -723,6 +732,7 @@ void trellis_play_mixer()
                 break;
               }
             }
+
             // change_plugin_row=true;
           }
         }
@@ -1134,33 +1144,33 @@ void set_mixer_FX_page1(uint8_t row)
   {
 
     set_mixer_dry(0, 0, "Dry D", 0);
-    set_mixer_dry(1, 0, "Dry 2", 1);
-    set_mixer_dry(2, 0, "Dry 3", 2);
-    set_mixer_dry(3, 0, "Dry 4", 3);
+    set_mixer_FX1(1, 0, "FX1 D", 0);
+    set_mixer_FX2(2, 0, "FX2 D", 0);
+    set_mixer_FX3(3, 0, "FX3 D", 0);
   }
 
   if (row == 1)
   {
-    set_mixer_FX1(0, 1, "FX1 D", 0);
+    set_mixer_dry(0, 1, "Dry 2", 1);
     set_mixer_FX1(1, 1, "FX1 2", 1);
-    set_mixer_FX1(2, 1, "FX1 3", 2);
-    set_mixer_FX1(3, 1, "FX1 4", 3);
+    set_mixer_FX2(2, 1, "FX2 2", 1);
+    set_mixer_FX3(3, 1, "FX3 2", 1);
   }
 
   if (row == 2)
   {
-    set_mixer_FX2(0, 2, "FX2 D", 0);
-    set_mixer_FX2(1, 2, "FX2 2", 1);
+    set_mixer_dry(0, 2, "Dry 3", 2);
+    set_mixer_FX1(1, 2, "FX1 3", 2);
     set_mixer_FX2(2, 2, "FX2 3", 2);
-    set_mixer_FX2(3, 2, "FX2 4", 3);
+    set_mixer_FX3(3, 2, "FX3 3", 2);
   }
 
   if (row == 3)
   {
-    set_mixer_FX3(0, 3, "FX2 D", 0);
-    set_mixer_FX3(1, 3, "FX2 2", 1);
-    set_mixer_FX3(2, 3, "FX2 3", 2);
-    set_mixer_FX3(3, 3, "FX2 4", 3);
+    set_mixer_dry(0, 3, "Dry 4", 3);
+    set_mixer_FX1(1, 3, "FX1 4", 3);
+    set_mixer_FX2(2, 3, "FX2 4", 3);
+    set_mixer_FX3(3, 3, "FX3 4", 3);
   }
 }
 void set_mixer_FX_page2(uint8_t row)
@@ -1170,32 +1180,32 @@ void set_mixer_FX_page2(uint8_t row)
   {
 
     set_mixer_dry(0, 0, "Dry 5", 4);
-    set_mixer_dry(1, 0, "Dry 6", 5);
-    set_mixer_dry(2, 0, "Dry 7", 6);
-    set_mixer_dry(3, 0, "Dry 8", 7);
+    set_mixer_FX1(1, 0, "FX1 5", 4);
+    set_mixer_FX2(2, 0, "FX2 5", 4);
+    set_mixer_FX3(3, 0, "FX3 5", 4);
   }
 
   if (row == 1)
   {
-    set_mixer_FX1(0, 1, "FX1 5", 4);
+    set_mixer_dry(0, 1, "Dry 6", 5);
     set_mixer_FX1(1, 1, "FX1 6", 5);
-    set_mixer_FX1(2, 1, "FX1 7", 6);
-    set_mixer_FX1(3, 1, "FX1 8", 7);
+    set_mixer_FX2(2, 1, "FX2 6", 5);
+    set_mixer_FX3(3, 1, "FX3 6", 5);
   }
 
   if (row == 2)
   {
-    set_mixer_FX2(0, 2, "FX2 5", 4);
-    set_mixer_FX2(1, 2, "FX2 6", 5);
+    set_mixer_dry(0, 2, "Dry 7", 6);
+    set_mixer_FX1(1, 2, "FX1 7", 6);
     set_mixer_FX2(2, 2, "FX2 7", 6);
-    set_mixer_FX2(3, 2, "FX2 8", 7);
+    set_mixer_FX3(3, 2, "FX3 7", 6);
   }
 
   if (row == 3)
   {
-    set_mixer_FX3(0, 3, "FX3 5", 4);
-    set_mixer_FX3(1, 3, "FX3 6", 5);
-    set_mixer_FX3(2, 3, "FX3 7", 6);
+    set_mixer_dry(0, 3, "Dry 8", 7);
+    set_mixer_FX1(1, 3, "FX1 8", 7);
+    set_mixer_FX2(2, 3, "FX2 8", 7);
     set_mixer_FX3(3, 3, "FX3 8", 7);
   }
 }
@@ -1270,7 +1280,33 @@ void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
     }
   }
 }
+void show_trellisFX_mixerPage()
+{
+  for (int t = 0; t < NUM_TRACKS; t++)
+  {
 
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 0, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 1, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 2, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 3, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, allTracks[t]->mixDryPot / 42, t, TRELLIS_PINK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 4, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 5, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 6, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 7, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, allTracks[t]->mixFX1Pot / 42 + 4, t, TRELLIS_OLIVE);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 8, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 9, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 10, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 11, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, allTracks[t]->mixFX2Pot / 42 + 8, t, TRELLIS_AQUA);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 12, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 13, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 14, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 15, t, TRELLIS_BLACK);
+    trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, allTracks[t]->mixFX3Pot / 42 + 12, t, TRELLIS_ORANGE);
+  }
+}
 bool compareFiles(File &file, SerialFlashFile &ffile)
 {
   file.seek(0);

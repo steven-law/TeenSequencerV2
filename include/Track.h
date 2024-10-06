@@ -80,13 +80,13 @@ public:
     // mixer
     uint8_t mixGainPot = 127;
     float mixGain = 1;
-    uint8_t mixDryPot;
+    uint8_t mixDryPot = 127;
     float mixDry = 1;
-    uint8_t mixFX1Pot;
+    uint8_t mixFX1Pot = 127;
     float mixFX1 = 0;
-    uint8_t mixFX2Pot;
+    uint8_t mixFX2Pot = 127;
     float mixFX2 = 0;
-    uint8_t mixFX3Pot;
+    uint8_t mixFX3Pot = 127;
     float mixFX3 = 0;
     bool muted;
     bool soloed;

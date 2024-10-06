@@ -11,7 +11,7 @@
 #include <Plugins/plugin_List.h>
 
 #include "FX/FX_Section.h"
-//#include "hardware/tftClass.h"
+// #include "hardware/tftClass.h"
 class tftClass;
 extern bool change_plugin_row;
 
@@ -20,9 +20,9 @@ extern float *note_frequency;
 // Encoder Pins
 extern bool enc_moved[4];
 extern int encoded[4];
-//tftClass drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
+// tftClass drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 uint8_t getEncodervalue(uint8_t XPos, uint8_t YPos, const char *name, uint8_t oldValue);
-//void clearWorkSpace();
+// void clearWorkSpace();
 
 // TeensyDAW: begin automatically generated code
 class Output
@@ -42,13 +42,17 @@ public:
 
         patchCord[pci++] = new AudioConnection(fx_section.endmixer, 0, finalFilter, 0);
         patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 0);
-     //patchCord[pci++] = new AudioConnection(plugin_12.waveform, 0, i2s, 0);
+        // patchCord[pci++] = new AudioConnection(plugin_12.waveform, 0, i2s, 0);
         patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 1);
     }
     void setup()
     {
 
-        sgtl5000.enable();
+       if (!sgtl5000.enable())
+       Serial.println("AudioBoard NOT available");
+       else
+       Serial.println("AudioBoard available");
+        //sgtl5000.inputSelect(AUDIO_INPUT_LINEIN);
         sgtl5000.volume(1);
         fx_section.setup();
 
@@ -89,4 +93,4 @@ public:
 };
 
 // extern Output MasterOut;
-#endif //MASTEROUT_H
+#endif // MASTEROUT_H

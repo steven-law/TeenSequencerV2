@@ -115,6 +115,27 @@ private:
 	MIXERS_MULT_TYPE multiplier[2];
 	audio_block_t *inputQueueArray[2];
 };
-
+class AudioMixer16 : public AudioStream
+{
+public:
+	AudioMixer16(void) : AudioStream(16, inputQueueArray) {
+		for (int i=0; i<16; i++) multiplier[i] = MIXERS_MAX_MULT_I;
+	}
+	virtual void update(void);
+	void gain(unsigned int channel, float gain) {
+		if (channel >= 16) return;
+		if (gain > MIXERS_MAX_GAIN) gain = MIXERS_MAX_GAIN;
+		else if (gain < MIXERS_MIN_GAIN) gain = MIXERS_MIN_GAIN;
+		multiplier[channel] = gain * MIXERS_MAX_MULT_F; // TODO: proper roundoff?
+	}
+	void gain(float gain) {
+	    if (gain > MIXERS_MAX_GAIN) gain = MIXERS_MAX_GAIN;
+		else if (gain < MIXERS_MIN_GAIN) gain = MIXERS_MIN_GAIN;
+		for (int i=0; i<16; i++) multiplier[i] = gain * MIXERS_MAX_MULT_F;
+	}
+private:
+	MIXERS_MULT_TYPE multiplier[16];
+	audio_block_t *inputQueueArray[16];
+};
 
 #endif

@@ -9,13 +9,13 @@
 
 #include <Plugins/Plugin_2.h>
 ////#include "hardware/tftClass.h"
-//class tftClass;
+// class tftClass;
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-//void clearWorkSpace();
+// void clearWorkSpace();
 extern const char *filterName[4];
 
 void Plugin_2::setup()
@@ -25,6 +25,13 @@ void Plugin_2::setup()
 
     waveform.begin(WAVEFORM_SINE);
     waveform.amplitude(1);
+    waveform.frequencyModulation(3);
+
+    LFO.begin(WAVEFORM_SINE);
+    LFO.amplitude(1);
+    LFO.frequency(2);
+    fEnvMixer.gain(0, 1);
+    fEnvMixer.gain(1, 1);
 
     Fenv.delay(0);
     Fenv.attack(0);
@@ -51,21 +58,25 @@ void Plugin_2::setup()
     Aenv.decay(0);
     Aenv.sustain(1);
     Aenv.release(200);
-MixGain.gain(1);
+    MixGain.gain(1);
     // mixer.gain(0, 1);
-potentiometer[presetNr][0]=1;
-potentiometer[presetNr][1]=48;
-potentiometer[presetNr][8]=60;
-potentiometer[presetNr][9]=0;
-potentiometer[presetNr][10]=30;
-potentiometer[presetNr][11]=0;
-potentiometer[presetNr][12]=5;
-potentiometer[presetNr][13]=0;
-potentiometer[presetNr][14]=127;
-potentiometer[presetNr][15]=20;
-    
-     //change_preset();
-    //SongVol.gain(1);
+    potentiometer[presetNr][0] = 1;
+    potentiometer[presetNr][1] = 48;
+    potentiometer[presetNr][4] = 1;
+    potentiometer[presetNr][5] = 1;
+    potentiometer[presetNr][6] = 50;
+    potentiometer[presetNr][7] = 20;
+    potentiometer[presetNr][8] = 60;
+    potentiometer[presetNr][9] = 0;
+    potentiometer[presetNr][10] = 30;
+    potentiometer[presetNr][11] = 0;
+    potentiometer[presetNr][12] = 5;
+    potentiometer[presetNr][13] = 0;
+    potentiometer[presetNr][14] = 127;
+    potentiometer[presetNr][15] = 20;
+
+    // change_preset();
+    // SongVol.gain(1);
 }
 void Plugin_2::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -89,10 +100,17 @@ void Plugin_2::set_parameters(uint8_t row)
 
             set_voice_waveform(0, 0, "W~Form");
             set_voice_amplitude(1, 0, "Volume");
+            set_LFO2VCO_frequency(2, 0, "LFO-Freq");
+            set_LFO2VCO_amplitude(3, 0, "LFO-Lvl");
         }
 
         if (row == 1)
         {
+            set_DC_amplitude(0, 1, "Env-Lvl");
+            set_LFO_waveform(1, 1, "LFO W~F");
+            set_LFO_frequency(2, 1, "LFO-Freq");
+            set_LFO_amplitude(3, 1, "LFO-Lvl");
+            
         }
 
         if (row == 2)
@@ -126,6 +144,13 @@ void Plugin_2::draw_plugin()
         // Serial.println("drawing plugin 2");
         drawPot(0, 0, potentiometer[presetNr][0], "W~Form");
         drawPot(1, 0, potentiometer[presetNr][1], "Volume");
+        drawPot(2, 0, potentiometer[presetNr][2], "LFO-Freq");
+        drawPot(3, 0, potentiometer[presetNr][3], "LFO-Lvl");
+
+        drawPot(0, 1, potentiometer[presetNr][4], "Env-Lvl");
+        drawPot(1, 1, potentiometer[presetNr][5], "LFO W~F");
+        drawPot(2, 1, potentiometer[presetNr][6], "LFO-Freq");
+        drawPot(3, 1, potentiometer[presetNr][7], "LFO-Lvl");
 
         drawPot(0, 2, potentiometer[presetNr][8], "Filt-Frq");
         drawPot(1, 2, potentiometer[presetNr][9], "Resonance");
@@ -139,13 +164,20 @@ void Plugin_2::draw_plugin()
         // drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
         // drawPot(3, 3, potentiometer[presetNr][15], "Release");
 
-        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 void Plugin_2::change_preset()
 {
     assign_voice_waveform(potentiometer[presetNr][0]);
     assign_voice_amplitude(potentiometer[presetNr][1]);
+    assign_LFO2VCO_frequency(potentiometer[presetNr][2]);
+    assign_LFO2VCO_amplitude(potentiometer[presetNr][3]);
+
+    assign_DC_amplitude(potentiometer[presetNr][4]);
+    assign_LFO_waveform(potentiometer[presetNr][5]);
+    assign_LFO_frequency(potentiometer[presetNr][6]);
+    assign_LFO_amplitude(potentiometer[presetNr][7]);
 
     assign_filter_frequency(potentiometer[presetNr][8]);
     assign_filter_resonance(potentiometer[presetNr][9]);
@@ -184,6 +216,89 @@ void Plugin_2::assign_voice_amplitude(uint8_t value)
     float ampl = value / MIDI_CC_RANGE_FLOAT;
 
     waveform.amplitude(ampl);
+}
+
+
+void Plugin_2::set_LFO_waveform(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        assign_LFO_waveform(get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_2::assign_LFO_waveform(uint8_t value)
+{
+    uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
+
+    LFO.begin(walveform);
+}
+void Plugin_2::set_LFO_frequency(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        assign_LFO_frequency(get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_2::assign_LFO_frequency(uint8_t value)
+{
+    // float ampl = map(value, 0, MIDI_CC_RANGE_FLOAT, 0.10, 100.00);
+
+    LFO.frequency(value + 1);
+}
+void Plugin_2::set_LFO_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        assign_LFO_amplitude(get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_2::assign_LFO_amplitude(uint8_t value)
+{
+    float ampl = value / MIDI_CC_RANGE_FLOAT;
+
+    fEnvMixer.gain(1, ampl);
+}
+
+void Plugin_2::set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        assign_LFO2VCO_amplitude(get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_2::assign_LFO2VCO_amplitude(uint8_t value)
+{
+    float ampl = value / MIDI_CC_RANGE_FLOAT;
+    Lfo2Vco.amplitude(ampl);
+    //Serial.printf("pl2 lfo2vco gain: %f\n", ampl);
+}
+void Plugin_2::set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        assign_LFO2VCO_frequency(get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_2::assign_LFO2VCO_frequency(uint8_t value)
+{
+    // float ampl = map(value, 0, MIDI_CC_RANGE_FLOAT, 0.10, 100.00);
+
+    Lfo2Vco.frequency(value + 1);
+}
+
+
+void Plugin_2::set_DC_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        assign_DC_amplitude(get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_2::assign_DC_amplitude(uint8_t value)
+{
+    float ampl = value / MIDI_CC_RANGE_FLOAT;
+
+    dc.amplitude(ampl);
 }
 
 void Plugin_2::set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name)

@@ -2,6 +2,7 @@
 #define TFT_H
 #include <ILI9341_t3n.h>
 #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+#include "input/touch.h"
 #include "Track.h"
 #include <projectVariables.h>
 #include <ownLibs/myClock.h>
@@ -65,12 +66,18 @@
 #define TRELLIS_2 579
 
 extern ILI9341_t3n tft;
+
 // Display
 extern unsigned long infoboxTimeAtCall;
 extern unsigned long infoboxTimeAtPress;
 extern unsigned long infoboxWaitingTime;
 extern bool infoboxShow;
 extern bool infoboxClear;
+
+
+
+
+
 
 void tft_setup(int dly);
 void clearWorkSpace();
@@ -123,5 +130,6 @@ void draw_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw);
 void draw_mixer();
 void draw_mixer_FX_page1();
 void draw_mixer_FX_page2();
+
 
 #endif

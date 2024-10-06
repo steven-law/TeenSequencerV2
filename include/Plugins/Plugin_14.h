@@ -1,5 +1,5 @@
-#ifndef PLUGIN_2_H
-#define PLUGIN_2_H
+#ifndef PLUGIN_14_H
+#define PLUGIN_14_H
 
 #include <Arduino.h>
 #include <Audio.h>
@@ -8,14 +8,18 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
+
 #include <Plugins/pluginClass.h>
+#include <Plugins/AudioSamples/AudioSamples.h>
 #include "ownLibs/filter_ladderlite.h"
+#include "TeensyVariablePlayback.h"
+#include "flashloader.h"
 ////#include "hardware/tftClass.h"
 // class tftClass;
 //  TeensyDAW: begin automatically generated code
 //  Name: 1Osc
-//  Description: Subtractive Synthesizer
-//  Voices: 12
+//  Description: Soundfont Synthesizer
+//  Voices: 1
 
 // VCO
 // Pot 1: Waveform
@@ -44,49 +48,55 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-class Plugin_2 : public PluginControll
+class Plugin_14 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
-    AudioSynthWaveformModulated waveform;
-    AudioSynthWaveform LFO;
-    AudioSynthWaveform Lfo2Vco;
-    AudioMixer2 fEnvMixer;
+    AudioInputI2S input;      // xy=105,63
+    AudioAnalyzePeak peak1;  // xy=278,108
+    AudioRecordQueue queue1; // xy=281,63
+    AudioPlayArrayResmp playMem;
+
     AudioEffectEnvelope Fenv;
     AudioFilterStateVariable filter;
     AudioMixer4 fMixer;
     AudioEffectEnvelope Aenv;
     // AudioMixer12 mixer;
-    AudioAmplifier MixGain;
+    AudioMixer2 MixGain;
     // AudioAmplifier SongVol;
-    AudioConnection *patchCord[12]; // total patchCordCount:98 including array typed ones.
-
+    AudioConnection *patchCord[10]; // total patchCordCount:98 including array typed ones.
+    // draw waveforms
+    int16_t pl14_customWaveform[256];
+    int8_t pl14_oldCustomWaveformValue = 0;
+    int8_t pl14_oldCustomWaveformXPos = 32;
+    char *_playFilename = "0.RAW";
+    char *_recFilename = "0.RAW";
+    bool audio_rec_now;
     // constructor (this is called when class-object is created)
-    Plugin_2(const char *Name, uint8_t ID) : PluginControll(Name, ID)
+    Plugin_14(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
 
         int pci = 0; // used only for adding new patchcords
 
         // patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
-        // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
-
         patchCord[pci++] = new AudioConnection(dc, 0, Fenv, 0);
-        patchCord[pci++] = new AudioConnection(Fenv, 0, fEnvMixer, 0);
-        patchCord[pci++] = new AudioConnection(LFO, 0, fEnvMixer, 1);
-        patchCord[pci++] = new AudioConnection(fEnvMixer, 0, filter, 1);
-
-        // patchCord[pci++] = new AudioConnection(LFO, 0, Lfo2Vco, 0);
-        patchCord[pci++] = new AudioConnection(Lfo2Vco, 0, waveform, 0);
-        patchCord[pci++] = new AudioConnection(waveform, 0, filter, 0);
+        patchCord[pci++] = new AudioConnection(playMem, 0, filter, 0);
+        patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
         patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
 
         patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
+        patchCord[pci++] = new AudioConnection(input, 0, MixGain, 1);
+        patchCord[pci++] = new AudioConnection(input, 0, peak1, 0);
+        patchCord[pci++] = new AudioConnection(input, 0, queue1, 0);
+
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
+
+        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        //  patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }
-    virtual ~Plugin_2() = default;
+    virtual ~Plugin_14() = default;
 
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
@@ -96,52 +106,46 @@ public:
     virtual void draw_plugin() override;
     virtual void change_preset() override;
 
+    void set_rec_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
+    void assign_rec_waveform(uint8_t value);
+    void set_rec_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    //void assign_rec_amplitude(uint8_t value);
     void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
-    void assign_voice_waveform(uint8_t value); // make virtual in baseclass but override
+    void assign_voice_waveform(uint8_t value);                             // make virtual in baseclass but override
     void set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
     void assign_voice_amplitude(uint8_t value);
-
-    void set_LFO_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
-    void assign_LFO_waveform(uint8_t value); // make virtual in baseclass but override
-    void set_LFO_frequency(uint8_t XPos, uint8_t YPos, const char *name);
-    void assign_LFO_frequency(uint8_t value); // make virtual in baseclass but override
-
-
-    void set_LFO_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
-    void assign_LFO_amplitude(uint8_t value);
-
-    void set_DC_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
-    void assign_DC_amplitude(uint8_t value);
-
-    void set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
-    void assign_LFO2VCO_amplitude(uint8_t value);
-    void set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos, const char *name);
-    void assign_LFO2VCO_frequency(uint8_t value); // make virtual in baseclass but override
-
+    void draw_actual_waveform(uint8_t YPos);
+    // draw waveforms
+    void clearcustomWaveform(uint8_t YPos);
+    void draw_customWaveform(uint8_t YPos);
+    void redraw_customWaveform(int8_t YPos);
+    void smooth_customWaveform(uint8_t YPos);
+    void show_peak();
     void set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name);
     void set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
     void set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name);
     void set_filter_type(uint8_t XPos, uint8_t YPos, const char *name);
     void selectFilterType(uint8_t mixerchannel);
 
-   
+    void set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
+    void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max);
+    void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max);
+    void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max);
 
     void assign_filter_frequency(uint8_t value);
     void assign_filter_resonance(uint8_t value);
     void assign_filter_sweep(uint8_t value);
 
-    void set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
     void assign_envelope_attack(uint8_t value, int max);
     void assign_envelope_decay(uint8_t value, int max);
     void assign_envelope_sustain(uint8_t value);
     void assign_envelope_release(uint8_t value, int max);
-
-     void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max);
-
+    void recorder_Page1_Dynamic();
+    void startRecording();
+void stopRecording();
+    void continueRecording();
 };
+#endif // PLUGIN_10_H
 
-#endif // PLUGIN_2_H
-extern Plugin_2 plugin_2;
+extern Plugin_14 plugin_14;

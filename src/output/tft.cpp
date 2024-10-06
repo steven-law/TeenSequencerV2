@@ -3,7 +3,6 @@
 // Teensy 4.1 PINOUT
 // Pinout for screen
 #define TIRQ_PIN 15                                                                   // alternate Pins: any digital pin
-#define CS_PIN 14                                                                     // alternate Pins: any digital pin
 #define TFT_DC 9                                                                      // alternate Pins 9, 10, 20, 21
 #define TFT_CS 10                                                                     // alternate Pins 9, 15, 20, 21
 #define TFT_RST 255                                                                   // 255 = unused, connect to 3.3V
@@ -17,14 +16,15 @@ unsigned long infoboxTimeAtPress = 0;
 unsigned long infoboxWaitingTime = 1000;
 bool infoboxShow = false;
 bool infoboxClear = false;
-//DMAMEM uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
+
+
+// DMAMEM uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 
 void tft_setup(int dly)
 {
     tft.begin();
     tft.setRotation(3);
-    // ts.begin();
-    // ts.setRotation(1);
+
     // tft.setFrameBuffer(tft_frame_buffer);
     // tft.useFrameBuffer(true);
 
@@ -226,30 +226,30 @@ void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
         if (cursorDeltaY == TRACK_FRAME_H)
             if (pixelOnY >= 1)
                 arranger_offset = 4;
-                /*
-        for (int pixel = 0; pixel < 16; pixel++)
-        {
-             tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, ILI9341_DARKGREY);  // draw upper line X1
-            tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, ILI9341_DARKGREY); // draw bottom line X2
-            tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY);  // draw left line Y1
-            tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY); // draw right line Y2
+        /*
+for (int pixel = 0; pixel < 16; pixel++)
+{
+     tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, ILI9341_DARKGREY);  // draw upper line X1
+    tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, ILI9341_DARKGREY); // draw bottom line X2
+    tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY);  // draw left line Y1
+    tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY); // draw right line Y2
 
-            //tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, tftRAM[0][pixel]);  // draw upper line X1
-           // tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, tftRAM[1][pixel]); // draw bottom line X2
-           // tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[2][pixel]);  // draw left line Y1
-           // tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[3][pixel]); // draw right line Y2
-        }
-        for (int pixel = 0; pixel < 16; pixel++)
-        {
-            tftRAM[0][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 1 + arranger_offset);  // save upper line
-            tftRAM[1][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 15 + arranger_offset); // save bottom line
-            tftRAM[2][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 1, pixel + (cursorDeltaY * pixelOnY) + arranger_offset);  // save left line
-            tftRAM[3][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 15, pixel + (cursorDeltaY * pixelOnY) + arranger_offset); // save right line
-        }*/
+    //tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, tftRAM[0][pixel]);  // draw upper line X1
+   // tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, tftRAM[1][pixel]); // draw bottom line X2
+   // tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[2][pixel]);  // draw left line Y1
+   // tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[3][pixel]); // draw right line Y2
+}
+for (int pixel = 0; pixel < 16; pixel++)
+{
+    tftRAM[0][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 1 + arranger_offset);  // save upper line
+    tftRAM[1][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 15 + arranger_offset); // save bottom line
+    tftRAM[2][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 1, pixel + (cursorDeltaY * pixelOnY) + arranger_offset);  // save left line
+    tftRAM[3][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 15, pixel + (cursorDeltaY * pixelOnY) + arranger_offset); // save right line
+}*/
 
         tft.drawRect((cursorDeltaX * last_xPos) + 1, (cursorDeltaY * last_yPos) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_DARKGREY);
 
-        uint8_t test = tft.readPixel(18,18); // save right line
+        uint8_t test = tft.readPixel(18, 18); // save right line
         tft.drawRect((cursorDeltaX * pixelOnX) + 1, (cursorDeltaY * pixelOnY) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_WHITE);
         Serial.printf("read pixel = %d\n", test);
         last_xPos = pixelOnX;
@@ -457,7 +457,7 @@ void draw_arranger_parameters(uint8_t lastProw)
         change_plugin_row = false;
         if (lastProw == 0)
         {
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / 16) + (arrangerpage*BARS_PER_PAGE)) - 2, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[(pixelTouchX / 16) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Trns", allTracks[gridTouchY - 1]->noteOffset[(pixelTouchX / 16) - 2], "NO_NAME");
@@ -762,23 +762,23 @@ void draw_mixer_FX_page1()
     {
         change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixDryPot, "Dry D");
-        drawPot(1, 0, allTracks[1]->mixDryPot, "Dry 2");
-        drawPot(2, 0, allTracks[2]->mixDryPot, "Dry 3");
-        drawPot(3, 0, allTracks[3]->mixDryPot, "Dry 4");
+        drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 D");
+        drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 D");
+        drawPot(3, 0, allTracks[0]->mixFX3Pot, "FX3 D");
 
-        drawPot(0, 1, allTracks[0]->mixFX1Pot, "FX1 D");
+        drawPot(0, 1, allTracks[1]->mixDryPot, "Dry 2");
         drawPot(1, 1, allTracks[1]->mixFX1Pot, "FX1 2");
-        drawPot(2, 1, allTracks[2]->mixFX1Pot, "FX1 3");
-        drawPot(3, 1, allTracks[3]->mixFX1Pot, "FX1 4");
+        drawPot(2, 1, allTracks[1]->mixFX2Pot, "FX2 2");
+        drawPot(3, 1, allTracks[1]->mixFX3Pot, "FX3 2");
 
-        drawPot(0, 2, allTracks[0]->mixFX2Pot, "FX2 D");
-        drawPot(1, 2, allTracks[1]->mixFX2Pot, "FX2 2");
+        drawPot(0, 2, allTracks[2]->mixDryPot, "Dry 3");
+        drawPot(1, 2, allTracks[2]->mixFX1Pot, "FX1 3");
         drawPot(2, 2, allTracks[2]->mixFX2Pot, "FX2 3");
-        drawPot(3, 2, allTracks[3]->mixFX2Pot, "FX2 4");
+        drawPot(3, 2, allTracks[2]->mixFX3Pot, "FX3 3");
 
-        drawPot(0, 3, allTracks[0]->mixFX3Pot, "FX3 D");
-        drawPot(1, 3, allTracks[1]->mixFX3Pot, "FX3 2");
-        drawPot(2, 3, allTracks[2]->mixFX3Pot, "FX3 3");
+        drawPot(0, 3, allTracks[3]->mixDryPot, "Dry 4");
+        drawPot(1, 3, allTracks[3]->mixFX1Pot, "FX1 4");
+        drawPot(2, 3, allTracks[3]->mixFX2Pot, "FX2 4");
         drawPot(3, 3, allTracks[3]->mixFX3Pot, "FX3 4");
     }
 }
@@ -789,23 +789,24 @@ void draw_mixer_FX_page2()
     {
         change_plugin_row = false;
         drawPot(0, 0, allTracks[4]->mixDryPot, "Dry 5");
-        drawPot(1, 0, allTracks[5]->mixDryPot, "Dry 6");
-        drawPot(2, 0, allTracks[6]->mixDryPot, "Dry 7");
-        drawPot(3, 0, allTracks[7]->mixDryPot, "Dry 8");
+        drawPot(1, 0, allTracks[4]->mixFX1Pot, "FX1 5");
+        drawPot(2, 0, allTracks[4]->mixFX2Pot, "FX2 5");
+        drawPot(3, 0, allTracks[4]->mixFX3Pot, "FX3 5");
 
-        drawPot(0, 1, allTracks[4]->mixFX1Pot, "FX1 5");
+        drawPot(0, 1, allTracks[5]->mixDryPot, "Dry 6");
         drawPot(1, 1, allTracks[5]->mixFX1Pot, "FX1 6");
-        drawPot(2, 1, allTracks[6]->mixFX1Pot, "FX1 7");
-        drawPot(3, 1, allTracks[7]->mixFX1Pot, "FX1 8");
+        drawPot(2, 1, allTracks[5]->mixFX2Pot, "FX2 6");
+        drawPot(3, 1, allTracks[5]->mixFX3Pot, "FX3 6");
 
-        drawPot(0, 2, allTracks[4]->mixFX2Pot, "FX1 5");
-        drawPot(1, 2, allTracks[5]->mixFX2Pot, "FX1 6");
-        drawPot(2, 2, allTracks[6]->mixFX2Pot, "FX1 7");
-        drawPot(3, 2, allTracks[7]->mixFX2Pot, "FX1 8");
+        drawPot(0, 2, allTracks[6]->mixDryPot, "Dry 7");
+        drawPot(1, 2, allTracks[6]->mixFX1Pot, "FX1 7");
+        drawPot(2, 2, allTracks[6]->mixFX2Pot, "FX2 7");
+        drawPot(3, 2, allTracks[6]->mixFX3Pot, "FX3 7");
 
-        drawPot(0, 3, allTracks[4]->mixFX3Pot, "FX1 5");
-        drawPot(1, 3, allTracks[5]->mixFX3Pot, "FX1 6");
-        drawPot(2, 3, allTracks[6]->mixFX3Pot, "FX1 7");
-        drawPot(3, 3, allTracks[7]->mixFX3Pot, "FX1 8");
+        drawPot(0, 3, allTracks[7]->mixDryPot, "Dry 8");
+        drawPot(1, 3, allTracks[7]->mixFX1Pot, "FX1 8");
+        drawPot(2, 3, allTracks[7]->mixFX2Pot, "FX2 8");
+        drawPot(3, 3, allTracks[7]->mixFX3Pot, "FX3 8");
     }
 }
+

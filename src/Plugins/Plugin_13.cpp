@@ -7,25 +7,24 @@
 #include "ownLibs/mixers.h"
 #include "projectVariables.h"
 
-#include <Plugins/Plugin_12.h>
-////#include "hardware/tftClass.h"
-// class tftClass;
+#include <Plugins/Plugin_13.h>
+
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-// void clearWorkSpace();
+void clearWorkSpace();
 extern const char *filterName[4];
 
-void Plugin_12::setup()
+void Plugin_13::setup()
 {
 
     dc.amplitude(1);
 
-    // waveform.begin(WAVEFORM_SINE);
-    // waveform.amplitude(1);
-    waveform.enableInterpolation(true);
+    waveform.begin(WAVEFORM_ARBITRARY);
+    waveform.amplitude(1);
+    waveform.arbitraryWaveform(pl13_customWaveform, 172.0);
     Fenv.delay(0);
     Fenv.attack(0);
     Fenv.hold(0);
@@ -55,8 +54,7 @@ void Plugin_12::setup()
     // mixer.gain(0, 1);
 
     MixGain.gain(1);
-    potentiometer[presetNr][0] = 0;
-    potentiometer[presetNr][1] = 1;
+    potentiometer[presetNr][0] = 1;
     potentiometer[presetNr][1] = 48;
     potentiometer[presetNr][8] = 60;
     potentiometer[presetNr][9] = 0;
@@ -68,23 +66,20 @@ void Plugin_12::setup()
     potentiometer[presetNr][15] = 20;
     // SongVol.gain(1);
 }
-void Plugin_12::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
+void Plugin_13::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    // float frequency = note_frequency[notePlayed] * tuning;
-    //  waveform.frequency(frequency);
-    waveform.setPlaybackRate(note_frequency[notePlayed]);
-    waveform.playRaw(_filename, 1);
+    float frequency = note_frequency[notePlayed] * tuning;
+    Serial.printf("pl13: notePlayed= %d\n", notePlayed);
+    waveform.frequency(frequency);
     Fenv.noteOn();
     Aenv.noteOn();
-    Serial.println("PL12 NOteOn");
-    Serial.println(_filename);
 }
-void Plugin_12::noteOff(uint8_t notePlayed, uint8_t voice)
+void Plugin_13::noteOff(uint8_t notePlayed, uint8_t voice)
 {
     Fenv.noteOff();
     Aenv.noteOff();
 }
-void Plugin_12::set_parameters(uint8_t row)
+void Plugin_13::set_parameters(uint8_t row)
 {
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -92,13 +87,13 @@ void Plugin_12::set_parameters(uint8_t row)
         if (row == 0)
         {
 
-            set_voice_bank(0, 0, bankNames[potentiometer[presetNr][0]]);
-            set_voice_waveform(1, 0, "W~Form");
-            set_voice_amplitude(2, 0, "Volume");
+            set_voice_waveform(0, 0, "W~Form");
+            set_voice_amplitude(1, 0, "Volume");
         }
 
         if (row == 1)
         {
+            draw_voice_waveform(0, 5, "Waveform");
         }
 
         if (row == 2)
@@ -123,16 +118,16 @@ void Plugin_12::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
-void Plugin_12::draw_plugin()
+void Plugin_13::draw_plugin()
 {
     if (change_plugin_row)
     {
         change_plugin_row = false;
         clearWorkSpace();
         // Serial.println("drawing plugin 2");
-        drawPot(0, 0, potentiometer[presetNr][0], bankNames[potentiometer[presetNr][0]]);
-        drawPot(1, 0, potentiometer[presetNr][1], "W~Form");
-        drawPot(2, 0, potentiometer[presetNr][2], "Volume");
+        drawPot(0, 0, potentiometer[presetNr][0], "W~Form");
+        drawPot(1, 0, potentiometer[presetNr][1], "Volume");
+        redraw_customWaveform(5);
 
         drawPot(0, 2, potentiometer[presetNr][8], "Filt-Frq");
         drawPot(1, 2, potentiometer[presetNr][9], "Resonance");
@@ -149,12 +144,10 @@ void Plugin_12::draw_plugin()
         // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
-void Plugin_12::change_preset()
+void Plugin_13::change_preset()
 {
-    assign_voice_bank(potentiometer[presetNr][0]);
-
-    assign_voice_waveform(potentiometer[presetNr][1]);
-    assign_voice_amplitude(potentiometer[presetNr][2]);
+    assign_voice_waveform(potentiometer[presetNr][0]);
+    assign_voice_amplitude(potentiometer[presetNr][1]);
 
     assign_filter_frequency(potentiometer[presetNr][8]);
     assign_filter_resonance(potentiometer[presetNr][9]);
@@ -166,62 +159,113 @@ void Plugin_12::change_preset()
     assign_envelope_sustain(potentiometer[presetNr][14]);
     assign_envelope_release(potentiometer[presetNr][15], 2000);
 }
-void Plugin_12::set_voice_bank(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_13::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
-        assign_voice_bank(constrain(get_Potentiometer(XPos, YPos, name), 0, 7));
+        int reworkWaveform;
+        reworkWaveform = get_Potentiometer(XPos, YPos, "W~Form");
+        if (reworkWaveform > 64)
+            clearcustomWaveform(5);
+        if (reworkWaveform <= 64)
+            smooth_customWaveform(5);
     }
+    // draw singleCycle Waveform BY HAND
 }
-void Plugin_12::assign_voice_bank(uint8_t value)
+void Plugin_13::draw_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
 
-    // uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-    sprintf(_filename, "%s%d.raw\0", bankNames[value], potentiometer[presetNr][1]);
-
-    // waveform.begin(walveform);
-}
-void Plugin_12::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
-{
-    if (enc_moved[XPos])
+ if (ts.touched())
     {
-        assign_voice_waveform(get_Potentiometer(XPos, YPos, name));
+        int xPos_SingleCyclePixel;
+        int yPos_SingleCyclePixel;
+        int oldCustomWaveformValue;
+        static int old_yPos_SingleCyclePixel;
+        TS_Point p = ts.getPoint();
+        int SCdrawX = map(p.x, TS_MINX, TS_MAXX, 0, 320);
+        int SCdrawY = map(p.y, TS_MINY, TS_MAXY, 0, 240);
+
+        //  if (!enc_moved[0] && !enc_moved[1]) {
+        xPos_SingleCyclePixel = constrain(SCdrawX, 32, 288);
+        yPos_SingleCyclePixel = constrain(SCdrawY, 16, 224);
+
+        //  if (1 < gridTouchX && gridTouchX < 18 && 0 < gridTouchY && gridTouchY < 13) {
+        int arrayPos = constrain(xPos_SingleCyclePixel - 32, 0, 255);
+        int singleCycleValue = map(yPos_SingleCyclePixel, 16, 224, 32768, -32768);
+        pl13_customWaveform[arrayPos] = singleCycleValue;
+        Serial.printf("ArrayPos=%d, sampleData=%i\n", arrayPos, singleCycleValue);
+        // tft.drawPixel(xPos_SingleCyclePixel, yPos_SingleCyclePixel, ILI9341_WHITE);
+        tft.drawLine(pl13_oldCustomWaveformXPos, (old_yPos_SingleCyclePixel / 5) + (( YPos) * STEP_FRAME_H), xPos_SingleCyclePixel, (yPos_SingleCyclePixel / 5) + (( YPos) * STEP_FRAME_H), ILI9341_WHITE);
+        oldCustomWaveformValue = singleCycleValue;
+        pl13_oldCustomWaveformXPos = xPos_SingleCyclePixel;
+        old_yPos_SingleCyclePixel = yPos_SingleCyclePixel;
+    }
+ 
+}
+void Plugin_13::smooth_customWaveform(uint8_t YPos)
+{
+    for (int i = 0; i < 256; i++)
+    {
+
+        if (pl13_customWaveform[i] == 0)
+            for (int b = i; b < 256; b++)
+                pl13_customWaveform[i] = pl13_customWaveform[i - 1] + (((pl13_customWaveform[b] / (b - (i - 1)))) * (i - (i - 1)));
+    }
+    redraw_customWaveform(YPos);
+}
+// draw waveforms
+void Plugin_13::clearcustomWaveform(uint8_t YPos)
+{
+    // pl12WaveformAssigned = false;
+    for (int i = 0; i < 256; i++)
+    {
+        pl13_customWaveform[i] = 0;
+    }
+    pl13_oldCustomWaveformValue = 0;
+    pl13_oldCustomWaveformXPos = 32;
+    redraw_customWaveform(YPos);
+}
+
+
+void Plugin_13::redraw_customWaveform(int8_t YPos)
+{
+    for (int i = 0; i < 255; i++)
+    {
+        // static int startY;
+        int startY = map(pl13_customWaveform[i], 32768, -32768, 0, 41);
+        int endY = map(pl13_customWaveform[i + 1], 32768, -32768, 0, 41);
+        tft.drawLine(i + 32, startY + (( YPos) * STEP_FRAME_H), i + 33, endY + (( YPos) * STEP_FRAME_H), ILI9341_WHITE);
+        // startY=endY;
     }
 }
-void Plugin_12::assign_voice_waveform(uint8_t value)
+void Plugin_13::assign_voice_waveform(uint8_t value)
 {
-
-    // uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-    sprintf(_filename, "%s%d.raw\0", bankNames[potentiometer[presetNr][0]], value);
-
-    // waveform.begin(walveform);
+    uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 27);
 }
 
-void Plugin_12::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_13::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_voice_amplitude(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_12::assign_voice_amplitude(uint8_t value)
+void Plugin_13::assign_voice_amplitude(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
-
     fMixer.gain(0, ampl);
     fMixer.gain(1, ampl);
     fMixer.gain(2, ampl);
-    fMixer.gain(3, ampl);
 }
 
-void Plugin_12::set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_13::set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_filter_frequency(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_12::assign_filter_frequency(uint8_t value)
+void Plugin_13::assign_filter_frequency(uint8_t value)
 {
 
     int frequency = note_frequency[value] * tuning;
@@ -230,14 +274,14 @@ void Plugin_12::assign_filter_frequency(uint8_t value)
     // ladder[i].frequency(frequency);
 }
 
-void Plugin_12::set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max)
+void Plugin_13::set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max)
 {
     if (enc_moved[XPos])
     {
         assign_filter_resonance(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_12::assign_filter_resonance(uint8_t value)
+void Plugin_13::assign_filter_resonance(uint8_t value)
 {
 
     float reso = value / 25.40;
@@ -245,28 +289,28 @@ void Plugin_12::assign_filter_resonance(uint8_t value)
     filter.resonance(reso);
     // ladder[i].resonance(reso);
 }
-void Plugin_12::set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_13::set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_filter_sweep(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_12::assign_filter_sweep(uint8_t value)
+void Plugin_13::assign_filter_sweep(uint8_t value)
 {
     float swp = value / 18.14;
 
     filter.octaveControl(swp);
     // ladder[i].octaveControl(swp);
 }
-void Plugin_12::set_filter_type(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_13::set_filter_type(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         selectFilterType(constrain(get_Potentiometer(XPos, YPos, name), 0, 3));
     }
 }
-void Plugin_12::selectFilterType(uint8_t mixerchannel)
+void Plugin_13::selectFilterType(uint8_t mixerchannel)
 {
 
     fMixer.gain(0, 0);
@@ -276,35 +320,35 @@ void Plugin_12::selectFilterType(uint8_t mixerchannel)
     fMixer.gain(mixerchannel, 1);
 }
 
-void Plugin_12::assign_envelope_attack(uint8_t value, int max)
+void Plugin_13::assign_envelope_attack(uint8_t value, int max)
 {
     int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
 
     Fenv.attack(attack);
     Aenv.attack(attack);
 }
-void Plugin_12::assign_envelope_decay(uint8_t value, int max)
+void Plugin_13::assign_envelope_decay(uint8_t value, int max)
 {
     int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
 
     Fenv.decay(decay);
     Aenv.decay(decay);
 }
-void Plugin_12::assign_envelope_sustain(uint8_t value)
+void Plugin_13::assign_envelope_sustain(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
 
     Fenv.sustain(ampl);
     Aenv.sustain(ampl);
 }
-void Plugin_12::assign_envelope_release(uint8_t value, int max)
+void Plugin_13::assign_envelope_release(uint8_t value, int max)
 {
     int release = map(value, 0, MIDI_CC_RANGE, 0, max);
 
     Fenv.release(release);
     Aenv.release(release);
 }
-void Plugin_12::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
+void Plugin_13::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
 {
 
     if (enc_moved[0])
@@ -340,21 +384,21 @@ void Plugin_12::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
 }
-void Plugin_12::set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max)
+void Plugin_13::set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
         assign_envelope_attack(get_Potentiometer(XPos, YPos, name), max);
     }
 }
-void Plugin_12::set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max)
+void Plugin_13::set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
         assign_envelope_decay(get_Potentiometer(XPos, YPos, name), max);
     }
 }
-void Plugin_12::set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_13::set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -362,7 +406,7 @@ void Plugin_12::set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *nam
         assign_envelope_sustain(get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT);
     }
 }
-void Plugin_12::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max)
+void Plugin_13::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
@@ -370,4 +414,4 @@ void Plugin_12::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *nam
     }
 }
 
-Plugin_12 plugin_12("REC", 11);
+Plugin_13 plugin_13("Draw", 12);
