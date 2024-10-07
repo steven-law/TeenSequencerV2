@@ -15,7 +15,7 @@ void Plugin_14::setup()
     dc.amplitude(1);
 
     playMem.begin();
-    playMem.enableInterpolation(true);
+     playMem.enableInterpolation(true);
     Fenv.delay(0);
     Fenv.attack(0);
     Fenv.hold(0);
@@ -44,11 +44,12 @@ void Plugin_14::setup()
 
     // mixer.gain(0, 1);
 
-    MixGain.gain(1);
+    MixGain.gain(0, 1);
+    MixGain.gain(1, 1);
     potentiometer[presetNr][0] = 0;
     potentiometer[presetNr][1] = 127;
-    potentiometer[presetNr][0] = 0;
-    potentiometer[presetNr][1] = 127;
+    potentiometer[presetNr][2] = 0;
+    potentiometer[presetNr][3] = 127;
     potentiometer[presetNr][8] = 60;
     potentiometer[presetNr][9] = 0;
     potentiometer[presetNr][10] = 30;
@@ -58,13 +59,18 @@ void Plugin_14::setup()
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
     // SongVol.gain(1);
+    _playFilename = "0.RAW";
+    _recFilename = "0.RAW";
 }
+
 void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
     Serial.printf("pl14: notePlayed= %d\n", notePlayed);
-    playMem.setPlaybackRate(note_frequency[notePlayed]);
-    playMem.playRaw(_playFilename, 1);
+     playMem.setPlaybackRate(note_frequency[notePlayed]);
+    //  playMem.playRaw(_playFilename, 1);
+
+    playMem.playRaw(_playFilename,1);
     Fenv.noteOn();
     Aenv.noteOn();
     Serial.println(_playFilename);
@@ -81,8 +87,13 @@ void Plugin_14::set_parameters(uint8_t row)
     for (int i = 0; i < NUM_TRACKS; i++)
     {
         if (allTracks[i]->recordState && allTracks[i]->parameter[SET_MIDICH_OUT] == 62)
-            startRecording();
+        {
+            if (neotrellisPressed[3 + ((i + 4) * X_DIM)])
+                startrecording = true;
+            neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
+        }
     }
+    startRecording();
     if (audio_rec_now)
     {
         continueRecording();
@@ -94,7 +105,7 @@ void Plugin_14::set_parameters(uint8_t row)
         {
 
             set_rec_waveform(0, 0, "Rec W~F");
-           // set_rec_amplitude(1, 0, "Rec Vol");
+            // set_rec_amplitude(1, 0, "Rec Vol");
             set_voice_waveform(2, 0, "Play W~F");
             set_voice_amplitude(3, 0, "Play Vol");
         }
@@ -136,7 +147,7 @@ void Plugin_14::draw_plugin()
         drawPot(1, 0, potentiometer[presetNr][1], "Rec Vol");
         drawPot(2, 0, potentiometer[presetNr][2], "Play W~F");
         drawPot(3, 0, potentiometer[presetNr][3], "Play Vol");
-        redraw_customWaveform(5);
+        // redraw_customWaveform(5);
 
         drawPot(0, 2, potentiometer[presetNr][8], "Filt-Frq");
         drawPot(1, 2, potentiometer[presetNr][9], "Resonance");
@@ -156,7 +167,7 @@ void Plugin_14::draw_plugin()
 void Plugin_14::change_preset()
 {
     assign_rec_waveform(potentiometer[presetNr][0]);
-    //assign_rec_amplitude(potentiometer[presetNr][1]);
+    // assign_rec_amplitude(potentiometer[presetNr][1]);
     assign_voice_waveform(potentiometer[presetNr][2]);
     assign_voice_amplitude(potentiometer[presetNr][3]);
 
@@ -214,14 +225,15 @@ void Plugin_14::assign_voice_amplitude(uint8_t value)
 
 void Plugin_14::show_peak()
 {
-    if (peak1.available())
+    float peaker = peak1.read();
+
+    if (peak1.available() && peaker > 0.001)
     {
-        float peaker = peak1.read();
-        // Serial.println(peaker, 3);
         // level meter
         int actualPeak = map(peaker, 0.00, 1.00, 0, potentiometer[presetNr][1]);
-        if (millis() % 100 == 0)
+        if (millis() % 1 == 0)
         {
+            //  Serial.println(peaker, 3);
             drawPot(1, 0, actualPeak, "Rec Vol");
             draw_actual_waveform(5); // oscilloscope
         }
@@ -238,19 +250,25 @@ void Plugin_14::clearcustomWaveform(uint8_t YPos)
     }
     pl14_oldCustomWaveformValue = 0;
     pl14_oldCustomWaveformXPos = 32;
-    redraw_customWaveform(YPos);
+    // redraw_customWaveform(YPos);
 }
 void Plugin_14::draw_actual_waveform(uint8_t YPos)
 {
     float peaker = peak1.read();
-    static uint8_t xPos_SingleCyclePixel;
-    int yPos_SingleCyclePixel = map(peaker, 0.00, 1.00, 0, 41);
-    static int old_yPos_SingleCyclePixel;
-    xPos_SingleCyclePixel++;
-    Serial.printf("ArrayPos=%d, ypos=%i\n", xPos_SingleCyclePixel, yPos_SingleCyclePixel);
-    tft.drawLine(pl14_oldCustomWaveformXPos + 32, (old_yPos_SingleCyclePixel) + ((YPos)*STEP_FRAME_H), xPos_SingleCyclePixel + 32, (yPos_SingleCyclePixel) + ((YPos)*STEP_FRAME_H), ILI9341_WHITE);
-    pl14_oldCustomWaveformXPos = xPos_SingleCyclePixel;
-    old_yPos_SingleCyclePixel = yPos_SingleCyclePixel;
+    static uint8_t xPosPeak;
+    int peakHeight = map(peaker, 0.00, 1.00, 41, 0);
+    static int oldPeakHeight;
+    static int oldxPosPeak;
+    xPosPeak++;
+    if (xPosPeak == 0)
+    {
+        tft.fillRect(32, YPos * STEP_FRAME_H, 256, 41, ILI9341_DARKGREY);
+        oldxPosPeak = 0;
+    }
+    // Serial.printf("xPos=%d, ypos=%i\n", xPosPeak, peakHeight);
+    tft.drawLine(oldxPosPeak + 32, (oldPeakHeight) + ((YPos)*STEP_FRAME_H), xPosPeak + 32, (peakHeight) + ((YPos)*STEP_FRAME_H), ILI9341_WHITE);
+    oldxPosPeak = xPosPeak;
+    oldPeakHeight = peakHeight;
 }
 void Plugin_14::smooth_customWaveform(uint8_t YPos)
 {
@@ -261,7 +279,7 @@ void Plugin_14::smooth_customWaveform(uint8_t YPos)
             for (int b = i; b < 256; b++)
                 pl14_customWaveform[i] = pl14_customWaveform[i - 1] + (((pl14_customWaveform[b] / (b - (i - 1)))) * (i - (i - 1)));
     }
-    redraw_customWaveform(YPos);
+    //  redraw_customWaveform(YPos);
 }
 
 void Plugin_14::redraw_customWaveform(int8_t YPos)
@@ -434,21 +452,24 @@ void Plugin_14::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *nam
 
 void Plugin_14::startRecording()
 {
-
-    Serial.println("startRecording");
-    //  sprintf(_RecFile, "%d.RAW\0", AudioRecorder.selected_file);
-    if (SD.exists(_recFilename))
+    if (startrecording)
     {
-        // The SD library writes new data to the end of the
-        // file, so to start a new recording, the old file
-        // must be deleted before new data is written.
-        SD.remove(_recFilename);
-    }
-    myFile = SD.open(_recFilename, FILE_WRITE);
-    if (myFile)
-    {
-        queue1.begin();
-        audio_rec_now = true;
+        Serial.println("startRecording");
+        //  sprintf(_RecFile, "%d.RAW\0", AudioRecorder.selected_file);
+        if (SD.exists(_recFilename))
+        {
+            // The SD library writes new data to the end of the
+            // file, so to start a new recording, the old file
+            // must be deleted before new data is written.
+            SD.remove(_recFilename);
+        }
+        myFile = SD.open(_recFilename, FILE_WRITE);
+        if (myFile)
+        {
+            queue1.begin();
+            audio_rec_now = true;
+        }
+        startrecording = false;
     }
 }
 
@@ -485,6 +506,7 @@ void Plugin_14::continueRecording()
 
 void Plugin_14::stopRecording()
 {
+
     Serial.println("stopRecording");
     queue1.end();
 

@@ -37,7 +37,7 @@ Plugin_9 plugin_9("rDrm", 9);
 Plugin_10 plugin_10("SF2", 9);
 Plugin_11 plugin_11("Ext", 9);*/
 
-PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12,&plugin_13};
+PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12,&plugin_13,&plugin_14};
 FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
@@ -90,7 +90,7 @@ void error(const char *message);
 
 void setup()
 {
-   while (!Serial)
+  // while (!Serial)
   {
     /* code */
   }

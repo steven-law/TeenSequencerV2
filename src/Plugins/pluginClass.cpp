@@ -4,6 +4,7 @@
 #include <Plugins/pluginClass.h>
 ////#include "hardware/tftClass.h"
 //class tftClass;
+
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;

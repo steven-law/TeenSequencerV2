@@ -44,7 +44,7 @@ extern bool change_plugin_row;
 class Plugin_11 : public PluginControll
 {
 public:
-    AudioInputI2S input;
+    //AudioInputI2S audioInput;
     AudioAmplifier NoteGain;
     AudioAmplifier MixGain;
     //AudioAmplifier SongVol;
@@ -57,7 +57,7 @@ public:
         int pci = 0; // used only for adding new patchcords
 
  
-        patchCord[pci++] = new AudioConnection(input, 0, NoteGain, 0);
+       // patchCord[pci++] = new AudioConnection(audioInput, 0, NoteGain, 0);
         patchCord[pci++] = new AudioConnection(NoteGain, 0, MixGain, 0);
 
         //patchCord[pci++] = new AudioConnection(input, 0, MixGain, 0);

@@ -1,19 +1,10 @@
 #ifndef PLUGIN_14_H
 #define PLUGIN_14_H
 
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
-
 #include <Plugins/pluginClass.h>
-#include <Plugins/AudioSamples/AudioSamples.h>
-#include "ownLibs/filter_ladderlite.h"
+#include <SerialFlash.h>
 #include "TeensyVariablePlayback.h"
-#include "flashloader.h"
+//#include "flashloader.h"
 ////#include "hardware/tftClass.h"
 // class tftClass;
 //  TeensyDAW: begin automatically generated code
@@ -52,26 +43,27 @@ class Plugin_14 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
-    AudioInputI2S input;      // xy=105,63
+  AudioInputI2S audioInput;
     AudioAnalyzePeak peak1;  // xy=278,108
     AudioRecordQueue queue1; // xy=281,63
-    AudioPlayArrayResmp playMem;
+    AudioPlaySdResmp playMem;
 
     AudioEffectEnvelope Fenv;
     AudioFilterStateVariable filter;
     AudioMixer4 fMixer;
     AudioEffectEnvelope Aenv;
     // AudioMixer12 mixer;
-    AudioMixer2 MixGain;
+    AudioMixer4 MixGain;
     // AudioAmplifier SongVol;
-    AudioConnection *patchCord[10]; // total patchCordCount:98 including array typed ones.
+    AudioConnection *patchCord[11]; // total patchCordCount:98 including array typed ones.
     // draw waveforms
     int16_t pl14_customWaveform[256];
     int8_t pl14_oldCustomWaveformValue = 0;
     int8_t pl14_oldCustomWaveformXPos = 32;
-    char *_playFilename = "0.RAW";
-    char *_recFilename = "0.RAW";
+    char *_playFilename;
+    char *_recFilename;
     bool audio_rec_now;
+    bool startrecording=false;
     // constructor (this is called when class-object is created)
     Plugin_14(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
@@ -86,10 +78,10 @@ public:
 
         patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
-        patchCord[pci++] = new AudioConnection(input, 0, MixGain, 1);
-        patchCord[pci++] = new AudioConnection(input, 0, peak1, 0);
-        patchCord[pci++] = new AudioConnection(input, 0, queue1, 0);
+        patchCord[pci++] = new AudioConnection(audioInput, 0, MixGain, 1);
+        patchCord[pci++] = new AudioConnection(audioInput, 0, peak1, 0);
 
+        patchCord[pci++] = new AudioConnection(audioInput, 0, queue1, 0);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
 

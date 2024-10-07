@@ -1,8 +1,12 @@
 #ifndef PLUGIN_CLASS
 #define PLUGIN_CLASS
-
+#include <Arduino.h>
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
 #include <SD.h>
 #include <projectVariables.h>
+#include "ownLibs/mixers.h"
 
 #include "input/trellis.h"
 #include "output/tft.h"
@@ -13,6 +17,8 @@
 #define MAX_FILTERSWEEP 7.00
 ////#include "hardware/tftClass.h"
 ////class tftClass;
+    
+//extern AudioInputI2S audioInput;
 extern float *note_frequency;
 extern int tuning;
 extern const char *filterName[4];

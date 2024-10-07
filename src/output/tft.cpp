@@ -311,7 +311,7 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25), STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
     circlePos_old[XPos] = circlePos[XPos];
-    Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
+    //Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
     dname_old[XPos] = dname;
 }
 void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release)

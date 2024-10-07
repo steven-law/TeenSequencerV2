@@ -9,7 +9,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_VALUE 6789
 #define NO_NAME "NO_NAME"
 
-#define NUM_PLUGINS 13
+#define NUM_PLUGINS 14
 
 #define NUM_TRACKS 8
 #define NUM_STEPS 16
