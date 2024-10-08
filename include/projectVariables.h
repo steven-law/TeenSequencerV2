@@ -1,10 +1,12 @@
 #ifndef PROJECT_VARIABLES_H
 #define PROJECT_VARIABLES_H
 #include "Arduino.h"
+#include "Audio.h"
 #include "SD.h"
 #include <ILI9341_t3n.h>
 
 extern File myFile;
+  
 extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_VALUE 6789
 #define NO_NAME "NO_NAME"

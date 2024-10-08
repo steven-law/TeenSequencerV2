@@ -121,6 +121,7 @@ void setup()
   allPlugins[3]->change_preset();
   allPlugins[4]->change_preset();
   allPlugins[5]->change_preset();
+  allPlugins[8]->change_preset();
   allPlugins[9]->change_preset();
   allPlugins[11]->change_preset();
   Serial.println("Audio & MIDI Setup done");
