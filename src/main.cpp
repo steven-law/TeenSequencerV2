@@ -496,7 +496,7 @@ void trellis_show_tft_mixer()
     {
       trellisScreen = TRELLIS_SCREEN_SONGPAGE_SELECTION;
       trellis.clear();
-      for (int i = 0; i < 7; i++)
+      for (int i = 0; i < 8; i++)
       {
         trellis.setLED(TrellisLED[i]);
         trellis.writeDisplay();
@@ -609,6 +609,25 @@ void trellis_show_tft_mixer()
       // clearWorkSpace();
       set_perform_page(lastPotRow);
       show_active_page_info("Perform", 0);
+
+      // trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
+    }
+     if (trellisPressed[7])
+    {
+      trellis.clear();
+      trellis.writeDisplay();
+      trellisPressed[7] = false;
+      trellisScreen = TRELLIS_SCREEN_CLIPLAUNCHER;
+      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
+      change_plugin_row = true;
+      activeScreen = INPUT_FUNCTIONS_FOR_CLIPLAUNCHER;
+
+      clearWorkSpace();
+      // activeScreen = INPUT_FUNCTIONS_FOR_FX1;
+      // clearWorkSpace();
+      //set_perform_page(lastPotRow);
+      draw_clip_launcher();
+      show_active_page_info("Launch", 0);
 
       // trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
     }

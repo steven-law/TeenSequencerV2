@@ -131,5 +131,6 @@ void draw_mixer();
 void draw_mixer_FX_page1();
 void draw_mixer_FX_page2();
 
+void draw_clip_launcher();
 
 #endif

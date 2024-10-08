@@ -17,7 +17,6 @@ unsigned long infoboxWaitingTime = 1000;
 bool infoboxShow = false;
 bool infoboxClear = false;
 
-
 // DMAMEM uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 
 void tft_setup(int dly)
@@ -311,7 +310,7 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25), STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
     circlePos_old[XPos] = circlePos[XPos];
-    //Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
+    // Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
     dname_old[XPos] = dname;
 }
 void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release)
@@ -389,6 +388,8 @@ void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest
     // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
+        if (lastPotRow ==5)
+        color = ILI9341_WHITE;
     if (drawRect)
         tft.drawRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, color);
     if (drawFilling)
@@ -810,3 +811,22 @@ void draw_mixer_FX_page2()
     }
 }
 
+void draw_clip_launcher()
+{
+
+    for (int t = 0; t < NUM_TRACKS; t++)
+    {
+        for (int c = 0; c < MAX_CLIPS; c++)
+        {
+            char *dname="0";
+            
+            sprintf(dname, "T%d-C%d\0", t, c);
+            if (allTracks[t]->clip_to_play[myClock.barTick] == c){
+                draw_value_box(5, c*2 + 2, t + 2, 0, 3, NO_VALUE, dname, trackColor[t] , 2, true, true);
+                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, trellisTrackColor[t]);}
+            else{
+                draw_value_box(5, c*2 + 2, t + 2, 0, 3, NO_VALUE, dname, trackColor[t] , 2, false, false);
+                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, TRELLIS_BLACK);}
+        }
+    }
+}

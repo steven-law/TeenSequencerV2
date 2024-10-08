@@ -33,6 +33,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define INPUT_FUNCTIONS_FOR_FX2 11
 #define INPUT_FUNCTIONS_FOR_FX3 12
 #define INPUT_FUNCTIONS_FOR_PERFORM 13
+#define INPUT_FUNCTIONS_FOR_CLIPLAUNCHER 14
 // clips
 #define MAX_CLIPS 9
 #define NUM_USER_CLIPS 7
@@ -167,10 +168,10 @@ extern unsigned long neotrellisReadPreviousMillis; // will store last time LED w
 #define TRELLIS_SCREEN_MIXER 12
 #define TRELLIS_SCREEN_MIXER1 13
 #define TRELLIS_SCREEN_PERFORM 14
-
 #define TRELLIS_SCREEN_ARRANGER_1 15
 #define TRELLIS_SCREEN_ARRANGER_2 16
 #define TRELLIS_SONGMODE_PAGE_16 TRELLIS_SCREEN_ARRANGER_1 + 16
+#define TRELLIS_SCREEN_CLIPLAUNCHER 32
 
 #define TRELLIS_SCREEN_STARTUP 99
 #define TRELLIS_MAX_PAGES TRELLIS_SONGMODE_PAGE_16 + 1
