@@ -61,13 +61,14 @@ void trellis_perform();
 #define TRELLIS_SCREEN_MIXER 12
 #define TRELLIS_SCREEN_MIXER1 13
 #define TRELLIS_SCREEN_PERFORM 14
+#define TRELLIS_SCREEN_CLIPLAUNCHER 15
 
-#define TRELLIS_SCREEN_ARRANGER_1 15
-#define TRELLIS_SCREEN_ARRANGER_2 16
+#define TRELLIS_SCREEN_ARRANGER_1 16
+#define TRELLIS_SCREEN_ARRANGER_2 17
 #define TRELLIS_SONGMODE_PAGE_16 TRELLIS_SCREEN_ARRANGER_1 + 16
 
 #define TRELLIS_SCREEN_STARTUP 99
-#define TRELLIS_MAX_PAGES TRELLIS_SONGMODE_PAGE_16 + 10
+#define TRELLIS_MAX_PAGES TRELLIS_SONGMODE_PAGE_16 + 1
 
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 
@@ -112,6 +113,7 @@ void set_perform_page(uint8_t row);
 void neotrellis_show_tft_seqMode();
 void neotrellis_show_tft_plugin();
 void trellis_show_tft_mixer();
+void trellis_play_clipLauncher();
 
 void neo_trellis_select_trackClips();
 void neo_trellis_set_brightness();

@@ -16,6 +16,8 @@ void Plugin_14::setup()
 
     playMem.begin();
      playMem.enableInterpolation(true);
+  inputGain.gain(1);
+
     Fenv.delay(0);
     Fenv.attack(0);
     Fenv.hold(0);
@@ -105,7 +107,7 @@ void Plugin_14::set_parameters(uint8_t row)
         {
 
             set_rec_waveform(0, 0, "Rec W~F");
-            // set_rec_amplitude(1, 0, "Rec Vol");
+             set_rec_amplitude(1, 0, "Rec Vol");
             set_voice_waveform(2, 0, "Play W~F");
             set_voice_amplitude(3, 0, "Play Vol");
         }
@@ -167,7 +169,7 @@ void Plugin_14::draw_plugin()
 void Plugin_14::change_preset()
 {
     assign_rec_waveform(potentiometer[presetNr][0]);
-    // assign_rec_amplitude(potentiometer[presetNr][1]);
+     assign_rec_amplitude(potentiometer[presetNr][1]);
     assign_voice_waveform(potentiometer[presetNr][2]);
     assign_voice_amplitude(potentiometer[presetNr][3]);
 
@@ -195,6 +197,18 @@ void Plugin_14::assign_rec_waveform(uint8_t value)
     sprintf(_recFilename, "%d.raw\0", value);
     // newdigate::flashloader loader;
     // sample = loader.loadSample(_recFileName);
+}
+void Plugin_14::set_rec_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        assign_rec_amplitude(get_Potentiometer(XPos, YPos, name));
+    }
+}
+void Plugin_14::assign_rec_amplitude(uint8_t value)
+{
+    float ampl = value / MIDI_CC_RANGE_FLOAT;
+  inputGain.gain(ampl);
 }
 void Plugin_14::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {

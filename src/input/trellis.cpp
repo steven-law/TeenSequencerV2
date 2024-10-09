@@ -12,13 +12,13 @@ unsigned long trellisRestartPreviousMillis = 0; // will store last time LED was 
 unsigned long trellisReadPreviousMillis = 0;    // will store last time LED was updated
 
 const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM]{0, 1, 2, 3, 16, 17, 18, 19, 32, 33, 34, 35, 48, 49, 50, 51,
-                                                               4, 5, 6, 7, 20, 21, 22, 23, 36, 37, 38, 39, 52, 53, 54, 55,
-                                                               8, 9, 10, 11, 24, 25, 26, 27, 40, 41, 42, 43, 56, 57, 58, 59,
-                                                               12, 13, 14, 15, 28, 29, 30, 31, 44, 45, 46, 47, 60, 61, 62, 63,
-                                                               64, 65, 66, 67, 80, 81, 82, 83, 96, 97, 98, 99, 112, 113, 114, 115,
-                                                               68, 69, 70, 71, 84, 85, 86, 87, 100, 101, 102, 103, 116, 117, 118, 119,
-                                                               72, 73, 74, 75, 88, 89, 90, 91, 104, 105, 106, 107, 120, 121, 122, 123,
-                                                               76, 77, 78, 79, 92, 93, 94, 95, 108, 109, 110, 111, 124, 125, 126, 127};
+                                                                  4, 5, 6, 7, 20, 21, 22, 23, 36, 37, 38, 39, 52, 53, 54, 55,
+                                                                  8, 9, 10, 11, 24, 25, 26, 27, 40, 41, 42, 43, 56, 57, 58, 59,
+                                                                  12, 13, 14, 15, 28, 29, 30, 31, 44, 45, 46, 47, 60, 61, 62, 63,
+                                                                  64, 65, 66, 67, 80, 81, 82, 83, 96, 97, 98, 99, 112, 113, 114, 115,
+                                                                  68, 69, 70, 71, 84, 85, 86, 87, 100, 101, 102, 103, 116, 117, 118, 119,
+                                                                  72, 73, 74, 75, 88, 89, 90, 91, 104, 105, 106, 107, 120, 121, 122, 123,
+                                                                  76, 77, 78, 79, 92, 93, 94, 95, 108, 109, 110, 111, 124, 125, 126, 127};
 
 int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 
@@ -651,7 +651,7 @@ void neotrellis_perform_set_active()
           neotrellis_set_control_buffer(3, t + 4, TRELLIS_WHITE);
           allTracks[t]->performIsActive = true;
           neotrellisPressed[3 + ((t + 4) * X_DIM)] = false;
-       
+
           break;
         }
         else if (allTracks[t]->performIsActive)
@@ -659,7 +659,7 @@ void neotrellis_perform_set_active()
           neotrellis_set_control_buffer(3, t + 4, trellisTrackColor[t]);
           allTracks[t]->performIsActive = false;
           neotrellisPressed[3 + ((t + 4) * X_DIM)] = false;
-        
+
           break;
         }
       }
@@ -844,7 +844,30 @@ void trellis_setStepsequencer()
     }
   }
 }
-
+void trellis_play_clipLauncher()
+{
+  if (trellisScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
+  {
+    for (int t = 0; t < NUM_TRACKS; t++)
+    {
+      for (int c = 0; c < MAX_CLIPS; c++)
+      {
+        uint8_t _nr = c + (t * TRELLIS_PADS_X_DIM);
+        if (trellisPressed[_nr])
+        {
+          Serial.printf("tp=%d\n", _nr);
+          trellisPressed[_nr] = false;
+          for (int i = 0; i < myClock.endOfLoop; i++)
+          {
+            allTracks[t]->clip_to_play[i] = c;
+          }
+          draw_clip_launcher();
+          break;
+        }
+      }
+    }
+  }
+}
 // colums
 void neotrellis_set_mute()
 {
@@ -1138,10 +1161,10 @@ void trellis_show_clockbar(uint8_t trackNr, uint8_t step)
         }
         if (step == 0)
         {
-          if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] /  TICKS_PER_STEP) - 1, trackNr) > 0)
-            trellis.setLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] /  TICKS_PER_STEP) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+          if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / TICKS_PER_STEP) - 1, trackNr) > 0)
+            trellis.setLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / TICKS_PER_STEP) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
           else
-            trellis.clrLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] /  TICKS_PER_STEP) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+            trellis.clrLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / TICKS_PER_STEP) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
           // uint8_t oldNr = (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] /  TICKS_PER_STEP) - 1;
           // neotrellis.setPixelColor(oldNr, trackNr, trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], oldNr, trackNr));
           //  Serial.println(oldNr);

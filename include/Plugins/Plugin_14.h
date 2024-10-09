@@ -39,11 +39,13 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
+void  set_input_level(uint8_t _value);
 class Plugin_14 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
   AudioInputI2S audioInput;
+  AudioAmplifier inputGain;
     AudioAnalyzePeak peak1;  // xy=278,108
     AudioRecordQueue queue1; // xy=281,63
     AudioPlaySdResmp playMem;
@@ -55,7 +57,7 @@ public:
     // AudioMixer12 mixer;
     AudioMixer4 MixGain;
     // AudioAmplifier SongVol;
-    AudioConnection *patchCord[11]; // total patchCordCount:98 including array typed ones.
+    AudioConnection *patchCord[12]; // total patchCordCount:98 including array typed ones.
     // draw waveforms
     int16_t pl14_customWaveform[256];
     int8_t pl14_oldCustomWaveformValue = 0;
@@ -78,10 +80,11 @@ public:
 
         patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
-        patchCord[pci++] = new AudioConnection(audioInput, 0, MixGain, 1);
-        patchCord[pci++] = new AudioConnection(audioInput, 0, peak1, 0);
+        patchCord[pci++] = new AudioConnection(audioInput, 0, inputGain, 0);
+        patchCord[pci++] = new AudioConnection(inputGain, 0, MixGain, 1);
 
-        patchCord[pci++] = new AudioConnection(audioInput, 0, queue1, 0);
+        patchCord[pci++] = new AudioConnection(inputGain, 0, peak1, 0);
+        patchCord[pci++] = new AudioConnection(inputGain, 0, queue1, 0);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
 
@@ -101,7 +104,7 @@ public:
     void set_rec_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
     void assign_rec_waveform(uint8_t value);
     void set_rec_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
-    //void assign_rec_amplitude(uint8_t value);
+    void assign_rec_amplitude(uint8_t value);
     void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
     void assign_voice_waveform(uint8_t value);                             // make virtual in baseclass but override
     void set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name);

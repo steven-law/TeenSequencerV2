@@ -41,7 +41,7 @@ void Plugin_4::setup()
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     AEnv[voice].noteOn();
-    playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize / 2, 1);
+    playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize , 1);
     // playMem[voice].play(_fileName[voice]);
     //  playMem[voice].playRaw(sample[voice]->sampledata,1);
 

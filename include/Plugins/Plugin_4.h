@@ -50,7 +50,7 @@ public:
     AudioPlayArrayResmp playMem[PL4_VOICES];
     // AudioPlayMemory playMem[MAX_VOICES];
     newdigate::audiosample *sample[PL4_VOICES];
-    newdigate::flashloader loader;
+   // newdigate::flashloader loader;
     AudioEffectEnvelope AEnv[PL4_VOICES];
     AudioMixer12 mixer;
 

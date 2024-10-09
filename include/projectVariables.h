@@ -33,7 +33,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define INPUT_FUNCTIONS_FOR_FX2 11
 #define INPUT_FUNCTIONS_FOR_FX3 12
 #define INPUT_FUNCTIONS_FOR_PERFORM 13
-#define INPUT_FUNCTIONS_FOR_CLIPLAUNCHER 14
+#define INPUT_FUNCTIONS_FOR_CLIPLAUNCHER 15
 // clips
 #define MAX_CLIPS 9
 #define NUM_USER_CLIPS 7

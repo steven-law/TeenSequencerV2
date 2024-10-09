@@ -82,7 +82,8 @@ void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void show_trellisFX_mixerPage();
-
+ 
+void  set_input_level(uint8_t _value);
 void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
 
@@ -97,6 +98,7 @@ void setup()
   Serial.begin(115200);
   Wire1.begin();
   Wire1.setClock(100000);
+  SD.begin(BUILTIN_SDCARD);
   tft_setup(100);
   encoder_setup(100);
   trellis_setup(100);
@@ -195,6 +197,7 @@ void loop()
   // if we need to restart the trellisboard
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
   {
+   // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisScreen);
     trellisReadPreviousMillis = neotrellisCurrentMillis;
     neotrellis_recall_control_buffer();
     neotrellis_show();
@@ -302,8 +305,10 @@ void input_behaviour()
     fx_1.set_parameters(lastPotRow);
   if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
     fx_2.set_parameters(lastPotRow);
-  // if (activeScreen == INPUT_FUNCTIONS_FOR_PERFORM)
-  //  trellisMain->set_perform_page(lastPotRow);
+   if (activeScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER){
+  // Serial.println("hi");
+    trellis_play_clipLauncher();
+   }
 }
 // midi
 void clock_to_notes(int _tick)
@@ -619,7 +624,7 @@ void trellis_show_tft_mixer()
       trellisPressed[7] = false;
       trellisScreen = TRELLIS_SCREEN_CLIPLAUNCHER;
       neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
+      //change_plugin_row = true;
       activeScreen = INPUT_FUNCTIONS_FOR_CLIPLAUNCHER;
 
       clearWorkSpace();
@@ -1327,6 +1332,13 @@ void show_trellisFX_mixerPage()
     trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, allTracks[t]->mixFX3Pot / 42 + 12, t, TRELLIS_ORANGE);
   }
 }
+void  set_input_level(uint8_t _value){
+    uint8_t ampl = _value / 8;
+
+  MasterOut.sgtl5000.lineInLevel(ampl);
+}
+
+
 bool compareFiles(File &file, SerialFlashFile &ffile)
 {
   file.seek(0);

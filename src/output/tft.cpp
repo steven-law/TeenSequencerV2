@@ -380,21 +380,24 @@ void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest
 
     int xPos = XPos * STEP_FRAME_W;
     uint8_t yPos = YPos * STEP_FRAME_H;
-
+int Color=color;
     tft.setFont(Arial_8);
     // tft.setTextColor(ILI9341_DARKGREY);
     // tft.setCursor(xPos + offest_X, yPos + offset_Y);
     tft.fillRect(xPos + offest_X, yPos + offset_Y, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
-        color = ILI9341_LIGHTGREY;
-        if (lastPotRow ==5)
-        color = ILI9341_WHITE;
-    if (drawRect)
-        tft.drawRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, color);
-    if (drawFilling)
-        tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, color);
+        Color = ILI9341_LIGHTGREY;
 
+    if (drawRect)
+        tft.drawRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, Color);
+    if (drawFilling)
+        tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, Color);
+    if (lastPRow == 5)
+    {
+        tft.drawRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
+        tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, color);
+    }
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
     if (name != "NO_NAME")
@@ -818,15 +821,19 @@ void draw_clip_launcher()
     {
         for (int c = 0; c < MAX_CLIPS; c++)
         {
-            char *dname="0";
-            
+            char *dname = "0";
+            //  Serial.println("draw clip launcher");
             sprintf(dname, "T%d-C%d\0", t, c);
-            if (allTracks[t]->clip_to_play[myClock.barTick] == c){
-                draw_value_box(5, c*2 + 2, t + 2, 0, 3, NO_VALUE, dname, trackColor[t] , 2, true, true);
-                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, trellisTrackColor[t]);}
-            else{
-                draw_value_box(5, c*2 + 2, t + 2, 0, 3, NO_VALUE, dname, trackColor[t] , 2, false, false);
-                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, TRELLIS_BLACK);}
+            if (allTracks[t]->clip_to_play[0] == c)
+            {
+                draw_value_box(5, c * 2 + 2, t + 2, 0, 3, NO_VALUE, dname, trackColor[t], 2, true, true);
+                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, trellisTrackColor[t]);
+            }
+            else
+            {
+                draw_value_box(5, c * 2 + 2, t + 2, 0, 3, NO_VALUE, dname, ILI9341_DARKGREY, 2, false, false);
+                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, TRELLIS_BLACK);
+            }
         }
     }
 }
