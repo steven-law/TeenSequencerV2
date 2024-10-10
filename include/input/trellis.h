@@ -87,7 +87,7 @@ extern unsigned long trellisReadPreviousMillis;    // will store last time LED w
 extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-
+extern uint8_t bar2edit;
 
 TrellisCallback blink(keyEvent evt);
 

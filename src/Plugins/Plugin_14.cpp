@@ -16,7 +16,7 @@ void Plugin_14::setup()
 
     playMem.begin();
     playMem.enableInterpolation(true);
-    inputGain.gain(1);
+    inputGain.gain(0);
 
     Fenv.delay(0);
     Fenv.attack(0);

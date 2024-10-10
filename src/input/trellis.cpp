@@ -10,7 +10,7 @@ const long neotrellisReadInterval = 30;         // interval at which to blink (m
 const long trellisRestartInterval = 60000;      // interval at which to blink (milliseconds)
 unsigned long trellisRestartPreviousMillis = 0; // will store last time LED was updated
 unsigned long trellisReadPreviousMillis = 0;    // will store last time LED was updated
-
+uint8_t bar2edit;
 const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM]{0, 1, 2, 3, 16, 17, 18, 19, 32, 33, 34, 35, 48, 49, 50, 51,
                                                                   4, 5, 6, 7, 20, 21, 22, 23, 36, 37, 38, 39, 52, 53, 54, 55,
                                                                   8, 9, 10, 11, 24, 25, 26, 27, 40, 41, 42, 43, 56, 57, 58, 59,
@@ -848,8 +848,19 @@ void trellis_play_clipLauncher()
 {
   if (trellisScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
   {
+
+    if (enc_moved[0])
+    {
+      bar2edit = bar2edit + encoded[0];
+      enc_moved[0] = false;
+      draw_clip_launcher();
+    }
+    myClock.set_tempo(1);
+    myClock.set_start_of_loop(2);
+    myClock.set_end_of_loop(3);
     for (int t = 0; t < NUM_TRACKS; t++)
     {
+      allTracks[t]->bar_to_edit = bar2edit;
       for (int c = 0; c < MAX_CLIPS; c++)
       {
         uint8_t _nr = c + (t * TRELLIS_PADS_X_DIM);
@@ -857,10 +868,9 @@ void trellis_play_clipLauncher()
         {
           Serial.printf("tp=%d\n", _nr);
           trellisPressed[_nr] = false;
-          for (int i = 0; i < myClock.endOfLoop; i++)
-          {
-            allTracks[t]->clip_to_play[i] = c;
-          }
+
+          allTracks[t]->clip_to_play[bar2edit] = c;
+
           draw_clip_launcher();
           break;
         }
@@ -899,6 +909,7 @@ void neotrellis_set_mute()
 }
 void neotrellis_set_solo()
 {
+
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     if (neotrellisPressed[1 + ((i + 4) * X_DIM)])
@@ -917,8 +928,11 @@ void neotrellis_set_solo()
           {
             allTracks[o]->muteThruSolo = true;
           }
+          Serial.printf("%d mute = %s   ,", o, allTracks[o]->muted ? "true" : "false");
+          Serial.printf("Solo = %s   ,", allTracks[o]->soloed ? "true" : "false");
+          Serial.printf("muteThruSolo = %s\n", allTracks[o]->muteThruSolo ? "true" : "false");
         }
-        // Serial.println("set solo");
+
         break;
       }
       else if (allTracks[i]->soloed)
@@ -943,10 +957,14 @@ void neotrellis_set_solo()
             }
             allTracks[o]->muteThruSolo = false;
           }
+          Serial.printf("%d mute = %s   ,", o, allTracks[o]->muted ? "true" : "false");
+          Serial.printf("Solo = %s   ,", allTracks[o]->soloed ? "true" : "false");
+          Serial.printf("muteThruSolo = %s\n", allTracks[o]->muteThruSolo ? "true" : "false");
         }
-        // Serial.println("set unsolo");
-        break;
       }
+
+      // Serial.println("set unsolo");
+      break;
     }
   }
 }

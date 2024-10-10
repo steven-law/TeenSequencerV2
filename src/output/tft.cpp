@@ -816,7 +816,13 @@ void draw_mixer_FX_page2()
 
 void draw_clip_launcher()
 {
-
+    Serial.println("drawing cliplauncher");
+    tft.fillRect(10*STEP_FRAME_W, 11*STEP_FRAME_H, 80, 17, ILI9341_DARKGREY);
+    tft.setFont(Arial_16);
+    tft.setCursor(8*STEP_FRAME_W, 11*STEP_FRAME_H);
+    tft.setTextColor(ILI9341_BLUE);
+    tft.printf("BAR:%d\n", bar2edit);
+//clearWorkSpace();
     for (int t = 0; t < NUM_TRACKS; t++)
     {
         for (int c = 0; c < MAX_CLIPS; c++)
@@ -824,7 +830,7 @@ void draw_clip_launcher()
             char *dname = "0";
             //  Serial.println("draw clip launcher");
             sprintf(dname, "T%d-C%d\0", t, c);
-            if (allTracks[t]->clip_to_play[0] == c)
+            if (allTracks[t]->clip_to_play[bar2edit] == c)
             {
                 draw_value_box(5, c * 2 + 2, t + 2, 0, 3, NO_VALUE, dname, trackColor[t], 2, true, true);
                 trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, trellisTrackColor[t]);

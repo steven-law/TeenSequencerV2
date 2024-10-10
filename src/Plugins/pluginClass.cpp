@@ -3,13 +3,13 @@
 #include <projectVariables.h>
 #include <Plugins/pluginClass.h>
 ////#include "hardware/tftClass.h"
-//class tftClass;
+// class tftClass;
 
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
-//void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
-// plugins
+// void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
+//  plugins
 float *note_frequency;
 int tuning = 440;
 const char *filterName[4]{"LPF", "BPF", "HPF", "LPF2"};
@@ -81,7 +81,7 @@ void PluginControll::save_plugin(uint8_t _songNr)
     else
     {
         // if the file didn't open, print an error:
-        Serial.println("error:");
+        Serial.printf("error save plugin:%d\n", myID);
     }
     Serial.println("plugin saving Done:");
 }
@@ -121,7 +121,7 @@ void PluginControll::load_plugin(uint8_t _songNr)
     else
     {
         // if the file didn't open, print an error:
-        Serial.println("error:");
+        Serial.printf("error load plugin:%d\n", myID);
     }
     change_preset();
     Serial.println("plugin loading Done:");

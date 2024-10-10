@@ -113,7 +113,7 @@ void MyClock::set_end_of_loop(uint8_t n)
 {
     if (enc_moved[n])
     {
-        endOfLoop = constrain(endOfLoop + encoded[n], 2, 255);
+        endOfLoop = constrain(endOfLoop + encoded[n], 1, 255);
 
         draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 

@@ -96,7 +96,7 @@ void Track::save_track(uint8_t songNr)
     else
     {
         // if the file didn't open, print an error:
-        Serial.println("error:");
+        Serial.printf("error save track:%d\n", my_Arranger_Y_axis);
     }
     if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
     {
@@ -147,7 +147,7 @@ void Track::load_track(uint8_t songNr)
             {
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
                 {
-                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i /  TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
                 }
             }
         }
@@ -208,7 +208,7 @@ void Track::load_track(uint8_t songNr)
     else
     {
         // if the file didn't open, print an error:
-        Serial.println("error:");
+        Serial.printf("error load track:%d\n", my_Arranger_Y_axis);
     }
     if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
     {
@@ -333,7 +333,7 @@ void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i /  TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
         }
     }
 }

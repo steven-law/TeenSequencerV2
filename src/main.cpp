@@ -314,8 +314,11 @@ void input_behaviour()
 }
 // midi
 void clock_to_notes(int _tick)
-{
-
+{/*
+if (activeScreen==INPUT_FUNCTIONS_FOR_CLIPLAUNCHER){
+  if (_tick==0)
+  draw_clip_launcher();
+}*/
   // Serial.println(Masterclock.MIDItick);
   for (int t = 0; t < NUM_TRACKS; t++)
   {
