@@ -88,7 +88,8 @@ void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
 
 void error(const char *message);
-
+void save_plugin(uint8_t _songNr, uint8_t _pluginNr);
+void load_plugin(uint8_t _songNr, uint8_t _pluginNr);
 void setup()
 {
   // while (!Serial)
@@ -1338,7 +1339,14 @@ void  set_input_level(uint8_t _value){
 
   MasterOut.sgtl5000.lineInLevel(ampl);
 }
-
+void save_plugin(uint8_t _songNr, uint8_t _pluginNr)
+{
+  allPlugins[_pluginNr]->save_plugin(_songNr);
+}
+void load_plugin(uint8_t _songNr, uint8_t _pluginNr)
+{
+  allPlugins[_pluginNr]->load_plugin(_songNr);
+}
 
 bool compareFiles(File &file, SerialFlashFile &ffile)
 {

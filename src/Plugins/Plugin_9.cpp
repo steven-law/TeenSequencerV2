@@ -26,7 +26,7 @@ void Plugin_9::setup()
     waveform1.begin(WAVEFORM_SINE);
     waveform1.amplitude(1);
 
-  LFO.begin(WAVEFORM_SINE);
+    LFO.begin(WAVEFORM_SINE);
     LFO.amplitude(1);
     LFO.frequency(2);
     fEnvMixer.gain(0, 1);
@@ -60,7 +60,7 @@ void Plugin_9::setup()
 
     MixGain.gain(1);
     // SongVol.gain(1);
-       potentiometer[presetNr][0] = 17;
+    potentiometer[presetNr][0] = 17;
     potentiometer[presetNr][1] = 17;
     potentiometer[presetNr][2] = 41;
     potentiometer[presetNr][3] = 65;
@@ -163,7 +163,8 @@ void Plugin_9::draw_plugin()
         drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
                      potentiometer[presetNr][14], potentiometer[presetNr][15]);
 
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_9::change_preset()
@@ -171,10 +172,10 @@ void Plugin_9::change_preset()
     assign_voice1_waveform(potentiometer[presetNr][0]);
     assign_voice2_waveform(potentiometer[presetNr][1]);
 
-     detune2 = (float)((note_frequency[potentiometer[presetNr][2]] * 4.40));
+    detune2 = (float)((note_frequency[potentiometer[presetNr][2]] * 4.40));
     assign_voice1_amplitude(potentiometer[presetNr][3]);
 
- //   detune2 = (float)((note_frequency[potentiometer[presetNr][2]] * 4.40));
+    //   detune2 = (float)((note_frequency[potentiometer[presetNr][2]] * 4.40));
     // assign_voice2_amplitude(potentiometer[presetNr][6]);
 
     assign_DC_amplitude(potentiometer[presetNr][4]);
@@ -208,17 +209,18 @@ void Plugin_9::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
     {
         float ampl = get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT;
 
-        waveform.amplitude(1.00-ampl);
+        waveform.amplitude(1.00 - ampl);
         waveform1.amplitude(ampl);
     }
 }
 void Plugin_9::set_voice_detune(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
-    { int8_t value =get_Potentiometer(XPos, YPos, name);
+    {
+        int8_t value = get_Potentiometer(XPos, YPos, name);
         detune1 = (float)((note_frequency[value] * 4.40));
-        if (value==0)
-        detune1=0;
+        if (value == 0)
+            detune1 = 0;
     }
 }
 void Plugin_9::set_voice1_waveform(uint8_t XPos, uint8_t YPos, const char *name)

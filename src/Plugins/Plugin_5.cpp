@@ -33,7 +33,7 @@ void Plugin_5::setup()
     hhEnv.release(200);
 
     MixGain.gain(1);
-    //SongVol.gain(1);
+    // SongVol.gain(1);
     tomL.secondMix(0);
     tomL.pitchMod(0.7);
     tomM.secondMix(0);
@@ -139,10 +139,11 @@ void Plugin_5::draw_plugin()
         drawPot(2, 3, potentiometer[presetNr][14], "TomH");
         drawPot(3, 3, potentiometer[presetNr][15], "Decay");
 
-        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
-void Plugin_5::change_preset(){}
+void Plugin_5::change_preset() {}
 void Plugin_5::set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
@@ -189,8 +190,8 @@ void Plugin_5::set_fmdrum_frequency(uint8_t XPos, uint8_t YPos, const char *name
 {
     if (enc_moved[XPos])
     {
-        //int n = XPos + (YPos * NUM_ENCODERS);
-        //potentiometer[presetNr][n] = getEncodervalue(XPos, YPos, name, potentiometer[presetNr][n]);
+        // int n = XPos + (YPos * NUM_ENCODERS);
+        // potentiometer[presetNr][n] = getEncodervalue(XPos, YPos, name, potentiometer[presetNr][n]);
 
         int freq = map(get_Potentiometer(XPos, YPos, name), 0, MIDI_CC_RANGE, min, max);
         fm_drum.frequency(freq);

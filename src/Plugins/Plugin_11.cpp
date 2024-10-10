@@ -12,14 +12,13 @@
 extern bool change_plugin_row;
 void clearWorkSpace();
 
-
 void Plugin_11::setup()
-{  
+{
     dc.amplitude(1);
 
-   // waveform.begin(WAVEFORM_SINE);
+    // waveform.begin(WAVEFORM_SINE);
     waveform.amplitude(1);
-   // waveform.frequencyModulation(3);
+    // waveform.frequencyModulation(3);
 
     LFO.begin(WAVEFORM_SINE);
     LFO.amplitude(1);
@@ -68,21 +67,19 @@ void Plugin_11::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
-
 }
 void Plugin_11::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
-    
+
 {
- float frequency = note_frequency[notePlayed] * tuning;
+    float frequency = note_frequency[notePlayed] * tuning;
     waveform.frequency(frequency);
     Fenv.noteOn();
     Aenv.noteOn();
 }
 void Plugin_11::noteOff(uint8_t notePlayed, uint8_t voice)
 {
-     Fenv.noteOff();
+    Fenv.noteOff();
     Aenv.noteOff();
-
 }
 void Plugin_11::set_parameters(uint8_t row)
 {
@@ -104,7 +101,6 @@ void Plugin_11::set_parameters(uint8_t row)
             set_LFO_waveform(1, 1, "LFO W~F");
             set_LFO_frequency(2, 1, "LFO-Freq");
             set_LFO_amplitude(3, 1, "LFO-Lvl");
-            
         }
 
         if (row == 2)
@@ -131,7 +127,7 @@ void Plugin_11::set_parameters(uint8_t row)
 }
 void Plugin_11::draw_plugin()
 {
-   if (change_plugin_row)
+    if (change_plugin_row)
     {
         change_plugin_row = false;
         clearWorkSpace();
@@ -153,11 +149,14 @@ void Plugin_11::draw_plugin()
 
         drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
                      potentiometer[presetNr][14], potentiometer[presetNr][15]);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 
-void Plugin_11::change_preset(){
- assign_PWMdc_amplitude(potentiometer[presetNr][0]);
+void Plugin_11::change_preset()
+{
+    assign_PWMdc_amplitude(potentiometer[presetNr][0]);
     assign_voice_amplitude(potentiometer[presetNr][1]);
     assign_LFO2VCO_frequency(potentiometer[presetNr][2]);
     assign_LFO2VCO_amplitude(potentiometer[presetNr][3]);
@@ -191,7 +190,6 @@ void Plugin_11::assign_voice_amplitude(uint8_t value)
 
     waveform.amplitude(ampl);
 }
-
 
 void Plugin_11::set_LFO_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
@@ -231,7 +229,7 @@ void Plugin_11::assign_LFO_amplitude(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
 
-    LFO.amplitude( ampl);
+    LFO.amplitude(ampl);
 }
 void Plugin_11::set_PWMdc_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 {
@@ -261,8 +259,6 @@ void Plugin_11::assign_DC_amplitude(uint8_t value)
     dc.amplitude(ampl);
 }
 
-
-
 void Plugin_11::set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
@@ -274,7 +270,7 @@ void Plugin_11::assign_LFO2VCO_amplitude(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
     Lfo2Vco.amplitude(ampl);
-    //Serial.printf("pl2 lfo2vco gain: %f\n", ampl);
+    // Serial.printf("pl2 lfo2vco gain: %f\n", ampl);
 }
 void Plugin_11::set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos, const char *name)
 {

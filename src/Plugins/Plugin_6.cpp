@@ -209,7 +209,8 @@ void Plugin_6::draw_plugin()
         // drawPot(1, 3, potentiometer[presetNr][13], "Decay");
         // drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
 
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_6::change_preset()
@@ -312,12 +313,12 @@ void Plugin_6::set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
-        assign_filter_sweep(map(get_Potentiometer(XPos, YPos, name),0,MIDI_CC_RANGE, 0, 7.00));
+        assign_filter_sweep(map(get_Potentiometer(XPos, YPos, name), 0, MIDI_CC_RANGE, 0, 7.00));
     }
 }
 void Plugin_6::assign_filter_sweep(uint8_t value)
 {
-    //float swp = value / 18.14;
+    // float swp = value / 18.14;
 
     filter.octaveControl(value);
     // ladder.octaveControl(swp);

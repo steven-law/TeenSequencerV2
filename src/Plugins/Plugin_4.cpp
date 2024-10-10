@@ -35,22 +35,22 @@ void Plugin_4::setup()
         potentiometer[presetNr][i] = 10;
         potentiometer[presetNr][i + 8] = 127;
     }
-   // change_preset();
+    // change_preset();
     // SongVol.gain(1);
 }
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     AEnv[voice].noteOn();
-    playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize , 1);
+    playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize, 1);
     // playMem[voice].play(_fileName[voice]);
     //  playMem[voice].playRaw(sample[voice]->sampledata,1);
 
-   // Serial.printf("pl4 play %s on voice %d\n", _fileName[voice], voice);
+    // Serial.printf("pl4 play %s on voice %d\n", _fileName[voice], voice);
 }
 void Plugin_4::noteOff(uint8_t notePlayed, uint8_t voice)
 {
     AEnv[voice].noteOff();
-   // Serial.printf("pl4 Note Off voice: %d\n", voice);
+    // Serial.printf("pl4 Note Off voice: %d\n", voice);
 }
 void Plugin_4::set_parameters(uint8_t row)
 {
@@ -120,7 +120,8 @@ void Plugin_4::draw_plugin()
         drawPot(1, 3, potentiometer[presetNr][13], "Vol");
         drawPot(2, 3, potentiometer[presetNr][14], "Vol");
         drawPot(3, 3, potentiometer[presetNr][15], "Vol");
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 

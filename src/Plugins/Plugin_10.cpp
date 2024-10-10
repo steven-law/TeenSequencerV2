@@ -139,7 +139,8 @@ void Plugin_10::draw_plugin()
         // drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
         // drawPot(3, 3, potentiometer[presetNr][15], "Release");
 
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_10::change_preset()

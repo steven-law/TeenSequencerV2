@@ -9,24 +9,24 @@
 
 #include <Plugins/Plugin_1.h>
 ////#include "hardware/tftClass.h"
-//class tftClass;
+// class tftClass;
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-//void clearWorkSpace();
+// void clearWorkSpace();
 
 void Plugin_1::setup()
 {
     for (int i = 0; i < MAX_VOICES; i++)
     {
         mixer.gain(i, 1);
-        potentiometer[presetNr][i]=80;
+        potentiometer[presetNr][i] = 80;
     }
     MixGain.gain(1);
-    //change_preset();
-    //SongVol.gain(1);
+    // change_preset();
+    // SongVol.gain(1);
 }
 void Plugin_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -100,12 +100,16 @@ void Plugin_1::draw_plugin()
         drawPot(1, 2, potentiometer[presetNr][9], "Vol");
         drawPot(2, 2, potentiometer[presetNr][10], "Vol");
         drawPot(3, 2, potentiometer[presetNr][11], "Vol");
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
 
-        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
-void Plugin_1::change_preset(){
-    for (int i=0;i<MAX_VOICES;i++){
+void Plugin_1::change_preset()
+{
+    for (int i = 0; i < MAX_VOICES; i++)
+    {
         assign_mixer_gain(potentiometer[presetNr][i], i);
     }
 }

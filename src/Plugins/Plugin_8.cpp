@@ -53,7 +53,7 @@ void Plugin_8::setup()
     Aenv.release(200);
 
     MixGain.gain(1);
-    //SongVol.gain(1);
+    // SongVol.gain(1);
     Serial.println("pl8 setup done");
 }
 void Plugin_8::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
@@ -130,7 +130,8 @@ void Plugin_8::draw_plugin()
         drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
                      potentiometer[presetNr][14], potentiometer[presetNr][15]);
 
-        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_8::change_preset()

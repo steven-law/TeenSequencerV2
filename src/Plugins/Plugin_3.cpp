@@ -45,21 +45,20 @@ void Plugin_3::setup()
 
     MixGain.gain(1);
 
-    potentiometer[presetNr][0]=17;
-    potentiometer[presetNr][1]=53;
-    potentiometer[presetNr][2]=5;
-    potentiometer[presetNr][3]=10;
+    potentiometer[presetNr][0] = 17;
+    potentiometer[presetNr][1] = 53;
+    potentiometer[presetNr][2] = 5;
+    potentiometer[presetNr][3] = 10;
 
-    potentiometer[presetNr][4]=0;
-    potentiometer[presetNr][5]=0;
-    potentiometer[presetNr][6]=127;
-    potentiometer[presetNr][7]=127;
+    potentiometer[presetNr][4] = 0;
+    potentiometer[presetNr][5] = 0;
+    potentiometer[presetNr][6] = 127;
+    potentiometer[presetNr][7] = 127;
 
-    potentiometer[presetNr][8]=0;
-    potentiometer[presetNr][9]=0;
-    potentiometer[presetNr][10]=127;
-    potentiometer[presetNr][11]=20;
-
+    potentiometer[presetNr][8] = 0;
+    potentiometer[presetNr][9] = 0;
+    potentiometer[presetNr][10] = 127;
+    potentiometer[presetNr][11] = 20;
 
     // SongVol.gain(1);
     Serial.println("Setup Pl3 Done");
@@ -146,7 +145,8 @@ void Plugin_3::draw_plugin()
         //  drawPot(3, 2, potentiometer[presetNr][11], "Release");
         drawEnvelope(2, potentiometer[presetNr][12], potentiometer[presetNr][13],
                      potentiometer[presetNr][14], potentiometer[presetNr][15]);
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_3::change_preset()
@@ -292,8 +292,8 @@ void Plugin_3::set_envelope_msustain(uint8_t XPos, uint8_t YPos, const char *nam
 }
 void Plugin_3::assign_envelope_msustain(uint8_t value)
 {
-        float sustain = (float)(value / MIDI_CC_RANGE_FLOAT);
-        modEnv.sustain(sustain);
+    float sustain = (float)(value / MIDI_CC_RANGE_FLOAT);
+    modEnv.sustain(sustain);
 }
 void Plugin_3::set_envelope_mrelease(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
@@ -304,8 +304,8 @@ void Plugin_3::set_envelope_mrelease(uint8_t XPos, uint8_t YPos, const char *nam
 }
 void Plugin_3::assign_envelope_mrelease(uint8_t value, int max)
 {
-        int release = map(value, 0, MIDI_CC_RANGE, 0, max);
-        modEnv.release(release);
+    int release = map(value, 0, MIDI_CC_RANGE, 0, max);
+    modEnv.release(release);
 }
 
 void Plugin_3::assign_envelope_attack(uint8_t value, int max)

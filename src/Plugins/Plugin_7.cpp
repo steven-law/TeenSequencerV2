@@ -55,7 +55,7 @@ void Plugin_7::setup()
     dynamics.autoMakeupGain(6.0f);
     dynamics.makeupGain(6.0f);
     MixGain.gain(1);
-    //SongVol.gain(1);
+    // SongVol.gain(1);
     Serial.println("pl7 setup done");
 }
 void Plugin_7::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
@@ -132,12 +132,13 @@ void Plugin_7::draw_plugin()
 
         drawPot(3, 3, potentiometer[presetNr][15], "Gain");
 
-        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
-void Plugin_7::change_preset(){}
+void Plugin_7::change_preset() {}
 
-//test
+// test
 void Plugin_7::set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])

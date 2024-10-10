@@ -140,8 +140,8 @@ void Plugin_13::draw_plugin()
         // drawPot(1, 3, potentiometer[presetNr][13], "Decay");
         // drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
         // drawPot(3, 3, potentiometer[presetNr][15], "Release");
-
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_13::change_preset()
@@ -175,7 +175,7 @@ void Plugin_13::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 void Plugin_13::draw_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
 
- if (ts.touched())
+    if (ts.touched())
     {
         int xPos_SingleCyclePixel;
         int yPos_SingleCyclePixel;
@@ -195,12 +195,11 @@ void Plugin_13::draw_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name
         pl13_customWaveform[arrayPos] = singleCycleValue;
         Serial.printf("ArrayPos=%d, sampleData=%i\n", arrayPos, singleCycleValue);
         // tft.drawPixel(xPos_SingleCyclePixel, yPos_SingleCyclePixel, ILI9341_WHITE);
-        tft.drawLine(pl13_oldCustomWaveformXPos, (old_yPos_SingleCyclePixel / 5) + (( YPos) * STEP_FRAME_H), xPos_SingleCyclePixel, (yPos_SingleCyclePixel / 5) + (( YPos) * STEP_FRAME_H), ILI9341_WHITE);
+        tft.drawLine(pl13_oldCustomWaveformXPos, (old_yPos_SingleCyclePixel / 5) + ((YPos)*STEP_FRAME_H), xPos_SingleCyclePixel, (yPos_SingleCyclePixel / 5) + ((YPos)*STEP_FRAME_H), ILI9341_WHITE);
         oldCustomWaveformValue = singleCycleValue;
         pl13_oldCustomWaveformXPos = xPos_SingleCyclePixel;
         old_yPos_SingleCyclePixel = yPos_SingleCyclePixel;
     }
- 
 }
 void Plugin_13::smooth_customWaveform(uint8_t YPos)
 {
@@ -226,7 +225,6 @@ void Plugin_13::clearcustomWaveform(uint8_t YPos)
     redraw_customWaveform(YPos);
 }
 
-
 void Plugin_13::redraw_customWaveform(int8_t YPos)
 {
     for (int i = 0; i < 255; i++)
@@ -234,7 +232,7 @@ void Plugin_13::redraw_customWaveform(int8_t YPos)
         // static int startY;
         int startY = map(pl13_customWaveform[i], 32768, -32768, 0, 41);
         int endY = map(pl13_customWaveform[i + 1], 32768, -32768, 0, 41);
-        tft.drawLine(i + 32, startY + (( YPos) * STEP_FRAME_H), i + 33, endY + (( YPos) * STEP_FRAME_H), ILI9341_WHITE);
+        tft.drawLine(i + 32, startY + ((YPos)*STEP_FRAME_H), i + 33, endY + ((YPos)*STEP_FRAME_H), ILI9341_WHITE);
         // startY=endY;
     }
 }

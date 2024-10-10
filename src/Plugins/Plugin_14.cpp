@@ -15,8 +15,8 @@ void Plugin_14::setup()
     dc.amplitude(1);
 
     playMem.begin();
-     playMem.enableInterpolation(true);
-  inputGain.gain(1);
+    playMem.enableInterpolation(true);
+    inputGain.gain(1);
 
     Fenv.delay(0);
     Fenv.attack(0);
@@ -49,7 +49,7 @@ void Plugin_14::setup()
     MixGain.gain(0, 1);
     MixGain.gain(1, 1);
     potentiometer[presetNr][0] = 0;
-    potentiometer[presetNr][1] = 127;
+    potentiometer[presetNr][1] = 0;
     potentiometer[presetNr][2] = 0;
     potentiometer[presetNr][3] = 127;
     potentiometer[presetNr][8] = 60;
@@ -69,10 +69,10 @@ void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
     Serial.printf("pl14: notePlayed= %d\n", notePlayed);
-     playMem.setPlaybackRate(note_frequency[notePlayed]);
+    playMem.setPlaybackRate(note_frequency[notePlayed]);
     //  playMem.playRaw(_playFilename, 1);
 
-    playMem.playRaw(_playFilename,1);
+    playMem.playRaw(_playFilename, 1);
     Fenv.noteOn();
     Aenv.noteOn();
     Serial.println(_playFilename);
@@ -107,7 +107,7 @@ void Plugin_14::set_parameters(uint8_t row)
         {
 
             set_rec_waveform(0, 0, "Rec W~F");
-             set_rec_amplitude(1, 0, "Rec Vol");
+            set_rec_amplitude(1, 0, "Rec Vol");
             set_voice_waveform(2, 0, "Play W~F");
             set_voice_amplitude(3, 0, "Play Vol");
         }
@@ -162,14 +162,14 @@ void Plugin_14::draw_plugin()
         // drawPot(1, 3, potentiometer[presetNr][13], "Decay");
         // drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
         // drawPot(3, 3, potentiometer[presetNr][15], "Release");
-
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_14::change_preset()
 {
     assign_rec_waveform(potentiometer[presetNr][0]);
-     assign_rec_amplitude(potentiometer[presetNr][1]);
+    assign_rec_amplitude(potentiometer[presetNr][1]);
     assign_voice_waveform(potentiometer[presetNr][2]);
     assign_voice_amplitude(potentiometer[presetNr][3]);
 
@@ -208,7 +208,7 @@ void Plugin_14::set_rec_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 void Plugin_14::assign_rec_amplitude(uint8_t value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
-  inputGain.gain(ampl);
+    inputGain.gain(ampl);
 }
 void Plugin_14::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
