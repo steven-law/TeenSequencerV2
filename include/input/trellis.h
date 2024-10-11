@@ -131,6 +131,7 @@ void trellis_update();
 void trellis_writeDisplay();
 
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
+void trellis_assign_main_buffer(int _page, int _x, int _y, int color);
 void trellis_assign_start_buffer(uint8_t _lastPotRow);
 void trellis_clear_main_buffer(int _page);
 int trellis_get_main_buffer(int _page, int _x, int _y);

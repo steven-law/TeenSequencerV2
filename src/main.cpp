@@ -226,7 +226,7 @@ void loop()
     enc_moved[3] = false;
   }
 
-  if (loopEndTime - loopStartTime > 500 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
+  if (loopEndTime - loopStartTime > 600 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
   {
     trellisRestartPreviousMillis = trellisRestartMillis;
     // trellis.trellisReset();

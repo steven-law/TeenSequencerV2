@@ -314,6 +314,7 @@ void neo_trellis_save_load()
         allTracks[4]->load_track(_songNr);
         allTracks[5]->load_track(_songNr);
         allTracks[6]->load_track(_songNr);
+        allTracks[7]->load_track(_songNr);
         myClock.load_clock(_songNr);
         neotrellis_setup(0);
         trellisPressed[i] = false;
@@ -1109,6 +1110,16 @@ void trellis_set_main_buffer(int _page, int _x, int _y, int color)
   trellis.setLED(TrellisLED[_nr]);
   if (trellisMainGridBuffer[_page][_x][_y] == TRELLIS_BLACK)
     trellis.clrLED(TrellisLED[_nr]);
+  // Serial.printf("set main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, _x, _y, color, TrellisLED[_nr]);
+  //  trellis.writeDisplay();
+}
+void trellis_assign_main_buffer(int _page, int _x, int _y, int color)
+{
+  trellisMainGridBuffer[_page][_x][_y] = color;
+ // int _nr = _x + (_y * TRELLIS_PADS_X_DIM);
+ // trellis.setLED(TrellisLED[_nr]);
+  //if (trellisMainGridBuffer[_page][_x][_y] == TRELLIS_BLACK)
+  //  trellis.clrLED(TrellisLED[_nr]);
   // Serial.printf("set main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, _x, _y, color, TrellisLED[_nr]);
   //  trellis.writeDisplay();
 }

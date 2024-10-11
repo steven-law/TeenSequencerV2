@@ -18,7 +18,7 @@ void Track::save_track(uint8_t songNr)
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "%dtrack%d.txt\0", songNr, my_Arranger_Y_axis);
-    Serial.println(_trackname);
+    // Serial.println(_trackname);
 
     // delete the file:
     // Serial.println("Removing:");
@@ -27,11 +27,11 @@ void Track::save_track(uint8_t songNr)
 
     // open the file.
     // Serial.println("Creating and opening:");
-    myFile = SD.open(_trackname, FILE_WRITE);
+    this->myTrackFile = SD.open(_trackname, FILE_WRITE);
     // Serial.println(_trackname);
     // Serial.println("Done:");
     //  if the file opened okay, write to it:
-    if (myFile)
+    if (this->myTrackFile)
     {
         // save tracks
         // Serial.println("Writing track:");
@@ -42,10 +42,10 @@ void Track::save_track(uint8_t songNr)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    myFile.print((char)this->clip[c].tick[t].voice[v]);
-                    myFile.print((char)this->clip[c].tick[t].velo[v]);
+                    this->myTrackFile.print((char)this->clip[c].tick[t].voice[v]);
+                    this->myTrackFile.print((char)this->clip[c].tick[t].velo[v]);
                 }
-                myFile.print((char)this->clip[c].tick[t].stepFX);
+                this->myTrackFile.print((char)this->clip[c].tick[t].stepFX);
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
@@ -55,56 +55,57 @@ void Track::save_track(uint8_t songNr)
         // Serial.println("array saved:");
         for (int i = 0; i < 256; i++)
         {
-            myFile.print((char)clip_to_play[i]);
-            myFile.print((char)noteOffset[i]);
-            myFile.print((char)barVelocity[i]);
-            myFile.print((char)play_presetNr_ccChannel[i]);
-            myFile.print((char)play_presetNr_ccValue[i]);
+            this->myTrackFile.print((char)clip_to_play[i]);
+            this->myTrackFile.print((char)noteOffset[i]);
+            this->myTrackFile.print((char)barVelocity[i]);
+            this->myTrackFile.print((char)play_presetNr_ccChannel[i]);
+            this->myTrackFile.print((char)play_presetNr_ccValue[i]);
         }
         // Serial.println("song saved:");
         for (int p = 0; p < NUM_PRESETS + 1; p++)
         {
             for (int t = 0; t < NUM_PARAMETERS; t++)
             {
-                myFile.print((char)CCchannel[p][t]);
-                myFile.print((char)CCvalue[p][t]);
+                this->myTrackFile.print((char)CCchannel[p][t]);
+                this->myTrackFile.print((char)CCvalue[p][t]);
             }
         }
         // Serial.println("midi saved:");
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {
-            myFile.print((char)parameter[i]);
-            myFile.print((char)SeqMod1Value[i]);
-            myFile.print((char)SeqMod2Value[i]);
-            myFile.print((char)SeqMod3Value[i]);
-            myFile.print((char)SeqMod4Value[i]);
-            Serial.printf("save parameter %d = %d\n", i, parameter[i]);
+            this->myTrackFile.print((char)parameter[i]);
+            this->myTrackFile.print((char)SeqMod1Value[i]);
+            this->myTrackFile.print((char)SeqMod2Value[i]);
+            this->myTrackFile.print((char)SeqMod3Value[i]);
+            this->myTrackFile.print((char)SeqMod4Value[i]);
+            // Serial.printf("save parameter %d = %d\n", i, parameter[i]);
         }
         // Serial.println("settings & seqmodes saved:");
-        myFile.print((char)setStepFX);
-        myFile.print((char)mixGainPot);
-        myFile.print((char)mixDryPot);
-        myFile.print((char)mixFX1Pot);
-        myFile.print((char)mixFX2Pot);
-        myFile.print((char)mixFX3Pot);
+        this->myTrackFile.print((char)setStepFX);
+        this->myTrackFile.print((char)mixGainPot);
+        this->myTrackFile.print((char)mixDryPot);
+        this->myTrackFile.print((char)mixFX1Pot);
+        this->myTrackFile.print((char)mixFX2Pot);
+        this->myTrackFile.print((char)mixFX3Pot);
         uint8_t _tempOffset = performNoteOffset + 64;
-        myFile.print((char)_tempOffset);
+        this->myTrackFile.print((char)_tempOffset);
         // close the file:
-        myFile.close();
+        this->myTrackFile.close();
         // Serial.println("all saved:");
+        Serial.printf("saved track:%d\n", my_Arranger_Y_axis);
     }
     else
     {
         // if the file didn't open, print an error:
-        Serial.printf("error save track:%d\n", my_Arranger_Y_axis);
+        Serial.printf("ERROR save track:%d\n", my_Arranger_Y_axis);
     }
+    delay(10);
     if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
     {
         save_plugin(songNr, parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
         // allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->save_plugin(songNr);
     }
 
-    Serial.println("track saving Done:");
     // startUpScreen();
 }
 void Track::load_track(uint8_t songNr)
@@ -119,13 +120,13 @@ void Track::load_track(uint8_t songNr)
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
     sprintf(_trackname, "%dtrack%d.txt\0", songNr, my_Arranger_Y_axis);
-    Serial.println(_trackname);
+    //  Serial.println(_trackname);
     //  open the file for reading:
-    myFile = SD.open(_trackname, FILE_READ);
+    this->myTrackFile = SD.open(_trackname, FILE_READ);
     // Serial.println(_trackname);
-    if (myFile)
+    if (this->myTrackFile)
     {
-        Serial.println("opening:");
+        // Serial.println("opening:");
         //  read from the file until there's nothing else in it:
         //  load track 1
         for (int c = 0; c < MAX_CLIPS; c++)
@@ -134,11 +135,11 @@ void Track::load_track(uint8_t songNr)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    this->clip[c].tick[t].voice[v] = myFile.read();
+                    this->clip[c].tick[t].voice[v] = this->myTrackFile.read();
                     // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
-                    this->clip[c].tick[t].velo[v] = myFile.read();
+                    this->clip[c].tick[t].velo[v] = this->myTrackFile.read();
                 }
-                this->clip[c].tick[t].stepFX = myFile.read();
+                this->clip[c].tick[t].stepFX = this->myTrackFile.read();
             }
         }
         for (int i = 0; i < MAX_TICKS; i++)
@@ -147,7 +148,7 @@ void Track::load_track(uint8_t songNr)
             {
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
                 {
-                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+                    trellis_assign_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
                 }
             }
         }
@@ -159,15 +160,15 @@ void Track::load_track(uint8_t songNr)
 
         for (int i = 0; i < 256; i++)
         {
-            clip_to_play[i] = myFile.read();
-            noteOffset[i] = myFile.read();
-            barVelocity[i] = myFile.read();
-            play_presetNr_ccChannel[i] = myFile.read();
-            play_presetNr_ccValue[i] = myFile.read();
+            clip_to_play[i] = this->myTrackFile.read();
+            noteOffset[i] = this->myTrackFile.read();
+            barVelocity[i] = this->myTrackFile.read();
+            play_presetNr_ccChannel[i] = this->myTrackFile.read();
+            play_presetNr_ccValue[i] = this->myTrackFile.read();
             if (clip_to_play[i] <= NUM_USER_CLIPS)
             {
-                Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
-                trellis_set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
+                // Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
+                trellis_assign_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
             }
         }
         // Serial.println("song loaded:");
@@ -176,49 +177,51 @@ void Track::load_track(uint8_t songNr)
         {
             for (int t = 0; t < NUM_PARAMETERS; t++)
             {
-                CCchannel[p][t] = myFile.read();
-                CCvalue[p][t] = myFile.read();
+                CCchannel[p][t] = this->myTrackFile.read();
+                CCvalue[p][t] = this->myTrackFile.read();
             }
         }
         // Serial.println("midi loaded:");
 
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {
-            parameter[i] = myFile.read();
-            SeqMod1Value[i] = myFile.read();
-            SeqMod2Value[i] = myFile.read();
-            SeqMod3Value[i] = myFile.read();
-            SeqMod4Value[i] = myFile.read();
-            Serial.printf("load parameter %d = %d\n", i, parameter[i]);
+            parameter[i] = this->myTrackFile.read();
+            SeqMod1Value[i] = this->myTrackFile.read();
+            SeqMod2Value[i] = this->myTrackFile.read();
+            SeqMod3Value[i] = this->myTrackFile.read();
+            SeqMod4Value[i] = this->myTrackFile.read();
+            //   Serial.printf("load parameter %d = %d\n", i, parameter[i]);
         }
-        setStepFX = myFile.read();
-        mixGainPot = myFile.read();
-        mixDryPot = myFile.read();
-        mixFX1Pot = myFile.read();
-        mixFX2Pot = myFile.read();
-        mixFX3Pot = myFile.read();
-        int _tempOffset = myFile.read();
+        setStepFX = this->myTrackFile.read();
+        mixGainPot = this->myTrackFile.read();
+        mixDryPot = this->myTrackFile.read();
+        mixFX1Pot = this->myTrackFile.read();
+        mixFX2Pot = this->myTrackFile.read();
+        mixFX3Pot = this->myTrackFile.read();
+        int _tempOffset = this->myTrackFile.read();
         performNoteOffset = _tempOffset - 64;
         // Serial.println("settings loaded:");
 
         // startUpScreen();
         //  close the file:
-        myFile.close();
+        this->myTrackFile.close();
+        Serial.printf("loaded track:%d\n", my_Arranger_Y_axis);
     }
     else
     {
         // if the file didn't open, print an error:
-        Serial.printf("error load track:%d\n", my_Arranger_Y_axis);
+        Serial.printf("ERROR load track:%d\n", my_Arranger_Y_axis);
     }
+    delay(10);
     if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
     {
         load_plugin(songNr, parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
     }
-    Serial.println("track Loading done");
 }
 void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 {
-
+    if (cloock % MAX_TICKS == 0)
+        external_clock_bar++;
     if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
         internal_clock++;
@@ -231,8 +234,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         external_clock_bar = start;
     if (internal_clock_bar >= end)
         internal_clock_bar = start;
-    if (cloock % MAX_TICKS == 0)
-        external_clock_bar++;
+
     if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
     {
         internal_clock = 0;
@@ -249,7 +251,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         if (!muted && !muteThruSolo)
         {
             // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-            // Serial.printf("internalClock=%d, externalClock= %d\n",internal_clock,cloock );
+            Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
             if (parameter[SET_SEQ_MODE] == 0)
             {
                 play_seq_mode0(internal_clock);

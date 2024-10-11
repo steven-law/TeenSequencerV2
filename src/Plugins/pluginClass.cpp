@@ -70,20 +70,21 @@ void PluginControll::save_plugin(uint8_t _songNr)
             for (int v = 0; v < 16; v++)
             {
                 myFile.print((char)this->potentiometer[p][v]);
-                Serial.printf("save plugin parameter preset: %d, value: %d\n", p, this->potentiometer[p][v]);
+               // Serial.printf("save plugin parameter preset: %d, value: %d\n", p, this->potentiometer[p][v]);
             }
         }
         myFile.print((char)this->presetNr);
         // close the file:
         myFile.close();
         // Serial.println("all saved:");
+        Serial.println("plugin saving Done:");
     }
     else
     {
         // if the file didn't open, print an error:
-        Serial.printf("error save plugin:%d\n", myID);
+        Serial.printf("ERROR save plugin:%d\n", myID);
     }
-    Serial.println("plugin saving Done:");
+    delay(10);
 }
 void PluginControll::load_plugin(uint8_t _songNr)
 {

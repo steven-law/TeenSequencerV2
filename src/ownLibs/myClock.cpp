@@ -29,7 +29,7 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
 {
     // Send MIDI_CLOCK to external gears
     // Serial.write(MIDI_CLOCK);
-    tick = tick % MAX_TICKS;
+    tick = tick % (MAX_TICKS);
 
     // Serial.printf("tick: %d\n", tick);
 
@@ -155,14 +155,15 @@ void MyClock::save_clock(uint8_t _songNr)
         // close the file:
         myFile.close();
         // Serial.println("all saved:");
+        Serial.println("clock saving Done:");
     }
     else
     {
         // if the file didn't open, print an error:
-        Serial.println("error:");
+        Serial.println("ERROR load clock");
     }
-
-    Serial.println("clock saving Done:");
+delay(10);
+    
     // startUpScreen();
 }
 void MyClock::load_clock(uint8_t _songNr)
@@ -192,13 +193,7 @@ void MyClock::load_clock(uint8_t _songNr)
         // startUpScreen();
         //  close the file:
         myFile.close();
-    }
-    else
-    {
-        // if the file didn't open, print an error:
-        Serial.println("error:");
-    }
-    tempo = _tempo * 2;
+         tempo = _tempo * 2;
     startOfLoop = _startOfLoop * 2;
     endOfLoop = _endOfLoop * 2;
     uClock.setTempo(tempo);
@@ -206,6 +201,14 @@ void MyClock::load_clock(uint8_t _songNr)
     draw_clock_option(POSITION_START_LOOP_BUTTON, startOfLoop);
     draw_clock_option(POSITION_END_LOOP_BUTTON, endOfLoop);
     Serial.println("clock Loading done");
+    }
+    else
+    {
+        // if the file didn't open, print an error:
+        Serial.println("ERROR clock Loading");
+    }
+   
+    delay(10);
 }
 
 // MyClock myClock(&tft);
