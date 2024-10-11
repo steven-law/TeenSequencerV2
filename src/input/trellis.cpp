@@ -508,7 +508,7 @@ void trellis_show_arranger()
         //  neotrellis_show();
         //   Serial.printf("songpage= %d\n", _key);
         gridSongMode(arrangerpage);
-        Serial.println("try to recall");
+
         for (int y = 0; y < NUM_TRACKS; y++)
           // trellis_get_main_buffer(trellisScreen, i, y);
 
@@ -1116,9 +1116,9 @@ void trellis_set_main_buffer(int _page, int _x, int _y, int color)
 void trellis_assign_main_buffer(int _page, int _x, int _y, int color)
 {
   trellisMainGridBuffer[_page][_x][_y] = color;
- // int _nr = _x + (_y * TRELLIS_PADS_X_DIM);
- // trellis.setLED(TrellisLED[_nr]);
-  //if (trellisMainGridBuffer[_page][_x][_y] == TRELLIS_BLACK)
+  // int _nr = _x + (_y * TRELLIS_PADS_X_DIM);
+  // trellis.setLED(TrellisLED[_nr]);
+  // if (trellisMainGridBuffer[_page][_x][_y] == TRELLIS_BLACK)
   //  trellis.clrLED(TrellisLED[_nr]);
   // Serial.printf("set main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, _x, _y, color, TrellisLED[_nr]);
   //  trellis.writeDisplay();
@@ -1205,7 +1205,7 @@ void trellis_show_clockbar(uint8_t trackNr, uint8_t step)
         {
           uint8_t _nr = myClock.barTick + (trackNr * NUM_STEPS);
           trellis.setLED(TrellisLED[_nr]);
-
+         // Serial.printf("clock bar trellisScreen = %d\n", trellisScreen);
           if (myClock.barTick > 0)
           {
             if (trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr) > 0)

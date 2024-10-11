@@ -251,7 +251,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         if (!muted && !muteThruSolo)
         {
             // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-            Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
+           // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
             if (parameter[SET_SEQ_MODE] == 0)
             {
                 play_seq_mode0(internal_clock);
