@@ -214,6 +214,9 @@ void drawbarPosition()
         // tft->fillRect(STEP_FRAME_W * 2, GRID_POSITION_POINTER_Y, STEP_FRAME_W * 1, 4, ILI9341_GREEN);
     }
 }
+void clear_positionPointer(){
+    tft.fillRect(STEP_FRAME_W * 2, SONG_POSITION_POINTER_Y, STEP_FRAME_W*NUM_STEPS, POSITION_POINTER_THICKNESS *4, ILI9341_DARKGREY);
+}
 void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
 {
     static int last_xPos;
@@ -294,17 +297,17 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
 
     circlePos[XPos] = dvalue / 63.5;
 
-    draw_value_box(YPos, xPos, yPos, 4, -3, dvalue, NO_NAME, color, 2, false, false);
+    //  draw_value_box(YPos, xPos, yPos-1, 4, 13, dvalue, NO_NAME, color, 2, false, false);
     draw_value_box(YPos, xPos, yPos + 1, 0, 3, NO_VALUE, dname, color, 2, false, false);
-
+    tft.fillRect((xPos * STEP_FRAME_W), (yPos*STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
     tft.setFont(Arial_8);
-    tft.setTextColor(ILI9341_DARKGREY);
-    tft.setCursor(STEP_FRAME_W * xPos, STEP_FRAME_H * (yPos + 1) + 3);
-    tft.print(dname_old[XPos]);
-
     tft.setTextColor(ILI9341_WHITE);
-    tft.setCursor(STEP_FRAME_W * xPos, STEP_FRAME_H * (yPos + 1) + 3);
-    tft.print(dname);
+    tft.setCursor((STEP_FRAME_W * xPos)+7, (yPos*STEP_FRAME_H) - 3);
+    tft.print(dvalue);
+
+    // tft.setTextColor(ILI9341_WHITE);
+    // tft.setCursor(STEP_FRAME_W * xPos, STEP_FRAME_H * (yPos + 1) + 3);
+    // tft.print(dname);
 
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos_old[XPos]) + 2.25), STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos_old[XPos]) + 2.25), 4, ILI9341_DARKGREY);
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
@@ -380,11 +383,11 @@ void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest
 
     int xPos = XPos * STEP_FRAME_W;
     uint8_t yPos = YPos * STEP_FRAME_H;
-int Color=color;
+    int Color = color;
     tft.setFont(Arial_8);
     // tft.setTextColor(ILI9341_DARKGREY);
     // tft.setCursor(xPos + offest_X, yPos + offset_Y);
-    tft.fillRect(xPos + offest_X, yPos + offset_Y, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
+    tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         Color = ILI9341_LIGHTGREY;
@@ -404,7 +407,6 @@ int Color=color;
         tft.print(name);
     if (_value != NO_VALUE)
         tft.print(_value);
-    // tft.updateScreenAsync();
 }
 
 void drawsongmodepageselector()
@@ -463,24 +465,24 @@ void draw_arranger_parameters(uint8_t lastProw)
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[(pixelTouchX / 16) - 2], "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Trns", allTracks[gridTouchY - 1]->noteOffset[(pixelTouchX / 16) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Trns", allTracks[gridTouchY - 1]->noteOffset[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
 
             // drawOctaveNumber();
             // draw_velocity(3, 0);
         }
         if (lastProw == 1)
         {
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", (pixelTouchX / 16) - 2, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Velo", allTracks[gridTouchY - 1]->barVelocity[(pixelTouchX / 16) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Velo", allTracks[gridTouchY - 1]->barVelocity[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
         }
         if (lastProw == 2)
         {
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", (pixelTouchX / 16) - 2, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "ccC", allTracks[gridTouchY - 1]->play_presetNr_ccChannel[(pixelTouchX / 16) - 2], "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "ccV", allTracks[gridTouchY - 1]->play_presetNr_ccValue[(pixelTouchX / 16) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "ccC", allTracks[gridTouchY - 1]->play_presetNr_ccChannel[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "ccV", allTracks[gridTouchY - 1]->play_presetNr_ccValue[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
         }
     }
 }
@@ -817,12 +819,12 @@ void draw_mixer_FX_page2()
 void draw_clip_launcher()
 {
     Serial.println("drawing cliplauncher");
-    tft.fillRect(10*STEP_FRAME_W, 11*STEP_FRAME_H, 80, 17, ILI9341_DARKGREY);
+    tft.fillRect(10 * STEP_FRAME_W, 11 * STEP_FRAME_H, 80, 17, ILI9341_DARKGREY);
     tft.setFont(Arial_16);
-    tft.setCursor(8*STEP_FRAME_W, 11*STEP_FRAME_H);
+    tft.setCursor(8 * STEP_FRAME_W, 11 * STEP_FRAME_H);
     tft.setTextColor(ILI9341_BLUE);
     tft.printf("BAR:%d\n", bar2edit);
-//clearWorkSpace();
+    // clearWorkSpace();
     for (int t = 0; t < NUM_TRACKS; t++)
     {
         for (int c = 0; c < MAX_CLIPS; c++)

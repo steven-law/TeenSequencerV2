@@ -283,7 +283,7 @@ void neo_trellis_save_load()
 
         uint8_t _songNr = i;
         set_infobox_background(750);
-        tft.printf("Saved song: %s ", songNames[i]);
+        tft.printf("Saving song: %s ", songNames[i]);
         reset_infobox_background();
         allTracks[0]->save_track(_songNr);
         allTracks[1]->save_track(_songNr);
@@ -305,7 +305,7 @@ void neo_trellis_save_load()
         uint8_t _songNr = i;
         Serial.printf("load song: %d\n", _songNr);
         set_infobox_background(750);
-        tft.printf("loaded song: %s ", songNames[_songNr]);
+        tft.printf("Loading song: %s ", songNames[_songNr]);
         reset_infobox_background();
         allTracks[0]->load_track(_songNr);
         allTracks[1]->load_track(_songNr);
@@ -344,13 +344,9 @@ void neotrellis_stop_clock()
   {
     myClock.set_stop();
     // Serial.println("Stop");
+    
     neotrellisPressed[TRELLIS_STOP_CLOCK] = false;
-    for (int i = 0; i < NUM_TRACKS; i++)
-    {
-      allTracks[i]->internal_clock = -1;
-      allTracks[i]->internal_clock_bar = -1;
-      allTracks[i]->external_clock_bar = -1;
-    }
+   
   }
 }
 
@@ -1203,23 +1199,23 @@ void trellis_show_clockbar(uint8_t trackNr, uint8_t step)
       {
         // if (step % 16 == 0)
         {
-          uint8_t _nr = myClock.barTick + (trackNr * NUM_STEPS);
+          uint8_t _nr =(myClock.barTick%16) + (trackNr * NUM_STEPS);
           trellis.setLED(TrellisLED[_nr]);
          // Serial.printf("clock bar trellisScreen = %d\n", trellisScreen);
           if (myClock.barTick > 0)
           {
-            if (trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr) > 0)
+            if (trellis_get_main_buffer(trellisScreen, (myClock.barTick%16)-1, trackNr) > 0)
               trellis.setLED(TrellisLED[_nr - 1]);
             else
               trellis.clrLED(TrellisLED[_nr - 1]);
           }
           // neotrellis.setPixelColor(myClock.barTick - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr));
-          if (myClock.barTick == 0)
+          if (myClock.barTick%16 == 0)
           {
-            if (trellis_get_main_buffer(trellisScreen, myClock.endOfLoop - 1, trackNr) > 0)
-              trellis.setLED(TrellisLED[(myClock.endOfLoop - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+            if (trellis_get_main_buffer(trellisScreen, NUM_STEPS-1, trackNr) > 0)
+              trellis.setLED(TrellisLED[(NUM_STEPS - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
             else
-              trellis.clrLED(TrellisLED[(myClock.endOfLoop - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+              trellis.clrLED(TrellisLED[(NUM_STEPS - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
             //  neotrellis.setPixelColor(myClock.endOfLoop - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.endOfLoop - 1, trackNr));
             // Serial.println(oldNr);
           }

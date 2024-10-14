@@ -27,6 +27,7 @@ public:
   static uint8_t endOfLoop;
   static uint8_t stepTick;
   static uint8_t barTick;
+  static File clockFile;
   static bool isPlaying;
   MyClock(int index);
   void setup();

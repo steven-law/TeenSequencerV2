@@ -7,6 +7,7 @@ uint8_t MyClock::endOfLoop = 4;
 bool MyClock::isPlaying = false;
 uint8_t MyClock::stepTick = -1;
 uint8_t MyClock::barTick = -1;
+File MyClock::clockFile;
 MyClock *MyClock::instance = nullptr;
 
 MyClock::MyClock(int index)
@@ -123,7 +124,7 @@ void MyClock::set_end_of_loop(uint8_t n)
 
 void MyClock::save_clock(uint8_t _songNr)
 {
-    SD.begin(BUILTIN_SDCARD);
+   // SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
@@ -137,11 +138,11 @@ void MyClock::save_clock(uint8_t _songNr)
 
     // open the file.
     // Serial.println("Creating and opening:");
-    myFile = SD.open(_trackname, FILE_WRITE);
+    clockFile = SD.open(_trackname, FILE_WRITE);
     // Serial.println(_trackname);
     // Serial.println("Done:");
     //  if the file opened okay, write to it:
-    if (myFile)
+    if (clockFile)
     {
         // save tracks
         // Serial.println("Writing track:");
@@ -149,11 +150,11 @@ void MyClock::save_clock(uint8_t _songNr)
         uint8_t _tempo = tempo / 2;
         uint8_t _startOfLoop = startOfLoop / 2;
         uint8_t _endOfLoop = endOfLoop / 2;
-        myFile.print((char)_tempo);
-        myFile.print((char)_startOfLoop);
-        myFile.print((char)_endOfLoop);
+        clockFile.print((char)_tempo);
+        clockFile.print((char)_startOfLoop);
+        clockFile.print((char)_endOfLoop);
         // close the file:
-        myFile.close();
+        clockFile.close();
         // Serial.println("all saved:");
         Serial.println("clock saving Done:");
     }
@@ -162,8 +163,8 @@ void MyClock::save_clock(uint8_t _songNr)
         // if the file didn't open, print an error:
         Serial.println("ERROR load clock");
     }
-delay(10);
-    
+    delay(10);
+
     // startUpScreen();
 }
 void MyClock::load_clock(uint8_t _songNr)
@@ -171,43 +172,46 @@ void MyClock::load_clock(uint8_t _songNr)
     uint8_t _tempo;
     uint8_t _startOfLoop;
     uint8_t _endOfLoop;
-    SD.begin(BUILTIN_SDCARD);
+   // SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
     sprintf(_trackname, "%dclock.txt\0", _songNr);
     Serial.println(_trackname);
     //  open the file for reading:
-    myFile = SD.open(_trackname, FILE_READ);
+    this->clockFile = SD.open(_trackname, FILE_READ);
     // Serial.println(_trackname);
-    if (myFile)
+    if ( this->clockFile)
     {
         // Serial.println("opening:");
         //  read from the file until there's nothing else in it:
         //  load track 1
 
-        _tempo = myFile.read();
-        _startOfLoop = myFile.read();
-        _endOfLoop = myFile.read();
+        _tempo = this->clockFile.read();
+        _startOfLoop = this->clockFile.read();
+        _endOfLoop = this->clockFile.read();
 
         // Serial.println("settings loaded:");
 
         // startUpScreen();
         //  close the file:
-        myFile.close();
-         tempo = _tempo * 2;
-    startOfLoop = _startOfLoop * 2;
-    endOfLoop = _endOfLoop * 2;
-    uClock.setTempo(tempo);
-    draw_clock_option(POSITION_BPM_BUTTON, tempo);
-    draw_clock_option(POSITION_START_LOOP_BUTTON, startOfLoop);
-    draw_clock_option(POSITION_END_LOOP_BUTTON, endOfLoop);
-    Serial.println("clock Loading done");
+        this->clockFile.close();
+        tempo = _tempo * 2;
+        startOfLoop = _startOfLoop * 2;
+        endOfLoop = _endOfLoop * 2;
+        uClock.setTempo(tempo);
+
+        
+        draw_value_box(3, POSITION_BPM_BUTTON, 0, 4, 4, tempo, NO_NAME, ILI9341_WHITE, 2, true, false);
+        draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
+        draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
+
+        Serial.println("clock Loading done");
     }
     else
     {
         // if the file didn't open, print an error:
         Serial.println("ERROR clock Loading");
     }
-   
+
     delay(10);
 }
 

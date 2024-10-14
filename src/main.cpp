@@ -37,7 +37,8 @@ Plugin_9 plugin_9("rDrm", 9);
 Plugin_10 plugin_10("SF2", 9);
 Plugin_11 plugin_11("Ext", 9);*/
 
-PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12,&plugin_13,&plugin_14};
+PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13, &plugin_14};
+// PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13};
 FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
@@ -50,12 +51,16 @@ USBHub hub2(myusb);
 MIDIDevice usbMidi1(myusb);
 USBHIDParser hid1(myusb);
 MouseController mouse1(myusb);
+IntervalTimer usbDeviceTimer;
+IntervalTimer SerialMidiTimer;
 void input_behaviour();
 // midi
 void clock_to_notes(int _tick);
 void midi_setup(uint8_t dly);
 void midi_read();
 void sendClock();
+void onExternalStart();
+void onExternalStop();
 
 void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
@@ -63,6 +68,10 @@ void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel);
 
 void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
 void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
+void myControlChange(uint8_t channel, uint8_t control, uint8_t value);
+void myMIDIClock();
+void usbDevice_handleInput();
+void SerialMidi_handleInput();
 void detect_USB_device();
 
 void play_plugin_on_DAC(uint8_t _track, uint8_t _pluginNr);
@@ -82,8 +91,8 @@ void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void show_trellisFX_mixerPage();
- 
-void  set_input_level(uint8_t _value);
+
+void set_input_level(uint8_t _value);
 void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
 
@@ -130,12 +139,12 @@ void setup()
   allPlugins[11]->change_preset();
   Serial.println("Audio & MIDI Setup done");
   assign_PSRAM_variables();
-  //if (!SerialFlash.begin(FlashChipSelect))
+  // if (!SerialFlash.begin(FlashChipSelect))
   {
-  //  error("Unable to access SPI Flash chip");
+    //  error("Unable to access SPI Flash chip");
   }
-  //else
-  //  Serial.println("Access SPI Chip");
+  // else
+  //   Serial.println("Access SPI Chip");
   startUpScreen();
   tft.updateScreenAsync();
   for (int x = 0; x < X_DIM / 4; x++)
@@ -196,14 +205,22 @@ void loop()
   get_infobox_background();
   unsigned long loopEndTime = millis();
   unsigned long neotrellisCurrentMillis = millis();
+  unsigned long updateMidiCurrentMillis = micros();
   // if we need to restart the trellisboard
+
+  if (updateMidiCurrentMillis - updateMidiPreviousMillis >= 250)
+  {
+    midi_read();
+    updateMidiPreviousMillis = updateMidiCurrentMillis;
+  }
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
   {
-   // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisScreen);
+    // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisScreen);
     trellisReadPreviousMillis = neotrellisCurrentMillis;
     neotrellis_recall_control_buffer();
     neotrellis_show();
-    trellis_writeDisplay();
+
+    // Serial.println(loopEndTime - loopStartTime);
     if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
       mouse(2, 14);
@@ -218,12 +235,13 @@ void loop()
   if (updateTFTScreen)
   {
     tft_show();
-    // Serial.printf("active encoder page: %d\n", activeScreen);
+    //  Serial.printf("active encoder page: %d\n", activeScreen);
     updateTFTScreen = false;
     enc_moved[0] = false;
     enc_moved[1] = false;
     enc_moved[2] = false;
     enc_moved[3] = false;
+    trellis_writeDisplay();
   }
 
   if (loopEndTime - loopStartTime > 600 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
@@ -307,18 +325,19 @@ void input_behaviour()
     fx_1.set_parameters(lastPotRow);
   if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
     fx_2.set_parameters(lastPotRow);
-   if (activeScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER){
-  // Serial.println("hi");
+  if (activeScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
+  {
+    // Serial.println("hi");
     trellis_play_clipLauncher();
-   }
+  }
 }
 // midi
 void clock_to_notes(int _tick)
-{/*
-if (activeScreen==INPUT_FUNCTIONS_FOR_CLIPLAUNCHER){
-  if (_tick==0)
-  draw_clip_launcher();
-}*/
+{ /*
+ if (activeScreen==INPUT_FUNCTIONS_FOR_CLIPLAUNCHER){
+   if (_tick==0)
+   draw_clip_launcher();
+ }*/
   // Serial.println(Masterclock.MIDItick);
   for (int t = 0; t < NUM_TRACKS; t++)
   {
@@ -338,27 +357,76 @@ void midi_setup(uint8_t dly)
 
   MIDI1.setHandleNoteOn(myNoteOn);
   MIDI1.setHandleNoteOff(myNoteOff);
+  MIDI1.setHandleControlChange(myControlChange);
+  MIDI1.setHandleClock(myMIDIClock);
+  MIDI1.setHandleStart(onExternalStart);
+  MIDI1.setHandleStop(onExternalStop);
+  SerialMidiTimer.begin(SerialMidi_handleInput, 250);
+  SerialMidiTimer.priority(80);
+
   usbMidi1.setHandleNoteOn(myNoteOn);
   usbMidi1.setHandleNoteOff(myNoteOff);
+  usbMidi1.setHandleControlChange(myControlChange);
+  usbMidi1.setHandleClock(myMIDIClock);
+
   usbMIDI.setHandleNoteOff(myNoteOff);
   usbMIDI.setHandleNoteOn(myNoteOn);
+  usbMIDI.setHandleControlChange(myControlChange);
+  usbMIDI.setHandleClock(myMIDIClock);
+  usbMIDI.setHandleStart(onExternalStart);
+  usbMIDI.setHandleStop(onExternalStop);
+  usbDeviceTimer.begin(usbDevice_handleInput, 250);
+  usbDeviceTimer.priority(80);
   delay(dly);
 }
 void midi_read()
 {
-  usbMIDI.read();
-  MIDI1.read();
+  // usbMIDI.read();
+  //  MIDI1.read();
   myusb.Task();
   usbMidi1.read();
   detect_USB_device();
 }
+void usbDevice_handleInput()
+{
+  while (usbMIDI.read())
+  {
+  }
+}
+void SerialMidi_handleInput()
+{
+
+  while (MIDI1.read())
+  {
+  }
+  //  while (usbMidi1.read()) {
+  //  }
+}
+
 void sendClock()
 {
   MIDI1.sendClock();
   usbMIDI.sendRealTime(usbMIDI.Clock);
   usbMidi1.sendRealTime(usbMIDI.Clock);
 }
+void onExternalStart()
+{
+  clear_positionPointer();
+  myClock.set_start();
+}
 
+void onExternalStop()
+{
+
+  myClock.set_stop();
+  for (int i = 0; i < NUM_TRACKS; i++)
+  {
+    allTracks[i]->internal_clock = -1;
+    allTracks[i]->internal_clock_bar = -1;
+    allTracks[i]->external_clock_bar = -1;
+  }
+  Serial.println("external MIDI Stop");
+}
 void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
   if (Note < NO_NOTE)
@@ -366,14 +434,18 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     if (Channel == 0)
       sendNoteOn_CV_Gate(_track, Note);
     if (Channel > 0 && Channel <= 16)
+    {
       MIDI1.sendNoteOn(Note, Velo, Channel);
+      Serial.printf("SerialMidiCh= %d\n", Channel);
+    }
+
     if (Channel > 16 && Channel <= 32)
       usbMIDI.sendNoteOn(Note, Velo, Channel - 16);
     if (Channel > 32 && Channel <= 48)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
-      MasterOut.noteOn(Note, Velo, Channel - (48 + 1), Note % 12);
-    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+      MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
+    Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -411,8 +483,8 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
     if (allTracks[channel - 1]->get_recordState())
       allTracks[channel - 1]->record_noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
-  if (channel >= 9)
-    sendNoteOn(channel - 1, note, velocity, channel);
+ // if (channel >= 9)
+  //  sendNoteOn(channel - 1, note, velocity, channel);
   Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 }
 void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
@@ -423,8 +495,46 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
     if (allTracks[channel - 1]->get_recordState())
       allTracks[channel - 1]->record_noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
+ // if (channel >= 9)
+  //  sendNoteOff(channel - 1, note, velocity, channel);
+}
+void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
+{
+  if (channel < 9)
+  {
+
+    for (int i = 0; i < NUM_PARAMETERS; i++)
+    {
+
+      if (control == i + 25)
+      {
+        allTracks[channel - 1]->parameter[i] = value;
+          change_plugin_row = true;
+        updateTFTScreen = true;
+        break;
+      }
+      if (control == i + 80)
+      {
+        int _pluginCh = allTracks[channel - 1]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1);
+        if (allTracks[channel - 1]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+        {
+          allPlugins[_pluginCh]->potentiometer[allPlugins[_pluginCh]->presetNr][i] = value;
+          Serial.printf("MIDI pluginCh = %d\n", _pluginCh);
+          change_plugin_row = true;
+          updateTFTScreen = true;
+          break;
+        }
+        allPlugins[_pluginCh]->change_preset();
+      }
+      // delay(10);
+    }
+  }
   if (channel >= 9)
-    sendNoteOff(channel - 1, note, velocity, channel);
+    sendControlChange(control, value, channel);
+}
+void myMIDIClock()
+{
+  uClock.clockMe();
 }
 void detect_USB_device()
 {
@@ -622,20 +732,20 @@ void trellis_show_tft_mixer()
 
       // trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
     }
-     if (trellisPressed[7])
+    if (trellisPressed[7])
     {
       trellis.clear();
       trellis.writeDisplay();
       trellisPressed[7] = false;
       trellisScreen = TRELLIS_SCREEN_CLIPLAUNCHER;
       neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      //change_plugin_row = true;
+      // change_plugin_row = true;
       activeScreen = INPUT_FUNCTIONS_FOR_CLIPLAUNCHER;
 
       clearWorkSpace();
       // activeScreen = INPUT_FUNCTIONS_FOR_FX1;
       // clearWorkSpace();
-      //set_perform_page(lastPotRow);
+      // set_perform_page(lastPotRow);
       draw_clip_launcher();
       show_active_page_info("Launch", 0);
 
@@ -1337,8 +1447,9 @@ void show_trellisFX_mixerPage()
     trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, allTracks[t]->mixFX3Pot / 42 + 12, t, TRELLIS_ORANGE);
   }
 }
-void  set_input_level(uint8_t _value){
-    uint8_t ampl = _value / 8;
+void set_input_level(uint8_t _value)
+{
+  uint8_t ampl = _value / 8;
 
   MasterOut.sgtl5000.lineInLevel(ampl);
 }

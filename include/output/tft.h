@@ -74,11 +74,6 @@ extern unsigned long infoboxWaitingTime;
 extern bool infoboxShow;
 extern bool infoboxClear;
 
-
-
-
-
-
 void tft_setup(int dly);
 void clearWorkSpace();
 void startUpScreen();
@@ -88,7 +83,7 @@ void set_infobox_background(int _DisplayTime);
 void reset_infobox_background();
 void set_infobox_next_line(uint8_t _lineNumber); //_lineNumber must be bigger 0
 void show_active_page_info(const char *_pagename, uint8_t _pagenumber);
-void moveCursor(int pixelOnX, int pixelOnY,  int cursorDeltaX, int cursorDeltaY);
+void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY);
 
 void tft_show();
 
@@ -97,9 +92,10 @@ void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, 
 void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const char *_name, int _value, const char *_valuedName);
 void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, uint8_t _size, bool drawRect, bool drawFilling);
 
-//clock
-    void drawstepPosition();
-    void drawbarPosition();
+// clock
+void drawstepPosition();
+void drawbarPosition();
+void clear_positionPointer();
 
 // songmode
 

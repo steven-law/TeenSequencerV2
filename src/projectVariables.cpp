@@ -14,6 +14,7 @@ uint8_t arrangerpage;
 bool change_plugin_row;
 const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 unsigned long neotrellisReadPreviousMillis = 0; // will store last time LED was updated
+unsigned long updateMidiPreviousMillis = 0; // will store last time LED was updated
 // uint16_t tftRAM[16][16];
 
 const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit"};

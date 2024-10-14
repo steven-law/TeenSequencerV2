@@ -124,7 +124,10 @@ extern uint8_t arrangerpage;
 extern bool change_plugin_row;
 extern const int encoder_colour[NUM_ENCODERS];
 extern unsigned long neotrellisReadPreviousMillis; // will store last time LED was updated
+extern unsigned long updateMidiPreviousMillis; // will store last time LED was updated
+
 //extern uint16_t tftRAM[16][16];
+
 
 #define Y_DIM 12 // number of rows of key
 #define X_DIM 4  // number of columns of keys
