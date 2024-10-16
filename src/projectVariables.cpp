@@ -14,7 +14,7 @@ uint8_t arrangerpage;
 bool change_plugin_row;
 const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 unsigned long neotrellisReadPreviousMillis = 0; // will store last time LED was updated
-unsigned long updateMidiPreviousMillis = 0; // will store last time LED was updated
+unsigned long updateMidiPreviousMillis = 0;     // will store last time LED was updated
 // uint16_t tftRAM[16][16];
 
 const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit"};
@@ -47,7 +47,7 @@ const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6
                                   "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
                                   "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "none"};
 
-const char FLASHMEM *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};
+const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld"};
 const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
                                                       "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
                                                       "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
@@ -56,6 +56,9 @@ const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3",
                                                       "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16",
                                                       "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "Nord", "SF2", "PWM", "Raw", "Draw", "Rec"};
 const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+bool **beatArray;
+bool **beatArrayPM6;
+bool *beatArrayPM7;
 
-//touch
+// touch
 bool isTouched;

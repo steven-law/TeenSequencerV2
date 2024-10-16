@@ -12,6 +12,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_NAME "NO_NAME"
 
 #define NUM_PLUGINS 14
+#define NUM_PLAYMODES 8
 
 #define NUM_TRACKS 8
 #define NUM_STEPS 16
@@ -127,7 +128,11 @@ extern unsigned long neotrellisReadPreviousMillis; // will store last time LED w
 extern unsigned long updateMidiPreviousMillis; // will store last time LED was updated
 
 //extern uint16_t tftRAM[16][16];
-
+#define BEAT_ARRAY_SIZE 128
+//extern const bool seqM_Beats[BEAT_ARRAY_SIZE][NUM_STEPS];
+extern bool **beatArray;
+extern bool **beatArrayPM6;
+extern bool *beatArrayPM7;
 
 #define Y_DIM 12 // number of rows of key
 #define X_DIM 4  // number of columns of keys
@@ -192,7 +197,7 @@ extern uint8_t FLASHMEM gateOutputPin[8];
 extern bool updateTFTScreen;
  extern const char *bankNames[NUM_SAMPLE_BANKS];
 extern const char FLASHMEM *CCnames[129];
-extern const char FLASHMEM *seqModname[5];
+extern const char FLASHMEM *seqModname[NUM_PLAYMODES];
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];
 // screen

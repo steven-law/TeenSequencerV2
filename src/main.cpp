@@ -361,6 +361,7 @@ void midi_setup(uint8_t dly)
   MIDI1.setHandleClock(myMIDIClock);
   MIDI1.setHandleStart(onExternalStart);
   MIDI1.setHandleStop(onExternalStop);
+  MIDI1.turnThruOff();
   SerialMidiTimer.begin(SerialMidi_handleInput, 250);
   SerialMidiTimer.priority(80);
 
@@ -436,7 +437,6 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     if (Channel > 0 && Channel <= 16)
     {
       MIDI1.sendNoteOn(Note, Velo, Channel);
-      Serial.printf("SerialMidiCh= %d\n", Channel);
     }
 
     if (Channel > 16 && Channel <= 32)
@@ -483,8 +483,8 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
     if (allTracks[channel - 1]->get_recordState())
       allTracks[channel - 1]->record_noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
- // if (channel >= 9)
-  //  sendNoteOn(channel - 1, note, velocity, channel);
+  if (channel >= 9)
+    sendNoteOn(channel - 1, note, velocity, channel);
   Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 }
 void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
@@ -495,8 +495,8 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
     if (allTracks[channel - 1]->get_recordState())
       allTracks[channel - 1]->record_noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
- // if (channel >= 9)
-  //  sendNoteOff(channel - 1, note, velocity, channel);
+  if (channel >= 9)
+    sendNoteOff(channel - 1, note, velocity, channel);
 }
 void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
 {
@@ -509,7 +509,7 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
       if (control == i + 25)
       {
         allTracks[channel - 1]->parameter[i] = value;
-          change_plugin_row = true;
+        change_plugin_row = true;
         updateTFTScreen = true;
         break;
       }
@@ -1498,6 +1498,74 @@ void assign_PSRAM_variables()
   }
   CCnames[128]="none";
 */
+  beatArray = new bool *[BEAT_ARRAY_SIZE];
+  for (int i = 0; i < BEAT_ARRAY_SIZE; i++)
+  {
+    beatArray[i] = new bool[NUM_STEPS];
+  }
+  for (int i = 0; i < BEAT_ARRAY_SIZE; i++)
+  {
+    Serial.print(i);
+    for (int j = 0; j < NUM_STEPS; j++)
+    {
+
+      // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
+      beatArray[i][j] = random(0, 2); // 0 für false, 1 für true
+      Serial.print("  ");
+      Serial.print(beatArray[i][j]);
+    }
+    Serial.println();
+  }
+  for (int j = 0; j < NUM_STEPS; j++)
+  {
+    beatArray[0][j] = 0;            // 0 für false, 1 für true
+    beatArray[1][j] = 0;            // 0 für false, 1 für true
+    beatArray[1][j] = (j % 4 == 0); // 0 für false, 1 für true
+    beatArray[2][j] = 0;            // 0 für false, 1 für true
+    beatArray[2][j] = (j % 4 == 0); // 0 für false, 1 für true
+    beatArray[2][14] = 1;           // 0 für false, 1 für true
+    int bucket = 0;
+    bucket += 5;
+    if (bucket >= NUM_STEPS)
+    {
+      beatArray[3][j] = 1; // Beat
+      bucket -= NUM_STEPS;
+    }
+    else
+    {
+      beatArray[3][j] = 0; // Kein Beat
+    }
+    bucket += 7;
+    if (bucket >= NUM_STEPS)
+    {
+      beatArray[4][j] = 1; // Beat
+      bucket -= NUM_STEPS;
+    }
+    else
+    {
+      beatArray[4][j] = 0; // Kein Beat
+    }
+  }
+
+  beatArrayPM6 = new bool *[MAX_VOICES];
+  for (int i = 0; i < MAX_VOICES; i++)
+  {
+    beatArrayPM6[i] = new bool[NUM_STEPS];
+  }
+  for (int i = 0; i < MAX_VOICES; i++)
+  {
+    for (int j = 0; j < NUM_STEPS; j++)
+    {
+      // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
+      beatArrayPM6[i][j] = 0; // 0 für false, 1 für true
+    }
+  }
+  beatArrayPM7 = new bool [NUM_STEPS];
+  for (int j = 0; j < NUM_STEPS; j++)
+    {
+      // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
+      beatArrayPM7[j] = 0; // 0 für false, 1 für true
+    }
 
   note_frequency = new float[128];
   for (int r = 0; r < 128; r++)

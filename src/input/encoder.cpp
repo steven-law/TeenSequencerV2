@@ -73,16 +73,17 @@ void readEncoders()
            // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
         }
     }
+    /*
     if (encButtons[0].fell())
     {
-        neotrellisPressed[TRELLIS_BUTTON_ENTER] = true;
+        //neotrellisPressed[TRELLIS_BUTTON_ENTER] = true;
         // Serial.printf("EncButton: %d\n", 0);
     }
     if (encButtons[0].rose())
     {
         neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
         // Serial.printf("EncButton: %d\n", i);
-    }
+    }*/
 }
 void encoder_SetCursor(uint8_t deltaX, uint8_t maxY)
 

@@ -251,27 +251,23 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         if (!muted && !muteThruSolo)
         {
             // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-           // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
+            // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
             if (parameter[SET_SEQ_MODE] == 0)
-            {
                 play_seq_mode0(internal_clock);
-            }
             if (parameter[SET_SEQ_MODE] == 1)
-            {
                 play_seq_mode1(internal_clock);
-            }
             if (parameter[SET_SEQ_MODE] == 2)
-            {
                 play_seq_mode2(internal_clock);
-            }
             if (parameter[SET_SEQ_MODE] == 3)
-            {
                 play_seq_mode3(internal_clock);
-            }
             if (parameter[SET_SEQ_MODE] == 4)
-            {
                 play_seq_mode4(internal_clock);
-            }
+            if (parameter[SET_SEQ_MODE] == 5)
+                play_seq_mode5(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 6)
+                play_seq_mode6(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 7)
+                play_seq_mode7(internal_clock);
         }
     }
 }
@@ -285,6 +281,12 @@ void Track::set_seq_mode_parameters(uint8_t row)
         set_seq_mode3_parameters(row);
     if (parameter[SET_SEQ_MODE] == 4)
         set_seq_mode4_parameters(row);
+    if (parameter[SET_SEQ_MODE] == 5)
+        set_seq_mode5_parameters(row);
+    if (parameter[SET_SEQ_MODE] == 6)
+        set_seq_mode6_parameters(row);
+    if (parameter[SET_SEQ_MODE] == 7)
+        set_seq_mode7_parameters(row);
 }
 void Track::draw_sequencer_modes(uint8_t mode)
 {
@@ -298,6 +300,12 @@ void Track::draw_sequencer_modes(uint8_t mode)
         draw_seq_mode3();
     if (mode == 4)
         draw_seq_mode4();
+    if (mode == 5)
+        draw_seq_mode5();
+    if (mode == 6)
+        draw_seq_mode6();
+    if (mode == 7)
+        draw_seq_mode7();
 }
 
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)

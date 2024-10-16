@@ -11,11 +11,11 @@
 #include "input/trellis.h"
 
 //
-//#include "Plugins/plugin_List.h"
+// #include "Plugins/plugin_List.h"
 // //#include "hardware/tftClass.h"
 
 // void draw_sequencer_option(uint8_t x, const char *nameshort, int value, uint8_t enc, const char *pluginName);
-//class tftClass;
+// class tftClass;
 #define NOTES_PER_OCTAVE 12
 #define MIDI_CC_RANGE 127
 
@@ -35,19 +35,18 @@
 
 #define NUM_PARAMETERS 16
 
-
 extern File myFile;
 // Encoder Pins
 extern bool enc_moved[4];
 extern int encoded[4];
-//extern int encoder_colour[4];
+// extern int encoder_colour[4];
 extern bool change_plugin_row;
 extern uint8_t activeScreen;
 extern int pixelTouchX;
 extern int gridTouchY;
 extern uint8_t active_track;
 void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
-void sendNoteOff(uint8_t _track,uint8_t Note, uint8_t Velo, uint8_t Channel);
+void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
 void sendControlChange(uint8_t control, uint8_t value, uint8_t channel);
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
 void neotrellis_show();
@@ -58,7 +57,7 @@ class Track
 {
 
 public:
-File myTrackFile;
+    File myTrackFile;
     uint8_t my_Arranger_Y_axis;
     uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0};
     // Stepsequencer
@@ -96,7 +95,7 @@ File myTrackFile;
     bool muteThruSolo;
     bool performIsActive = false;
     int performNoteOffset = 0;
-    uint8_t performClockDivision =0;
+    uint8_t performClockDivision = 0;
     uint8_t bar_to_edit = 0;
 
     // arranger
@@ -109,7 +108,7 @@ File myTrackFile;
 
     uint8_t play_presetNr_ccChannel[256];
     uint8_t play_presetNr_ccValue[256];
-    Track( uint8_t Y)
+    Track(uint8_t Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
         // MIDI1.setHandleNoteOff(myNoteOff);
@@ -210,6 +209,21 @@ private:
     void set_seq_mode4_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode4();
 
+    void play_seq_mode5(uint8_t cloock);
+    void set_seq_mode5_parameters(uint8_t row);
+    void set_seq_mode5_value(uint8_t XPos, uint8_t YPos, const char *name);
+    void draw_seq_mode5();
+
+    void play_seq_mode6(uint8_t cloock);
+    void set_seq_mode6_parameters(uint8_t row);
+    void set_seq_mode6_value(uint8_t XPos, uint8_t YPos, const char *name);
+    void draw_seq_mode6();
+
+    void play_seq_mode7(uint8_t cloock);
+    void set_seq_mode7_parameters(uint8_t row);
+    void set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name);
+    void draw_seq_mode7();
+
     uint8_t setStepFX = 74;
     uint8_t noteToPlay[MAX_VOICES];
 
@@ -231,6 +245,10 @@ private:
     uint8_t SeqMod2Value[16];
     uint8_t SeqMod3Value[16];
     uint8_t SeqMod4Value[16];
+    uint8_t SeqMod5Value[16];
+    uint8_t SeqMod6Value[16];
+    uint8_t SeqMod6Value2[16];
+    uint8_t SeqMod7Value[16];
     uint8_t maxVal;
 
     // sequencer Modes
