@@ -221,7 +221,14 @@ void Track::load_track(uint8_t songNr)
 void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 {
     if (cloock % MAX_TICKS == 0)
+    {
         external_clock_bar++;
+        change_presets();
+    }
+     if (internal_clock == 0)
+    {
+        internal_clock_bar++;
+    }
     if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
         internal_clock++;
@@ -239,11 +246,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     {
         internal_clock = 0;
     }
-    if (internal_clock == 0)
-    {
-        internal_clock_bar++;
-        change_presets();
-    }
+   
     // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
     //  Serial.println(internal_clock_bar);
     if (internal_clock_is_on)

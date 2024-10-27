@@ -210,7 +210,8 @@ void loop()
 
   if (updateMidiCurrentMillis - updateMidiPreviousMillis >= 250)
   {
-    midi_read();
+    //midi_read();
+    trellis_writeDisplay();
     updateMidiPreviousMillis = updateMidiCurrentMillis;
   }
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
@@ -241,7 +242,7 @@ void loop()
     enc_moved[1] = false;
     enc_moved[2] = false;
     enc_moved[3] = false;
-    trellis_writeDisplay();
+    
   }
 
   if (loopEndTime - loopStartTime > 600 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)

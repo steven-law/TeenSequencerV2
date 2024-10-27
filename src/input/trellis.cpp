@@ -344,7 +344,12 @@ void neotrellis_stop_clock()
   {
     myClock.set_stop();
     // Serial.println("Stop");
-    
+     for (int i = 0; i < NUM_TRACKS; i++)
+  {
+    allTracks[i]->internal_clock = -1;
+    allTracks[i]->internal_clock_bar = -1;
+    allTracks[i]->external_clock_bar = -1;
+  }
     neotrellisPressed[TRELLIS_STOP_CLOCK] = false;
    
   }
@@ -767,7 +772,8 @@ void neo_trellis_select_trackClips()
         draw_notes_in_grid();
         neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
         // trellis_get_main_buffer(trellisScreen, y, active_track);
-        //  trellis_recall_main_buffer(trellisScreen);
+          trellis_recall_main_buffer(trellisScreen);
+          trellis_writeDisplay();
         break;
       }
       for (int x = 0; x <= NUM_USER_CLIPS; x++)
@@ -794,8 +800,8 @@ void neo_trellis_select_trackClips()
 
           trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
           // trellis_get_main_buffer(trellisScreen, x, active_track);
-          //  trellis_recall_main_buffer(trellisScreen);
-          //  trellisScreen = 0;
+           trellis_recall_main_buffer(trellisScreen);
+          trellis_writeDisplay();
           break;
         }
       }

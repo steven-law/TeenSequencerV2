@@ -42,13 +42,13 @@ void Track::play_seq_mode1(uint8_t cloock)
     if (get_active_note(clip_to_play[external_clock_bar], cloock, 0) < NO_NOTE)
     {
         if (!note_is_on[0])
-        {
+        {if (random(127) > SeqMod1Value[4]) {
             noteToPlay[0] = random(0, 11) + (random(SeqMod1Value[0], SeqMod1Value[1] + 1) * 12) + noteOffset[external_clock_bar] + performNoteOffset;
             uint8_t Velo = random(SeqMod1Value[2], SeqMod1Value[3]) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
             note_is_on[0] = true;
             noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                                     // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-        }
+        }}
     }
 
     if (get_active_note(clip_to_play[external_clock_bar], cloock, 0) == NO_NOTE)
@@ -70,6 +70,14 @@ void Track::set_seq_mode1_parameters(uint8_t row)
         set_seq_mode1_value(1, 0, "Oct +");
         set_seq_mode1_value(2, 0, "Vol -");
         set_seq_mode1_value(3, 0, "Vol +");
+
+
+
+    }
+    if (row == 1)
+    {
+
+        set_seq_mode1_value(0, 1, "Prob");
     }
 }
 void Track::set_seq_mode1_value(uint8_t XPos, uint8_t YPos, const char *name)
@@ -90,6 +98,8 @@ void Track::draw_seq_mode1()
         drawPot(1, 0, SeqMod1Value[1], "Oct +");
         drawPot(2, 0, SeqMod1Value[2], "Vol -");
         drawPot(3, 0, SeqMod1Value[3], "Vol +");
+
+         drawPot(0, 1, SeqMod1Value[4], "Prob");
     }
 }
 // dropseq
