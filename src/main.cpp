@@ -210,7 +210,8 @@ void loop()
 
   if (updateMidiCurrentMillis - updateMidiPreviousMillis >= 250)
   {
-    midi_read();
+    // midi_read();
+    trellis_writeDisplay();
     updateMidiPreviousMillis = updateMidiCurrentMillis;
   }
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
@@ -241,7 +242,6 @@ void loop()
     enc_moved[1] = false;
     enc_moved[2] = false;
     enc_moved[3] = false;
-    trellis_writeDisplay();
   }
 
   if (loopEndTime - loopStartTime > 600 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
@@ -282,6 +282,7 @@ void input_behaviour()
     {
       change_plugin_row = true;
       draw_arranger_parameters(lastPotRow);
+      draw_arrangment_lines(gridTouchY - 1, arrangerpage);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
 
@@ -1560,12 +1561,12 @@ void assign_PSRAM_variables()
       beatArrayPM6[i][j] = 0; // 0 für false, 1 für true
     }
   }
-  beatArrayPM7 = new bool [NUM_STEPS];
+  beatArrayPM7 = new bool[NUM_STEPS];
   for (int j = 0; j < NUM_STEPS; j++)
-    {
-      // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
-      beatArrayPM7[j] = 0; // 0 für false, 1 für true
-    }
+  {
+    // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
+    beatArrayPM7[j] = 0; // 0 für false, 1 für true
+  }
 
   note_frequency = new float[128];
   for (int r = 0; r < 128; r++)

@@ -86,6 +86,7 @@ void MyClock::set_stop()
 {
     uClock.stop();
     barTick = -1;
+    stepTick = -1;
     isPlaying = false;
 }
 void MyClock::draw_clock_option(uint8_t x, uint8_t v)

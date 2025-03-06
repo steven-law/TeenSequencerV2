@@ -107,6 +107,8 @@ void draw_arrangment_lines(uint8_t _track, uint8_t _page); // b= active page
 
 void draw_offset_arranger(uint8_t _trackNr, uint8_t _bar);
 void draw_clipNr_arranger(uint8_t _trackNr, uint8_t _bar);
+void draw_ccChannelSet_arranger(uint8_t _trackNr, uint8_t _bar);
+void draw_ccValueSet_arranger(uint8_t _trackNr, uint8_t _bar);
 
 // step sequencer
 void drawStepSequencerStatic();

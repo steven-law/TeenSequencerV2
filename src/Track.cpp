@@ -221,7 +221,14 @@ void Track::load_track(uint8_t songNr)
 void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 {
     if (cloock % MAX_TICKS == 0)
+    {
         external_clock_bar++;
+        change_presets();
+    }
+    if (internal_clock == 0)
+    {
+        internal_clock_bar++;
+    }
     if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
         internal_clock++;
@@ -239,11 +246,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     {
         internal_clock = 0;
     }
-    if (internal_clock == 0)
-    {
-        internal_clock_bar++;
-        change_presets();
-    }
+
     // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
     //  Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
@@ -374,9 +377,10 @@ void Track::set_arranger_parameters(uint8_t lastProw)
     default:
         break;
     }
+    copy_bar();
     draw_arranger_parameters(lastProw);
 }
-void Track::change_presets()
+void Track::change_presets() // change presets, happens when the next bar starts
 {
     for (int i = 0; i < 16; i++)
     {
@@ -389,7 +393,7 @@ void Track::change_presets()
     }
     Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
 }
-void Track::set_clip_to_play(uint8_t n, uint8_t b)
+void Track::set_clip_to_play(uint8_t n, uint8_t b) // set the clipNr to the desired bar
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
@@ -400,6 +404,7 @@ void Track::set_clip_to_play(uint8_t n, uint8_t b)
             {
                 clip_to_play[bar_to_edit + i] = constrain(clip_to_play[bar_to_edit + i] + encoded[n], 0, NUM_USER_CLIPS + 1);
                 draw_arrangment_line(my_Arranger_Y_axis - 1, bar_to_edit + i);
+                bar_for_copying = bar_to_edit;
             }
             // updateTFTScreen = true;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
@@ -407,7 +412,22 @@ void Track::set_clip_to_play(uint8_t n, uint8_t b)
         }
     }
 }
-void Track::set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr)
+void Track::copy_bar() // copy the last edited barParameters to the desired bar (clip, Transpose, Veleocity, ccChannel, ccValue)
+{
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
+    {
+        for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+        {
+            clip_to_play[bar_to_edit + i] = clip_to_play[bar_for_copying];
+            noteOffset[bar_to_edit + i] = noteOffset[bar_for_copying];
+            barVelocity[bar_to_edit + i] = barVelocity[bar_for_copying];
+            play_presetNr_ccChannel[bar_to_edit + i] = play_presetNr_ccChannel[bar_for_copying];
+            play_presetNr_ccValue[bar_to_edit + i] = play_presetNr_ccValue[bar_for_copying];
+            draw_arrangment_line(my_Arranger_Y_axis - 1, bar_to_edit + i);
+        }
+    }
+}
+void Track::set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr) // Songmode: sets a desired clip on a bar with only trellis input (bar = X, Clip = Y)
 {
 
     for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
@@ -418,7 +438,7 @@ void Track::set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr)
     // updateTFTScreen = true;
     // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, 2, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
 }
-void Track::set_note_offset(uint8_t _encoder, int b)
+void Track::set_note_offset(uint8_t _encoder, int b) // Songmode: Set the noteoffset/Transpose for a desired bar
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
@@ -432,6 +452,7 @@ void Track::set_note_offset(uint8_t _encoder, int b)
                 noteOffset[when + i] = _tempOffset;
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
+            bar_for_copying = bar_to_edit;
             Serial.printf("set NOteOffset: %d, when: %d\n", noteOffset[when], when);
             // updateTFTScreen = true;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Trns", noteOffset[when], "NO_NAME");
@@ -439,7 +460,7 @@ void Track::set_note_offset(uint8_t _encoder, int b)
         }
     }
 }
-void Track::set_barVelocity(uint8_t _encoder, int b)
+void Track::set_barVelocity(uint8_t _encoder, int b) // Songmode: Set the velocity for a desired bar
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
@@ -451,6 +472,7 @@ void Track::set_barVelocity(uint8_t _encoder, int b)
             {
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
+            bar_for_copying = bar_to_edit;
             // enc_moved[_encoder] = false;
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Velo", barVelocity[when], "NO_NAME");
         }
@@ -458,25 +480,38 @@ void Track::set_barVelocity(uint8_t _encoder, int b)
 }
 
 // MIDICC
-void Track::set_play_presetNr_ccChannel(uint8_t n, uint8_t lastProw)
+void Track::set_play_presetNr_ccChannel(uint8_t n, uint8_t lastProw) // Songmode: set the ccChannelSet for a desired bar
 {
+
     if (enc_moved[n])
     {
-        play_presetNr_ccChannel[bar_to_edit] = constrain(play_presetNr_ccChannel[bar_to_edit] + encoded[n], 0, NUM_PRESETS);
+        uint8_t when = ((bar_to_edit - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
+        for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+        {
+            play_presetNr_ccChannel[bar_to_edit + i] = constrain(play_presetNr_ccChannel[bar_to_edit + i] + encoded[n], 0, NUM_PRESETS);
+            draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
+        }
         Serial.printf("cc-Set: %d, vl-set: %d, bar: %d\n", play_presetNr_ccChannel[bar_to_edit], play_presetNr_ccValue[bar_to_edit], bar_to_edit);
         change_plugin_row = true;
+        bar_for_copying = bar_to_edit;
         // draw_MIDI_CC_screen();
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccChannel[bar_to_edit], "NO_NAME");
         // enc_moved[n] = false;
     }
 }
-void Track::set_play_presetNr_ccValue(uint8_t n, uint8_t lastProw)
+void Track::set_play_presetNr_ccValue(uint8_t n, uint8_t lastProw) // Songmode: set the ccValueSet for a desired bar
 {
     if (enc_moved[n])
     {
-        play_presetNr_ccValue[bar_to_edit] = constrain(play_presetNr_ccValue[bar_to_edit] + encoded[n], 0, NUM_PRESETS);
+        uint8_t when = ((bar_to_edit - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
+        for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+        {
+            play_presetNr_ccValue[bar_to_edit + i] = constrain(play_presetNr_ccValue[bar_to_edit + i] + encoded[n], 0, NUM_PRESETS);
+            draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
+        }
         Serial.printf("cc-Set: %d, vl-set: %d, bar: %d\n", play_presetNr_ccChannel[bar_to_edit], play_presetNr_ccValue[bar_to_edit], bar_to_edit);
         change_plugin_row = true;
+        bar_for_copying = bar_to_edit;
         // draw_MIDI_CC_screen();
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccValue[bar_to_edit], "NO_NAME");
 

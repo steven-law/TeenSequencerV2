@@ -105,6 +105,7 @@ public:
     uint8_t clip_to_play[256];
     int noteOffset[256];
     uint8_t barVelocity[256];
+    int bar_for_copying;
 
     uint8_t play_presetNr_ccChannel[256];
     uint8_t play_presetNr_ccValue[256];
@@ -181,6 +182,7 @@ public:
     void set_barVelocity(uint8_t _encoder, int b);
     void set_play_presetNr_ccChannel(uint8_t n, uint8_t lastProw);
     void set_play_presetNr_ccValue(uint8_t n, uint8_t lastProw);
+    void copy_bar();
     //
     void play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end);
     void set_seq_mode_parameters(uint8_t row);
