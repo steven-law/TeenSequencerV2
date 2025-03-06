@@ -210,8 +210,7 @@ void loop()
 
   if (updateMidiCurrentMillis - updateMidiPreviousMillis >= 250)
   {
-    //midi_read();
-    trellis_writeDisplay();
+    // midi_read();
     updateMidiPreviousMillis = updateMidiCurrentMillis;
   }
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
