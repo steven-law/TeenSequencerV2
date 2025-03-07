@@ -218,60 +218,63 @@ void Track::load_track(uint8_t songNr)
         load_plugin(songNr, parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
     }
 }
+
 void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 {
     if (cloock % MAX_TICKS == 0)
     {
         external_clock_bar++;
-    if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
-    {
-        internal_clock++;
-        internal_clock_is_on = true;
-    }
-    else
-        internal_clock_is_on = false;
-
-    if (external_clock_bar >= end)
-        external_clock_bar = start;
-    if (internal_clock_bar >= end)
-        internal_clock_bar = start;
-
-    if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
-    {
-        internal_clock = 0;
-    }
-    if (internal_clock == 0)
-    {
-        internal_clock_bar++;
-        change_presets();
-    }
-    // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
-    //  Serial.println(internal_clock_bar);
-    if (internal_clock_is_on)
-    {
-        if (!muted && !muteThruSolo)
+        if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
         {
-            // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-            // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
-            if (parameter[SET_SEQ_MODE] == 0)
-                play_seq_mode0(internal_clock);
-            if (parameter[SET_SEQ_MODE] == 1)
-                play_seq_mode1(internal_clock);
-            if (parameter[SET_SEQ_MODE] == 2)
-                play_seq_mode2(internal_clock);
-            if (parameter[SET_SEQ_MODE] == 3)
-                play_seq_mode3(internal_clock);
-            if (parameter[SET_SEQ_MODE] == 4)
-                play_seq_mode4(internal_clock);
-            if (parameter[SET_SEQ_MODE] == 5)
-                play_seq_mode5(internal_clock);
-            if (parameter[SET_SEQ_MODE] == 6)
-                play_seq_mode6(internal_clock);
-            if (parameter[SET_SEQ_MODE] == 7)
-                play_seq_mode7(internal_clock);
+            internal_clock++;
+            internal_clock_is_on = true;
+        }
+        else
+            internal_clock_is_on = false;
+
+        if (external_clock_bar >= end)
+            external_clock_bar = start;
+        if (internal_clock_bar >= end)
+            internal_clock_bar = start;
+
+        if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
+        {
+            internal_clock = 0;
+        }
+        if (internal_clock == 0)
+        {
+            internal_clock_bar++;
+            change_presets();
+        }
+        // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
+        //  Serial.println(internal_clock_bar);
+        if (internal_clock_is_on)
+        {
+            if (!muted && !muteThruSolo)
+            {
+                // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
+                // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
+                if (parameter[SET_SEQ_MODE] == 0)
+                    play_seq_mode0(internal_clock);
+                if (parameter[SET_SEQ_MODE] == 1)
+                    play_seq_mode1(internal_clock);
+                if (parameter[SET_SEQ_MODE] == 2)
+                    play_seq_mode2(internal_clock);
+                if (parameter[SET_SEQ_MODE] == 3)
+                    play_seq_mode3(internal_clock);
+                if (parameter[SET_SEQ_MODE] == 4)
+                    play_seq_mode4(internal_clock);
+                if (parameter[SET_SEQ_MODE] == 5)
+                    play_seq_mode5(internal_clock);
+                if (parameter[SET_SEQ_MODE] == 6)
+                    play_seq_mode6(internal_clock);
+                if (parameter[SET_SEQ_MODE] == 7)
+                    play_seq_mode7(internal_clock);
+            }
         }
     }
 }
+
 void Track::set_seq_mode_parameters(uint8_t row)
 {
     if (parameter[SET_SEQ_MODE] == 1)

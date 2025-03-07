@@ -303,7 +303,6 @@ void input_behaviour()
     // if Shift button is NOT pressed
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
-
       allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
     }
   }
