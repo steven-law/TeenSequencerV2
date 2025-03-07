@@ -229,7 +229,7 @@ void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
         if (cursorDeltaY == TRACK_FRAME_H)
             if (pixelOnY >= 1)
                 arranger_offset = 4;
-        /*
+        
 for (int pixel = 0; pixel < 16; pixel++)
 {
      tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, ILI9341_DARKGREY);  // draw upper line X1
@@ -248,7 +248,7 @@ for (int pixel = 0; pixel < 16; pixel++)
     tftRAM[1][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 15 + arranger_offset); // save bottom line
     tftRAM[2][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 1, pixel + (cursorDeltaY * pixelOnY) + arranger_offset);  // save left line
     tftRAM[3][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 15, pixel + (cursorDeltaY * pixelOnY) + arranger_offset); // save right line
-}*/
+}
 
         tft.drawRect((cursorDeltaX * last_xPos) + 1, (cursorDeltaY * last_yPos) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_DARKGREY);
 
@@ -460,6 +460,7 @@ void draw_arranger_parameters(uint8_t lastProw)
 {
     if (change_plugin_row)
     {
+        // drawOctaveNumber();
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
         change_plugin_row = false;
         if (lastProw == 0)
@@ -469,14 +470,15 @@ void draw_arranger_parameters(uint8_t lastProw)
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Trns", allTracks[gridTouchY - 1]->noteOffset[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
 
-            // drawOctaveNumber();
+            //
             // draw_velocity(3, 0);
         }
         if (lastProw == 1)
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Velo", allTracks[gridTouchY - 1]->barVelocity[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Velo", allTracks[gridTouchY - 1]->barVelocity[((pixelTouchX / 16) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
         }
         if (lastProw == 2)
         {
@@ -603,6 +605,20 @@ void drawOctaveTriangle()
     tft.fillTriangle(leftmost + 1, UP_bottommost, rightmost, UP_bottommost, leftmost + STEP_FRAME_W, UP_topmost, ILI9341_LIGHTGREY);        // octave arrow up
     tft.fillTriangle(leftmost + 1, DOWN_topmost, rightmost - 2, DOWN_topmost, leftmost + STEP_FRAME_W, DOWN_bottommost, ILI9341_LIGHTGREY); // x1, y1, x2, y2, x3, y3
 }
+void drawOctaveNumber()
+{
+    // draw the octave number
+    tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
+    tft.setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT);
+    tft.setFont(Arial_16);
+    if (lastPotRow != 1)
+        tft.setTextColor(ILI9341_LIGHTGREY);
+    else
+        tft.setTextColor(ILI9341_WHITE);
+
+    tft.setTextSize(1);
+    tft.print(allTracks[active_track]->parameter[SET_OCTAVE]);
+}
 void draw_Notenames()
 {
     for (int n = 0; n < MAX_VOICES; n++)
@@ -635,6 +651,8 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
     {
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
         change_plugin_row = false;
+        drawOctaveNumber();
+
         if (lastProw == 0)
         {
             draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);

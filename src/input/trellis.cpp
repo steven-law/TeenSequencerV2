@@ -344,14 +344,13 @@ void neotrellis_stop_clock()
   {
     myClock.set_stop();
     // Serial.println("Stop");
-     for (int i = 0; i < NUM_TRACKS; i++)
-  {
-    allTracks[i]->internal_clock = -1;
-    allTracks[i]->internal_clock_bar = -1;
-    allTracks[i]->external_clock_bar = -1;
-  }
+    for (int i = 0; i < NUM_TRACKS; i++)
+    {
+      allTracks[i]->internal_clock = -1;
+      allTracks[i]->internal_clock_bar = -1;
+      allTracks[i]->external_clock_bar = -1;
+    }
     neotrellisPressed[TRELLIS_STOP_CLOCK] = false;
-   
   }
 }
 
@@ -772,8 +771,8 @@ void neo_trellis_select_trackClips()
         draw_notes_in_grid();
         neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
         // trellis_get_main_buffer(trellisScreen, y, active_track);
-          trellis_recall_main_buffer(trellisScreen);
-          trellis_writeDisplay();
+        trellis_recall_main_buffer(trellisScreen);
+        trellis_writeDisplay();
         break;
       }
       for (int x = 0; x <= NUM_USER_CLIPS; x++)
@@ -800,7 +799,7 @@ void neo_trellis_select_trackClips()
 
           trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
           // trellis_get_main_buffer(trellisScreen, x, active_track);
-           trellis_recall_main_buffer(trellisScreen);
+          trellis_recall_main_buffer(trellisScreen);
           trellis_writeDisplay();
           break;
         }
@@ -822,6 +821,7 @@ void trellis_setStepsequencer()
           uint8_t _nr = x + (y * TRELLIS_PADS_X_DIM);
           if (trellisPressed[_nr])
           {
+
             uint8_t trellisNote;
             uint8_t track = _nr / NUM_STEPS;
             uint8_t step = _nr % NUM_STEPS;
@@ -1205,20 +1205,20 @@ void trellis_show_clockbar(uint8_t trackNr, uint8_t step)
       {
         // if (step % 16 == 0)
         {
-          uint8_t _nr =(myClock.barTick%16) + (trackNr * NUM_STEPS);
+          uint8_t _nr = (myClock.barTick % 16) + (trackNr * NUM_STEPS);
           trellis.setLED(TrellisLED[_nr]);
-         // Serial.printf("clock bar trellisScreen = %d\n", trellisScreen);
+          // Serial.printf("clock bar trellisScreen = %d\n", trellisScreen);
           if (myClock.barTick > 0)
           {
-            if (trellis_get_main_buffer(trellisScreen, (myClock.barTick%16)-1, trackNr) > 0)
+            if (trellis_get_main_buffer(trellisScreen, (myClock.barTick % 16) - 1, trackNr) > 0)
               trellis.setLED(TrellisLED[_nr - 1]);
             else
               trellis.clrLED(TrellisLED[_nr - 1]);
           }
           // neotrellis.setPixelColor(myClock.barTick - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr));
-          if (myClock.barTick%16 == 0)
+          if (myClock.barTick % 16 == 0)
           {
-            if (trellis_get_main_buffer(trellisScreen, NUM_STEPS-1, trackNr) > 0)
+            if (trellis_get_main_buffer(trellisScreen, NUM_STEPS - 1, trackNr) > 0)
               trellis.setLED(TrellisLED[(NUM_STEPS - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
             else
               trellis.clrLED(TrellisLED[(NUM_STEPS - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);

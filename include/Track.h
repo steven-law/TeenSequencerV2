@@ -20,7 +20,7 @@
 #define MIDI_CC_RANGE 127
 
 #define NO_NOTE 128
-
+#define MAX_BARS 256
 // potrow 0
 #define ENCODER_STEP_FX 2
 // potrow 1
@@ -60,6 +60,7 @@ public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
     uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0};
+    int tempStepLength;
     // Stepsequencer
     struct tick_t
     {
@@ -102,13 +103,13 @@ public:
     int internal_clock = -1;
     int internal_clock_bar = 0;
     int external_clock_bar = 0;
-    uint8_t clip_to_play[256];
-    int noteOffset[256];
-    uint8_t barVelocity[256];
+    uint8_t clip_to_play[MAX_BARS];
+    int noteOffset[MAX_BARS];
+    uint8_t barVelocity[MAX_BARS];
     int bar_for_copying;
 
-    uint8_t play_presetNr_ccChannel[256];
-    uint8_t play_presetNr_ccValue[256];
+    uint8_t play_presetNr_ccChannel[MAX_BARS];
+    uint8_t play_presetNr_ccValue[MAX_BARS];
     Track(uint8_t Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
@@ -139,7 +140,7 @@ public:
             Serial.println("Memory allocation failed");
         }
 
-        for (int i = 0; i < 256; i++)
+        for (int i = 0; i < MAX_BARS; i++)
         {
             clip_to_play[i] = 8;
             noteOffset[i] = 0;
@@ -160,6 +161,7 @@ public:
     void set_stepSequencer_parameters(uint8_t row);
 
     void set_note_on_tick(int x, int y);
+    void clear_active_clip();
     void draw_sequencer_modes(uint8_t mode);
 
     void set_recordState(bool _status);
@@ -183,6 +185,7 @@ public:
     void set_play_presetNr_ccChannel(uint8_t n, uint8_t lastProw);
     void set_play_presetNr_ccValue(uint8_t n, uint8_t lastProw);
     void copy_bar();
+    void clear_arrangment();
     //
     void play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end);
     void set_seq_mode_parameters(uint8_t row);

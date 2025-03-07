@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "projectVariables.h"
 
-
 #include "Track.h"
 
 void Track::set_stepSequencer_parameters(uint8_t row)
@@ -14,7 +13,6 @@ void Track::set_stepSequencer_parameters(uint8_t row)
         set_stepSequencer_parameter_value(0, 0, "Tick", 0, 160);
         set_stepSequencer_parameter_value(1, 0, "Note", 0, 14);
 
-
         set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 128);
         set_stepSequencer_parameter_value(3, 0, "Velo", 1, 128);
         break;
@@ -26,7 +24,7 @@ void Track::set_stepSequencer_parameters(uint8_t row)
 
         break;
     case 2:
-        set_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 2, "sMod", seqModname[parameter[SET_SEQ_MODE]], 0, NUM_PLAYMODES-1);
+        set_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 2, "sMod", seqModname[parameter[SET_SEQ_MODE]], 0, NUM_PLAYMODES - 1);
         set_stepSequencer_parameter_text(ENCODER_MIDICH_OUT, 2, "MCh", channelOutNames[parameter[SET_MIDICH_OUT]], 0, MAX_OUTPUTS);
         set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, NUM_USER_CLIPS);
 
@@ -44,14 +42,14 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
     if (enc_moved[XPos])
     {
         uint8_t index = XPos + (YPos * NUM_ENCODERS);
-        //enc_moved[XPos] = false;
+        // enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s\n", index, parameter[index], name);
         if (index == SET_OCTAVE || index == SET_CLIP2_EDIT)
         {
             draw_notes_in_grid();
         }
-        //draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, parameter[index], "NO_NAME");
+        // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, parameter[index], "NO_NAME");
     }
 }
 
@@ -60,10 +58,10 @@ void Track::set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const c
     if (enc_moved[XPos])
     {
         uint8_t index = XPos + (YPos * NUM_ENCODERS);
-       // enc_moved[XPos] = false;
+        // enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s, text %s\n", index, parameter[index], name, text);
-        //draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, NO_VALUE, text);
+        // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, NO_VALUE, text);
     }
 }
 
@@ -75,7 +73,7 @@ void Track::set_CCchannel(uint8_t XPos, uint8_t YPos)
     {
         CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + encoded[XPos], 1, 128);
         draw_MIDI_CC(XPos, YPos);
-       // enc_moved[XPos] = false;
+        // enc_moved[XPos] = false;
     }
 }
 void Track::set_CCvalue(uint8_t XPos, uint8_t YPos)
@@ -86,7 +84,7 @@ void Track::set_CCvalue(uint8_t XPos, uint8_t YPos)
         CCvalue[edit_presetNr_ccValue][n] = constrain(CCvalue[edit_presetNr_ccValue][n] + encoded[XPos], 0, 127);
         draw_MIDI_CC(XPos, YPos);
         sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], parameter[SET_MIDICH_OUT]);
-       // enc_moved[XPos] = false;
+        // enc_moved[XPos] = false;
     }
 }
 void Track::set_MIDI_CC(uint8_t row)
@@ -170,7 +168,7 @@ void Track::set_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw)
         change_plugin_row = true;
         draw_MIDI_CC_screen();
         draw_edit_presetNr_ccChannel(n, lastProw);
-       // enc_moved[n] = false;
+        // enc_moved[n] = false;
     }
 }
 void Track::set_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw)
@@ -182,11 +180,9 @@ void Track::set_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw)
         change_plugin_row = true;
         draw_MIDI_CC_screen();
         draw_edit_presetNr_ccValue(n, lastProw);
-       // enc_moved[n] = false;
+        // enc_moved[n] = false;
     }
 }
-
-
 
 // helpers
 // sequencer note input stuff
@@ -255,7 +251,6 @@ void Track::check_for_free_voices(uint8_t onTick, uint8_t newNote)
         {
             trellisColor = TRELLIS_BLACK;
             //   tftColor = ILI9341_DARKGREY;
-            
         }
         else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) < NO_NOTE)
         {
@@ -264,13 +259,24 @@ void Track::check_for_free_voices(uint8_t onTick, uint8_t newNote)
             break;
         }
     }
-    //uint8_t note = get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
+    // uint8_t note = get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
     if (active_track == my_Arranger_Y_axis - 1)
         draw_note_on_tick(search_free_voice, onTick);
 
-    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (onTick /  TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisColor);
+    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (onTick / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisColor);
 }
-
+void Track::clear_active_clip()
+{
+    for (int i = 0; i < MAX_TICKS; i++)
+    {
+        for (int n = 0; n < MAX_VOICES; n++)
+        {
+            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[n] = NO_NOTE;
+            draw_note_on_tick(n, i);
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
+        }
+    }
+}
 // stepsequencer
 
 void Track::set_recordState(bool _status)

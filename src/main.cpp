@@ -262,11 +262,32 @@ void input_behaviour()
   {
 
     neotrellis_SetCursor(14);
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
+      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
+      neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    }
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+      allTracks[active_track]->clear_active_clip();
 
+      neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
+      neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
+    }
+    /*
+    if (ts.touched())
+    {
+      allTracks[active_track]->parameter[SET_STEP_LENGTH] = 1;
+      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
+      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
+      delay(20);
+    }*/
     if (neotrellisPressed[TRELLIS_POTROW])
     {
       change_plugin_row = true;
       draw_stepSequencer_parameters(lastPotRow);
+      Serial.printf("active screen: %d, activeTrack: %d\n", activeScreen, active_track);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
     allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
@@ -276,13 +297,21 @@ void input_behaviour()
   {
 
     neotrellis_SetCursor(8);
-
     allTracks[gridTouchY - 1]->set_arranger_parameters(lastPotRow);
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+      allTracks[active_track]->clear_arrangment();
+
+      neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
+      neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
+    }
     if (neotrellisPressed[TRELLIS_POTROW])
     {
+      Serial.printf("active screen: %d, arrangerpage: %d\n", activeScreen, arrangerpage);
       change_plugin_row = true;
       draw_arranger_parameters(lastPotRow);
-      draw_arrangment_lines(gridTouchY - 1, arrangerpage);
+
+      // draw_arrangment_lines(gridTouchY - 1, arrangerpage);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
 

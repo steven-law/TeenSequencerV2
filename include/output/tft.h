@@ -114,6 +114,7 @@ void draw_ccValueSet_arranger(uint8_t _trackNr, uint8_t _bar);
 void drawStepSequencerStatic();
 void draw_Notenames();
 void drawOctaveTriangle();
+void drawOctaveNumber();
 void draw_Clipselector();
 
 void draw_stepSequencer_parameters(uint8_t lastProw);

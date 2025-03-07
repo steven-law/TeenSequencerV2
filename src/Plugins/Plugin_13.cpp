@@ -203,11 +203,11 @@ void Plugin_13::draw_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name
 }
 void Plugin_13::smooth_customWaveform(uint8_t YPos)
 {
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < GRID_LENGTH_HOR; i++)
     {
 
         if (pl13_customWaveform[i] == 0)
-            for (int b = i; b < 256; b++)
+            for (int b = i; b < GRID_LENGTH_HOR; b++)
                 pl13_customWaveform[i] = pl13_customWaveform[i - 1] + (((pl13_customWaveform[b] / (b - (i - 1)))) * (i - (i - 1)));
     }
     redraw_customWaveform(YPos);
@@ -216,7 +216,7 @@ void Plugin_13::smooth_customWaveform(uint8_t YPos)
 void Plugin_13::clearcustomWaveform(uint8_t YPos)
 {
     // pl12WaveformAssigned = false;
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < GRID_LENGTH_HOR; i++)
     {
         pl13_customWaveform[i] = 0;
     }

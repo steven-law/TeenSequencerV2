@@ -53,7 +53,7 @@ void Track::save_track(uint8_t songNr)
             // Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", my_Arranger_Y_axis, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array saved:");
-        for (int i = 0; i < 256; i++)
+        for (int i = 0; i < MAX_BARS; i++)
         {
             this->myTrackFile.print((char)clip_to_play[i]);
             this->myTrackFile.print((char)noteOffset[i]);
@@ -158,7 +158,7 @@ void Track::load_track(uint8_t songNr)
         }
         // Serial.println("array loaded:");
 
-        for (int i = 0; i < 256; i++)
+        for (int i = 0; i < MAX_BARS; i++)
         {
             clip_to_play[i] = this->myTrackFile.read();
             noteOffset[i] = this->myTrackFile.read();
@@ -221,58 +221,61 @@ void Track::load_track(uint8_t songNr)
 
 void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 {
-    if (cloock % MAX_TICKS == 0)
+    //  if (cloock % MAX_TICKS == 0) // fehler hier
+    // {
+
+    //   external_clock_bar++;
+    //}
+    if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
-        external_clock_bar++;
-        if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
-        {
-            internal_clock++;
-            internal_clock_is_on = true;
-        }
-        else
-            internal_clock_is_on = false;
+        internal_clock++;
+        internal_clock_is_on = true;
+        Serial.println(internal_clock);
+    }
+    else
+        internal_clock_is_on = false;
 
-        if (external_clock_bar >= end)
-            external_clock_bar = start;
-        if (internal_clock_bar >= end)
-            internal_clock_bar = start;
+    if (external_clock_bar >= end)
+        external_clock_bar = start;
+    if (internal_clock_bar >= end)
+        internal_clock_bar = start;
 
-        if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
+    if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
+    {
+        internal_clock = 0;
+    }
+    if (internal_clock == 0)
+    {
+        internal_clock_bar++;
+        change_presets();
+    }
+    // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
+    //  Serial.println(internal_clock_bar);
+    if (internal_clock_is_on)
+    {
+        if (!muted && !muteThruSolo)
         {
-            internal_clock = 0;
-        }
-        if (internal_clock == 0)
-        {
-            internal_clock_bar++;
-            change_presets();
-        }
-        // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
-        //  Serial.println(internal_clock_bar);
-        if (internal_clock_is_on)
-        {
-            if (!muted && !muteThruSolo)
-            {
-                // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-                // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
-                if (parameter[SET_SEQ_MODE] == 0)
-                    play_seq_mode0(internal_clock);
-                if (parameter[SET_SEQ_MODE] == 1)
-                    play_seq_mode1(internal_clock);
-                if (parameter[SET_SEQ_MODE] == 2)
-                    play_seq_mode2(internal_clock);
-                if (parameter[SET_SEQ_MODE] == 3)
-                    play_seq_mode3(internal_clock);
-                if (parameter[SET_SEQ_MODE] == 4)
-                    play_seq_mode4(internal_clock);
-                if (parameter[SET_SEQ_MODE] == 5)
-                    play_seq_mode5(internal_clock);
-                if (parameter[SET_SEQ_MODE] == 6)
-                    play_seq_mode6(internal_clock);
-                if (parameter[SET_SEQ_MODE] == 7)
-                    play_seq_mode7(internal_clock);
-            }
+            // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
+            // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
+            if (parameter[SET_SEQ_MODE] == 0)
+                play_seq_mode0(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 1)
+                play_seq_mode1(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 2)
+                play_seq_mode2(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 3)
+                play_seq_mode3(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 4)
+                play_seq_mode4(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 5)
+                play_seq_mode5(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 6)
+                play_seq_mode6(internal_clock);
+            if (parameter[SET_SEQ_MODE] == 7)
+                play_seq_mode7(internal_clock);
         }
     }
+    // }
 }
 
 void Track::set_seq_mode_parameters(uint8_t row)
@@ -364,7 +367,8 @@ void Track::set_arranger_parameters(uint8_t lastProw)
         break;
     case 1:
         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
-        set_barVelocity(2, pixelTouchX);
+        set_clip_to_play(2, pixelTouchX);
+        set_barVelocity(3, pixelTouchX);
         // myClock.set_tempo(1);
         // myClock.set_start_of_loop(2); // Encoder: 2
         // myClock.set_end_of_loop(3);   // Encoder: 3
@@ -411,6 +415,21 @@ void Track::set_clip_to_play(uint8_t n, uint8_t b) // set the clipNr to the desi
             // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
             //  enc_moved[n] = false;
         }
+    }
+}
+void Track::clear_arrangment()
+{
+    if (gridTouchY == my_Arranger_Y_axis)
+    {
+        for (int i = 0; i < MAX_BARS; i++)
+        {
+            clip_to_play[i] = MAX_CLIPS - 1;
+            noteOffset[i] = 0;
+            barVelocity[i] = 0;
+            play_presetNr_ccChannel[i] = NUM_PRESETS;
+            play_presetNr_ccValue[bar_to_edit + i] = NUM_PRESETS;
+        }
+        draw_arrangment_lines(my_Arranger_Y_axis - 1, arrangerpage);
     }
 }
 void Track::copy_bar() // copy the last edited barParameters to the desired bar (clip, Transpose, Veleocity, ccChannel, ccValue)

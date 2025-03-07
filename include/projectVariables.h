@@ -127,7 +127,7 @@ extern const int encoder_colour[NUM_ENCODERS];
 extern unsigned long neotrellisReadPreviousMillis; // will store last time LED was updated
 extern unsigned long updateMidiPreviousMillis; // will store last time LED was updated
 
-//extern uint16_t tftRAM[16][16];
+extern uint16_t tftRAM[16][16];
 #define BEAT_ARRAY_SIZE 128
 //extern const bool seqM_Beats[BEAT_ARRAY_SIZE][NUM_STEPS];
 extern bool **beatArray;

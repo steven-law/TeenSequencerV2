@@ -258,7 +258,7 @@ void Plugin_14::show_peak()
 void Plugin_14::clearcustomWaveform(uint8_t YPos)
 {
     // pl12WaveformAssigned = false;
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < GRID_LENGTH_HOR; i++)
     {
         pl14_customWaveform[i] = 0;
     }
@@ -276,7 +276,7 @@ void Plugin_14::draw_actual_waveform(uint8_t YPos)
     xPosPeak++;
     if (xPosPeak == 0)
     {
-        tft.fillRect(32, YPos * STEP_FRAME_H, 256, 41, ILI9341_DARKGREY);
+        tft.fillRect(32, YPos * STEP_FRAME_H, GRID_LENGTH_HOR, 41, ILI9341_DARKGREY);
         oldxPosPeak = 0;
     }
     // Serial.printf("xPos=%d, ypos=%i\n", xPosPeak, peakHeight);
@@ -286,11 +286,11 @@ void Plugin_14::draw_actual_waveform(uint8_t YPos)
 }
 void Plugin_14::smooth_customWaveform(uint8_t YPos)
 {
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < GRID_LENGTH_HOR; i++)
     {
 
         if (pl14_customWaveform[i] == 0)
-            for (int b = i; b < 256; b++)
+            for (int b = i; b < GRID_LENGTH_HOR; b++)
                 pl14_customWaveform[i] = pl14_customWaveform[i - 1] + (((pl14_customWaveform[b] / (b - (i - 1)))) * (i - (i - 1)));
     }
     //  redraw_customWaveform(YPos);
@@ -496,9 +496,9 @@ void Plugin_14::continueRecording()
         // into a 512 byte buffer.  The Arduino SD library
         // is most efficient when full 512 byte sector size
         // writes are used.
-        memcpy(buffer, queue1.readBuffer(), 256);
+        memcpy(buffer, queue1.readBuffer(), GRID_LENGTH_HOR);
         queue1.freeBuffer();
-        memcpy(buffer + 256, queue1.readBuffer(), 256);
+        memcpy(buffer + GRID_LENGTH_HOR, queue1.readBuffer(), GRID_LENGTH_HOR);
         queue1.freeBuffer();
         // write all 512 bytes to the SD card
         // elapsedMicros usec = 0;
@@ -526,7 +526,7 @@ void Plugin_14::stopRecording()
 
     while (queue1.available() > 0)
     {
-        myFile.write((int *)queue1.readBuffer(), 256);
+        myFile.write((int *)queue1.readBuffer(), GRID_LENGTH_HOR);
         queue1.freeBuffer();
     }
     myFile.close();

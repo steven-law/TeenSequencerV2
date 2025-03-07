@@ -59,7 +59,7 @@ public:
     //AudioAmplifier SongVol;
     AudioConnection *patchCord[8]; // total patchCordCount:98 including array typed ones.
 // draw waveforms
-int16_t pl13_customWaveform[256];
+int16_t pl13_customWaveform[GRID_LENGTH_HOR];
 int8_t pl13_oldCustomWaveformValue = 0;
 int8_t pl13_oldCustomWaveformXPos = 32;
     // constructor (this is called when class-object is created)

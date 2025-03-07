@@ -59,7 +59,7 @@ public:
     // AudioAmplifier SongVol;
     AudioConnection *patchCord[12]; // total patchCordCount:98 including array typed ones.
     // draw waveforms
-    int16_t pl14_customWaveform[256];
+    int16_t pl14_customWaveform[GRID_LENGTH_HOR];
     int8_t pl14_oldCustomWaveformValue = 0;
     int8_t pl14_oldCustomWaveformXPos = 32;
     char *_playFilename;
