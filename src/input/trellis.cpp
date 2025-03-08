@@ -249,7 +249,7 @@ void neotrellis_update()
 // 1st row
 void neotrellis_set_potRow()
 {
-  if (neotrellisPressed[TRELLIS_POTROW])
+  if (neotrellisPressed[TRELLIS_POTROW] && !neotrellisPressed[TRELLIS_BUTTON_RECORD])
   {
     neotrellisPressed[TRELLIS_POTROW] = false;
     change_plugin_row = true;
@@ -265,7 +265,7 @@ void neotrellis_set_potRow()
 }
 void neo_trellis_save_load()
 {
-  if (neotrellisPressed[TRELLIS_BUTTON_RECORD])
+  if (neotrellisPressed[TRELLIS_BUTTON_RECORD] && neotrellisPressed[TRELLIS_POTROW])
   {
     for (int i = 0; i < MAX_SONGS; i++)
     {
@@ -334,6 +334,8 @@ void neotrellis_start_clock()
   if (neotrellisPressed[TRELLIS_START_CLOCK] /*|| enc_button[2]*/)
   {
     myClock.set_start();
+    drawActivePlaying(true);
+
     // Serial.println("Play");
     neotrellisPressed[TRELLIS_START_CLOCK] = false;
   }
@@ -343,6 +345,8 @@ void neotrellis_stop_clock()
   if (neotrellisPressed[TRELLIS_STOP_CLOCK] /*|| enc_button[3]*/)
   {
     myClock.set_stop();
+    drawActivePlaying(false);
+
     // Serial.println("Stop");
     for (int i = 0; i < NUM_TRACKS; i++)
     {
@@ -982,6 +986,9 @@ void neotrellis_set_fast_record()
       {
         allTracks[i]->recordState = true;
         neotrellis_set_control_buffer(2, i + 4, TRELLIS_RED);
+        drawActiveRecording(allTracks[i]->recordState);
+
+        Serial.printf("Track : %d, recordstate: %b\n", i, allTracks[i]->recordState ? "on" : "off");
         // neotrellis.setPixelColor(2, i + 4, TRELLIS_RED);
         //  trellis.setPixelColor(18, i, TRELLIS_RED);
         break;
@@ -991,13 +998,15 @@ void neotrellis_set_fast_record()
       {
         allTracks[i]->recordState = false;
         neotrellis_set_control_buffer(2, i + 4, TRELLIS_1);
+        drawActiveRecording(allTracks[i]->recordState);
 
+        Serial.printf("Track : %d, recordstate: %b\n", i, allTracks[i]->recordState ? "on" : "off");
         // neotrellis.setPixelColor(2, (i + 4), TRELLIS_1);
         // trellis.setPixelColor(18, i, TRELLIS_1);
         break;
       }
 
-      // break;
+      break;
     }
   }
 }

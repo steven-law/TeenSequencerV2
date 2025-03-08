@@ -234,6 +234,7 @@ void loop()
   }
   if (updateTFTScreen)
   {
+    drawPositionCounter();
     tft_show();
     //  Serial.printf("active encoder page: %d\n", activeScreen);
     updateTFTScreen = false;

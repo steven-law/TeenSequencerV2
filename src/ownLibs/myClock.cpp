@@ -36,6 +36,7 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
 
     sendClock();
     clock_to_notes(tick);
+  
   //  Serial.println(tick); //passt
 }
 void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one step.
@@ -44,7 +45,6 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     tick = tick % NUM_STEPS;
     stepTick = tick;
     updateTFTScreen = true;
-
     if (tick == 0)
     {
         barTick++;

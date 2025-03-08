@@ -77,7 +77,9 @@ extern bool infoboxClear;
 void tft_setup(int dly);
 void clearWorkSpace();
 void startUpScreen();
-
+void drawActiveRecording(bool _recState);
+void drawActivePlaying(bool _playstate);
+void drawPositionCounter();
 void get_infobox_background();
 void set_infobox_background(int _DisplayTime);
 void reset_infobox_background();

@@ -201,7 +201,7 @@ extern const char FLASHMEM *seqModname[NUM_PLAYMODES];
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];
 // screen
-#define POSITION_BPM_BUTTON 11
+#define POSITION_BPM_BUTTON 5
 #define POSITION_START_LOOP_BUTTON 16
 #define POSITION_END_LOOP_BUTTON 18
 #define TRELLIS_BUTTON_ENTER 8
