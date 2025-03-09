@@ -96,20 +96,20 @@ public:
     bool muteThruSolo;
     bool performIsActive = false;
     int performNoteOffset = 0;
-    uint8_t performClockDivision = 0;
-    uint8_t bar_to_edit = 0;
+    int performClockDivision = 0;
+    int bar_to_edit = 0;
 
     // arranger
     int internal_clock = -1;
     int internal_clock_bar = 0;
     int external_clock_bar = 0;
-    uint8_t clip_to_play[MAX_BARS];
+    int clip_to_play[MAX_BARS];
     int noteOffset[MAX_BARS];
-    uint8_t barVelocity[MAX_BARS];
+    int barVelocity[MAX_BARS];
     int bar_for_copying;
 
-    uint8_t play_presetNr_ccChannel[MAX_BARS];
-    uint8_t play_presetNr_ccValue[MAX_BARS];
+    int play_presetNr_ccChannel[MAX_BARS];
+    int play_presetNr_ccValue[MAX_BARS];
     Track(uint8_t Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
@@ -158,41 +158,47 @@ public:
         }
     }
 
-    void set_stepSequencer_parameters(uint8_t row);
-
-    void set_note_on_tick(int x, int y);
-    void clear_active_clip();
-    void draw_sequencer_modes(uint8_t mode);
-
-    void set_recordState(bool _status);
-    bool get_recordState();
-    void record_noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel);
-    void record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel);
-
-    void set_MIDI_CC(uint8_t row);
     // update
     void update(int PixelX, uint8_t gridY);
+    void set_recordState(bool _status);
+    bool get_recordState();
     void noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel);
     void noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel);
+    void record_noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel);
+    void record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel);
     void save_track(uint8_t songNr);
     void load_track(uint8_t songNr);
     // songmode
     void set_arranger_parameters(uint8_t lastProw);
-    void set_clip_to_play(uint8_t n, uint8_t b);
     void set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr);
-    void set_note_offset(uint8_t _encoder, int b);
-    void set_barVelocity(uint8_t _encoder, int b);
-    void set_play_presetNr_ccChannel(uint8_t n, uint8_t lastProw);
-    void set_play_presetNr_ccValue(uint8_t n, uint8_t lastProw);
+    void set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int minValue, int maxValue, const char *label);
     void copy_bar();
     void clear_arrangment();
-    //
+    // stepsequencer
+    void set_note_on_tick(int x, int y);
+    void set_note_parameter(uint8_t *parameterArray, uint8_t _voice, uint8_t value);
+    uint8_t get_note_parameter(uint8_t *parameterArray, uint8_t _voice);
+    void set_stepSequencer_parameters(uint8_t row);
+    void clear_active_clip();
+    // seqmodes
+    void draw_sequencer_modes(uint8_t mode);
     void play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end);
     void set_seq_mode_parameters(uint8_t row);
-
-    uint8_t get_active_note(uint8_t _clip, uint8_t _tick, uint8_t _voice);
+    // midi CC
+    void set_MIDI_CC(uint8_t row);
 
 private:
+    // stepsequencer
+    void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
+    void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
+    void check_for_free_voices(uint8_t onTick, uint8_t cnote);
+
+    // midi CC
+    void set_CCvalue(uint8_t XPos, uint8_t YPos);
+    void set_CCchannel(uint8_t XPos, uint8_t YPos);
+    void set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label, uint8_t position);
+    void change_presets();
+
     void play_seq_mode0(uint8_t cloock);
     void play_seq_mode1(uint8_t cloock);
     void set_seq_mode1_parameters(uint8_t row);
@@ -255,38 +261,6 @@ private:
     uint8_t SeqMod6Value2[16];
     uint8_t SeqMod7Value[16];
     uint8_t maxVal;
-
-    // sequencer Modes
-
-    // void play_seq_mode0(uint8_t cloock);
-
-    void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
-    void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
-    // sequencer options:
-    void set_CCvalue(uint8_t XPos, uint8_t YPos);
-    void set_CCchannel(uint8_t XPos, uint8_t YPos);
-    void set_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw);
-    void set_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw);
-
-    // sequencer note input stuff
-    void set_active_note(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _note);
-    void set_active_velo(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _velo);
-    uint8_t get_active_velo(uint8_t _clip, uint8_t _tick, uint8_t _voice);
-    void set_active_stepFX(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _stepFX);
-    uint8_t get_active_stepFX(uint8_t _clip, uint8_t _tick, uint8_t _voice);
-    void check_for_free_voices(uint8_t onTick, uint8_t cnote);
-
-    // stepsequencer
-
-    //----------------------------------------------------------------
-    // arranger stuff
-    void change_presets();
-
-    // clip to play
-
-    // note offset / note transpose
-
-    // bar Velocity
 };
 
 extern Track *allTracks[8];

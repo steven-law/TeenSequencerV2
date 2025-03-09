@@ -154,62 +154,36 @@ void Track::set_MIDI_CC(uint8_t row)
     }
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
-        set_edit_presetNr_ccChannel(2, 0);
-        set_edit_presetNr_ccValue(3, 0);
+        set_edit_preset_CC(2, edit_presetNr_ccChannel, "cc-Set", 2);
+        set_edit_preset_CC(3, edit_presetNr_ccValue, "vl-Set", 3);
+        // set_edit_presetNr_ccChannel(2, 0);
+        // set_edit_presetNr_ccValue(3, 0);
     }
     draw_MIDI_CC_screen();
 }
-void Track::set_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw)
+
+void Track::set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label, uint8_t position)
 {
     if (enc_moved[n])
     {
-        edit_presetNr_ccChannel = constrain(edit_presetNr_ccChannel + encoded[n], 0, NUM_PRESETS - 1);
-
+        presetVar = constrain(presetVar + encoded[n], 0, NUM_PRESETS - 1);
         change_plugin_row = true;
         draw_MIDI_CC_screen();
-        draw_edit_presetNr_ccChannel(n, lastProw);
-        // enc_moved[n] = false;
-    }
-}
-void Track::set_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw)
-{
-    if (enc_moved[n])
-    {
-        edit_presetNr_ccValue = constrain(edit_presetNr_ccValue + encoded[n], 0, NUM_PRESETS - 1);
-
-        change_plugin_row = true;
-        draw_MIDI_CC_screen();
-        draw_edit_presetNr_ccValue(n, lastProw);
-        // enc_moved[n] = false;
+        draw_edit_presetNr_CC(label, presetVar, position);
     }
 }
 
 // helpers
 // sequencer note input stuff
-void Track::set_active_note(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _note)
+void Track::set_note_parameter(uint8_t *parameterArray, uint8_t _voice, uint8_t value)
 {
-    this->clip[_clip].tick[_tick].voice[_voice] = _note;
+    parameterArray[_voice] = value;
 }
-uint8_t Track::get_active_note(uint8_t _clip, uint8_t _tick, uint8_t _voice)
+uint8_t Track::get_note_parameter(uint8_t *parameterArray, uint8_t _voice)
 {
-    return this->clip[_clip].tick[_tick].voice[_voice];
+    return parameterArray[_voice];
 }
-void Track::set_active_velo(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _velo)
-{
-    this->clip[_clip].tick[_tick].velo[_voice] = _velo;
-}
-uint8_t Track::get_active_velo(uint8_t _clip, uint8_t _tick, uint8_t _voice)
-{
-    return this->clip[_clip].tick[_tick].velo[_voice];
-}
-void Track::set_active_stepFX(uint8_t _clip, uint8_t _tick, uint8_t _voice, uint8_t _stepFX)
-{
-    this->clip[_clip].tick[_tick].stepFX = _stepFX;
-}
-uint8_t Track::get_active_stepFX(uint8_t _clip, uint8_t _tick, uint8_t _voice)
-{
-    return this->clip[_clip].tick[_tick].stepFX;
-}
+
 void Track::set_note_on_tick(int x, int y)
 {
     uint8_t note2set;
@@ -227,39 +201,34 @@ void Track::check_for_free_voices(uint8_t onTick, uint8_t newNote)
 
     // löschen der Note
 
-    if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == newNote)
+    if (get_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, search_free_voice) == newNote)
     {
-
-        set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, NO_NOTE);
-        set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_VELO2SET]);
-        set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_STEP_FX]);
+        set_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, search_free_voice, NO_NOTE);                    // note
+        set_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo, search_free_voice, parameter[SET_VELO2SET]);     // velocity
+        set_note_parameter(&(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].stepFX), search_free_voice, parameter[SET_STEP_FX]); // stepFx no Array, so &-Operator
     }
     // setzen neuer Note
-    else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == NO_NOTE)
+    else if (get_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, search_free_voice) == NO_NOTE)
     {
-
-        set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, newNote);
-        set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_VELO2SET]);
-        set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_STEP_FX]);
+        set_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, search_free_voice, newNote);                    // note
+        set_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo, search_free_voice, parameter[SET_VELO2SET]);     // velocity
+        set_note_parameter(&(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].stepFX), search_free_voice, parameter[SET_STEP_FX]); // stepFx no Array, so &-Operator
     }
 
     int trellisColor;
     for (int v = 0; v < MAX_VOICES; v++)
     {
 
-        if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) == NO_NOTE)
+        if (get_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, v) == NO_NOTE)
         {
             trellisColor = TRELLIS_BLACK;
-            //   tftColor = ILI9341_DARKGREY;
         }
-        else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) < NO_NOTE)
+        else if (get_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, v) < NO_NOTE)
         {
             trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
-            // tftColor = trackColor[my_Arranger_Y_axis - 1] + (this->parameter[SET_CLIP2_EDIT] * 20);
             break;
         }
     }
-    // uint8_t note = get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
     if (active_track == my_Arranger_Y_axis - 1)
         draw_note_on_tick(search_free_voice, onTick);
 

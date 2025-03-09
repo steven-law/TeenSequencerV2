@@ -67,7 +67,6 @@ void Plugin_14::setup()
 
 void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float frequency = note_frequency[notePlayed] * tuning;
     Serial.printf("pl14: notePlayed= %d\n", notePlayed);
     playMem.setPlaybackRate(note_frequency[notePlayed]);
     //  playMem.playRaw(_playFilename, 1);

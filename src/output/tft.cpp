@@ -52,23 +52,30 @@ void drawActiveRecording(bool _recState)
 }
 void drawActivePlaying(bool _playstate)
 {
-    int _color = ILI9341_LIGHTGREY;
+    int _color = ILI9341_DARKGREY;
     if (_playstate)
         _color = ILI9341_GREEN;
-    tft.drawRect(STEP_FRAME_W * POSITION_PLAY_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);                                                              // PLAY RECT FRAME
-    tft.fillTriangle(STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 3, STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 13, STEP_FRAME_W * POSITION_PLAY_BUTTON + 22, 8, _color); // x1, y1, x2, y2, x3, y3
+    tft.fillRect(STEP_FRAME_W * POSITION_PLAY_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, _color);
+    tft.drawRect(STEP_FRAME_W * POSITION_PLAY_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_LIGHTGREY);                                                                     // PLAY RECT FRAME
+    tft.fillTriangle(STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 3, STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 13, STEP_FRAME_W * POSITION_PLAY_BUTTON + 22, 8, ILI9341_LIGHTGREY); // x1, y1, x2, y2, x3, y3
 }
 void drawPositionCounter()
 {
-// draw phrasenumber
-tft.fillRect(STEP_FRAME_W * POSITION_STOP_BUTTON + 1, 2, STEP_FRAME_W * 3 - 2, STEP_FRAME_H - 3, ILI9341_DARKGREY);
-tft.setTextColor(ILI9341_WHITE);
-tft.setFont(Arial_9);
-tft.setCursor(STEP_FRAME_W * POSITION_STOP_BUTTON + 4, 3);
-tft.print(myClock.barTick);
-tft.print(":");
-tft.print(myClock.stepTick);
-
+    // draw phrasenumber
+    tft.fillRect(STEP_FRAME_W * POSITION_STOP_BUTTON + 1, 2, STEP_FRAME_W * 3 - 2, STEP_FRAME_H - 3, ILI9341_DARKGREY);
+    tft.setTextColor(ILI9341_WHITE);
+    tft.setFont(Arial_9);
+    tft.setCursor(STEP_FRAME_W * POSITION_STOP_BUTTON + 4, 3);
+    if (!myClock.isPlaying)
+    {
+        tft.print("0:0");
+    }
+    else
+    {
+        tft.print(myClock.barTick + 1);
+        tft.print(":");
+        tft.print(myClock.stepTick + 1);
+    }
 }
 
 void startUpScreen()
@@ -102,35 +109,23 @@ void startUpScreen()
     tft.setCursor(3, STEP_FRAME_H * 13 + 14);
     tft.print("M");
 
-  
-    // record button & Rectangle
-    tft.drawRect(STEP_FRAME_W * POSITION_RECORD_BUTTON, 0, STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
+    // record
+    tft.drawRect(STEP_FRAME_W * POSITION_RECORD_BUTTON, 0, STEP_FRAME_W, STEP_FRAME_H, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * POSITION_RECORD_BUTTON + 7, 7, 6, ILI9341_LIGHTGREY);
 
-    // Play button & Rectangle
-    tft.drawRect(STEP_FRAME_W * POSITION_PLAY_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);                                                                     // PLAY RECT FRAME
-    tft.fillTriangle(STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 3, STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 13, STEP_FRAME_W * POSITION_PLAY_BUTTON + 22, 8, ILI9341_GREEN); // x1, y1, x2, y2, x3, y3
+    // Play
+    tft.drawRect(STEP_FRAME_W * POSITION_PLAY_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);                                                                         // PLAY RECT FRAME
+    tft.fillTriangle(STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 3, STEP_FRAME_W * POSITION_PLAY_BUTTON + 12, 13, STEP_FRAME_W * POSITION_PLAY_BUTTON + 22, 8, ILI9341_LIGHTGREY); // x1, y1, x2, y2, x3, y3
 
-    // stop button & Rectangle
-    tft.drawRect(STEP_FRAME_W * POSITION_STOP_BUTTON, 0, STEP_FRAME_W*3, STEP_FRAME_H, ILI9341_WHITE);
+    // bpm counter
+    tft.drawRect(STEP_FRAME_W * POSITION_STOP_BUTTON, 0, STEP_FRAME_W * 3, STEP_FRAME_H, ILI9341_LIGHTGREY);
 
-    // barcounter & Rectangle
-   // tft.drawRect(STEP_FRAME_W * POSITION_BAR_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);
-
-    // tempo button & Rectangle
-    tft.drawRect(STEP_FRAME_W * POSITION_BPM_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);
-
-    // save button & Rectangle
-    //tft.drawRect(STEP_FRAME_W * POSITION_SAVE_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);
-
-    // load button & Rectangle
-   // tft.drawRect(STEP_FRAME_W * POSITION_LOAD_BUTTON, 0, STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
-     // start of loop
-     tft.drawRect(STEP_FRAME_W * POSITION_SCALE_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);
-
-     // end of loop
-     tft.drawRect(STEP_FRAME_W * POSITION_ARR_BUTTON, 0, STEP_FRAME_W * 2, STEP_FRAME_H, ILI9341_WHITE);
- 
+    // tempo
+    draw_value_box(3, POSITION_BPM_BUTTON, 0, 4, 4, myClock.tempo, NO_NAME, ILI9341_WHITE, 2, true, false);
+    // start of loop
+    draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, myClock.startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
+    // end of loop
+    draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, myClock.endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 }
 void show_active_track()
 {
@@ -187,7 +182,7 @@ void tft_show()
         drawbarPosition();
         // updateClock = false;
     }
-    tft.fillRect(70, lastPotRow * 4, 10, 3, ILI9341_ORANGE);
+    tft.fillRect(STEP_FRAME_W * POSITION_POTROW_BUTTON, lastPotRow * 4, STEP_FRAME_W - 1, 3, ILI9341_ORANGE);
 
     tft.updateScreenAsync();
 } // cursor
@@ -211,8 +206,6 @@ void drawstepPosition()
 }
 void drawbarPosition()
 {
-
-    
 
     // drawbarPosition
     for (int songPointerThickness = 0; songPointerThickness <= POSITION_POINTER_THICKNESS; songPointerThickness++)
@@ -275,62 +268,43 @@ void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
     }
     //
 }
+
 void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
 {
-    // enc_moved[XPos] = false;
-    // xposition, yposition, value 1-100, value to draw, name to draw, color
-    // drawPot Variables
     static float circlePos[4];
     static float circlePos_old[4];
-    static const char *dname_old[4];
-    // uint8_t fvalue = map(dvalue, 0, 127, min, max);
-    int xPos;
-    int color;
-    if (XPos == 0)
-    {
-        xPos = 3;
-        color = ILI9341_BLUE;
-    }
-    if (XPos == 1)
-    {
-        xPos = 7;
-        color = ILI9341_RED;
-    }
-    if (XPos == 2)
-    {
-        xPos = 11;
-        color = ILI9341_GREEN;
-    }
-    if (XPos == 3)
-    {
-        xPos = 15;
-        color = ILI9341_WHITE;
-    }
-    if (YPos != lastPotRow)
-        color = ILI9341_LIGHTGREY;
 
+    // XPos und YPos Farben und Positionen definieren
+    const int xPosValues[4] = {3, 7, 11, 15};
+    const int colors[4] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
+
+    int xPos = xPosValues[XPos];
+    int color = (YPos != lastPotRow) ? ILI9341_LIGHTGREY : colors[XPos];
     int yPos = (YPos + 1) * 3;
 
     circlePos[XPos] = dvalue / 63.5;
 
-    //  draw_value_box(YPos, xPos, yPos-1, 4, 13, dvalue, NO_NAME, color, 2, false, false);
+    // Zeichnen der Wertbox
     draw_value_box(YPos, xPos, yPos + 1, 0, 3, NO_VALUE, dname, color, 2, false, false);
+
+    // Zeichnen des Rechtecks
     tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
+
+    // Textwert anzeigen
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 7, (yPos * STEP_FRAME_H) - 3);
     tft.print(dvalue);
 
-    // tft.setTextColor(ILI9341_WHITE);
-    // tft.setCursor(STEP_FRAME_W * xPos, STEP_FRAME_H * (yPos + 1) + 3);
-    // tft.print(dname);
-
-    tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos_old[XPos]) + 2.25), STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos_old[XPos]) + 2.25), 4, ILI9341_DARKGREY);
+    // Kreis zeichnen (alte und neue Position)
+    tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos_old[XPos]) + 2.25),
+                   STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos_old[XPos]) + 2.25), 4, ILI9341_DARKGREY);
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
-    tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25), STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
+    tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25),
+                   STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
+
+    // Speichern der alten Werte
     circlePos_old[XPos] = circlePos[XPos];
-    // Serial.printf("pot drawn %s, value %d\n", dname, dvalue);
-    dname_old[XPos] = dname;
 }
 void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release)
 {
@@ -394,48 +368,61 @@ void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const c
     if (_valuedName != "NO_NAME")
         draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, NO_VALUE, _valuedName, encoder_colour[_encoder], 2, true, false);
 }
+
 void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, uint8_t _size, bool drawRect, bool drawFilling)
 {
-
     int xPos = XPos * STEP_FRAME_W;
-    uint8_t yPos = YPos * STEP_FRAME_H;
-    int Color = color;
-    tft.setFont(Arial_8);
-    // tft.setTextColor(ILI9341_DARKGREY);
-    // tft.setCursor(xPos + offest_X, yPos + offset_Y);
-    tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
-    // tft.print(old_value[index]);
-    if (lastPotRow != lastPRow)
-        Color = ILI9341_LIGHTGREY;
+    int yPos = YPos * STEP_FRAME_H;
+    int Color = (lastPotRow != lastPRow) ? ILI9341_LIGHTGREY : color; // Direkt die Farbe setzen
 
-    if (drawRect)
-        tft.drawRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, Color);
+    tft.setFont(Arial_8);
+
+    // Rechteck und Füllung zeichnen
     if (drawFilling)
+    {
         tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, Color);
+    }
+    if (drawRect)
+    {
+        tft.drawRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, Color);
+    }
+
+    // Extra Bedingung für letzte Zeile
     if (lastPRow == 5)
     {
         tft.drawRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
         tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, color);
     }
+
+    // Text zeichnen
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
+
     if (name != "NO_NAME")
-        tft.print(name);
+    {
+        tft.print(name); // Wenn Name nicht "NO_NAME", drucken
+    }
     if (_value != NO_VALUE)
-        tft.print(_value);
+    {
+        tft.print(_value); // Wenn Wert nicht NO_VALUE, drucken
+    }
 }
 
-void drawsongmodepageselector()
+void drawsongmodepageselector(int songpageNumber)
 {
     // draw 16 rects of 16x16px in the 13th row
     for (int pages = 2; pages < 18; pages++)
     {
         // drawActiveRect(pages, 13, 1, 1, selectPage == pages + 8, "", ILI9341_LIGHTGREY);
+        tft.fillRect(STEP_FRAME_W * pages, STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
+        if (pages == songpageNumber + 2)
+            tft.fillRect(STEP_FRAME_W * (songpageNumber + 2), STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_LIGHTGREY);
+
         tft.drawRect(STEP_FRAME_W * pages, STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
         tft.setFont(Arial_8);
-        tft.setTextColor(ILI9341_WHITE);
+        tft.setTextColor(ILI9341_BLACK);
         tft.setCursor(STEP_FRAME_W * pages + 3, STEP_FRAME_H * 13 + 8);
-        tft.print((pages - 2));
+        tft.print((pages - 1));
     }
 }
 void gridSongMode(int songpageNumber)
@@ -443,7 +430,7 @@ void gridSongMode(int songpageNumber)
     // int page_phrase_start = songpageNumber * 16;
     // int page_phrase_end = (songpageNumber + 1) * 16;
     clearWorkSpace();
-    drawsongmodepageselector();
+    drawsongmodepageselector(songpageNumber);
     // drawActiveRect(18, 3, 2, 2, false, "clear", ILI9341_RED);
 
     // vertical pointer Lines
@@ -461,7 +448,7 @@ void gridSongMode(int songpageNumber)
     change_plugin_row = true;
     draw_arranger_parameters(lastPotRow);
 
-    show_active_page_info("Song:", songpageNumber);
+    show_active_page_info("Song:", songpageNumber + 1);
 }
 void draw_arrangment_lines(uint8_t _track, uint8_t _page) // b= active page
 {
@@ -504,83 +491,79 @@ void draw_arranger_parameters(uint8_t lastProw)
         }
     }
 }
-void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar) // b= 0-255; which bar
-{
 
-    int minY = map(allTracks[_trackNr]->barVelocity[_bar], 0, 127, 0, 10);
-    int _color;
-    int _trelliscolor;
-    if (allTracks[_trackNr]->clip_to_play[_bar] == MAX_CLIPS - 1)
+void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
+{
+    auto *track = allTracks[_trackNr]; // Zeiger für besseren Zugriff
+    int minY = map(track->barVelocity[_bar], 0, 127, 0, 10);
+    int clip = track->clip_to_play[_bar];
+
+    // Standardfarben setzen
+    int _color = ILI9341_DARKGREY;
+    int _trelliscolor = TRELLIS_BLACK;
+
+    // Falls Clip existiert, Farbe anpassen
+    if (clip < MAX_CLIPS - 1)
     {
-        _color = ILI9341_DARKGREY;
-        _trelliscolor = TRELLIS_BLACK;
+        int baseColorIndex = track->my_Arranger_Y_axis - 1;
+        _color = trackColor[baseColorIndex] + (clip * 20);
+        _trelliscolor = trellisTrackColor[baseColorIndex] + (clip * 20);
     }
-    else if (allTracks[_trackNr]->clip_to_play[_bar] < MAX_CLIPS - 1)
-    {
-        // for other clips
-        _color = trackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[_trackNr]->clip_to_play[_bar] * 20);
-        _trelliscolor = trellisTrackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[_trackNr]->clip_to_play[_bar] * 20);
-    }
+
+    int x_start = ((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1;
+    int y_base = (track->my_Arranger_Y_axis * TRACK_FRAME_H) + 12;
+
+    // Hintergrundlinie zeichnen
     for (int thickness = -10; thickness < 10; thickness++)
     {
-        tft.drawFastHLine(((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
+        tft.drawFastHLine(x_start, y_base + thickness, STEP_FRAME_W - 1, ILI9341_DARKGREY);
     }
+
+    // Aktive Clip-Farbe zeichnen
     for (int thickness = -minY; thickness < minY; thickness++)
     {
-        tft.drawFastHLine(((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, _color); //(x-start, y, length, color)
+        tft.drawFastHLine(x_start, y_base + thickness, STEP_FRAME_W - 1, _color);
     }
-    if (allTracks[_trackNr]->clip_to_play[_bar] < MAX_CLIPS - 1)
+
+    // Falls ein Clip existiert, Werte einzeichnen
+    if (clip < MAX_CLIPS - 1)
     {
         if (lastPotRow != 2)
         {
-            draw_clipNr_arranger(_trackNr, _bar);
-            draw_offset_arranger(_trackNr, _bar);
+            draw_arrangerLine_value(_trackNr, _bar, clip, POSITION_TEXT_ARRANGERLINE_TOP);
+            draw_arrangerLine_value(_trackNr, _bar, track->noteOffset[_bar], POSITION_TEXT_ARRANGERLINE_BOTTOM);
         }
-        else if (lastPotRow == 2)
+        else
         {
-            draw_ccChannelSet_arranger(_trackNr, _bar);
-            draw_ccValueSet_arranger(_trackNr, _bar);
+            draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccChannel[_bar], POSITION_TEXT_ARRANGERLINE_TOP);
+            draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccValue[_bar], POSITION_TEXT_ARRANGERLINE_BOTTOM);
         }
     }
-    trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), allTracks[_trackNr]->my_Arranger_Y_axis - 1, _trelliscolor);
+
+    // Trellis LED Buffer aktualisieren
+    trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), track->my_Arranger_Y_axis - 1, _trelliscolor);
     trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
 }
-void draw_offset_arranger(uint8_t _trackNr, uint8_t _bar)
+
+void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset)
 {
-    int xoffset;
+    int xoffset = 0;
+    int x_offset = 0;
+
     if (allTracks[_trackNr]->noteOffset[_bar] < 0)
         xoffset = 1;
-    else
+    else if (allTracks[_trackNr]->noteOffset[_bar] >= 0)
         xoffset = 5;
-    // draw clipnumber in the arranger
+    if (y_offset == POSITION_TEXT_ARRANGERLINE_TOP)
+        x_offset = 2;
+    if (y_offset == POSITION_TEXT_ARRANGERLINE_BOTTOM)
+        x_offset = xoffset;
+
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_BLACK);
-    tft.setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + xoffset, (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + 11);
-    tft.print(allTracks[_trackNr]->noteOffset[_bar]);
-}
-void draw_clipNr_arranger(uint8_t _trackNr, uint8_t _bar)
-{
-    // draw clipnumber in the arranger
-    tft.setFont(Arial_8);
-    tft.setTextColor(ILI9341_BLACK);
-    tft.setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + 2, (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + 6);
-    tft.print(allTracks[_trackNr]->clip_to_play[_bar]);
-}
-void draw_ccChannelSet_arranger(uint8_t _trackNr, uint8_t _bar)
-{
-    // draw ccChannelSet in the arranger
-    tft.setFont(Arial_8);
-    tft.setTextColor(ILI9341_BLACK);
-    tft.setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + 2, (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + 6);
-    tft.print(allTracks[_trackNr]->play_presetNr_ccChannel[_bar]);
-}
-void draw_ccValueSet_arranger(uint8_t _trackNr, uint8_t _bar)
-{
-    // draw ccChannelSet in the arranger
-    tft.setFont(Arial_8);
-    tft.setTextColor(ILI9341_BLACK);
-    tft.setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + 5, (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + 11);
-    tft.print(allTracks[_trackNr]->play_presetNr_ccValue[_bar]);
+    tft.setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + x_offset,
+                  (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + y_offset);
+    tft.print(value);
 }
 
 // stepsequencer
@@ -740,16 +723,12 @@ void draw_notes_in_grid()
     }
 }
 
-void draw_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw)
+void draw_edit_presetNr_CC(const char *label, uint8_t value, uint8_t row_offset)
 {
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 5, 0, 4, NO_VALUE, "vl-Set", encoder_colour[active_track], 2, false, false);
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 6, 4, 4, allTracks[active_track]->edit_presetNr_ccValue, NO_NAME, encoder_colour[active_track], 2, true, false);
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (row_offset * 2) + 5, 0, 4, NO_VALUE, label, encoder_colour[active_track], 2, false, false);
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (row_offset * 2) + 6, 4, 4, value, NO_NAME, encoder_colour[active_track], 2, true, false);
 }
-void draw_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw)
-{
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 5, 0, 4, NO_VALUE, "cc-Set", encoder_colour[active_track], 2, false, false);
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 6, 4, 4, allTracks[active_track]->edit_presetNr_ccChannel, NO_NAME, encoder_colour[active_track], 2, true, false);
-}
+
 void draw_MIDI_CC_screen()
 {
 
@@ -777,8 +756,8 @@ void draw_MIDI_CC_screen()
         draw_MIDI_CC(2, 3);
         draw_MIDI_CC(3, 3);
 
-        draw_edit_presetNr_ccChannel(2, 0);
-        draw_edit_presetNr_ccValue(3, 0);
+        draw_edit_presetNr_CC("cc-Set", allTracks[active_track]->edit_presetNr_ccChannel, 2);
+        draw_edit_presetNr_CC("vl-Set", allTracks[active_track]->edit_presetNr_ccValue, 3);
     }
 }
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos)

@@ -16,6 +16,7 @@
 #define POSITION_STOP_BUTTON 10
 #define POSITION_PLAY_BUTTON 8
 #define POSITION_RECORD_BUTTON 7
+#define POSITION_POTROW_BUTTON 6
 #define STARTUPSCREEN 0
 #define STEP_SEQUENCER_VIEW 1
 #define ARRANGMENT_VIEW 2
@@ -30,6 +31,8 @@
 #define STEP_POSITION_POINTER_Y 236
 #define POSITION_POINTER_THICKNESS 3
 
+#define POSITION_TEXT_ARRANGERLINE_TOP 6
+#define POSITION_TEXT_ARRANGERLINE_BOTTOM 11
 #define phraseSegmentLength 16
 #define INFO_BOX_WIDTH 200
 #define INFO_BOX_HEIGTH 120
@@ -102,15 +105,12 @@ void clear_positionPointer();
 // songmode
 
 void gridSongMode(int songpageNumber);
-void drawsongmodepageselector();
+void drawsongmodepageselector(int songpageNumber);
 void draw_arranger_parameters(uint8_t lastProw);
 void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar);
 void draw_arrangment_lines(uint8_t _track, uint8_t _page); // b= active page
+void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset);
 
-void draw_offset_arranger(uint8_t _trackNr, uint8_t _bar);
-void draw_clipNr_arranger(uint8_t _trackNr, uint8_t _bar);
-void draw_ccChannelSet_arranger(uint8_t _trackNr, uint8_t _bar);
-void draw_ccValueSet_arranger(uint8_t _trackNr, uint8_t _bar);
 
 // step sequencer
 void drawStepSequencerStatic();
@@ -125,8 +125,7 @@ void draw_notes_in_grid();
 
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos);
 void draw_MIDI_CC_screen();
-void draw_edit_presetNr_ccChannel(uint8_t n, uint8_t lastProw);
-void draw_edit_presetNr_ccValue(uint8_t n, uint8_t lastProw);
+void draw_edit_presetNr_CC(const char *label, uint8_t value, uint8_t row_offset);
 
 void draw_mixer();
 void draw_mixer_FX_page1();

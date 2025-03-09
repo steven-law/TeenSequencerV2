@@ -258,7 +258,7 @@ void neotrellis_set_potRow()
     {
       lastPotRow = 0;
     }
-    tft.fillRect(70, 0, 10, 16, ILI9341_DARKGREY);
+    tft.fillRect(POSITION_POTROW_BUTTON * STEP_FRAME_W, 0, STEP_FRAME_W - 1, STEP_FRAME_H, ILI9341_DARKGREY);
     // neotrellisPressed[TRELLIS_POTROW] = false;
     // Serial.printf("potrwo=%d\n", lastPotRow);
   }
@@ -468,7 +468,7 @@ void neotrellis_show_tft_seqMode()
       {
         neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
         active_track = i;
-        show_active_page_info("Track", active_track);
+        show_active_page_info("Track", active_track + 1);
         allTracks[active_track]->draw_sequencer_modes(allTracks[active_track]->parameter[SET_SEQ_MODE]);
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
         neotrellis_set_control_buffer(3, 2, trellisTrackColor[active_track]);
@@ -729,7 +729,7 @@ void neotrellis_show_tft_plugin()
       {
         neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
         active_track = i;
-        show_active_page_info("Track", i);
+        show_active_page_info("Track", i + 1);
         change_plugin_row = true;
         // allTracks[active_track]->draw_MIDI_CC_screen();
         activeScreen = INPUT_FUNCTIONS_FOR_PLUGIN;
@@ -763,7 +763,7 @@ void neo_trellis_select_trackClips()
         // trellis_set_main_buffer(TRELLIS_SCREEN_SONGPAGE_SELECTION, x, y, TRELLIS_BLACK);
         //  neotrellis_show();
         active_track = y;
-        show_active_page_info("Track", active_track);
+        show_active_page_info("Track", active_track + 1);
 
         // updateTFTScreen = true;
         change_plugin_row = true;
@@ -789,7 +789,7 @@ void neo_trellis_select_trackClips()
           trellisPressed[x + (TRELLIS_PADS_X_DIM * y)] = false;
           // neotrellis_show();
           active_track = y;
-          show_active_page_info("Track", active_track);
+          show_active_page_info("Track", active_track + 1);
 
           activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
           allTracks[y]->parameter[SET_CLIP2_EDIT] = x;
@@ -1181,12 +1181,6 @@ void trellis_show_clockbar(uint8_t trackNr, uint8_t step)
     if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8 || trellisScreen >= TRELLIS_SCREEN_ARRANGER_1)
     {
       trellisShowClockPixel[trackNr] = false;
-      int color;
-
-      if (allTracks[trackNr]->get_recordState())
-        color = TRELLIS_RED;
-      else
-        color = TRELLIS_ORANGE;
 
       if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
       {
