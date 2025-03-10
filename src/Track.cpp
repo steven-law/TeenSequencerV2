@@ -227,13 +227,14 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     }
     if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
-        internal_clock++;
-        internal_clock_is_on = true;
         if (internal_clock == 0)
         {
             internal_clock_bar++;
             change_presets();
         }
+        internal_clock++;
+        internal_clock_is_on = true;
+        
     }
     else
         internal_clock_is_on = false;
@@ -247,7 +248,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     {
         internal_clock = 0;
     }
-
+    //Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
     // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
     //  Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
@@ -389,10 +390,12 @@ void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int 
         uint8_t when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
         if (enc_moved[_encoder])
         {
-            parameterArray[when] = constrain(parameterArray[when] + encoded[_encoder], minValue, maxValue);
-
+            int _when = constrain(parameterArray[when] + encoded[_encoder], minValue, maxValue);
+            parameterArray[when] = _when;
             for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
             {
+                if (enc_moved[2])
+                    clip_to_play[when + i] = _when;
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
 
@@ -433,7 +436,8 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
 {
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
-        for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+       // for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+       int i=0;
         {
             clip_to_play[bar_to_edit + i] = clip_to_play[bar_for_copying];
             noteOffset[bar_to_edit + i] = noteOffset[bar_for_copying];
@@ -455,7 +459,6 @@ void Track::set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr) // Songmode:
     // updateTFTScreen = true;
     // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, 2, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
 }
-
 
 Track track1(1);
 Track track2(2);

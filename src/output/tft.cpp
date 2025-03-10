@@ -376,7 +376,7 @@ void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest
     int Color = (lastPotRow != lastPRow) ? ILI9341_LIGHTGREY : color; // Direkt die Farbe setzen
 
     tft.setFont(Arial_8);
-
+    tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     // Rechteck und Füllung zeichnen
     if (drawFilling)
     {

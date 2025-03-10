@@ -265,7 +265,7 @@ void neotrellis_set_potRow()
 }
 void neo_trellis_save_load()
 {
-  if (neotrellisPressed[TRELLIS_BUTTON_RECORD] && neotrellisPressed[TRELLIS_POTROW])
+  if (neotrellisPressed[TRELLIS_BUTTON_RECORD])
   {
     for (int i = 0; i < MAX_SONGS; i++)
     {
