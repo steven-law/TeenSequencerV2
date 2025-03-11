@@ -1,4 +1,5 @@
 #include "output/tft.h"
+#include <font_Arial.h>
 
 // Teensy 4.1 PINOUT
 // Pinout for screen
@@ -9,7 +10,8 @@
 #define TFT_MOSI 11                                                                   // shareable
 #define TFT_SCLK 13                                                                   // shareable
 #define TFT_MISO 12                                                                   // shareable
-ILI9341_t3n tft = ILI9341_t3n(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCLK, TFT_MISO); // initiate TFT-Srceen
+ Adafruit_ST7796S_kbv tft = Adafruit_ST7796S_kbv(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCLK, TFT_MISO); // initiate TFT-Srceen
+//ILI9341_t3n tft = ILI9341_t3n(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCLK, TFT_MISO); // initiate TFT-Srceen
 // screen
 unsigned long infoboxTimeAtCall = 0;
 unsigned long infoboxTimeAtPress = 0;
@@ -29,7 +31,7 @@ void tft_setup(int dly)
 
     tft.fillScreen(ILI9341_BLACK); // Xmin, Ymin, Xlength, Ylength, color
     tft.setTextColor(ILI9341_WHITE);
-    tft.setFont(Arial_8);
+    tft.setTextSize(1);
     tft.setCursor(0, 3);
     Serial.println("Initializing Touchscreen...");
     tft.println("Initializing Touchscreen...");
@@ -64,7 +66,8 @@ void drawPositionCounter()
     // draw phrasenumber
     tft.fillRect(STEP_FRAME_W * POSITION_STOP_BUTTON + 1, 2, STEP_FRAME_W * 3 - 2, STEP_FRAME_H - 3, ILI9341_DARKGREY);
     tft.setTextColor(ILI9341_WHITE);
-    tft.setFont(Arial_9);
+    tft.setTextSize(1);
+    //tft.setFont(Arial_9);
     tft.setCursor(STEP_FRAME_W * POSITION_STOP_BUTTON + 4, 3);
     if (!myClock.isPlaying)
     {
@@ -84,7 +87,8 @@ void startUpScreen()
     // static Display rendering
     tft.fillScreen(ILI9341_DARKGREY);
 
-    tft.setFont(Arial_9);
+    //tft.setFont(Arial_9);
+    tft.setTextSize(1);
 
     // songmode button
     tft.setTextColor(ILI9341_BLACK);
@@ -152,7 +156,8 @@ void set_infobox_background(int _DisplayTime)
     infoboxWaitingTime = _DisplayTime;
     tft.fillRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_BLACK);
     tft.drawRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_WHITE);
-    tft.setFont(Arial_10);
+    tft.setTextSize(1);
+    //tft.setFont(Arial_10);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(INFOBOX_TEXT_OFFSET, INFOBOX_TEXT_OFFSET);
     infoboxTimeAtCall = millis();
@@ -184,7 +189,7 @@ void tft_show()
     }
     tft.fillRect(STEP_FRAME_W * POSITION_POTROW_BUTTON, lastPotRow * 4, STEP_FRAME_W - 1, 3, ILI9341_ORANGE);
 
-    tft.updateScreenAsync();
+   // tft.updateScreenAsync();
 } // cursor
 void drawstepPosition()
 {
@@ -250,19 +255,19 @@ void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
             // tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[2][pixel]);  // draw left line Y1
             // tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[3][pixel]); // draw right line Y2
         }
-        for (int pixel = 0; pixel < 16; pixel++)
-        {
-            tftRAM[0][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 1 + arranger_offset);  // save upper line
-            tftRAM[1][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 15 + arranger_offset); // save bottom line
-            tftRAM[2][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 1, pixel + (cursorDeltaY * pixelOnY) + arranger_offset);  // save left line
-            tftRAM[3][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 15, pixel + (cursorDeltaY * pixelOnY) + arranger_offset); // save right line
-        }
+     //  for (int pixel = 0; pixel < 16; pixel++)
+     //  {
+     //      tftRAM[0][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 1 + arranger_offset);  // save upper line
+     //      tftRAM[1][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 15 + arranger_offset); // save bottom line
+     //      tftRAM[2][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 1, pixel + (cursorDeltaY * pixelOnY) + arranger_offset);  // save left line
+     //      tftRAM[3][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 15, pixel + (cursorDeltaY * pixelOnY) + arranger_offset); // save right line
+     //  }
 
         tft.drawRect((cursorDeltaX * last_xPos) + 1, (cursorDeltaY * last_yPos) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_DARKGREY);
 
-        uint8_t test = tft.readPixel(18, 18); // save right line
+      //  uint8_t test = tft.readPixel(18, 18); // save right line
         tft.drawRect((cursorDeltaX * pixelOnX) + 1, (cursorDeltaY * pixelOnY) + 1 + arranger_offset, STEP_FRAME_W - 1, STEP_FRAME_H - 1, ILI9341_WHITE);
-        Serial.printf("read pixel = %d\n", test);
+      //  Serial.printf("read pixel = %d\n", test);
         last_xPos = pixelOnX;
         last_yPos = pixelOnY;
     }
@@ -291,7 +296,7 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
 
     // Textwert anzeigen
-    tft.setFont(Arial_8);
+    //tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 7, (yPos * STEP_FRAME_H) - 3);
     tft.print(dvalue);
@@ -375,7 +380,7 @@ void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest
     int yPos = YPos * STEP_FRAME_H;
     int Color = (lastPotRow != lastPRow) ? ILI9341_LIGHTGREY : color; // Direkt die Farbe setzen
 
-    tft.setFont(Arial_8);
+   // tft.setFont(Arial_8);
     tft.fillRect(xPos, yPos, _size * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     // Rechteck und Füllung zeichnen
     if (drawFilling)
@@ -419,7 +424,7 @@ void drawsongmodepageselector(int songpageNumber)
             tft.fillRect(STEP_FRAME_W * (songpageNumber + 2), STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_LIGHTGREY);
 
         tft.drawRect(STEP_FRAME_W * pages, STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
-        tft.setFont(Arial_8);
+       // tft.setFont(Arial_8);
         tft.setTextColor(ILI9341_BLACK);
         tft.setCursor(STEP_FRAME_W * pages + 3, STEP_FRAME_H * 13 + 8);
         tft.print((pages - 1));
@@ -559,7 +564,8 @@ void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_of
     if (y_offset == POSITION_TEXT_ARRANGERLINE_BOTTOM)
         x_offset = xoffset;
 
-    tft.setFont(Arial_8);
+   // tft.setFont(Arial_8);
+   
     tft.setTextColor(ILI9341_BLACK);
     tft.setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + x_offset,
                   (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + y_offset);
@@ -608,7 +614,7 @@ void drawOctaveNumber()
     // draw the octave number
     tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
     tft.setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT);
-    tft.setFont(Arial_16);
+  //  tft.setFont(Arial_16);
     if (lastPotRow != 1)
         tft.setTextColor(ILI9341_LIGHTGREY);
     else
@@ -623,7 +629,7 @@ void draw_Notenames()
     { // hor notes
         tft.fillRect(STEP_FRAME_W, STEP_FRAME_H * n + STEP_FRAME_H, STEP_FRAME_W, STEP_FRAME_H, trackColor[active_track]);
         tft.setCursor(20, STEP_FRAME_H * n + 20);
-        tft.setFont(Arial_8);
+       // tft.setFont(Arial_8);
         tft.setTextColor(ILI9341_BLACK);
         tft.setTextSize(1);
         tft.print(noteNames[n]);
@@ -636,7 +642,7 @@ void draw_Clipselector()
     {
         tft.fillRect(STEP_FRAME_W * 2 * ClipNr + STEP_FRAME_W * 2 + 1, STEP_FRAME_H * 13 + 2, STEP_FRAME_W * 2 - 2, STEP_FRAME_H - 3, trackColor[active_track] + (ClipNr * 20));
         tft.setCursor(STEP_FRAME_W * 2 * ClipNr + STEP_FRAME_W * 2 + 4, STEP_FRAME_H * 13 + 4);
-        tft.setFont(Arial_8);
+      //  tft.setFont(Arial_8);
         tft.setTextColor(ILI9341_BLACK);
         tft.setTextSize(1);
         tft.print("Clip ");
@@ -857,7 +863,7 @@ void draw_clip_launcher()
 {
     Serial.println("drawing cliplauncher");
     tft.fillRect(10 * STEP_FRAME_W, 11 * STEP_FRAME_H, 80, 17, ILI9341_DARKGREY);
-    tft.setFont(Arial_16);
+   // tft.setFont(Arial_16);
     tft.setCursor(8 * STEP_FRAME_W, 11 * STEP_FRAME_H);
     tft.setTextColor(ILI9341_BLUE);
     tft.printf("BAR:%d\n", bar2edit);

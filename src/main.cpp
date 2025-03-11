@@ -2,8 +2,10 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include <ILI9341_t3n.h>
-#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+#include "ownLibs/Adafruit_ST7796S_kbv.h"
+//#include <ILI9341_t3n.h>
+//#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+#include <font_Arial.h>
 #include <MIDI.h>
 #include <USBHost_t36.h>
 #include <Adafruit_MCP4728.h>
@@ -146,7 +148,8 @@ void setup()
   // else
   //   Serial.println("Access SPI Chip");
   startUpScreen();
-  tft.updateScreenAsync();
+  //tft.update();
+  //tft.updateScreenAsync();
   for (int x = 0; x < X_DIM / 4; x++)
   {
     for (int y = 0; y < Y_DIM / 4; y++)
@@ -379,7 +382,8 @@ void midi_setup(uint8_t dly)
 {
   Serial.println("Initializing MIDI");
   tft.println("Initializing MIDI");
-  tft.updateScreenAsync();
+  //tft.update();
+  //tft.updateScreenAsync();
 
   myusb.begin();
   usbMIDI.begin(); // Launch MIDI

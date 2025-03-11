@@ -1,7 +1,8 @@
 #ifndef TFT_H
 #define TFT_H
-#include <ILI9341_t3n.h>
-#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+#include "ownLibs/Adafruit_ST7796S_kbv.h"
+//#include <ILI9341_t3n.h>
+//#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include "input/touch.h"
 #include "Track.h"
 #include <projectVariables.h>
@@ -68,7 +69,8 @@
 #define TRELLIS_1 0x000066
 #define TRELLIS_2 579
 
-extern ILI9341_t3n tft;
+//extern ILI9341_t3n tft;
+extern Adafruit_ST7796S_kbv tft;
 
 // Display
 extern unsigned long infoboxTimeAtCall;
