@@ -1,17 +1,11 @@
 #ifndef TFT_H
 #define TFT_H
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
-// #include <ILI9341_t3n.h>
-// #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include "input/touch.h"
 #include "Track.h"
 #include <projectVariables.h>
 #include <ownLibs/myClock.h>
-#include "Adafruit_GFX.h"
 
-//#include <Fonts/FreeSans9pt7b.h>
-//#include <Fonts/FreeSans12pt7b.h>
-//#include <Fonts/FreeSans18pt7b.h>
 
 // Startscreen
 #define POSITION_ARR_BUTTON 18

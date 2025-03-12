@@ -4,9 +4,7 @@
 #include "Audio.h"
 #include "SD.h"
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
-#include "Adafruit_GFX.h"
-// #include <ILI9341_t3n.h>
-#include <font_Arial.h>
+
 extern File myFile;
 
 extern const int FlashChipSelect; // digital pin for flash chip CS pin

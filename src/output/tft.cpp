@@ -1,5 +1,4 @@
 #include "output/tft.h"
-#include <font_Arial.h>
 
 // Teensy 4.1 PINOUT
 // Pinout for screen
@@ -124,7 +123,7 @@ void startUpScreen()
     // Play
     drawActivePlaying(false);
     // bpm counter
-    tft.drawRect(STEP_FRAME_W * POSITION_STOP_BUTTON, 0, STEP_FRAME_W * 3, STEP_FRAME_H, ILI9341_LIGHTGREY);
+    tft.drawRect(STEP_FRAME_W * POSITION_STOP_BUTTON, 0, STEP_FRAME_W * 4, STEP_FRAME_H, ILI9341_LIGHTGREY);
 
     // tempo
     draw_value_box(3, POSITION_BPM_BUTTON, 0, 4, 4, myClock.tempo, NO_NAME, ILI9341_WHITE, 2, true, false);

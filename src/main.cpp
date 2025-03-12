@@ -3,10 +3,6 @@
 #include <SPI.h>
 #include <Wire.h>
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
-// #include <ILI9341_t3n.h>
-// #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
-#include <font_Arial.h>
-#include "Adafruit_GFX.h"
 #include <MIDI.h>
 #include <USBHost_t36.h>
 #include <Adafruit_MCP4728.h>

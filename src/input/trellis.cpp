@@ -1,6 +1,4 @@
 #include "input/trellis.h"
-// #include "Adafruit_NeoTrellis.h"
-// #include <Wire.h>
 
 uint8_t trellisPianoTrack;
 int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
