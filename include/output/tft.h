@@ -1,12 +1,17 @@
 #ifndef TFT_H
 #define TFT_H
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
-//#include <ILI9341_t3n.h>
-//#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+// #include <ILI9341_t3n.h>
+// #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include "input/touch.h"
 #include "Track.h"
 #include <projectVariables.h>
 #include <ownLibs/myClock.h>
+#include "Adafruit_GFX.h"
+
+//#include <Fonts/FreeSans9pt7b.h>
+//#include <Fonts/FreeSans12pt7b.h>
+//#include <Fonts/FreeSans18pt7b.h>
 
 // Startscreen
 #define POSITION_ARR_BUTTON 18
@@ -24,16 +29,18 @@
 
 #define POSITION_BAR_BUTTON 5
 
-#define GRID_LENGTH_HOR 256
-#define GRID_LENGTH_VERT 192
+#define GRID_LENGTH_HOR 16 * STEP_FRAME_W
+#define GRID_LENGTH_VERT 12 * STEP_FRAME_H
 
-#define SONG_POSITION_POINTER_Y 228
-#define BAR_POSITION_POINTER_Y 232
-#define STEP_POSITION_POINTER_Y 236
+#define SONG_POSITION_POINTER_Y (14 * STEP_FRAME_H) + 4
+#define BAR_POSITION_POINTER_Y (14 * STEP_FRAME_H) + 8
+#define STEP_POSITION_POINTER_Y (14 * STEP_FRAME_H) + 12
 #define POSITION_POINTER_THICKNESS 3
 
 #define POSITION_TEXT_ARRANGERLINE_TOP 6
+#define POSITION_CC_ARRANGERLINE_TOP 5
 #define POSITION_TEXT_ARRANGERLINE_BOTTOM 11
+#define POSITION_CC_ARRANGERLINE_BOTTOM 10
 #define phraseSegmentLength 16
 #define INFO_BOX_WIDTH 200
 #define INFO_BOX_HEIGTH 120
@@ -69,7 +76,7 @@
 #define TRELLIS_1 0x000066
 #define TRELLIS_2 579
 
-//extern ILI9341_t3n tft;
+// extern ILI9341_t3n tft;
 extern Adafruit_ST7796S_kbv tft;
 
 // Display
@@ -112,7 +119,6 @@ void draw_arranger_parameters(uint8_t lastProw);
 void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar);
 void draw_arrangment_lines(uint8_t _track, uint8_t _page); // b= active page
 void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset);
-
 
 // step sequencer
 void drawStepSequencerStatic();

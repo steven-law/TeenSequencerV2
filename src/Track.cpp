@@ -387,7 +387,7 @@ void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int 
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
-        uint8_t when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
+        uint8_t when = (((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage));
         if (enc_moved[_encoder])
         {
             int _when = constrain(parameterArray[when] + encoded[_encoder], minValue, maxValue);

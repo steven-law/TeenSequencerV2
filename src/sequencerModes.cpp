@@ -12,7 +12,7 @@ void Track::play_seq_mode0(uint8_t cloock)
         {
             if (!note_is_on[v])
             {
-                noteToPlay[v] = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].voice, v);
+                noteToPlay[v] = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].voice, v)+ noteOffset[external_clock_bar] + performNoteOffset;
                 uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
                 uint8_t StepFX = get_note_parameter(&clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
                 note_is_on[v] = true;
@@ -38,7 +38,7 @@ void Track::play_seq_mode1(uint8_t cloock)
     {
         if (!note_is_on[0])
         {
-            if (random(127) > SeqMod1Value[4])
+            if (random(127) < SeqMod1Value[4])
             {
                 noteToPlay[0] = random(0, 11) + (random(SeqMod1Value[0], SeqMod1Value[1] + 1) * 12) + noteOffset[external_clock_bar] + performNoteOffset;
                 uint8_t Velo = random(SeqMod1Value[2], SeqMod1Value[3]) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);

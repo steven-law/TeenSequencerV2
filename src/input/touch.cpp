@@ -13,7 +13,7 @@ void touch_update()
     {
         neotrellisPressed[TRELLIS_BUTTON_ENTER] = true;
         TS_Point p = ts.getPoint();
-        pixelTouchX = map(p.x, TS_MINX, TS_MAXX, 0, 304);
+        pixelTouchX = map(p.x, TS_MINX, TS_MAXX, 0, 480-STEP_FRAME_W);
         if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
             gridTouchY = map(p.y, TS_MINY, TS_MAXY, 0, 8);
         else

@@ -5,10 +5,10 @@
 #include "SD.h"
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
 #include "Adafruit_GFX.h"
-//#include <ILI9341_t3n.h>
+// #include <ILI9341_t3n.h>
 #include <font_Arial.h>
 extern File myFile;
-  
+
 extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_VALUE 6789
 #define NO_NAME "NO_NAME"
@@ -84,13 +84,14 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define SONGMODE_PAGE_15 14
 #define SONGMODE_PAGE_16 15
 
-#define STEP_FRAME_W 16
-#define STEP_FRAME_H 16
-#define TRACK_FRAME_H 24
+#define STEP_FRAME_W 24
+#define STEP_FRAME_H 21
+#define TRACK_FRAME_H 30
+#define FONT_OFFSET 0
 // for arranger
 #define BARS_PER_PAGE 16
 // for sequencer
-#define SEQ_GRID_LEFT 30
+#define SEQ_GRID_LEFT (2 * STEP_FRAME_W) 
 #define SEQ_GRID_RIGHT (18 * STEP_FRAME_W) - 2
 #define SEQ_GRID_TOP 1
 #define SEQ_GRID_BOTTOM 12
@@ -127,11 +128,11 @@ extern uint8_t arrangerpage;
 extern bool change_plugin_row;
 extern const int encoder_colour[NUM_ENCODERS];
 extern unsigned long neotrellisReadPreviousMillis; // will store last time LED was updated
-extern unsigned long updateMidiPreviousMillis; // will store last time LED was updated
+extern unsigned long updateMidiPreviousMillis;     // will store last time LED was updated
 
 extern uint16_t tftRAM[16][16];
 #define BEAT_ARRAY_SIZE 128
-//extern const bool seqM_Beats[BEAT_ARRAY_SIZE][NUM_STEPS];
+// extern const bool seqM_Beats[BEAT_ARRAY_SIZE][NUM_STEPS];
 extern bool **beatArray;
 extern bool **beatArrayPM6;
 extern bool *beatArrayPM7;
@@ -159,25 +160,25 @@ extern bool *beatArrayPM7;
 #define TRELLIS_WHITE 0xFFFFFF
 
 // Color definitions
-#define ILI9341_BLACK       0x0000      /*   0,   0,   0 */
-#define ILI9341_NAVY        0x000F      /*   0,   0, 128 */
-#define ILI9341_DARKGREEN   0x03E0      /*   0, 128,   0 */
-#define ILI9341_DARKCYAN    0x03EF      /*   0, 128, 128 */
-#define ILI9341_MAROON      0x7800      /* 128,   0,   0 */
-#define ILI9341_PURPLE      0x780F      /* 128,   0, 128 */
-#define ILI9341_OLIVE       0x7BE0      /* 128, 128,   0 */
-#define ILI9341_LIGHTGREY   0xC618      /* 192, 192, 192 */
-#define ILI9341_DARKGREY    0x7BEF      /* 128, 128, 128 */
-#define ILI9341_BLUE        0x001F      /*   0,   0, 255 */
-#define ILI9341_GREEN       0x07E0      /*   0, 255,   0 */
-#define ILI9341_CYAN        0x07FF      /*   0, 255, 255 */
-#define ILI9341_RED         0xF800      /* 255,   0,   0 */
-#define ILI9341_MAGENTA     0xF81F      /* 255,   0, 255 */
-#define ILI9341_YELLOW      0xFFE0      /* 255, 255,   0 */
-#define ILI9341_WHITE       0xFFFF      /* 255, 255, 255 */
-#define ILI9341_ORANGE      0xFD20      /* 255, 165,   0 */
-#define ILI9341_GREENYELLOW 0xAFE5      /* 173, 255,  47 */
-#define ILI9341_PINK        0xF81F
+#define ILI9341_BLACK 0x0000       /*   0,   0,   0 */
+#define ILI9341_NAVY 0x000F        /*   0,   0, 128 */
+#define ILI9341_DARKGREEN 0x03E0   /*   0, 128,   0 */
+#define ILI9341_DARKCYAN 0x03EF    /*   0, 128, 128 */
+#define ILI9341_MAROON 0x7800      /* 128,   0,   0 */
+#define ILI9341_PURPLE 0x780F      /* 128,   0, 128 */
+#define ILI9341_OLIVE 0x7BE0       /* 128, 128,   0 */
+#define ILI9341_LIGHTGREY 0xC618   /* 192, 192, 192 */
+#define ILI9341_DARKGREY 0x7BEF    /* 128, 128, 128 */
+#define ILI9341_BLUE 0x001F        /*   0,   0, 255 */
+#define ILI9341_GREEN 0x07E0       /*   0, 255,   0 */
+#define ILI9341_CYAN 0x07FF        /*   0, 255, 255 */
+#define ILI9341_RED 0xF800         /* 255,   0,   0 */
+#define ILI9341_MAGENTA 0xF81F     /* 255,   0, 255 */
+#define ILI9341_YELLOW 0xFFE0      /* 255, 255,   0 */
+#define ILI9341_WHITE 0xFFFF       /* 255, 255, 255 */
+#define ILI9341_ORANGE 0xFD20      /* 255, 165,   0 */
+#define ILI9341_GREENYELLOW 0xAFE5 /* 173, 255,  47 */
+#define ILI9341_PINK 0xF81F
 // #define TRELLIS_LIGHTBLUE #ADD8E6
 
 #define TRELLIS_1 0x000066
@@ -192,7 +193,6 @@ extern bool *beatArrayPM7;
 #define TRELLIS_SCREEN_SEQUENCER_CLIP_6 6
 #define TRELLIS_SCREEN_SEQUENCER_CLIP_7 7
 #define TRELLIS_SCREEN_SEQUENCER_CLIP_8 8
-
 
 #define TRELLIS_SONGMODE_PAGE_16 TRELLIS_SCREEN_ARRANGER_1 + 16
 
@@ -210,7 +210,7 @@ extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern uint8_t FLASHMEM gateOutputPin[8];
 
 extern bool updateTFTScreen;
- extern const char *bankNames[NUM_SAMPLE_BANKS];
+extern const char *bankNames[NUM_SAMPLE_BANKS];
 extern const char FLASHMEM *CCnames[129];
 extern const char FLASHMEM *seqModname[NUM_PLAYMODES];
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
@@ -221,6 +221,6 @@ extern const char FLASHMEM *noteNames[12];
 #define POSITION_END_LOOP_BUTTON 18
 #define TRELLIS_BUTTON_ENTER 8
 
-//touch
+// touch
 extern bool isTouched;
 #endif

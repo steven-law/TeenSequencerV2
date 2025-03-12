@@ -3,9 +3,10 @@
 #include <SPI.h>
 #include <Wire.h>
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
-//#include <ILI9341_t3n.h>
-//#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+// #include <ILI9341_t3n.h>
+// #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include <font_Arial.h>
+#include "Adafruit_GFX.h"
 #include <MIDI.h>
 #include <USBHost_t36.h>
 #include <Adafruit_MCP4728.h>
@@ -148,8 +149,8 @@ void setup()
   // else
   //   Serial.println("Access SPI Chip");
   startUpScreen();
-  //tft.update();
-  //tft.updateScreenAsync();
+  // tft.update();
+  // tft.updateScreenAsync();
   for (int x = 0; x < X_DIM / 4; x++)
   {
     for (int y = 0; y < Y_DIM / 4; y++)
@@ -260,15 +261,15 @@ void loop()
 
 void input_behaviour()
 {
-
-  // if we are in one of the sequencer pages
-  if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+  switch (activeScreen)
   {
-
+  case INPUT_FUNCTIONS_FOR_SEQUENCER:
+  {
+    trellis_setStepsequencer();
     neotrellis_SetCursor(14);
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
-      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
+      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 3;
       allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
     }
@@ -295,12 +296,13 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
     allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
-  }
-  // if we are in one of the Arrangerpages
-  if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
-  {
 
+    break;
+  }
+  case INPUT_FUNCTIONS_FOR_ARRANGER:
+  {
     neotrellis_SetCursor(8);
+    trellis_set_arranger();
     allTracks[gridTouchY - 1]->set_arranger_parameters(lastPotRow);
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
@@ -309,11 +311,12 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
       neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
     }
+    draw_arranger_parameters(lastPotRow);
     if (neotrellisPressed[TRELLIS_POTROW])
     {
       Serial.printf("active screen: %d, arrangerpage: %d\n", activeScreen, arrangerpage);
       change_plugin_row = true;
-      draw_arranger_parameters(lastPotRow);
+      
 
       // draw_arrangment_lines(gridTouchY - 1, arrangerpage);
       neotrellisPressed[TRELLIS_POTROW] = false;
@@ -325,8 +328,9 @@ void input_behaviour()
       myClock.set_start_of_loop(2); // Encoder: 2
       myClock.set_end_of_loop(3);   // Encoder: 3
     }
+    break;
   }
-  if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
+  case INPUT_FUNCTIONS_FOR_SEQUENCER_MODES:
   {
     if (neotrellisPressed[TRELLIS_POTROW])
     {
@@ -338,31 +342,160 @@ void input_behaviour()
     {
       allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
     }
+    break;
   }
-  if (activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN)
+  case INPUT_FUNCTIONS_FOR_PLUGIN:
   {
-
     if (allTracks[active_track]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
       allTracks[active_track]->set_MIDI_CC(lastPotRow);
     else if (allTracks[active_track]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
       MasterOut.set_parameters(allTracks[active_track]->parameter[SET_MIDICH_OUT] - 49, lastPotRow);
     neotrellisPressed[TRELLIS_POTROW] = false;
+    break;
   }
-  if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER1)
-    set_mixer(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER2)
-    set_mixer_FX_page1(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER3)
-    set_mixer_FX_page2(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_FX1)
-    fx_1.set_parameters(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
-    fx_2.set_parameters(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
+  case INPUT_FUNCTIONS_FOR_MIXER1:
   {
-    // Serial.println("hi");
-    trellis_play_clipLauncher();
+    set_mixer(lastPotRow);
+    trellis_play_mixer();
+    break;
   }
+  case INPUT_FUNCTIONS_FOR_MIXER2:
+  {
+    trellis_play_mixer();
+    set_mixer_FX_page1(lastPotRow);
+  
+    break;
+  }
+  case INPUT_FUNCTIONS_FOR_MIXER3:
+  {
+    trellis_play_mixer();
+    set_mixer_FX_page2(lastPotRow);
+    break;
+  }
+  case INPUT_FUNCTIONS_FOR_FX1:
+  {
+    trellis_play_mixer();
+    fx_1.set_parameters(lastPotRow);
+    break;
+  }
+  case INPUT_FUNCTIONS_FOR_FX2:
+  {
+    trellis_play_mixer();
+    fx_2.set_parameters(lastPotRow);
+    break;
+  }
+  case INPUT_FUNCTIONS_FOR_CLIPLAUNCHER:
+  {
+    trellis_play_clipLauncher();
+    break;
+  }
+  default:
+    break;
+  }
+  /*
+  // if we are in one of the sequencer pages
+  if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+  {
+
+    neotrellis_SetCursor(14);
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
+      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
+      neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    }
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+      allTracks[active_track]->clear_active_clip();
+
+      neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
+      neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
+    }
+    /*
+    if (ts.touched())
+    {
+      allTracks[active_track]->parameter[SET_STEP_LENGTH] = 1;
+      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
+      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
+      delay(20);
+    }
+  if (neotrellisPressed[TRELLIS_POTROW])
+  {
+    change_plugin_row = true;
+    draw_stepSequencer_parameters(lastPotRow);
+    Serial.printf("active screen: %d, activeTrack: %d\n", activeScreen, active_track);
+    neotrellisPressed[TRELLIS_POTROW] = false;
+  }
+  allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
+}
+// if we are in one of the Arrangerpages
+if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
+{
+
+  neotrellis_SetCursor(8);
+  allTracks[gridTouchY - 1]->set_arranger_parameters(lastPotRow);
+  if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+  {
+    allTracks[active_track]->clear_arrangment();
+
+    neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
+  }
+  if (neotrellisPressed[TRELLIS_POTROW])
+  {
+    Serial.printf("active screen: %d, arrangerpage: %d\n", activeScreen, arrangerpage);
+    change_plugin_row = true;
+    draw_arranger_parameters(lastPotRow);
+
+    // draw_arrangment_lines(gridTouchY - 1, arrangerpage);
+    neotrellisPressed[TRELLIS_POTROW] = false;
+  }
+
+  if (lastPotRow == 3)
+  {
+    myClock.set_tempo(1);
+    myClock.set_start_of_loop(2); // Encoder: 2
+    myClock.set_end_of_loop(3);   // Encoder: 3
+  }
+}
+if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
+{
+  if (neotrellisPressed[TRELLIS_POTROW])
+  {
+    tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
+    neotrellisPressed[TRELLIS_POTROW] = false;
+  }
+  // if Shift button is NOT pressed
+  if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+  {
+    allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
+  }
+}
+if (activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN)
+{
+
+  if (allTracks[active_track]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+    allTracks[active_track]->set_MIDI_CC(lastPotRow);
+  else if (allTracks[active_track]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    MasterOut.set_parameters(allTracks[active_track]->parameter[SET_MIDICH_OUT] - 49, lastPotRow);
+  neotrellisPressed[TRELLIS_POTROW] = false;
+}
+if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER1)
+  set_mixer(lastPotRow);
+if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER2)
+  set_mixer_FX_page1(lastPotRow);
+if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER3)
+  set_mixer_FX_page2(lastPotRow);
+if (activeScreen == INPUT_FUNCTIONS_FOR_FX1)
+  fx_1.set_parameters(lastPotRow);
+if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
+  fx_2.set_parameters(lastPotRow);
+if (activeScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
+{
+  // Serial.println("hi");
+  trellis_play_clipLauncher();
+}
+*/
 }
 // midi
 void clock_to_notes(int _tick)
@@ -382,8 +515,8 @@ void midi_setup(uint8_t dly)
 {
   Serial.println("Initializing MIDI");
   tft.println("Initializing MIDI");
-  //tft.update();
-  //tft.updateScreenAsync();
+  // tft.update();
+  // tft.updateScreenAsync();
 
   myusb.begin();
   usbMIDI.begin(); // Launch MIDI

@@ -123,7 +123,8 @@ void neotrellis_set_mute();
 void neotrellis_set_solo();
 void neotrellis_set_fast_record();
 void neotrellis_show_piano();
-
+void trellis_set_arranger();
+void trellis_setStepsequencer();
 
 void trellis_setup(int dly);
 void trellis_read();

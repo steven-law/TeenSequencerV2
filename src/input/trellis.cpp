@@ -1067,10 +1067,10 @@ void trellis_update()
     trellisReadPreviousMillis = trellisCurrentMillis;
     trellis_read();
     // trellis_recall_main_buffer(trellisScreen);
-    trellis_set_arranger();
+    
     trellis_perform();
-    trellis_setStepsequencer();
-    trellis_play_mixer();
+    
+    
   }
 }
 void trellis_writeDisplay()
