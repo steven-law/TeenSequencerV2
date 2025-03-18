@@ -10,9 +10,9 @@
 #define TFT_SCLK 13                                                       // shareable
 #define TFT_MISO 12                                                       // shareable
 Adafruit_ST7796S_kbv tft = Adafruit_ST7796S_kbv(TFT_CS, TFT_DC, TFT_RST); //, TFT_MOSI, TFT_SCLK, TFT_MISO); // initiate TFT-Srceen
-//Adafruit_ST7796S_kbv tft = Adafruit_ST7796S_kbv(TFT_CS, TFT_DC,  TFT_MOSI, TFT_SCLK, TFT_RST, TFT_MISO);
-// ILI9341_t3n tft =                  ILI9341_t3n(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCLK, TFT_MISO); // initiate TFT-Srceen
-//  screen
+// Adafruit_ST7796S_kbv tft = Adafruit_ST7796S_kbv(TFT_CS, TFT_DC,  TFT_MOSI, TFT_SCLK, TFT_RST, TFT_MISO);
+//  ILI9341_t3n tft =                  ILI9341_t3n(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCLK, TFT_MISO); // initiate TFT-Srceen
+//   screen
 unsigned long infoboxTimeAtCall = 0;
 unsigned long infoboxTimeAtPress = 0;
 unsigned long infoboxWaitingTime = 1000;
@@ -24,7 +24,7 @@ bool infoboxClear = false;
 void tft_setup(int dly)
 {
     tft.begin();
-tft.setSPISpeed(26000000);
+    tft.setSPISpeed(26000000);
 
     tft.setRotation(3);
 
@@ -77,7 +77,7 @@ void drawPositionCounter()
     tft.setTextColor(ILI9341_WHITE);
     tft.setTextSize(2);
     // tft.setFont(&FreeSans9pt7b);
-    tft.setCursor(STEP_FRAME_W * POSITION_STOP_BUTTON + 4, 3 + FONT_OFFSET);
+    tft.setCursor(STEP_FRAME_W * POSITION_STOP_BUTTON + 4, 3);
     if (!myClock.isPlaying)
     {
         tft.print("0:0");
@@ -102,14 +102,14 @@ void startUpScreen()
     // songmode button
     tft.setTextColor(ILI9341_BLACK);
     tft.fillRect(1, 1, STEP_FRAME_W, TRACK_FRAME_H, ILI9341_MAGENTA); // Xmin, Ymin, Xlength, Ylength, color
-    tft.setCursor(4, 13 + FONT_OFFSET);
+    tft.setCursor(4, 13);
     tft.print("S");
 
     // other tracks buttons
     for (int otherTracks = 1; otherTracks <= 8; otherTracks++)
     {
         tft.fillRect(1, TRACK_FRAME_H * otherTracks, STEP_FRAME_W, TRACK_FRAME_H, trackColor[otherTracks - 1]); // Xmin, Ymin, Xlength, Ylength, color
-        tft.setCursor(4, TRACK_FRAME_H * otherTracks + 6 + FONT_OFFSET);
+        tft.setCursor(4, TRACK_FRAME_H * otherTracks + 6);
         tft.print(otherTracks);
     }
     // Mixer button
@@ -189,8 +189,8 @@ void tft_show()
         // updateClock = false;
     }
     tft.fillRect(STEP_FRAME_W * POSITION_POTROW_BUTTON, lastPotRow * 4, STEP_FRAME_W - 1, 3, ILI9341_ORANGE);
-//tft.flush();
-    // tft.updateScreenAsync();
+    // tft.flush();
+    //  tft.updateScreenAsync();
 } // cursor
 void drawstepPosition()
 {
@@ -290,17 +290,17 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
 
     circlePos[XPos] = dvalue / 63.5;
 
-    // Zeichnen der Wertbox
-    draw_value_box(YPos, xPos, yPos + 1, 0, 3, NO_VALUE, dname, color, 2, false, false);
+    // Zeichnen der Namenbox
+    draw_value_box(YPos, xPos, yPos + 1, 6, 3, NO_VALUE, dname, color, 2, false, false);
 
     // Zeichnen des Rechtecks
     tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
 
-    // Textwert anzeigen
+    // Wert anzeigen
     // tft.setFont(&FreeSans9pt7b);
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_WHITE);
-    tft.setCursor((STEP_FRAME_W * xPos) + 7, (yPos * STEP_FRAME_H) - 3);
+    tft.setCursor((STEP_FRAME_W * xPos) + 13, (yPos * STEP_FRAME_H) - 3);
     tft.print(dvalue);
 
     // Kreis zeichnen (alte und neue Position)
@@ -330,12 +330,12 @@ void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, 
     }
     uint8_t ypos = ((YPos + 1) * 3);
     int yPos = (ypos + 1) * STEP_FRAME_H;
-    uint8_t envStart = 48;
-    uint8_t envTop = yPos - 32;
+    uint8_t envStart = STEP_FRAME_W * 3;
+    uint8_t envTop = yPos - STEP_FRAME_H * 2;
 
     static uint8_t old_attackEnd;
     static uint8_t old_decayEnd;
-    static uint8_t old_sustainLevel;
+    static uint16_t old_sustainLevel;
     static uint8_t old_sustainEnd;
     static uint8_t old_releaseEnd;
 
@@ -344,17 +344,16 @@ void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, 
     tft.drawLine(old_decayEnd + old_attackEnd, old_sustainLevel, old_decayEnd + old_attackEnd + old_sustainEnd, old_sustainLevel, ILI9341_DARKGREY);
     tft.drawLine(old_decayEnd + old_attackEnd + old_sustainEnd, old_sustainLevel, old_decayEnd + old_attackEnd + old_sustainEnd + old_releaseEnd, yPos, ILI9341_DARKGREY);
 
-    uint8_t attackEnd = map(attack, 0, 127, 0, 50) + envStart;
-    uint8_t decayEnd = map(decay, 0, 127, 0, 30);
-    uint8_t sustainLevel = yPos - map(sustain, 0, 127, 0, 32);
-    uint8_t sustainEnd = 30;
-    uint8_t releaseEnd = map(release, 0, 127, 0, 50);
+    uint8_t attackEnd = map(attack, 0, 127, 0, STEP_FRAME_W * 3) + envStart;
+    uint8_t decayEnd = map(decay, 0, 127, 0, STEP_FRAME_W * 2);
+    uint16_t sustainLevel = yPos - map(sustain, 0, 127, 0, STEP_FRAME_H * 2);
+    uint8_t sustainEnd = STEP_FRAME_W * 2;
+    uint8_t releaseEnd = map(release, 0, 127, 0, STEP_FRAME_W * 3);
 
     tft.drawLine(envStart, yPos, attackEnd, envTop, colorA);
     tft.drawLine(attackEnd, envTop, decayEnd + attackEnd, sustainLevel, colorD);
     tft.drawLine(decayEnd + attackEnd, sustainLevel, decayEnd + attackEnd + sustainEnd, sustainLevel, colorS);
     tft.drawLine(decayEnd + attackEnd + sustainEnd, sustainLevel, decayEnd + attackEnd + sustainEnd + releaseEnd, yPos, colorR);
-
     draw_value_box(YPos, 14, ypos - 1, 4, 4, attack, NO_NAME, colorA, 2, true, false);
     draw_value_box(YPos, 16, ypos - 1, 4, 4, decay, NO_NAME, colorD, 2, true, false);
     draw_value_box(YPos, 14, ypos, 4, 4, sustain, NO_NAME, colorS, 2, true, false);
@@ -368,7 +367,7 @@ void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, 
 }
 void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const char *_name, int _value, const char *_valuedName)
 {
-    Serial.printf("drawing seq-Arr parameter %s\n", _name);
+   // Serial.printf("drawing seq-Arr parameter %s\n", _name);
     uint8_t _ypos = _encoder * 2;
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 5, 4, 4, NO_VALUE, _name, encoder_colour[_encoder], 2, false, false);
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, _value, NO_NAME, encoder_colour[_encoder], 2, true, false);
@@ -403,7 +402,7 @@ void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest
 
     // Text zeichnen
     tft.setTextColor(ILI9341_WHITE);
-    tft.setCursor(xPos + offest_X, yPos + offset_Y + FONT_OFFSET);
+    tft.setCursor(xPos + offest_X, yPos + offset_Y);
 
     if (name != "NO_NAME")
     {
@@ -431,7 +430,7 @@ void drawsongmodepageselector(int songpageNumber)
         // tft.setFont(&FreeSans9pt7b);
         tft.setTextSize(2);
         tft.setTextColor(ILI9341_BLACK);
-        tft.setCursor(STEP_FRAME_W * pages + 1, STEP_FRAME_H * 13 + FONT_OFFSET + 8);
+        tft.setCursor(STEP_FRAME_W * pages + 1, STEP_FRAME_H * 13 + 8);
         tft.print((pages - 1));
     }
 }
@@ -537,13 +536,12 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
     // Falls ein Clip existiert, Werte einzeichnen
     if (clip < MAX_CLIPS - 1)
     {
-       
-            draw_arrangerLine_value(_trackNr, _bar, clip, POSITION_TEXT_ARRANGERLINE_TOP);
-            draw_arrangerLine_value(_trackNr, _bar, track->noteOffset[_bar], POSITION_TEXT_ARRANGERLINE_BOTTOM);
-       
-            draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccChannel[_bar], POSITION_CC_ARRANGERLINE_TOP);
-            draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccValue[_bar], POSITION_CC_ARRANGERLINE_BOTTOM);
-        
+
+        draw_arrangerLine_value(_trackNr, _bar, clip, POSITION_TEXT_ARRANGERLINE_TOP);
+        draw_arrangerLine_value(_trackNr, _bar, track->noteOffset[_bar], POSITION_TEXT_ARRANGERLINE_BOTTOM);
+
+        draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccChannel[_bar], POSITION_CC_ARRANGERLINE_TOP);
+        draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccValue[_bar], POSITION_CC_ARRANGERLINE_BOTTOM);
     }
 
     // Trellis LED Buffer aktualisieren
@@ -618,7 +616,7 @@ void drawOctaveNumber()
 {
     // draw the octave number
     tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
-    tft.setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT + FONT_OFFSET);
+    tft.setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT);
     tft.setTextSize(3);
     // tft.setFont(&FreeSans18pt7b);
     if (lastPotRow != 1)
@@ -633,8 +631,9 @@ void draw_Notenames()
 {
     for (int n = 0; n < MAX_VOICES; n++)
     { // hor notes
-        tft.fillRect(STEP_FRAME_W, STEP_FRAME_H * n + STEP_FRAME_H, STEP_FRAME_W, STEP_FRAME_H, trackColor[active_track]);
-        tft.setCursor(STEP_FRAME_W + 1, STEP_FRAME_H * n + 24 + FONT_OFFSET);
+        int color = (scales[allTracks[active_track]->parameter[SET_SCALE]][n]) ? trackColor[active_track] : ILI9341_LIGHTGREY;
+        tft.fillRect(STEP_FRAME_W, STEP_FRAME_H * n + STEP_FRAME_H, STEP_FRAME_W, STEP_FRAME_H, color);
+        tft.setCursor(STEP_FRAME_W + 1, STEP_FRAME_H * n + 24);
 
         //  tft.setFont(&FreeSans9pt7b);
         tft.setTextColor(ILI9341_BLACK);
@@ -689,9 +688,9 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
         }
         if (lastProw == 2)
         {
-            draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->parameter[8]]);
-            draw_sequencer_arranger_parameter(active_track, 1, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->parameter[9]]);
-
+            draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->parameter[SET_SEQ_MODE]]);
+            draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[allTracks[active_track]->parameter[SET_SCALE]]);
+            draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->parameter[SET_MIDICH_OUT]]);
             draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[11], NO_NAME);
 
             // draw_stepSequencer_parameter_text(2, ENCODER_SEQ_MODE, 2, seqModname[allTracks[active_track]->parameter[8]], "sMod");

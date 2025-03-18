@@ -52,6 +52,7 @@ USBHIDParser hid1(myusb);
 MouseController mouse1(myusb);
 IntervalTimer usbDeviceTimer;
 IntervalTimer SerialMidiTimer;
+
 void input_behaviour();
 // midi
 void clock_to_notes(int _tick);
@@ -89,6 +90,9 @@ void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
+template <typename FXClass>
+void set_mixer_FX(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn, FXClass &fx);
+
 void show_trellisFX_mixerPage();
 
 void set_input_level(uint8_t _value);
@@ -120,6 +124,7 @@ void setup()
 
   myClock.setup();
   AudioMemory(330);
+  delay(100);
   MasterOut.setup();
   // for (int i=0; i<NUM_PLUGINS-1;i++)
   {
@@ -136,6 +141,21 @@ void setup()
   allPlugins[9]->change_preset();
   allPlugins[10]->change_preset();
   allPlugins[11]->change_preset();
+  for (int i = 0; i < NUM_TRACKS; i++)
+  {
+    allTracks[i]->mixFX1 = 0;
+    allTracks[i]->mixFX2 = 0;
+    allTracks[i]->mixFX3 = 0;
+    allTracks[i]->mixFX1Pot = 0;
+    allTracks[i]->mixFX2Pot = 0;
+    allTracks[i]->mixFX3Pot = 0;
+  }
+  for (int i = 0; i < NUM_PLUGINS; i++)
+  {
+    fx_1.pl[i].gain(0);
+    fx_2.pl[i].gain(0);
+    fx_3.pl[i].gain(0);
+  }
   Serial.println("Audio & MIDI Setup done");
   assign_PSRAM_variables();
   // if (!SerialFlash.begin(FlashChipSelect))
@@ -312,7 +332,6 @@ void input_behaviour()
     {
       Serial.printf("active screen: %d, arrangerpage: %d\n", activeScreen, arrangerpage);
       change_plugin_row = true;
-      
 
       // draw_arrangment_lines(gridTouchY - 1, arrangerpage);
       neotrellisPressed[TRELLIS_POTROW] = false;
@@ -352,14 +371,13 @@ void input_behaviour()
   case INPUT_FUNCTIONS_FOR_MIXER1:
   {
     set_mixer(lastPotRow);
-    trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER2:
   {
     trellis_play_mixer();
     set_mixer_FX_page1(lastPotRow);
-  
+
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER3:
@@ -1440,16 +1458,18 @@ void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn
     drawPot(XPos, YPos, allTracks[trackn]->mixGainPot, name);
   }
 }
+
 void set_mixer_FX_page1(uint8_t row)
 {
   draw_mixer_FX_page1();
   if (row == 0)
   {
 
-    set_mixer_dry(0, 0, "Dry D", 0);
-    set_mixer_FX1(1, 0, "FX1 D", 0);
-    set_mixer_FX2(2, 0, "FX2 D", 0);
-    set_mixer_FX3(3, 0, "FX3 D", 0);
+     set_mixer_dry(0, 0, "Dry D", 0);
+     set_mixer_FX1(1, 0, "FX1 D", 0);
+     set_mixer_FX2(2, 0, "FX2 D", 0);
+     set_mixer_FX3(3, 0, "FX3 D", 0);
+
   }
 
   if (row == 1)
@@ -1583,6 +1603,7 @@ void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
     }
   }
 }
+
 void show_trellisFX_mixerPage()
 {
   for (int t = 0; t < NUM_TRACKS; t++)

@@ -18,7 +18,7 @@ void trellis_perform();
 
 
 #define TRELLIS_POTROW 0
-#define TRELLIS_BUTTON_RECORD 1
+#define TRELLIS_BUTTON_SAVELOAD 1
 #define TRELLIS_START_CLOCK 2
 #define TRELLIS_STOP_CLOCK 3
 

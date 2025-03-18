@@ -13,6 +13,8 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 
 #define NUM_PLUGINS 14
 #define NUM_PLAYMODES 8
+#define NUM_SCALES 23
+#define NUM_FX 3
 
 #define NUM_TRACKS 8
 #define NUM_STEPS 16
@@ -51,7 +53,8 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define SET_STEP_LENGTH 6
 #define SET_OCTAVE 7
 #define SET_SEQ_MODE 8
-#define SET_MIDICH_OUT 9
+#define SET_SCALE 9
+#define SET_MIDICH_OUT 10
 
 #define SET_CLIP2_EDIT 11
 // pages
@@ -82,10 +85,11 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define SONGMODE_PAGE_15 14
 #define SONGMODE_PAGE_16 15
 
+#define TFT_WIDTH 480
+#define TFT_HEIGHT 320
 #define STEP_FRAME_W 24
 #define STEP_FRAME_H 21
 #define TRACK_FRAME_H 30
-#define FONT_OFFSET 0
 // for arranger
 #define BARS_PER_PAGE 16
 // for sequencer
@@ -205,14 +209,18 @@ extern uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 extern uint8_t performCC[TRELLIS_PADS_X_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+extern bool trellisHeld[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+extern bool oneTrellisIsPressed;
 extern uint8_t FLASHMEM gateOutputPin[8];
-
+extern const bool PROGMEM scales[NUM_SCALES][12];
+extern const char FLASHMEM *scaleNames[NUM_SCALES];
 extern bool updateTFTScreen;
 extern const char *bankNames[NUM_SAMPLE_BANKS];
 extern const char FLASHMEM *CCnames[129];
 extern const char FLASHMEM *seqModname[NUM_PLAYMODES];
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];
+
 // screen
 #define POSITION_BPM_BUTTON 14
 #define POSITION_START_LOOP_BUTTON 16

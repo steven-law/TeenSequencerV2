@@ -100,6 +100,7 @@ void encoder_SetCursor(uint8_t deltaX, uint8_t maxY)
     if (enc_moved[1])
     {
         gridTouchY = constrain(gridTouchY + encoded[1], 0, maxY);
+        
         // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
 
         // enc_moved[1] = false;

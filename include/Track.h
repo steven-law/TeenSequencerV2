@@ -27,10 +27,11 @@
 #define ENCODER_SEQUENCE_LENGTH 0
 #define ENCODER_CLOCK_DIVISION 1
 #define ENCODER_STEP_LENGTH 2
-// potrow 2
 #define ENCODER_OCTAVE 3
+// potrow 2
 #define ENCODER_SEQ_MODE 0
-#define ENCODER_MIDICH_OUT 1
+#define ENCODER_SCALE 1
+#define ENCODER_MIDICH_OUT 2
 #define ENCODER_CLIP2_EDIT 3
 
 #define NUM_PARAMETERS 16
@@ -60,7 +61,6 @@ public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
     uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0};
-    int tempStepLength;
     // Stepsequencer
     struct tick_t
     {
@@ -91,6 +91,8 @@ public:
     float mixFX2 = 0;
     uint8_t mixFX3Pot = 127;
     float mixFX3 = 0;
+    uint8_t mixFxPot[NUM_FX];
+    float mixFX[NUM_FX];
     bool muted;
     bool soloed;
     bool muteThruSolo;
@@ -237,8 +239,6 @@ private:
 
     uint8_t setStepFX = 74;
     uint8_t noteToPlay[MAX_VOICES];
-
-    uint8_t sTick;
 
     bool internal_clock_is_on = false;
 
