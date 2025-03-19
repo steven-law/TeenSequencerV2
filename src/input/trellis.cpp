@@ -393,16 +393,21 @@ void neotrellis_show_piano()
     {
       if (neotrellisPressed[3 + ((i + 4) * X_DIM)])
       {
+        trellisPianoTrack = i;
+        show_active_page_info("Piano", trellisPianoTrack + 1);
+        neotrellis_set_control_buffer(2, 2, trellisTrackColor[trellisPianoTrack]);
         neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
         neotrellisPressed[TRELLIS_BUTTON_PIANO] = false;
-        trellisPianoTrack = i;
         int _color = TRELLIS_BLACK;
-        for (int x = 0; x < NUM_STEPS; x++)
+        for (int x = 0; x < NOTES_PER_OCTAVE; x++)
         {
           for (int y = 0; y < NUM_TRACKS; y++)
           {
-            int _nr = x + (y * NUM_STEPS);
-            if (_nr % 12 == 0)
+            if (scales[allTracks[trellisPianoTrack]->parameter[SET_SCALE]][x])
+            {
+              _color = TRELLIS_WHITE;
+            }
+            else if (x == 0)
             {
               _color = trellisTrackColor[trellisPianoTrack];
               if (allTracks[trellisPianoTrack]->get_recordState())
@@ -421,35 +426,43 @@ void neotrellis_show_piano()
 void trellis_play_piano()
 {
 
-  if (trellisScreen == TRELLIS_SCREEN_PIANO)
-  {
-    static bool _holdNote[NUM_STEPS * NUM_TRACKS];
-    for (int x = 0; x < NUM_STEPS; x++)
-    {
-      for (int y = 0; y < NUM_TRACKS; y++)
-      {
-        // uint8_t _keyNr = x + (y * TRELLIS_PADS_X_DIM);
-        uint8_t _keynote = x + (y * NUM_STEPS);
-        if (trellisPressed[_keynote] && !_holdNote[_keynote])
-        {
-          // Serial.printf("pianoPage _keyNr:%d, _keyNote: %d\n", _keyNr, _keynote);
-          _holdNote[_keynote] = true;
+  if (trellisScreen != TRELLIS_SCREEN_PIANO)
+    return;
 
-          allTracks[trellisPianoTrack]->noteOn(_keynote, 99, allTracks[trellisPianoTrack]->parameter[SET_MIDICH_OUT]);
-          if (allTracks[trellisPianoTrack]->get_recordState())
-            allTracks[trellisPianoTrack]->record_noteOn(_keynote, 99, allTracks[trellisPianoTrack]->parameter[SET_MIDICH_OUT]);
-          Serial.printf("trellisPiano NoteON key:%d, track:%d\n", _keynote, trellisPianoTrack);
-          Serial.println(_holdNote[_keynote]);
+  static bool _holdNote[NUM_STEPS * NUM_TRACKS];
+  static uint8_t _noteSend;
+
+  for (int x = 0; x < NUM_STEPS; x++)
+  {
+    for (int y = 0; y < NUM_TRACKS; y++)
+    {
+      uint8_t key = x + ((y * NUM_STEPS));
+      if (x < NOTES_PER_OCTAVE)
+      {
+        if (trellisPressed[key] && !_holdNote[key])
+        {
+           uint8_t _octave = (NUM_TRACKS - 1) - (key / NUM_STEPS);
+
+          _noteSend = x + (_octave * NOTES_PER_OCTAVE);
+          _holdNote[key] = true;
+
+          auto track = allTracks[trellisPianoTrack];
+          track->noteOn(_noteSend, 99, track->parameter[SET_MIDICH_OUT]);
+          if (track->get_recordState())
+            track->record_noteOn(_noteSend, 99, track->parameter[SET_MIDICH_OUT]);
+          Serial.printf("trellisPiano NoteON note:%d, octave:%d\n", _noteSend, _octave);
           break;
         }
 
-        else if (!trellisPressed[_keynote] && _holdNote[_keynote])
+        else if (!trellisPressed[key] && _holdNote[key])
         {
-          _holdNote[_keynote] = false;
-          allTracks[trellisPianoTrack]->noteOff(_keynote, 0, allTracks[trellisPianoTrack]->parameter[SET_MIDICH_OUT]);
-          if (allTracks[trellisPianoTrack]->get_recordState())
-            allTracks[trellisPianoTrack]->record_noteOff(_keynote, 0, allTracks[trellisPianoTrack]->parameter[SET_MIDICH_OUT]);
-          Serial.printf("trellisPiano NoteOff key:%d, track:%d\n", _keynote, trellisPianoTrack);
+          _holdNote[key] = false;
+
+          auto track = allTracks[trellisPianoTrack];
+          track->noteOff(_noteSend, 0, track->parameter[SET_MIDICH_OUT]);
+          if (track->get_recordState())
+            track->record_noteOff(_noteSend, 0, track->parameter[SET_MIDICH_OUT]);
+          Serial.printf("trellisPiano NoteOff key:%d, track:%d\n", key, trellisPianoTrack);
           break;
         }
       }
@@ -828,11 +841,11 @@ void trellis_setStepsequencer()
             track = _nr / NUM_STEPS;
             step = _nr % NUM_STEPS;
             int keyTick = step * 6;
-          //  if (oneTrellisIsPressed)
-          //  {
-          //    allTracks[track]->set_note_on_tick(keyTick, trellisNote);
-          //    oneTrellisIsPressed = false;
-          //  }
+            //  if (oneTrellisIsPressed)
+            //  {
+            //    allTracks[track]->set_note_on_tick(keyTick, trellisNote);
+            //    oneTrellisIsPressed = false;
+            //  }
 
             for (int i = 1; i < NUM_STEPS - step; i++)
             {
@@ -848,17 +861,17 @@ void trellis_setStepsequencer()
               }
             }
           }
-           if (trellisPressed[_nr])
-           {
-             uint8_t track = _nr / NUM_STEPS;
-             uint8_t step = _nr % NUM_STEPS;
-             int keyTick = step * 6;
-             // Setze die Note auf dem aktuellen Step
-             allTracks[track]->set_note_on_tick(keyTick, trellisNote);
-             trellisPressed[_nr] = false;
-             change_plugin_row = true;
-             Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote);
-           }
+          if (trellisPressed[_nr])
+          {
+            uint8_t track = _nr / NUM_STEPS;
+            uint8_t step = _nr % NUM_STEPS;
+            int keyTick = step * 6;
+            // Setze die Note auf dem aktuellen Step
+            allTracks[track]->set_note_on_tick(keyTick, trellisNote);
+            trellisPressed[_nr] = false;
+            change_plugin_row = true;
+            Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote);
+          }
         }
       }
     }
@@ -1055,9 +1068,6 @@ void trellis_read()
       if (trellis.isKeyPressed(TrellisLED[i]))
       {
         trellisHeld[i] = true;
-
-        Serial.print("Taste gehalten: ");
-        Serial.println(i);
       }
 
       // if it was released, turn it off
