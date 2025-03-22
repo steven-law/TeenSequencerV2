@@ -213,8 +213,9 @@ void loop()
   trellis_update();
   neotrellis_update();
   midi_read();
-  input_behaviour();
   touch_update();
+  input_behaviour();
+
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
@@ -286,7 +287,7 @@ void input_behaviour()
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 3;
-      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
+      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY - 1);
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
     }
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -296,14 +297,19 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
       neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
     }
-    /*
+
     if (ts.touched())
     {
-      allTracks[active_track]->parameter[SET_STEP_LENGTH] = 1;
-      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
-      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
-      delay(20);
-    }*/
+      // allTracks[active_track]->parameter[SET_STEP_LENGTH] = 1;
+      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
+      if (tempTick % allTracks[active_track]->parameter[SET_STEP_LENGTH] == 0)
+      {
+        allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY - 1);
+        updateTFTScreen = true;
+        delay(70);
+      }
+      
+    }
     if (neotrellisPressed[TRELLIS_POTROW])
     {
       change_plugin_row = true;
@@ -849,7 +855,7 @@ void trellis_play_mixer()
           tft.printf("Main Vol =  %d ", _gain[s]);
           reset_infobox_background();
           // trellis.writeDisplay();
-         // break;
+          // break;
         }
         trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, s, t, TRELLIS_BLACK);
         trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, allTracks[t]->mixGainPot / 8, t, trackColor[t]);

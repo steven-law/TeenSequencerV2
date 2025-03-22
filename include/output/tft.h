@@ -36,7 +36,7 @@
 #define POSITION_TEXT_ARRANGERLINE_BOTTOM 11
 #define POSITION_CC_ARRANGERLINE_BOTTOM 10
 #define phraseSegmentLength 16
-#define INFO_BOX_WIDTH 200
+#define INFO_BOX_WIDTH 300
 #define INFO_BOX_HEIGTH 120
 #define INFOBOX_OFFSET 60
 #define INFOBOX_TEXT_OFFSET 80
@@ -122,8 +122,9 @@ void drawOctaveNumber();
 void draw_Clipselector();
 
 void draw_stepSequencer_parameters(uint8_t lastProw);
-void draw_note_on_tick(uint8_t _note, uint8_t _when);
+void draw_note_on_tick(uint8_t _voice, uint8_t _when);
 void draw_notes_in_grid();
+void erase_note_on_tick(uint8_t _voice, uint8_t _when);
 
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos);
 void draw_MIDI_CC_screen();

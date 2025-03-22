@@ -244,30 +244,10 @@ void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY)
             if (pixelOnY >= 1)
                 arranger_offset = 4;
 
-       // for (int pixel = 0; pixel < STEP_FRAME_W; pixel++)
-       // {
-       //     tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, ILI9341_DARKGREY);  // draw upper line X1
-       //     tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, ILI9341_DARKGREY); // draw bottom line X2
-       //     tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY);  // draw left line Y1
-       //     tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, ILI9341_DARKGREY); // draw right line Y2
-//
-       //     // tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, tftRAM[0][pixel]);  // draw upper line X1
-       //     // tft.drawPixel(pixel + (cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 15 + arranger_offset, tftRAM[1][pixel]); // draw bottom line X2
-       //     // tft.drawPixel((cursorDeltaX * last_xPos) + 1, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[2][pixel]);  // draw left line Y1
-       //     // tft.drawPixel((cursorDeltaX * last_xPos) + 15, pixel + (cursorDeltaY * last_yPos) + arranger_offset, tftRAM[3][pixel]); // draw right line Y2
-       // }
-        //  for (int pixel = 0; pixel < 16; pixel++)
-        //  {
-        //      tftRAM[0][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 1 + arranger_offset);  // save upper line
-        //      tftRAM[1][pixel] = tft.readPixel(pixel + (cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 15 + arranger_offset); // save bottom line
-        //      tftRAM[2][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 1, pixel + (cursorDeltaY * pixelOnY) + arranger_offset);  // save left line
-        //      tftRAM[3][pixel] = tft.readPixel((cursorDeltaX * pixelOnX) + 15, pixel + (cursorDeltaY * pixelOnY) + arranger_offset); // save right line
-        //  }
-
-        tft.drawRect((cursorDeltaX * last_xPos) , (cursorDeltaY * last_yPos) + 1 + arranger_offset, STEP_FRAME_W /2, STEP_FRAME_H - 1, ILI9341_DARKGREY);
+        tft.drawRect((cursorDeltaX * last_xPos), (cursorDeltaY * last_yPos) + 1 + arranger_offset, STEP_FRAME_W / 2, STEP_FRAME_H - 1, ILI9341_DARKGREY);
 
         //  uint8_t test = tft.readPixel(18, 18); // save right line
-        tft.drawRect((cursorDeltaX * pixelOnX) , (cursorDeltaY * pixelOnY) + 1 + arranger_offset, STEP_FRAME_W /2, STEP_FRAME_H - 1, ILI9341_WHITE);
+        tft.drawRect((cursorDeltaX * pixelOnX), (cursorDeltaY * pixelOnY) + 1 + arranger_offset, STEP_FRAME_W / 2, STEP_FRAME_H - 1, ILI9341_WHITE);
         //  Serial.printf("read pixel = %d\n", test);
         last_xPos = pixelOnX;
         last_yPos = pixelOnY;
@@ -699,39 +679,41 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
         }
     }
 }
-void draw_note_on_tick(uint8_t _note, uint8_t _when)
+
+void erase_note_on_tick(uint8_t _voice, uint8_t _when)
 {
 
-    // uint8_t Note = _note % NOTES_PER_OCTAVE;
-
-    // Serial.printf("draw velocity: %d tick: %d for note: %d on voice: %d\n", velo, dr_X, note, i);
-    uint8_t note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_note];
-    uint8_t velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_note];
     int xPos = (_when * 3) + (STEP_FRAME_W * 2);
-    int yPos = ((_note + 1) * STEP_FRAME_H) + 10;
+    int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
+    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
+}
+
+void draw_note_on_tick(uint8_t _voice, uint8_t _when)
+{
+    uint8_t note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_voice];
+    uint8_t velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_voice];
+    uint8_t stepFX = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].stepFX;
+    int note_length = 0;
+    // Bestimme die Länge der aktuellen Note
+    for (int i = _when; i < MAX_TICKS; i++)
+    {
+
+        if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] == NO_NOTE)
+            break; // Note endet hier
+        note_length++;
+    }
+
+    int xPos = (_when * 3) + (STEP_FRAME_W * 2);
+    int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
     int _color = (note == NO_NOTE) ? ILI9341_DARKGREY : trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
-    int minY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3));
-    int maxY = minY + 1;
+    int startY = map(velo, 127, 0, 0, (STEP_FRAME_H / 3));
+    int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
+    int radius = map(stepFX, 127, 0, 0, ((STEP_FRAME_H / 3)));
     if ((note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE) || note == NO_NOTE)
     {
-        // Hintergrund zeichnen
-        // for (int w = -STEP_FRAME_H / 3; w < STEP_FRAME_H / 3; w++)
-        // {
-        //     for (int i = 0; i < PIXEL_PER_TICK; i++)
-        //     {
-        //         tft.drawPixel(xPos + i, yPos + w, ILI9341_DARKGREY);
-        //     }
-        // }
-        // Serial.printf("set _note= track: %d, note: %d, when: %d, color: %d \n", active_track, note, _when, _color);
-
-        for (int w = -minY; w < maxY; w++)
-        {
-            for (int i = 0; i < PIXEL_PER_TICK; i++)
-            {
-
-                tft.drawPixel(xPos + i, yPos + w, _color);
-            }
-        }
+        //   Serial.printf("notelength = %d\n", note_length);
+        //   Serial.printf("draw velocity: %d startTick: %d for note: %d on voice: %d with color: %d\n", velo, _when, note, _voice, _color);
+        tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * note_length, sizeY + 1, radius, _color);
     }
 }
 void draw_notes_in_grid()

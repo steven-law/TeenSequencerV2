@@ -8,6 +8,8 @@ void Track::update(int PixelX, uint8_t gridY)
     // MIDI1.read();
 
     bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
+    tick_to_edit = (PixelX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
+    voice_to_edit = gridY - 1;
     // save_track();
     // load_track();
 }

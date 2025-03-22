@@ -100,6 +100,8 @@ public:
     int performNoteOffset = 0;
     int performClockDivision = 0;
     int bar_to_edit = 0;
+    int tick_to_edit;
+    int voice_to_edit;
 
     // arranger
     int internal_clock = -1;
@@ -177,7 +179,7 @@ public:
     void copy_bar();
     void clear_arrangment();
     // stepsequencer
-    void set_note_on_tick(int x, int y);
+    void set_note_on_tick(int x, int voice);
     void set_note_parameter(uint8_t *parameterArray, uint8_t _voice, uint8_t value);
     uint8_t get_note_parameter(uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters(uint8_t row);
