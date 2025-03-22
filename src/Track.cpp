@@ -234,7 +234,6 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         }
         internal_clock++;
         internal_clock_is_on = true;
-        
     }
     else
         internal_clock_is_on = false;
@@ -248,9 +247,9 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     {
         internal_clock = 0;
     }
-    //Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-    // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
-    //  Serial.println(internal_clock_bar);
+    // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
+    //  Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
+    //   Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
         if (!muted && !muteThruSolo)
@@ -319,6 +318,8 @@ void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
+    if (recordState)
+        record_noteOn(Note, Velo, Channel);
 
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
@@ -328,7 +329,8 @@ void Track::noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOff(my_Arranger_Y_axis - 1, Note, Velo, Channel);
-
+    if (recordState)
+        record_noteOff(Note, Velo, Channel);
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
 }
@@ -436,8 +438,8 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
 {
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
-       // for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
-       int i=0;
+        // for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+        int i = 0;
         {
             clip_to_play[bar_to_edit + i] = clip_to_play[bar_for_copying];
             noteOffset[bar_to_edit + i] = noteOffset[bar_for_copying];

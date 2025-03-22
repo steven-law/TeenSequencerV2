@@ -79,8 +79,8 @@ extern int trellisControllBuffer[X_DIM][Y_DIM];
 extern Adafruit_NeoTrellis t_array[Y_DIM / 4][X_DIM / 4];
 extern Adafruit_MultiTrellis neotrellis;
 
-extern const long trellisReadInterval;             // interval at which to blink (milliseconds)
-extern const long neotrellisReadInterval;          // interval at which to blink (milliseconds)
+extern const  long trellisReadInterval;             // interval at which to blink (milliseconds)
+extern const unsigned long neotrellisReadInterval;          // interval at which to blink (milliseconds)
 extern const long trellisRestartInterval;          // interval at which to blink (milliseconds)
 extern unsigned long trellisRestartPreviousMillis; // will store last time LED was updated
 extern unsigned long trellisReadPreviousMillis;    // will store last time LED was updated
@@ -122,7 +122,8 @@ void neo_trellis_save_load();
 void neotrellis_set_mute();
 void neotrellis_set_solo();
 void neotrellis_set_fast_record();
-void neotrellis_show_piano();
+void neotrellis_set_piano();
+void trellis_show_piano();
 void trellis_set_arranger();
 void trellis_setStepsequencer();
 

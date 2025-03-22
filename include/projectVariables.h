@@ -90,6 +90,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define STEP_FRAME_W 24
 #define STEP_FRAME_H 21
 #define TRACK_FRAME_H 30
+#define PIXEL_PER_TICK 3
 // for arranger
 #define BARS_PER_PAGE 16
 // for sequencer

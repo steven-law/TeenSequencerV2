@@ -87,7 +87,7 @@ void Plugin_14::set_parameters(uint8_t row)
     show_peak();
     for (int i = 0; i < NUM_TRACKS; i++)
     {
-        if (allTracks[i]->recordState && allTracks[i]->parameter[SET_MIDICH_OUT] == 62)
+        if (allTracks[i]->get_recordState() && allTracks[i]->parameter[SET_MIDICH_OUT] == 62)
         {
             if (neotrellisPressed[3 + ((i + 4) * X_DIM)])
                 startrecording = true;

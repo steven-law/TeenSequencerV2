@@ -52,7 +52,8 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
             draw_notes_in_grid();
         }
         if (index == SET_SCALE)
-            draw_Notenames();
+            {draw_Notenames();
+            trellis_show_piano();}
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, parameter[index], "NO_NAME");
     }
 }

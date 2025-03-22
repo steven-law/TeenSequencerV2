@@ -406,110 +406,6 @@ void input_behaviour()
   default:
     break;
   }
-  /*
-  // if we are in one of the sequencer pages
-  if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
-  {
-
-    neotrellis_SetCursor(14);
-    if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
-      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
-      neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-      allTracks[active_track]->clear_active_clip();
-
-      neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-      neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
-    }
-    /*
-    if (ts.touched())
-    {
-      allTracks[active_track]->parameter[SET_STEP_LENGTH] = 1;
-      int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 2;
-      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY);
-      delay(20);
-    }
-  if (neotrellisPressed[TRELLIS_POTROW])
-  {
-    change_plugin_row = true;
-    draw_stepSequencer_parameters(lastPotRow);
-    Serial.printf("active screen: %d, activeTrack: %d\n", activeScreen, active_track);
-    neotrellisPressed[TRELLIS_POTROW] = false;
-  }
-  allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
-}
-// if we are in one of the Arrangerpages
-if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
-{
-
-  neotrellis_SetCursor(8);
-  allTracks[gridTouchY - 1]->set_arranger_parameters(lastPotRow);
-  if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-  {
-    allTracks[active_track]->clear_arrangment();
-
-    neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-    neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
-  }
-  if (neotrellisPressed[TRELLIS_POTROW])
-  {
-    Serial.printf("active screen: %d, arrangerpage: %d\n", activeScreen, arrangerpage);
-    change_plugin_row = true;
-    draw_arranger_parameters(lastPotRow);
-
-    // draw_arrangment_lines(gridTouchY - 1, arrangerpage);
-    neotrellisPressed[TRELLIS_POTROW] = false;
-  }
-
-  if (lastPotRow == 3)
-  {
-    myClock.set_tempo(1);
-    myClock.set_start_of_loop(2); // Encoder: 2
-    myClock.set_end_of_loop(3);   // Encoder: 3
-  }
-}
-if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
-{
-  if (neotrellisPressed[TRELLIS_POTROW])
-  {
-    tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-    neotrellisPressed[TRELLIS_POTROW] = false;
-  }
-  // if Shift button is NOT pressed
-  if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-  {
-    allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
-  }
-}
-if (activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN)
-{
-
-  if (allTracks[active_track]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-    allTracks[active_track]->set_MIDI_CC(lastPotRow);
-  else if (allTracks[active_track]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-    MasterOut.set_parameters(allTracks[active_track]->parameter[SET_MIDICH_OUT] - 49, lastPotRow);
-  neotrellisPressed[TRELLIS_POTROW] = false;
-}
-if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER1)
-  set_mixer(lastPotRow);
-if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER2)
-  set_mixer_FX_page1(lastPotRow);
-if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER3)
-  set_mixer_FX_page2(lastPotRow);
-if (activeScreen == INPUT_FUNCTIONS_FOR_FX1)
-  fx_1.set_parameters(lastPotRow);
-if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
-  fx_2.set_parameters(lastPotRow);
-if (activeScreen == INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
-{
-  // Serial.println("hi");
-  trellis_play_clipLauncher();
-}
-*/
 }
 // midi
 void clock_to_notes(int _tick)
@@ -661,8 +557,6 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
     allTracks[channel - 1]->noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
-    if (allTracks[channel - 1]->get_recordState())
-      allTracks[channel - 1]->record_noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
   if (channel >= 9)
     sendNoteOn(channel - 1, note, velocity, channel);
@@ -673,8 +567,6 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
     allTracks[channel - 1]->noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
-    if (allTracks[channel - 1]->get_recordState())
-      allTracks[channel - 1]->record_noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
   if (channel >= 9)
     sendNoteOff(channel - 1, note, velocity, channel);
@@ -943,8 +835,7 @@ void trellis_play_mixer()
 
       for (int s = 0; s < NUM_STEPS; s++)
       {
-        trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, s, t, TRELLIS_BLACK);
-        trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, allTracks[t]->mixGainPot / 8, t, trackColor[t]);
+
         uint8_t _nr = s + (t * TRELLIS_PADS_X_DIM);
         if (trellisPressed[_nr])
         {
@@ -957,8 +848,11 @@ void trellis_play_mixer()
           set_infobox_next_line(1);
           tft.printf("Main Vol =  %d ", _gain[s]);
           reset_infobox_background();
-          break;
+          // trellis.writeDisplay();
+         // break;
         }
+        trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, s, t, TRELLIS_BLACK);
+        trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, allTracks[t]->mixGainPot / 8, t, trackColor[t]);
       }
     }
   }
@@ -1063,331 +957,331 @@ void trellis_play_mixer()
 }
 void trellis_perform()
 {
-  if (trellisScreen == TRELLIS_SCREEN_PERFORM)
+  if (trellisScreen != TRELLIS_SCREEN_PERFORM)
+    return;
+
+  set_perform_page(lastPotRow);
+  for (int t = 0; t < NUM_TRACKS; t++)
   {
-    set_perform_page(lastPotRow);
-    for (int t = 0; t < NUM_TRACKS; t++)
+    for (int i = 0; i < NUM_STEPS; i++)
     {
-      for (int i = 0; i < NUM_STEPS; i++)
+      int _nr = i + (t * TRELLIS_PADS_X_DIM);
+      if (trellisPressed[_nr])
+
       {
-        int _nr = i + (t * TRELLIS_PADS_X_DIM);
-        if (trellisPressed[_nr])
-
+        // change_plugin_row = true;
+        trellisPressed[_nr] = false;
+        if (_nr % TRELLIS_PADS_X_DIM == 0)
         {
-          // change_plugin_row = true;
-          trellisPressed[_nr] = false;
-          if (_nr % TRELLIS_PADS_X_DIM == 0)
-          {
 
-            for (int s = 0; s < NUM_TRACKS; s++)
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive)
             {
-              if (allTracks[s]->performIsActive)
-              {
-                allTracks[s]->mixGainPot = 127 - (t * 16);
-                trellisPerformIndex[0] = t;
-                // sendControlChange(performCC[0], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-              }
+              allTracks[s]->mixGainPot = 127 - (t * 16);
+              trellisPerformIndex[0] = t;
+              // sendControlChange(performCC[0], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
-            set_infobox_background(750);
-            tft.printf("Master Vol =  %d ", 127 - (t * 16));
-            // set_infobox_next_line(1);
-            // tft.printf("send CC%d =  %d ", performCC[0],127 - (t * 16));
-            reset_infobox_background();
           }
-          if (_nr % TRELLIS_PADS_X_DIM == 1)
+          set_infobox_background(750);
+          tft.printf("Master Vol =  %d ", 127 - (t * 16));
+          // set_infobox_next_line(1);
+          // tft.printf("send CC%d =  %d ", performCC[0],127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 1)
+        {
+          for (int s = 0; s < NUM_TRACKS; s++)
           {
-            for (int s = 0; s < NUM_TRACKS; s++)
+            if (allTracks[s]->performIsActive)
             {
-              if (allTracks[s]->performIsActive)
-              {
 
-                Serial.printf("dry channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                allTracks[s]->mixDryPot = 127 - (t * 16);
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                  MasterOut.fx_section.dry[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              Serial.printf("dry channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              allTracks[s]->mixDryPot = 127 - (t * 16);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+                MasterOut.fx_section.dry[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[1], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              trellisPerformIndex[1] = t;
+              // break;
+            }
+          }
+          set_infobox_background(750);
+          tft.printf("dry Vol =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[1], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 2)
+        {
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive)
+            {
+              Serial.printf("fx1 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              allTracks[s]->mixFX1Pot = 127 - (t * 16);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+                fx_1.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[2], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              trellisPerformIndex[2] = t;
+              // break;
+            }
+          }
+          set_infobox_background(750);
+          tft.printf("FX1 Vol =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[2], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 3)
+        {
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive)
+            {
+              Serial.printf("fx2 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              allTracks[s]->mixFX2Pot = 127 - (t * 16);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+                fx_2.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[3], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              trellisPerformIndex[3] = t;
+              // break;
+            }
+          }
+          set_infobox_background(750);
+          tft.printf("FX2 Vol =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[3], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 4)
+        {
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive)
+            {
+              Serial.printf("fx3 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              allTracks[s]->mixFX3Pot = 127 - (t * 16);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+                fx_3.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[4], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              trellisPerformIndex[4] = t;
+              // break;
+            }
+          }
+          set_infobox_background(750);
+          tft.printf("FX3 Vol =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[4], 127 - (t * 16));
+          reset_infobox_background();
+        }
+
+        if (_nr % TRELLIS_PADS_X_DIM == 5)
+        {
+          fx_1.potentiometer[fx_1.presetNr][0] = 127 - (t * 16);
+          fx_1.freeverb.roomsize((float)map(t, 0, 8, 0, 1.00));
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[5], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[5] = t;
+          set_infobox_background(750);
+          tft.printf("FX1 Roomsize =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[5], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 6)
+        {
+
+          fx_1.potentiometer[fx_1.presetNr][1] = 127 - (t * 16);
+          fx_1.freeverb.damping((float)map(t, 0, 8, 0, 1.00));
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[6], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[6] = t;
+          set_infobox_background(750);
+          tft.printf("FX1 Damping =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[6], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 7)
+        {
+          fx_2.potentiometer[fx_2.presetNr][0] = 127 - (t * 16);
+
+          fx_2.bitcrusher.bits(map(t, 0, 8, 16, 0));
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[7], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[7] = t;
+          set_infobox_background(750);
+          tft.printf("FX2 BitDepth =  %d ", map(t, 0, 8, 16, 0));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[7], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 8)
+        {
+          int _rate[Y_DIM] = {44100, 22050, 11025, 5512, 2756, 1378, 1022, 689};
+          fx_2.potentiometer[fx_2.presetNr][1] = 127 - (t * 16);
+          fx_2.bitcrusher.sampleRate(_rate[t]);
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[8], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[8] = t;
+          set_infobox_background(750);
+          tft.printf("FX2 SmplRate =  %d ", _rate[t]);
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[8], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 9)
+        {
+          fx_3.potentiometer[fx_3.presetNr][0] = 127 - (t * 16);
+          fx_3.delay.delay(0, 500 / (t + 1));
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[9], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[9] = t;
+          set_infobox_background(750);
+          tft.printf("FX3 DlyTime =  %d ", 500 / (t + 1));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[9], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 10)
+        {
+          fx_3.potentiometer[fx_3.presetNr][1] = 127 - (t * 16);
+          fx_3.delayMixer.gain(1, t / 8.00);
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[10], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[10] = t;
+          set_infobox_background(750);
+          tft.printf("FX3 Feedback =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[10], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 11)
+        {
+          int frequency = note_frequency[t * 16] * tuning;
+          MasterOut.finalFilter.frequency(frequency);
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[11], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[11] = t;
+          set_infobox_background(750);
+          tft.printf("Fltr Freq =  %d ", frequency);
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[11], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 12)
+        {
+          MasterOut.finalFilter.resonance(map(t, 0, 8, 0, 5.00));
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[12], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+          }
+          trellisPerformIndex[12] = t;
+          set_infobox_background(750);
+          tft.printf("Fltr Reso =  %d ", 127 - (t * 16));
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[12], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 13)
+        {
+          uint8_t _clipLength[Y_DIM]{MAX_TICKS, 72, 60, MAX_TICKS / 2, 36, MAX_TICKS / 4, MAX_TICKS / 8, MAX_TICKS / 16};
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive)
+            {
+              {
+                allTracks[s]->parameter[SET_SEQUENCE_LENGTH] = _clipLength[t];
                 if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                  sendControlChange(performCC[1], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                trellisPerformIndex[1] = t;
-                // break;
-              }
-            }
-            set_infobox_background(750);
-            tft.printf("dry Vol =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[1], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 2)
-          {
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive)
-              {
-                Serial.printf("fx1 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                allTracks[s]->mixFX1Pot = 127 - (t * 16);
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                  fx_1.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                  sendControlChange(performCC[2], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                trellisPerformIndex[2] = t;
-                // break;
-              }
-            }
-            set_infobox_background(750);
-            tft.printf("FX1 Vol =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[2], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 3)
-          {
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive)
-              {
-                Serial.printf("fx2 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                allTracks[s]->mixFX2Pot = 127 - (t * 16);
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                  fx_2.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                  sendControlChange(performCC[3], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                trellisPerformIndex[3] = t;
-                // break;
-              }
-            }
-            set_infobox_background(750);
-            tft.printf("FX2 Vol =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[3], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 4)
-          {
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive)
-              {
-                Serial.printf("fx3 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                allTracks[s]->mixFX3Pot = 127 - (t * 16);
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                  fx_3.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                  sendControlChange(performCC[4], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                trellisPerformIndex[4] = t;
-                // break;
-              }
-            }
-            set_infobox_background(750);
-            tft.printf("FX3 Vol =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[4], 127 - (t * 16));
-            reset_infobox_background();
-          }
-
-          if (_nr % TRELLIS_PADS_X_DIM == 5)
-          {
-            fx_1.potentiometer[fx_1.presetNr][0] = 127 - (t * 16);
-            fx_1.freeverb.roomsize((float)map(t, 0, 8, 0, 1.00));
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[5], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[5] = t;
-            set_infobox_background(750);
-            tft.printf("FX1 Roomsize =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[5], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 6)
-          {
-
-            fx_1.potentiometer[fx_1.presetNr][1] = 127 - (t * 16);
-            fx_1.freeverb.damping((float)map(t, 0, 8, 0, 1.00));
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[6], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[6] = t;
-            set_infobox_background(750);
-            tft.printf("FX1 Damping =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[6], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 7)
-          {
-            fx_2.potentiometer[fx_2.presetNr][0] = 127 - (t * 16);
-
-            fx_2.bitcrusher.bits(map(t, 0, 8, 16, 0));
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[7], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[7] = t;
-            set_infobox_background(750);
-            tft.printf("FX2 BitDepth =  %d ", map(t, 0, 8, 16, 0));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[7], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 8)
-          {
-            int _rate[Y_DIM] = {44100, 22050, 11025, 5512, 2756, 1378, 1022, 689};
-            fx_2.potentiometer[fx_2.presetNr][1] = 127 - (t * 16);
-            fx_2.bitcrusher.sampleRate(_rate[t]);
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[8], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[8] = t;
-            set_infobox_background(750);
-            tft.printf("FX2 SmplRate =  %d ", _rate[t]);
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[8], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 9)
-          {
-            fx_3.potentiometer[fx_3.presetNr][0] = 127 - (t * 16);
-            fx_3.delay.delay(0, 500 / (t + 1));
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[9], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[9] = t;
-            set_infobox_background(750);
-            tft.printf("FX3 DlyTime =  %d ", 500 / (t + 1));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[9], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 10)
-          {
-            fx_3.potentiometer[fx_3.presetNr][1] = 127 - (t * 16);
-            fx_3.delayMixer.gain(1, t / 8.00);
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[10], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[10] = t;
-            set_infobox_background(750);
-            tft.printf("FX3 Feedback =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[10], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 11)
-          {
-            int frequency = note_frequency[t * 16] * tuning;
-            MasterOut.finalFilter.frequency(frequency);
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[11], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[11] = t;
-            set_infobox_background(750);
-            tft.printf("Fltr Freq =  %d ", frequency);
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[11], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 12)
-          {
-            MasterOut.finalFilter.resonance(map(t, 0, 8, 0, 5.00));
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[12], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-            }
-            trellisPerformIndex[12] = t;
-            set_infobox_background(750);
-            tft.printf("Fltr Reso =  %d ", 127 - (t * 16));
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[12], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 13)
-          {
-            uint8_t _clipLength[Y_DIM]{MAX_TICKS, 72, 60, MAX_TICKS / 2, 36, MAX_TICKS / 4, MAX_TICKS / 8, MAX_TICKS / 16};
-            for (int s = 0; s < NUM_TRACKS; s++)
-            {
-              if (allTracks[s]->performIsActive)
-              {
                 {
-                  allTracks[s]->parameter[SET_SEQUENCE_LENGTH] = _clipLength[t];
-                  if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                  {
-                    sendControlChange(performCC[13], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-                  }
+                  sendControlChange(performCC[13], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
                 }
               }
+            }
 
-              if (t == 0)
-              {
-                allTracks[s]->internal_clock = 0;
-                allTracks[s]->internal_clock_bar = myClock.barTick;
-                allTracks[s]->external_clock_bar = myClock.barTick;
-              }
-            }
-            trellisPerformIndex[13] = t;
-            set_infobox_background(750);
-            tft.printf("Clip Length =  %d ", _clipLength[t]);
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[13], 127 - (t * 16));
-            reset_infobox_background();
-          }
-          if (_nr % TRELLIS_PADS_X_DIM == 14)
-          {
-            uint8_t _clockDivision[Y_DIM]{0, 1, 2, 3, 4, 6, 8, 16};
-            for (int s = 0; s < NUM_TRACKS; s++)
+            if (t == 0)
             {
-              if (allTracks[s]->performIsActive)
-              {
-                allTracks[s]->performClockDivision = _clockDivision[t];
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                  sendControlChange(performCC[14], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-              }
-              if (t == 0)
-              {
-                allTracks[s]->internal_clock = 0;
-                allTracks[s]->internal_clock_bar = myClock.barTick;
-                allTracks[s]->external_clock_bar = myClock.barTick;
-              }
+              allTracks[s]->internal_clock = 0;
+              allTracks[s]->internal_clock_bar = myClock.barTick;
+              allTracks[s]->external_clock_bar = myClock.barTick;
             }
-            trellisPerformIndex[14] = t;
-            set_infobox_background(750);
-            tft.printf("Step Div =  %d ", _clockDivision[t]);
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[14], 127 - (t * 16));
-            reset_infobox_background();
           }
-          if (_nr % TRELLIS_PADS_X_DIM == 15)
+          trellisPerformIndex[13] = t;
+          set_infobox_background(750);
+          tft.printf("Clip Length =  %d ", _clipLength[t]);
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[13], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 14)
+        {
+          uint8_t _clockDivision[Y_DIM]{0, 1, 2, 3, 4, 6, 8, 16};
+          for (int s = 0; s < NUM_TRACKS; s++)
           {
-            int _offset[Y_DIM]{0, -12, -4, -2, 2, 4, 6, 12};
-            for (int s = 0; s < NUM_TRACKS; s++)
+            if (allTracks[s]->performIsActive)
             {
-              if (allTracks[s]->performIsActive)
-              {
-                allTracks[s]->performNoteOffset = _offset[t];
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                  sendControlChange(performCC[15], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
-              }
+              allTracks[s]->performClockDivision = _clockDivision[t];
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[14], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
-            trellisPerformIndex[15] = t;
-            set_infobox_background(750);
-            tft.printf("Note Transpose =  %d ", _offset[t]);
-            set_infobox_next_line(1);
-            tft.printf("send CC%d =  %d ", performCC[15], 127 - (t * 16));
-            reset_infobox_background();
+            if (t == 0)
+            {
+              allTracks[s]->internal_clock = 0;
+              allTracks[s]->internal_clock_bar = myClock.barTick;
+              allTracks[s]->external_clock_bar = myClock.barTick;
+            }
           }
+          trellisPerformIndex[14] = t;
+          set_infobox_background(750);
+          tft.printf("Step Div =  %d ", _clockDivision[t]);
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[14], 127 - (t * 16));
+          reset_infobox_background();
+        }
+        if (_nr % TRELLIS_PADS_X_DIM == 15)
+        {
+          int _offset[Y_DIM]{0, -12, -4, -2, 2, 4, 6, 12};
+          for (int s = 0; s < NUM_TRACKS; s++)
+          {
+            if (allTracks[s]->performIsActive)
+            {
+              allTracks[s]->performNoteOffset = _offset[t];
+              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[15], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            }
+          }
+          trellisPerformIndex[15] = t;
+          set_infobox_background(750);
+          tft.printf("Note Transpose =  %d ", _offset[t]);
+          set_infobox_next_line(1);
+          tft.printf("send CC%d =  %d ", performCC[15], 127 - (t * 16));
+          reset_infobox_background();
         }
       }
     }
@@ -1465,11 +1359,10 @@ void set_mixer_FX_page1(uint8_t row)
   if (row == 0)
   {
 
-     set_mixer_dry(0, 0, "Dry D", 0);
-     set_mixer_FX1(1, 0, "FX1 D", 0);
-     set_mixer_FX2(2, 0, "FX2 D", 0);
-     set_mixer_FX3(3, 0, "FX3 D", 0);
-
+    set_mixer_dry(0, 0, "Dry D", 0);
+    set_mixer_FX1(1, 0, "FX1 D", 0);
+    set_mixer_FX2(2, 0, "FX2 D", 0);
+    set_mixer_FX3(3, 0, "FX3 D", 0);
   }
 
   if (row == 1)
