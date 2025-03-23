@@ -229,12 +229,17 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     }
     if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
+        internal_clock++;
+        if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
+        {
+            internal_clock = 0;
+        }
         if (internal_clock == 0)
         {
             internal_clock_bar++;
             change_presets();
         }
-        internal_clock++;
+
         internal_clock_is_on = true;
     }
     else
@@ -245,12 +250,12 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     if (internal_clock_bar >= end)
         internal_clock_bar = start;
 
-    if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
-    {
-        internal_clock = 0;
-    }
-    // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-    //  Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
+    // if (my_Arranger_Y_axis == 1)
+    // {
+    //     Serial.printf("internal bar:  %d, external bar:  %d\n", internal_clock_bar, external_clock_bar);
+    //     Serial.printf("internal tick: %d, external tick: %d\n", internal_clock, cloock);
+    //     Serial.println();
+    // }
     //   Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
@@ -417,9 +422,9 @@ void Track::change_presets() // change presets, happens when the next bar starts
             Serial.print("cc:");
             Serial.println(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i]);
             sendControlChange(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_ccValue[internal_clock_bar]][i], parameter[SET_MIDICH_OUT]);
+            Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
         }
     }
-    Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
 }
 void Track::clear_arrangment()
 {

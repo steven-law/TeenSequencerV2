@@ -19,7 +19,7 @@
 #define NOTES_PER_OCTAVE 12
 #define MIDI_CC_RANGE 127
 
-#define NO_NOTE 128
+#define NO_NOTE 127
 #define MAX_BARS 256
 // potrow 0
 #define ENCODER_STEP_FX 2

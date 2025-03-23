@@ -266,7 +266,7 @@ void loop()
     trellis_writeDisplay();
   }
 
-  if (loopEndTime - loopStartTime > 600 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
+  if (loopEndTime - loopStartTime > 700 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
   {
     trellisRestartPreviousMillis = trellisRestartMillis;
     // trellis.trellisReset();
@@ -543,6 +543,8 @@ void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), Note % 12);
+   // Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+
 }
 void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
 {

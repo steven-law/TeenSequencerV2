@@ -124,7 +124,8 @@ void draw_Clipselector();
 void draw_stepSequencer_parameters(uint8_t lastProw);
 void draw_note_on_tick(uint8_t _voice, uint8_t _when);
 void draw_notes_in_grid();
-void erase_note_on_tick(uint8_t _voice, uint8_t _when);
+void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length);
+int get_note_length(uint8_t _voice, uint8_t _when);
 
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos);
 void draw_MIDI_CC_screen();
