@@ -1,11 +1,11 @@
 #ifndef TFT_H
 #define TFT_H
-#include <ILI9341_t3n.h>
-#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+#include "ownLibs/Adafruit_ST7796S_kbv.h"
 #include "input/touch.h"
 #include "Track.h"
 #include <projectVariables.h>
 #include <ownLibs/myClock.h>
+
 
 // Startscreen
 #define POSITION_ARR_BUTTON 18
@@ -23,18 +23,20 @@
 
 #define POSITION_BAR_BUTTON 5
 
-#define GRID_LENGTH_HOR 256
-#define GRID_LENGTH_VERT 192
+#define GRID_LENGTH_HOR 16 * STEP_FRAME_W
+#define GRID_LENGTH_VERT 12 * STEP_FRAME_H
 
-#define SONG_POSITION_POINTER_Y 228
-#define BAR_POSITION_POINTER_Y 232
-#define STEP_POSITION_POINTER_Y 236
+#define SONG_POSITION_POINTER_Y (14 * STEP_FRAME_H) + 4
+#define BAR_POSITION_POINTER_Y (14 * STEP_FRAME_H) + 8
+#define STEP_POSITION_POINTER_Y (14 * STEP_FRAME_H) + 12
 #define POSITION_POINTER_THICKNESS 3
 
 #define POSITION_TEXT_ARRANGERLINE_TOP 6
+#define POSITION_CC_ARRANGERLINE_TOP 5
 #define POSITION_TEXT_ARRANGERLINE_BOTTOM 11
+#define POSITION_CC_ARRANGERLINE_BOTTOM 10
 #define phraseSegmentLength 16
-#define INFO_BOX_WIDTH 200
+#define INFO_BOX_WIDTH 300
 #define INFO_BOX_HEIGTH 120
 #define INFOBOX_OFFSET 60
 #define INFOBOX_TEXT_OFFSET 80
@@ -68,7 +70,8 @@
 #define TRELLIS_1 0x000066
 #define TRELLIS_2 579
 
-extern ILI9341_t3n tft;
+// extern ILI9341_t3n tft;
+extern Adafruit_ST7796S_kbv tft;
 
 // Display
 extern unsigned long infoboxTimeAtCall;
@@ -111,7 +114,6 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar);
 void draw_arrangment_lines(uint8_t _track, uint8_t _page); // b= active page
 void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset);
 
-
 // step sequencer
 void drawStepSequencerStatic();
 void draw_Notenames();
@@ -120,8 +122,11 @@ void drawOctaveNumber();
 void draw_Clipselector();
 
 void draw_stepSequencer_parameters(uint8_t lastProw);
-void draw_note_on_tick(uint8_t _note, uint8_t _when);
+void draw_note_on_tick(uint8_t _voice, uint8_t _when);
 void draw_notes_in_grid();
+void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length);
+void erase_notes_in_grid(uint8_t _voice, uint8_t _when);
+
 
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos);
 void draw_MIDI_CC_screen();

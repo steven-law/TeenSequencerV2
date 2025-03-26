@@ -84,6 +84,7 @@ void Plugin_13::set_parameters(uint8_t row)
     draw_plugin();
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
+        draw_voice_waveform(0, 5, "Waveform");
         if (row == 0)
         {
 
@@ -93,7 +94,6 @@ void Plugin_13::set_parameters(uint8_t row)
 
         if (row == 1)
         {
-            draw_voice_waveform(0, 5, "Waveform");
         }
 
         if (row == 2)
@@ -175,7 +175,7 @@ void Plugin_13::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 void Plugin_13::draw_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
 
-    if (ts.touched())
+    /*if (ts.touched())
     {
         int xPos_SingleCyclePixel;
         int yPos_SingleCyclePixel;
@@ -199,6 +199,54 @@ void Plugin_13::draw_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name
         oldCustomWaveformValue = singleCycleValue;
         pl13_oldCustomWaveformXPos = xPos_SingleCyclePixel;
         old_yPos_SingleCyclePixel = yPos_SingleCyclePixel;
+    }*/
+    if (ts.touched())
+    {
+        static int oldX = -1, oldY = -1;
+        TS_Point p = ts.getPoint();
+
+        // Touch-Koordinaten skalieren
+        int x = constrain(map(p.x, TS_MINX, TS_MAXX, STEP_FRAME_W * 2, (STEP_FRAME_W * 2) + 256), STEP_FRAME_W * 2, (STEP_FRAME_W * 2) + 256);
+        int y = constrain(map(p.y, TS_MINY, TS_MAXY, STEP_FRAME_H, TFT_HEIGHT - STEP_FRAME_H), STEP_FRAME_H, TFT_HEIGHT - STEP_FRAME_H);
+        static int draw_old_x = -1;
+        static int draw_old_y = -1;
+        // Array-Position bestimmen
+        int arrayPos = x - STEP_FRAME_W * 2;
+        int sampleVal = map(y, STEP_FRAME_H, TFT_HEIGHT - STEP_FRAME_H, 32768, -32768);
+
+        // Falls Punkte übersprungen wurden, fehlende Werte interpolieren
+        if (oldX != -1 && oldX != arrayPos)
+        {
+            int minX = min(oldX, arrayPos);
+            int maxX = max(oldX, arrayPos);
+            int minY = (oldX < arrayPos) ? oldY : sampleVal;
+            int maxY = (oldX < arrayPos) ? sampleVal : oldY;
+
+            for (int i = minX; i <= maxX; i++)
+            {
+                float factor = (float)(i - minX) / (maxX - minX);
+                int interpolatedVal = minY + factor * (maxY - minY);
+                pl13_customWaveform[i] = interpolatedVal;
+
+                Serial.printf("Interpolated ArrayPos=%d, sampleData=%i\n", i, interpolatedVal);
+            }
+        }
+
+        // Aktuelle Position speichern
+        pl13_customWaveform[arrayPos] = sampleVal;
+        Serial.printf("ArrayPos=%d, sampleData=%i\n", arrayPos, sampleVal);
+
+        // Linie zeichnen für besseren visuellen Effekt
+        if (oldX != -1 && oldY != -1)
+        {
+            tft.drawLine(draw_old_x, draw_old_y, x, y, ILI9341_WHITE);
+        }
+
+        // Letzten Punkt speichern
+        oldX = arrayPos;
+        oldY = sampleVal;
+        draw_old_x = x;
+        draw_old_y = y;
     }
 }
 void Plugin_13::smooth_customWaveform(uint8_t YPos)
@@ -230,8 +278,8 @@ void Plugin_13::redraw_customWaveform(int8_t YPos)
     for (int i = 0; i < 255; i++)
     {
         // static int startY;
-        int startY = map(pl13_customWaveform[i], 32768, -32768, 0, 41);
-        int endY = map(pl13_customWaveform[i + 1], 32768, -32768, 0, 41);
+        int startY = map(pl13_customWaveform[i], 32768, -32768, 0, 60);
+        int endY = map(pl13_customWaveform[i + 1], 32768, -32768, 0, 60);
         tft.drawLine(i + 32, startY + ((YPos)*STEP_FRAME_H), i + 33, endY + ((YPos)*STEP_FRAME_H), ILI9341_WHITE);
         // startY=endY;
     }

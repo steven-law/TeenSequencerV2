@@ -27,10 +27,11 @@
 #define ENCODER_SEQUENCE_LENGTH 0
 #define ENCODER_CLOCK_DIVISION 1
 #define ENCODER_STEP_LENGTH 2
-// potrow 2
 #define ENCODER_OCTAVE 3
+// potrow 2
 #define ENCODER_SEQ_MODE 0
-#define ENCODER_MIDICH_OUT 1
+#define ENCODER_SCALE 1
+#define ENCODER_MIDICH_OUT 2
 #define ENCODER_CLIP2_EDIT 3
 
 #define NUM_PARAMETERS 16
@@ -60,13 +61,12 @@ public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
     uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0};
-    int tempStepLength;
     // Stepsequencer
     struct tick_t
     {
         uint8_t voice[MAX_VOICES];
         uint8_t velo[MAX_VOICES];
-        uint8_t stepFX;
+        uint8_t stepFX[MAX_VOICES];
     };
     struct clip_t
     {
@@ -91,6 +91,8 @@ public:
     float mixFX2 = 0;
     uint8_t mixFX3Pot = 127;
     float mixFX3 = 0;
+    uint8_t mixFxPot[NUM_FX];
+    float mixFX[NUM_FX];
     bool muted;
     bool soloed;
     bool muteThruSolo;
@@ -98,6 +100,8 @@ public:
     int performNoteOffset = 0;
     int performClockDivision = 0;
     int bar_to_edit = 0;
+    int tick_to_edit;
+    int voice_to_edit;
 
     // arranger
     int internal_clock = -1;
@@ -130,7 +134,7 @@ public:
                 {
                     clip[c].tick[t].voice[v] = NO_NOTE;
                     clip[c].tick[t].velo[v] = 0;
-                    clip[c].tick[t].stepFX = 128;
+                    clip[c].tick[t].stepFX[v] = 128;
                 }
             }
         }
@@ -175,8 +179,7 @@ public:
     void copy_bar();
     void clear_arrangment();
     // stepsequencer
-    void set_note_on_tick(int x, int y);
-    void set_note_parameter(uint8_t *parameterArray, uint8_t _voice, uint8_t value);
+    void set_note_on_tick(int x, int voice);
     uint8_t get_note_parameter(uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters(uint8_t row);
     void clear_active_clip();
@@ -238,8 +241,6 @@ private:
     uint8_t setStepFX = 74;
     uint8_t noteToPlay[MAX_VOICES];
 
-    uint8_t sTick;
-
     bool internal_clock_is_on = false;
 
     int recordStartTick[MAX_VOICES];
@@ -247,7 +248,6 @@ private:
     uint8_t recordVelocity[MAX_VOICES];
     uint8_t recordVoice;
 
-    uint8_t search_free_voice = 0;
     uint8_t oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
     bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
     bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};

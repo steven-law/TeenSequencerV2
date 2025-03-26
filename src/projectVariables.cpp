@@ -15,7 +15,7 @@ bool change_plugin_row;
 const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 unsigned long neotrellisReadPreviousMillis = 0; // will store last time LED was updated
 unsigned long updateMidiPreviousMillis = 0;     // will store last time LED was updated
- uint16_t tftRAM[16][16];
+uint16_t tftRAM[16][16];
 
 const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit"};
 
@@ -26,12 +26,42 @@ bool updateTFTScreen;
 uint8_t FLASHMEM gateOutputPin[8]{22, 40, 38, 37, 36, 35, 34, 33};
 
 bool trellisShowClockPixel[TRELLIS_PADS_Y_DIM];
-int FLASHMEM trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
+int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
 uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 uint8_t performCC[TRELLIS_PADS_X_DIM];
 bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+bool trellisHeld[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+bool oneTrellisIsPressed;
 bool neotrellisPressed[X_DIM * Y_DIM];
-const char FLASHMEM *bankNames[NUM_SAMPLE_BANKS] = {"K", "C", "H", "S", "P", "F", "X", ""};
+const bool PROGMEM scales[NUM_SCALES][12]{
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Chromatic
+    {1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, // Major (Ionian)
+    {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0}, // Natural Minor (Aeolian)
+    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0}, // Dorian
+    {1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0}, // Phrygian
+    {1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, // Lydian
+    {1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0}, // Mixolydian
+    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1}, // Locrian
+    {1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0}, // Harmonic Minor
+    {1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0}, // Melodic Minor (Ascending)
+    {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0}, // Blues Scale
+    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0}, // Hungarian Minor
+    {1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0}, // Whole Tone
+    {1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0}, // Neapolitan Minor
+    {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1}, // Neapolitan Major
+    {1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1}, // Bebop Major
+    {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1}, // Bebop Minor
+    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1}, // Bebop Dominant
+    {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1}, // Bebop Melodic Minor
+    {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1}, // Bebop Harmonic Minor
+    {1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0}, // Persian Scale
+    {1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1}, // Spanish Gypsy
+    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0}  // Diminished (Octatonic)
+
+};
+ const char FLASHMEM *scaleNames[NUM_SCALES]{"Chroma", "Major", "natMi", "Dorian", "Phryg","Lydian", "Mixol", "Locria", "harMi", "melMi", "Blues", "Hungar", "Whole", "neapMi", "neapMa", "bepMa", "bepMi", "bepDo", "bepMM", "bepHM", "Persia", "Span", "Dimin"};
+
+const char *bankNames[NUM_SAMPLE_BANKS] FLASHMEM = { "K", "C", "H", "S", "P", "F", "X", ""};
 // char  **CCnames;
 const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
                                   "CC10", "CC11", "CC12", "CC13", "CC14", "CC15", "CC16", "CC17", "CC18", "CC19",
@@ -56,6 +86,7 @@ const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3",
                                                       "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16",
                                                       "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "Nord", "SF2", "PWM", "Raw", "Draw", "Rec"};
 const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
 bool **beatArray;
 bool **beatArrayPM6;
 bool *beatArrayPM7;

@@ -5,8 +5,9 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
-#include <ILI9341_t3n.h>
-#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+#include "ownLibs/Adafruit_ST7796S_kbv.h"
+//#include <ILI9341_t3n.h>
+//#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include "projectVariables.h"
 
 #include <Plugins/Plugin_6.h>

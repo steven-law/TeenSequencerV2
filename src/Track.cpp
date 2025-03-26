@@ -8,6 +8,8 @@ void Track::update(int PixelX, uint8_t gridY)
     // MIDI1.read();
 
     bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
+    tick_to_edit = (PixelX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
+    voice_to_edit = gridY - 1;
     // save_track();
     // load_track();
 }
@@ -44,8 +46,9 @@ void Track::save_track(uint8_t songNr)
                 {
                     this->myTrackFile.print((char)this->clip[c].tick[t].voice[v]);
                     this->myTrackFile.print((char)this->clip[c].tick[t].velo[v]);
+                    this->myTrackFile.print((char)this->clip[c].tick[t].stepFX[v]);
                 }
-                this->myTrackFile.print((char)this->clip[c].tick[t].stepFX);
+                
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
@@ -138,8 +141,9 @@ void Track::load_track(uint8_t songNr)
                     this->clip[c].tick[t].voice[v] = this->myTrackFile.read();
                     // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
                     this->clip[c].tick[t].velo[v] = this->myTrackFile.read();
+                    this->clip[c].tick[t].stepFX[v] = this->myTrackFile.read();
                 }
-                this->clip[c].tick[t].stepFX = this->myTrackFile.read();
+                
             }
         }
         for (int i = 0; i < MAX_TICKS; i++)
@@ -227,14 +231,18 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     }
     if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
     {
+        internal_clock++;
+        if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
+        {
+            internal_clock = 0;
+        }
         if (internal_clock == 0)
         {
             internal_clock_bar++;
             change_presets();
         }
-        internal_clock++;
+
         internal_clock_is_on = true;
-        
     }
     else
         internal_clock_is_on = false;
@@ -244,13 +252,13 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     if (internal_clock_bar >= end)
         internal_clock_bar = start;
 
-    if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
-    {
-        internal_clock = 0;
-    }
-    //Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-    // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
-    //  Serial.println(internal_clock_bar);
+    // if (my_Arranger_Y_axis == 1)
+    // {
+    //     Serial.printf("internal bar:  %d, external bar:  %d\n", internal_clock_bar, external_clock_bar);
+    //     Serial.printf("internal tick: %d, external tick: %d\n", internal_clock, cloock);
+    //     Serial.println();
+    // }
+    //   Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
         if (!muted && !muteThruSolo)
@@ -319,6 +327,8 @@ void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
+    if (recordState)
+        record_noteOn(Note, Velo, Channel);
 
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
@@ -328,7 +338,8 @@ void Track::noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOff(my_Arranger_Y_axis - 1, Note, Velo, Channel);
-
+    if (recordState)
+        record_noteOff(Note, Velo, Channel);
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
 }
@@ -338,8 +349,6 @@ void Track::record_noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
     recordLastNote[recordVoice] = Note;
     recordVelocity[recordVoice] = Velo;
     recordStartTick[recordVoice] = internal_clock;
-    // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].voice[0] = Note;
-    // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].velo[0] = Velo;
 }
 void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
@@ -387,7 +396,7 @@ void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int 
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
-        uint8_t when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
+        uint8_t when = (((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage));
         if (enc_moved[_encoder])
         {
             int _when = constrain(parameterArray[when] + encoded[_encoder], minValue, maxValue);
@@ -413,9 +422,9 @@ void Track::change_presets() // change presets, happens when the next bar starts
             Serial.print("cc:");
             Serial.println(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i]);
             sendControlChange(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_ccValue[internal_clock_bar]][i], parameter[SET_MIDICH_OUT]);
+            Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
         }
     }
-    Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
 }
 void Track::clear_arrangment()
 {
@@ -436,8 +445,8 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
 {
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
-       // for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
-       int i=0;
+        // for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+        int i = 0;
         {
             clip_to_play[bar_to_edit + i] = clip_to_play[bar_for_copying];
             noteOffset[bar_to_edit + i] = noteOffset[bar_for_copying];
