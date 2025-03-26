@@ -14,7 +14,7 @@ void Track::play_seq_mode0(uint8_t cloock)
             {
                 noteToPlay[v] = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].voice, v) + noteOffset[external_clock_bar] + performNoteOffset;
                 uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
-                uint8_t StepFX = get_note_parameter(&clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
+                uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
                 note_is_on[v] = true;
                 sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]);
@@ -149,9 +149,8 @@ void Track::play_seq_mode2(uint8_t cloock)
             note_is_on[0] = true;
             noteToPlay[0] = (maxValIndex) + (thisOctave * 12) + noteOffset[external_clock_bar] + performNoteOffset;
             uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, 0) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
-            uint8_t StepFX = get_note_parameter(&clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, 0);
-            // uint8_t Velo = get_active_velo(clip_to_play[internal_clock_bar], cloock, 0) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
-            // uint8_t StepFX = get_active_stepFX(clip_to_play[internal_clock_bar], cloock, 0);
+            uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, 0);
+
             sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
             noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]);
             // Serial.print(track[i].notePlayed[0]);
@@ -262,9 +261,8 @@ void Track::play_seq_mode3(uint8_t cloock)
             {
                 noteToPlay[v] = v + (parameter[SET_OCTAVE] * 12) + noteOffset[external_clock_bar] + performNoteOffset;
                 uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
-                uint8_t StepFX = get_note_parameter(&clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
-                // uint8_t Velo = get_active_velo(clip_to_play[internal_clock_bar], cloock, v) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
-                // uint8_t StepFX = get_active_stepFX(clip_to_play[internal_clock_bar], cloock, v);
+                uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
+
                 note_is_on[v] = true;
                 sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)

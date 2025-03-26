@@ -188,8 +188,7 @@ void tft_show()
         drawbarPosition();
         // updateClock = false;
     }
-    tft.fillRect(STEP_FRAME_W * POSITION_POTROW_BUTTON, lastPotRow * 4, STEP_FRAME_W - 1, 3, ILI9341_ORANGE);
-    // tft.flush();
+    tft.flush();
     //  tft.updateScreenAsync();
 } // cursor
 void drawstepPosition()
@@ -683,62 +682,71 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
 void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length)
 {
 
-    int xPos = (_when * 3) + (STEP_FRAME_W * 2);
+     int xPos = (_when * 3) + (STEP_FRAME_W * 2);
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
-    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK*note_length, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
+    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK * note_length, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
 }
 
 void draw_note_on_tick(uint8_t _voice, uint8_t _when)
 {
     uint8_t note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_voice];
 
-    if ((note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE) || note == NO_NOTE)
+    if (!((note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE))) //|| note == NO_NOTE))
+        return;
+
+    uint8_t velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_voice];
+    uint8_t stepFX = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].stepFX[_voice];
+    int note_length = 0;
+    // Bestimme die Länge der aktuellen Note
+    for (int i = _when; i < MAX_TICKS; i++)
     {
-        uint8_t velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_voice];
-        uint8_t stepFX = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].stepFX;
-        int note_length = 0;
-        // Bestimme die Länge der aktuellen Note
-        for (int i = _when; i < MAX_TICKS; i++)
+        // if (note < NO_NOTE)
         {
-            if (note != NO_NOTE)
-            {
-                if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] == NO_NOTE)
-                    break; // Note endet hier
-                note_length++;
-            }
-            if (note == NO_NOTE)
-            {
-                if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] < NO_NOTE)
-                    break; // Note endet hier
-                note_length++;
-            }
+            if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] == NO_NOTE)
+                break; // Note endet hier
+            note_length++;
         }
-
-        int xPos = (_when * 3) + (STEP_FRAME_W * 2);
-        int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
-        int _color = (note == NO_NOTE) ? ILI9341_DARKGREY : trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
-        int startY = map(velo, 127, 0, 0, (STEP_FRAME_H / 3));
-        int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
-        int radius = map(stepFX, 127, 0, 0, ((STEP_FRAME_H / 3)));
-
-        //   Serial.printf("notelength = %d\n", note_length);
-        //   Serial.printf("draw velocity: %d startTick: %d for note: %d on voice: %d with color: %d\n", velo, _when, note, _voice, _color);
-        // tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * note_length, sizeY + 1, _color);
-        tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * note_length, sizeY + 1, radius, _color);
+        // else if (note == NO_NOTE)
+        // {
+        //     if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] < NO_NOTE)
+        //         break; // Note endet hier
+        //     note_length++;
+        // }
     }
+
+    int xPos = (_when * 3) + (STEP_FRAME_W * 2);
+    int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
+    //  int _color = (note == NO_NOTE) ? ILI9341_DARKGREY : trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
+    int _color = trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
+    int startY = map(velo, 127, 0, 0, (STEP_FRAME_H / 3));
+    int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
+    int radius = map(stepFX, 127, 0, 0, ((STEP_FRAME_H / 3)));
+
+    //   Serial.printf("notelength = %d\n", note_length);
+    //  if (_voice < 5)
+    //    Serial.printf("draw velocity: %d startTick: %d for note: %d on voice: %d with color: %d\n", velo, _when, note, _voice, _color);
+    tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * note_length, sizeY + 1, radius, _color);
 }
 void draw_notes_in_grid()
 {
     for (int v = 0; v < MAX_VOICES; v++)
     {
-        erase_note_on_tick(v, 0, MAX_TICKS);
+        erase_notes_in_grid(v, 0);
         for (int i = 0; i < MAX_TICKS; i++)
         {
+
             draw_note_on_tick(v, i);
         }
     }
+    Serial.println("draw all notes");
 }
+void erase_notes_in_grid(uint8_t _voice, uint8_t _when)
+{
 
+    int xPos = (STEP_FRAME_W * 2);
+    int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
+    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK * MAX_TICKS, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
+}
 void draw_edit_presetNr_CC(const char *label, uint8_t value, uint8_t row_offset)
 {
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (row_offset * 2) + 5, 0, 4, NO_VALUE, label, encoder_colour[active_track], 2, false, false);

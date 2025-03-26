@@ -73,12 +73,10 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
             for (int i = 0; i < note_length; i++)
             {
                 int tick = tick_to_edit + i;
-                auto &tick_data = clip[parameter[SET_CLIP2_EDIT]].tick[tick];
-
                 if (index == SET_VELO2SET)
-                    set_note_parameter(tick_data.velo, voice_to_edit, parameter[index]);
+                    clip[parameter[SET_CLIP2_EDIT]].tick[tick].velo[voice_to_edit] = parameter[SET_VELO2SET];
                 else
-                    set_note_parameter(&tick_data.stepFX, voice_to_edit, parameter[index]);
+                    clip[parameter[SET_CLIP2_EDIT]].tick[tick].stepFX[voice_to_edit] = parameter[SET_STEP_FX];
             }
             erase_note_on_tick(voice_to_edit, tick_to_edit, note_length);
             draw_note_on_tick(voice_to_edit, tick_to_edit);
@@ -215,10 +213,6 @@ void Track::set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label,
 
 // helpers
 // sequencer note input stuff
-void Track::set_note_parameter(uint8_t *parameterArray, uint8_t _voice, uint8_t value)
-{
-    parameterArray[_voice] = value;
-}
 uint8_t Track::get_note_parameter(uint8_t *parameterArray, uint8_t _voice)
 {
     return parameterArray[_voice];
@@ -227,36 +221,52 @@ uint8_t Track::get_note_parameter(uint8_t *parameterArray, uint8_t _voice)
 void Track::set_note_on_tick(int x, int voice)
 {
     uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-    search_free_voice = voice;
+    uint8_t noteInClip = clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice];
+    // oldNote = (oldNote == note2set) ? NO_NOTE : (oldNote == NO_NOTE ? note2set : oldNote);
 
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
     {
+
         uint8_t onTick = x + i;
-        auto &tick = clip[parameter[SET_CLIP2_EDIT]].tick[onTick];
-        uint8_t &oldNote = tick.voice[voice];
 
         // Note löschen oder setzen
-        oldNote = (oldNote == note2set) ? NO_NOTE : (oldNote == NO_NOTE ? note2set : oldNote);
+        if (noteInClip == note2set)
+        {
+            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = NO_NOTE;
+            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = 0;
+        }
+        else if (noteInClip == NO_NOTE)
+        {
+            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = note2set;
+            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = parameter[SET_VELO2SET];
+        }
 
         // Parameter setzen
-        set_note_parameter(tick.velo, voice, parameter[SET_VELO2SET]);
-        set_note_parameter(&(tick.stepFX), voice, parameter[SET_STEP_FX]);
+
+        clip[parameter[SET_CLIP2_EDIT]].tick[onTick].stepFX[voice] = parameter[SET_STEP_FX];
 
         // Farbe für Trellis bestimmen
         int trellisColor = TRELLIS_BLACK;
         for (int v = 0; v < MAX_VOICES; v++)
         {
-            if (get_note_parameter(tick.voice, v) < NO_NOTE)
+            if (get_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, v) < NO_NOTE)
             {
                 trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
                 break;
             }
         }
-        // Serial.printf("Set NOte: %d on ntick: %d \n", oldNote, onTick);
+        // Serial.printf("Set NOte: %d on ntick: %d \n", clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice], onTick);
         trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
     }
     if (active_track == my_Arranger_Y_axis - 1)
-        draw_note_on_tick(voice, x);
+    {
+        if (clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice] == NO_NOTE)
+            erase_note_on_tick(voice, x, parameter[SET_STEP_LENGTH]);
+        else
+        {
+            draw_note_on_tick(voice, x);
+        }
+    }
 }
 void Track::clear_active_clip()
 {
@@ -264,11 +274,15 @@ void Track::clear_active_clip()
     {
         for (int n = 0; n < MAX_VOICES; n++)
         {
+
             this->clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[n] = NO_NOTE;
-            draw_note_on_tick(n, i);
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
+            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[n] = 0;
+
+            // draw_note_on_tick(n, i);
         }
+        trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
     }
+    draw_notes_in_grid();
 }
 // stepsequencer
 

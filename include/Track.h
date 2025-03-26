@@ -19,7 +19,7 @@
 #define NOTES_PER_OCTAVE 12
 #define MIDI_CC_RANGE 127
 
-#define NO_NOTE 127
+#define NO_NOTE 128
 #define MAX_BARS 256
 // potrow 0
 #define ENCODER_STEP_FX 2
@@ -66,7 +66,7 @@ public:
     {
         uint8_t voice[MAX_VOICES];
         uint8_t velo[MAX_VOICES];
-        uint8_t stepFX;
+        uint8_t stepFX[MAX_VOICES];
     };
     struct clip_t
     {
@@ -134,7 +134,7 @@ public:
                 {
                     clip[c].tick[t].voice[v] = NO_NOTE;
                     clip[c].tick[t].velo[v] = 0;
-                    clip[c].tick[t].stepFX = 128;
+                    clip[c].tick[t].stepFX[v] = 128;
                 }
             }
         }
@@ -180,7 +180,6 @@ public:
     void clear_arrangment();
     // stepsequencer
     void set_note_on_tick(int x, int voice);
-    void set_note_parameter(uint8_t *parameterArray, uint8_t _voice, uint8_t value);
     uint8_t get_note_parameter(uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters(uint8_t row);
     void clear_active_clip();
@@ -249,7 +248,6 @@ private:
     uint8_t recordVelocity[MAX_VOICES];
     uint8_t recordVoice;
 
-    uint8_t search_free_voice = 0;
     uint8_t oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
     bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
     bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};
