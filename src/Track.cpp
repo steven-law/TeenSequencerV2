@@ -44,11 +44,10 @@ void Track::save_track(uint8_t songNr)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    this->myTrackFile.print((char)this->clip[c].tick[t].voice[v]);
-                    this->myTrackFile.print((char)this->clip[c].tick[t].velo[v]);
-                    this->myTrackFile.print((char)this->clip[c].tick[t].stepFX[v]);
+                    // this->myTrackFile.print((char)this->clip[c].tick[t].voice[v]);
+                    // this->myTrackFile.print((char)this->clip[c].tick[t].velo[v]);
+                    // this->myTrackFile.print((char)this->clip[c].tick[t].stepFX[v]);
                 }
-                
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
@@ -138,22 +137,21 @@ void Track::load_track(uint8_t songNr)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    this->clip[c].tick[t].voice[v] = this->myTrackFile.read();
-                    // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
-                    this->clip[c].tick[t].velo[v] = this->myTrackFile.read();
-                    this->clip[c].tick[t].stepFX[v] = this->myTrackFile.read();
+                    //  this->clip[c].tick[t].voice[v] = this->myTrackFile.read();
+                    //  // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
+                    //  this->clip[c].tick[t].velo[v] = this->myTrackFile.read();
+                    //  this->clip[c].tick[t].stepFX[v] = this->myTrackFile.read();
                 }
-                
             }
         }
         for (int i = 0; i < MAX_TICKS; i++)
         {
             for (int v = 0; v < MAX_VOICES; v++)
             {
-                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
-                {
-                    trellis_assign_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
-                }
+                //  if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
+                //  {
+                //      trellis_assign_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+                //  }
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
@@ -345,21 +343,31 @@ void Track::noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 }
 void Track::record_noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
-    recordVoice = Note % NOTES_PER_OCTAVE;
-    recordLastNote[recordVoice] = Note;
-    recordVelocity[recordVoice] = Velo;
-    recordStartTick[recordVoice] = internal_clock;
+    clips[parameter[SET_CLIP2_EDIT]].noteCount++;
+    clips[parameter[SET_CLIP2_EDIT]].notes[clips[parameter[SET_CLIP2_EDIT]].noteCount].pitch = Note;
+    clips[parameter[SET_CLIP2_EDIT]].notes[clips[parameter[SET_CLIP2_EDIT]].noteCount].velocity = Velo;
+    clips[parameter[SET_CLIP2_EDIT]].notes[clips[parameter[SET_CLIP2_EDIT]].noteCount].startTick = internal_clock;
+    clips[parameter[SET_CLIP2_EDIT]].notes[clips[parameter[SET_CLIP2_EDIT]].noteCount].stepFX = parameter[SET_STEP_FX];
+    // recordVoice = Note % NOTES_PER_OCTAVE;
+    recordLastNote[clips[parameter[SET_CLIP2_EDIT]].noteCount] = Note;
+    // recordVelocity[recordVoice] = Velo;
+    recordStartTick[clips[parameter[SET_CLIP2_EDIT]].noteCount] = internal_clock;
 }
 void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
-    recordVoice = Note % NOTES_PER_OCTAVE;
-    if (recordLastNote[recordVoice] == Note)
+    for (uint16_t recordVoice = 0; recordVoice < clips[parameter[SET_CLIP2_EDIT]].noteCount; recordVoice++)
     {
-        for (int i = recordStartTick[recordVoice]; i <= internal_clock; i++)
+        // recordVoice = Note % NOTES_PER_OCTAVE;
+        if (recordLastNote[recordVoice] == Note)
         {
-            clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
-            clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+            for (int i = recordStartTick[recordVoice]; i <= internal_clock; i++)
+            {
+                // clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
+                // clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
+                clips[parameter[SET_CLIP2_EDIT]].notes[clips[parameter[SET_CLIP2_EDIT]].noteCount].length = i;
+
+                trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+            }
         }
     }
 }

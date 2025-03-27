@@ -287,7 +287,7 @@ void input_behaviour()
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / 3;
-      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY - 1);
+      allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY - 1, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
     }
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -304,7 +304,7 @@ void input_behaviour()
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
       if (tempTick % allTracks[active_track]->parameter[SET_STEP_LENGTH] == 0)
       {
-        allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY - 1);
+        allTracks[active_track]->set_note_on_tick(tempTick, gridTouchY - 1,allTracks[active_track]->parameter[SET_STEP_LENGTH]);
         updateTFTScreen = true;
         delay(70);
       }

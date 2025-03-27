@@ -679,40 +679,34 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
     }
 }
 
-void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length)
-{
-
-     int xPos = (_when * 3) + (STEP_FRAME_W * 2);
-    int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
-    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK * note_length, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
-}
-
 void draw_note_on_tick(uint8_t _voice, uint8_t _when)
 {
-    uint8_t note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_voice];
-
+    // uint8_t note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_voice];
+    uint8_t acticeClip = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
+    uint8_t note = allTracks[active_track]->getNoteParameterFromClip(acticeClip, _when, _voice, 0);
     if (!((note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE))) //|| note == NO_NOTE))
         return;
 
-    uint8_t velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_voice];
-    uint8_t stepFX = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].stepFX[_voice];
-    int note_length = 0;
+    uint8_t velo = allTracks[active_track]->getNoteParameterFromClip(acticeClip, _when, _voice, 1);
+    uint8_t stepFX = allTracks[active_track]->getNoteParameterFromClip(acticeClip, _when, _voice, 2);
+    int note_length = allTracks[active_track]->getNoteParameterFromClip(acticeClip, _when, _voice, 3);
+    ;
     // Bestimme die Länge der aktuellen Note
-    for (int i = _when; i < MAX_TICKS; i++)
-    {
-        // if (note < NO_NOTE)
-        {
-            if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] == NO_NOTE)
-                break; // Note endet hier
-            note_length++;
-        }
-        // else if (note == NO_NOTE)
-        // {
-        //     if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] < NO_NOTE)
-        //         break; // Note endet hier
-        //     note_length++;
-        // }
-    }
+    // for (int i = _when; i < MAX_TICKS; i++)
+    // {
+    //     // if (note < NO_NOTE)
+    //     {
+    //         if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] == NO_NOTE)
+    //             break; // Note endet hier
+    //         note_length++;
+    //     }
+    //     // else if (note == NO_NOTE)
+    //     // {
+    //     //     if (allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[i].voice[_voice] < NO_NOTE)
+    //     //         break; // Note endet hier
+    //     //     note_length++;
+    //     // }
+    // }
 
     int xPos = (_when * 3) + (STEP_FRAME_W * 2);
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
@@ -740,6 +734,13 @@ void draw_notes_in_grid()
     }
     Serial.println("draw all notes");
 }
+void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length)
+{
+
+    int xPos = (_when * 3) + (STEP_FRAME_W * 2);
+    int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
+    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK * note_length, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
+}
 void erase_notes_in_grid(uint8_t _voice, uint8_t _when)
 {
 
@@ -747,12 +748,15 @@ void erase_notes_in_grid(uint8_t _voice, uint8_t _when)
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
     tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK * MAX_TICKS, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
 }
+
 void draw_edit_presetNr_CC(const char *label, uint8_t value, uint8_t row_offset)
 {
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (row_offset * 2) + 5, 0, 4, NO_VALUE, label, encoder_colour[active_track], 2, false, false);
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (row_offset * 2) + 6, 4, 4, value, NO_NAME, encoder_colour[active_track], 2, true, false);
 }
 
+
+//mixers
 void draw_MIDI_CC_screen()
 {
 

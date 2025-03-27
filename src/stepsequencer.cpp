@@ -63,25 +63,31 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         case SET_STEP_FX:
         {
             // Notenlänge bestimmen
-            int note_length = 0;
-            for (int i = tick_to_edit; i < MAX_TICKS && clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[voice_to_edit] != NO_NOTE; i++)
-            {
-                note_length++;
-            }
+            //   int note_length = 0;
+            //   for (int i = tick_to_edit; i < MAX_TICKS && clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[voice_to_edit] != NO_NOTE; i++)
+            //   {
+            //       note_length++;
+            //   }
 
             // Änderungen anwenden
-            for (int i = 0; i < note_length; i++)
-            {
-                int tick = tick_to_edit + i;
-                if (index == SET_VELO2SET)
-                    clip[parameter[SET_CLIP2_EDIT]].tick[tick].velo[voice_to_edit] = parameter[SET_VELO2SET];
-                else
-                    clip[parameter[SET_CLIP2_EDIT]].tick[tick].stepFX[voice_to_edit] = parameter[SET_STEP_FX];
-            }
-            erase_note_on_tick(voice_to_edit, tick_to_edit, note_length);
-            draw_note_on_tick(voice_to_edit, tick_to_edit);
-            break;
+            //  for (int i = 0; i < note_length; i++)
+            //  {
+            //      int tick = tick_to_edit + i;
+            //      if (index == SET_VELO2SET)
+            //          clip[parameter[SET_CLIP2_EDIT]].tick[tick].velo[voice_to_edit] = parameter[SET_VELO2SET];
+            //      else
+            //          clip[parameter[SET_CLIP2_EDIT]].tick[tick].stepFX[voice_to_edit] = parameter[SET_STEP_FX];
+            //  }
+            //  erase_note_on_tick(voice_to_edit, tick_to_edit, note_length);
+            //  draw_note_on_tick(voice_to_edit, tick_to_edit);
+            int note = voice_to_edit + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+            if (index == SET_VELO2SET)
+                setNoteParameterFromClip( tick_to_edit, note, parameter[SET_VELO2SET], 1);
+            // clip[parameter[SET_CLIP2_EDIT]].tick[tick].velo[voice_to_edit] = parameter[SET_VELO2SET];
+            else
+                setNoteParameterFromClip( tick_to_edit, note, parameter[SET_STEP_FX], 2);
         }
+        break;
 
         default:
             // Optional: Fehlerbehandlung oder Logging, falls `index` eine unerwartete Zahl ist
@@ -217,8 +223,26 @@ uint8_t Track::get_note_parameter(uint8_t *parameterArray, uint8_t _voice)
 {
     return parameterArray[_voice];
 }
+int Track::getNoteParameterFromClip(int clipIndex, int cursorXPos, int cursorYPos, int index) // index: 0 pitch, 1 velocity, 2 stepFX, 3 noteLength
+{
+    if (clipIndex >= NUM_USER_CLIPS)
+        return -1;
+    return clips[clipIndex].getNoteParameter(cursorXPos, cursorYPos, index);
+}
 
-void Track::set_note_on_tick(int x, int voice)
+void Track::setNoteParameterFromClip(int cursorXPos, int cursorYPos, int value, int index) // index: 0 pitch, 1 velocity, 2 stepFX, 3 noteLength
+{
+    if (parameter[SET_CLIP2_EDIT] >= NUM_USER_CLIPS)
+        return;
+    clips[parameter[SET_CLIP2_EDIT]].setNoteParameter(cursorXPos, cursorYPos, value, index);
+}
+void Track::set_note_on_tick(int startTick, int pitch, int length){
+    int velo = parameter[SET_VELO2SET];
+    int stepfx = parameter[SET_STEP_FX];
+
+    clips[parameter[SET_CLIP2_EDIT]].set_note_on_tick(pitch,velo,stepfx, startTick, length );
+}
+/*void Track::set_note_on_tick(int x, int voice)
 {
     uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
     uint8_t noteInClip = clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice];
@@ -267,21 +291,24 @@ void Track::set_note_on_tick(int x, int voice)
             draw_note_on_tick(voice, x);
         }
     }
-}
+}*/
+
 void Track::clear_active_clip()
 {
-    for (int i = 0; i < MAX_TICKS; i++)
-    {
-        for (int n = 0; n < MAX_VOICES; n++)
-        {
+    // for (int i = 0; i < MAX_TICKS; i++)
+    // {
+    //     for (int n = 0; n < MAX_VOICES; n++)
+    //     {
 
-            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[n] = NO_NOTE;
-            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[n] = 0;
+    //         this->clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[n] = NO_NOTE;
+    //         this->clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[n] = 0;
 
-            // draw_note_on_tick(n, i);
-        }
-        trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
-    }
+    //         // draw_note_on_tick(n, i);
+    //     }
+    //     trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
+    // }
+    for (int i = 0; i <= clips->noteCount; i++)
+        clips->delete_active_clip();
     draw_notes_in_grid();
 }
 // stepsequencer
