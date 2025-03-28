@@ -779,7 +779,6 @@ void neo_trellis_select_trackClips()
         //  neotrellis_show();
         active_track = y;
         show_active_page_info("Track", active_track + 1);
-
         // updateTFTScreen = true;
         change_plugin_row = true;
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
@@ -788,6 +787,7 @@ void neo_trellis_select_trackClips()
         drawStepSequencerStatic();
         draw_stepSequencer_parameters(lastPotRow);
         draw_notes_in_grid();
+
         neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
         // trellis_get_main_buffer(trellisScreen, y, active_track);
         trellis_recall_main_buffer(trellisScreen);
@@ -871,13 +871,11 @@ void trellis_setStepsequencer()
             {
               if (trellisPressed[_nr + i])
               {
-                for (int t = 1; t <= (i * 6) / allTracks[track]->parameter[SET_STEP_LENGTH]; t++)
-                {
-                  allTracks[track]->set_note_on_tick(keyTick + (t * allTracks[track]->parameter[SET_STEP_LENGTH]), trellisNote);
-                  trellisPressed[_nr + i] = false;
-                  change_plugin_row = true;
-                  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick + (t * allTracks[track]->parameter[SET_STEP_LENGTH]), track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));
-                }
+
+                allTracks[track]->set_note_on_tick(keyTick, trellisNote, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
+                trellisPressed[_nr + i] = false;
+                change_plugin_row = true;
+              //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
               }
             }
           }
@@ -887,10 +885,10 @@ void trellis_setStepsequencer()
             uint8_t step = _nr % NUM_STEPS;
             int keyTick = step * 6;
             // Setze die Note auf dem aktuellen Step
-            allTracks[track]->set_note_on_tick(keyTick, trellisNote);
+            allTracks[track]->set_note_on_tick(keyTick, trellisNote, allTracks[track]->parameter[SET_STEP_LENGTH]);
             trellisPressed[_nr] = false;
             change_plugin_row = true;
-            Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));
+          //  Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));
           }
         }
       }

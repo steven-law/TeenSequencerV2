@@ -67,6 +67,7 @@ public:
         uint8_t voice[MAX_VOICES];
         uint8_t velo[MAX_VOICES];
         uint8_t stepFX[MAX_VOICES];
+        uint8_t noteLength[MAX_VOICES];
     };
     struct clip_t
     {
@@ -179,7 +180,7 @@ public:
     void copy_bar();
     void clear_arrangment();
     // stepsequencer
-    void set_note_on_tick(int x, int voice);
+    void set_note_on_tick(int x, int voice, int length);
     uint8_t get_note_parameter(uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters(uint8_t row);
     void clear_active_clip();

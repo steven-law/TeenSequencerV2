@@ -218,13 +218,13 @@ uint8_t Track::get_note_parameter(uint8_t *parameterArray, uint8_t _voice)
     return parameterArray[_voice];
 }
 
-void Track::set_note_on_tick(int x, int voice)
+void Track::set_note_on_tick(int x, int voice, int length)
 {
     uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
     uint8_t noteInClip = clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice];
     // oldNote = (oldNote == note2set) ? NO_NOTE : (oldNote == NO_NOTE ? note2set : oldNote);
-
-    for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
+   
+    for (int i = 0; i < length; i++)
     {
 
         uint8_t onTick = x + i;
@@ -234,11 +234,13 @@ void Track::set_note_on_tick(int x, int voice)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = NO_NOTE;
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = 0;
+            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice]=0;
         }
         else if (noteInClip == NO_NOTE)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = note2set;
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = parameter[SET_VELO2SET];
+            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice]=length;
         }
 
         // Parameter setzen
@@ -261,7 +263,7 @@ void Track::set_note_on_tick(int x, int voice)
     if (active_track == my_Arranger_Y_axis - 1)
     {
         if (clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice] == NO_NOTE)
-            erase_note_on_tick(voice, x, parameter[SET_STEP_LENGTH]);
+            erase_note_on_tick(voice, x, length);
         else
         {
             draw_note_on_tick(voice, x);
