@@ -21,7 +21,7 @@ void touch_update()
         else
             gridTouchY = map(p.y, TS_MINY, TS_MAXY, 0, 14);
 
-        if (activeScreen >= INPUT_FUNCTIONS_FOR_PLUGIN && activeScreen <= INPUT_FUNCTIONS_FOR_PERFORM)
+      //  if (activeScreen >= INPUT_FUNCTIONS_FOR_PLUGIN && activeScreen <= INPUT_FUNCTIONS_FOR_PERFORM)
             lastPotRow = map(p.y, TS_MINY+200, TS_MAXY-400, 0, 3);
     }
 }

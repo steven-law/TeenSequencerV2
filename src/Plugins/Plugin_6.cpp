@@ -17,7 +17,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 
 void drawActiveRect(int xPos, uint8_t yPos, uint8_t xsize, uint8_t ysize, bool state, const char *name, int color);
 void myDrawLine(int x0, int y0, int x1, int y1, uint16_t color);
@@ -179,7 +178,6 @@ void Plugin_6::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-       // clearWorkSpace();
         // Serial.println("drawing plugin 2");
         drawPot(0, 0, potentiometer[presetNr][0], "W~F 1");
         drawPot(1, 0, potentiometer[presetNr][1], "W~F 2");

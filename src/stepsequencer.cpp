@@ -9,11 +9,16 @@ void Track::set_stepSequencer_parameters(uint8_t row)
     switch (row)
     {
     case 0:
+        if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+        {
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[14]], 0, 128);
+        }
+        if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[14]], 0, 128);
         encoder_SetCursor(parameter[SET_STEP_LENGTH] * 3, 14); // Encoder: 0+1
         set_stepSequencer_parameter_value(0, 0, "Tick", 0, 160);
         set_stepSequencer_parameter_value(1, 0, "Note", 0, 14);
 
-        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 128);
         set_stepSequencer_parameter_value(3, 0, "Velo", 0, 127);
         break;
     case 1:
@@ -64,7 +69,7 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         {
             // Notenlänge bestimmen
             int note_length = clip[parameter[SET_CLIP2_EDIT]].tick[tick_to_edit].noteLength[voice_to_edit];
-          
+
             // Änderungen anwenden
             for (int i = 0; i < note_length; i++)
             {
@@ -216,10 +221,12 @@ uint8_t Track::get_note_parameter(uint8_t *parameterArray, uint8_t _voice)
 
 void Track::set_note_on_tick(int x, int voice, int length)
 {
+    if (x < 0 || x > 96)
+        return;
     uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
     uint8_t noteInClip = clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice];
     // oldNote = (oldNote == note2set) ? NO_NOTE : (oldNote == NO_NOTE ? note2set : oldNote);
-   
+
     for (int i = 0; i < length; i++)
     {
 
@@ -230,13 +237,13 @@ void Track::set_note_on_tick(int x, int voice, int length)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = NO_NOTE;
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = 0;
-            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice]=0;
+            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice] = 0;
         }
         else if (noteInClip == NO_NOTE)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = note2set;
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = parameter[SET_VELO2SET];
-            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice]=length;
+            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice] = length;
         }
 
         // Parameter setzen

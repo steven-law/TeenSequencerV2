@@ -14,7 +14,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 
 void Plugin_8::setup()
 {
@@ -112,7 +111,6 @@ void Plugin_8::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-      //  clearWorkSpace();
         // Serial.println("drawing plugin 2");
         drawPot(0, 0, potentiometer[presetNr][0], "W~Form");
         drawPot(1, 0, potentiometer[presetNr][1], "Detune");

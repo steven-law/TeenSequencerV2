@@ -702,6 +702,7 @@ void trellis_show_tft_mixer()
         trellis.writeDisplay();
       }
     }
+    
 
     if (trellisPressed[0])
     {
@@ -792,7 +793,6 @@ void trellis_show_tft_mixer()
       fx_3.draw_plugin();
       show_active_page_info("FX Ctrl", 3);
 
-      // trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[6])
     {
@@ -803,14 +803,10 @@ void trellis_show_tft_mixer()
       neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
       change_plugin_row = true;
       activeScreen = INPUT_FUNCTIONS_FOR_PERFORM;
-
       clearWorkSpace();
-      // activeScreen = INPUT_FUNCTIONS_FOR_FX1;
-      // clearWorkSpace();
       set_perform_page(lastPotRow);
       show_active_page_info("Perform", 0);
 
-      // trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
     }
     if (trellisPressed[7])
     {
@@ -821,15 +817,9 @@ void trellis_show_tft_mixer()
       neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
       // change_plugin_row = true;
       activeScreen = INPUT_FUNCTIONS_FOR_CLIPLAUNCHER;
-
       clearWorkSpace();
-      // activeScreen = INPUT_FUNCTIONS_FOR_FX1;
-      // clearWorkSpace();
-      // set_perform_page(lastPotRow);
       draw_clip_launcher();
       show_active_page_info("Launch", 0);
-
-      // trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
     }
   }
 }

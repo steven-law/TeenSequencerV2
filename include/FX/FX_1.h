@@ -18,7 +18,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-//void clearWorkSpace();
 
 class FX_1 : public PluginControll
 {

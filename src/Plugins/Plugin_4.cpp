@@ -14,7 +14,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 
 void Plugin_4::setup()
 {
@@ -99,7 +98,6 @@ void Plugin_4::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-       // clearWorkSpace();
 
         drawPot(0, 0, potentiometer[presetNr][0], "Bk K");
         drawPot(1, 0, potentiometer[presetNr][1], "Bk C");

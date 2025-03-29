@@ -4,7 +4,6 @@
 #include <Arduino.h>
 ////#include "hardware/tftClass.h"
 //class tftClass;
-//void clearWorkSpace();
 extern bool change_plugin_row; 
 class Plugin_Midi
 {

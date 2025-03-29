@@ -22,7 +22,6 @@ extern bool enc_moved[4];
 extern int encoded[4];
 // tftClass drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 uint8_t getEncodervalue(uint8_t XPos, uint8_t YPos, const char *name, uint8_t oldValue);
-// void clearWorkSpace();
 
 // TeensyDAW: begin automatically generated code
 class Output

@@ -14,7 +14,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 
 void Plugin_5::setup()
 {
@@ -117,7 +116,6 @@ void Plugin_5::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        //clearWorkSpace();
         // Serial.println("drawing plugin 5");
         drawPot(0, 0, potentiometer[presetNr][0], "Freq");
         drawPot(1, 0, potentiometer[presetNr][1], "Sweep");

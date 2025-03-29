@@ -305,7 +305,6 @@ void Track::set_seq_mode_parameters(uint8_t row)
 }
 void Track::draw_sequencer_modes(uint8_t mode)
 {
-    clearWorkSpace();
     change_plugin_row = true;
     if (mode == 1)
         draw_seq_mode1();

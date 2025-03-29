@@ -645,10 +645,10 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
         drawOctaveNumber();
 
         if (lastProw == 0)
-        {
+        { 
             draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1] + (allTracks[active_track]->parameter[SET_OCTAVE] * 12), NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[2]], allTracks[active_track]->parameter[2], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[14]], allTracks[active_track]->parameter[2], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 3, "Velo", allTracks[active_track]->parameter[3], NO_NAME);
             // draw_stepSequencer_parameter_value(0, 0, 0, allTracks[active_track]->parameter[0], "Tick");
             // draw_stepSequencer_parameter_value(0, 1, 0, allTracks[active_track]->parameter[1], "Note");
@@ -874,7 +874,6 @@ void draw_clip_launcher()
     tft.setCursor(8 * STEP_FRAME_W, 11 * STEP_FRAME_H);
     tft.setTextColor(ILI9341_BLUE);
     tft.printf("BAR:%d\n", bar2edit);
-    // clearWorkSpace();
     for (int t = 0; t < NUM_TRACKS; t++)
     {
         for (int c = 0; c < MAX_CLIPS; c++)
@@ -895,3 +894,4 @@ void draw_clip_launcher()
         }
     }
 }
+

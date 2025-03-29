@@ -256,8 +256,7 @@ void neotrellis_set_potRow()
     {
       lastPotRow = 0;
     }
-   
-    
+
     // neotrellisPressed[TRELLIS_POTROW] = false;
     // Serial.printf("potrwo=%d\n", lastPotRow);
   }
@@ -484,6 +483,8 @@ void neotrellis_show_tft_seqMode()
       {
         neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
         active_track = i;
+        clearWorkSpace();
+
         show_active_page_info("Track", active_track + 1);
         allTracks[active_track]->draw_sequencer_modes(allTracks[active_track]->parameter[SET_SEQ_MODE]);
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
@@ -836,22 +837,22 @@ void trellis_setStepsequencer()
   {
     if (!neotrellisPressed[TRELLIS_BUTTON_SAVELOAD])
     {
-      if (neotrellisPressed[TRELLIS_BUTTON_SHIFT] && !neotrellisPressed[TRELLIS_BUTTON_ENTER])
-      {
-        neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
-        for (int _voice = 0; _voice < 5; _voice++)
-        {
-
-          for (int _when = 0; _when < MAX_TICKS; _when++)
-          {
-            auto &clip = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]];
-            auto &tick = clip.tick[_when];
-            uint8_t note = tick.voice[_voice];
-            Serial.printf("tick = %d, note = %d, voice %d\n", _when, note, _voice);
-          }
-          Serial.println();
-        }
-      }
+      //  if (neotrellisPressed[TRELLIS_BUTTON_SHIFT] && !neotrellisPressed[TRELLIS_BUTTON_ENTER])
+      //  {
+      //    neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
+      //    for (int _voice = 0; _voice < 5; _voice++)
+      //    {
+      //
+      //      for (int _when = 0; _when < MAX_TICKS; _when++)
+      //      {
+      //        auto &clip = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]];
+      //        auto &tick = clip.tick[_when];
+      //        uint8_t note = tick.voice[_voice];
+      //        Serial.printf("tick = %d, note = %d, voice %d\n", _when, note, _voice);
+      //      }
+      //      Serial.println();
+      //    }
+      //  }
       for (int x = 0; x < NUM_STEPS; x++)
       {
         for (int y = 0; y < NUM_TRACKS; y++)
@@ -876,7 +877,7 @@ void trellis_setStepsequencer()
                 allTracks[track]->set_note_on_tick(keyTick, trellisNote, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
                 trellisPressed[_nr + i] = false;
                 change_plugin_row = true;
-              //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
+                //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
               }
             }
           }
@@ -889,7 +890,7 @@ void trellis_setStepsequencer()
             allTracks[track]->set_note_on_tick(keyTick, trellisNote, allTracks[track]->parameter[SET_STEP_LENGTH]);
             trellisPressed[_nr] = false;
             change_plugin_row = true;
-          //  Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));
+            //  Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));
           }
         }
       }

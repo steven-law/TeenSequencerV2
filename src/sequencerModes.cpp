@@ -16,7 +16,7 @@ void Track::play_seq_mode0(uint8_t cloock)
                 uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
                 uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
                 note_is_on[v] = true;
-                sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+                sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]);
             }
         }
