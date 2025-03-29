@@ -123,7 +123,7 @@ void Plugin_3::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+       // clearWorkSpace();
 
         drawPot(0, 0, potentiometer[presetNr][0], "mW~Form");
         drawPot(1, 0, potentiometer[presetNr][1], "mRatio");

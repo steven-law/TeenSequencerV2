@@ -188,6 +188,8 @@ void tft_show()
         drawbarPosition();
         // updateClock = false;
     }
+    tft.fillRect(POSITION_POTROW_BUTTON * STEP_FRAME_W, 0, STEP_FRAME_W - 1, STEP_FRAME_H, ILI9341_DARKGREY);
+    tft.fillRect(STEP_FRAME_W * POSITION_POTROW_BUTTON, lastPotRow * 4, STEP_FRAME_W - 1, 3, ILI9341_ORANGE);
     tft.flush();
     //  tft.updateScreenAsync();
 } // cursor
@@ -744,7 +746,7 @@ void draw_MIDI_CC_screen()
 
     if (change_plugin_row)
     {
-        clearWorkSpace();
+        //
         change_plugin_row = false;
         draw_MIDI_CC(0, 0);
         draw_MIDI_CC(1, 0);

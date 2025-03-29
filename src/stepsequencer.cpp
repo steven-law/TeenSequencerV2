@@ -63,12 +63,8 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         case SET_STEP_FX:
         {
             // Notenlänge bestimmen
-            int note_length = 0;
-            for (int i = tick_to_edit; i < MAX_TICKS && clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[voice_to_edit] != NO_NOTE; i++)
-            {
-                note_length++;
-            }
-
+            int note_length = clip[parameter[SET_CLIP2_EDIT]].tick[tick_to_edit].noteLength[voice_to_edit];
+          
             // Änderungen anwenden
             for (int i = 0; i < note_length; i++)
             {

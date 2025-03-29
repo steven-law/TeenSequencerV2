@@ -84,7 +84,7 @@ void Plugin_1::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        //clearWorkSpace();
         // Serial.println("drawing plugin 1");
         drawPot(0, 0, potentiometer[presetNr][0], "Vol");
         drawPot(1, 0, potentiometer[presetNr][1], "Vol");

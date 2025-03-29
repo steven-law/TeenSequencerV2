@@ -256,8 +256,8 @@ void neotrellis_set_potRow()
     {
       lastPotRow = 0;
     }
-    tft.fillRect(POSITION_POTROW_BUTTON * STEP_FRAME_W, 0, STEP_FRAME_W - 1, STEP_FRAME_H, ILI9341_DARKGREY);
-    tft.fillRect(STEP_FRAME_W * POSITION_POTROW_BUTTON, lastPotRow * 4, STEP_FRAME_W - 1, 3, ILI9341_ORANGE);
+   
+    
     // neotrellisPressed[TRELLIS_POTROW] = false;
     // Serial.printf("potrwo=%d\n", lastPotRow);
   }
@@ -744,6 +744,7 @@ void neotrellis_show_tft_plugin()
       {
         neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
         active_track = i;
+        clearWorkSpace();
         show_active_page_info("Track", i + 1);
         change_plugin_row = true;
         // allTracks[active_track]->draw_MIDI_CC_screen();

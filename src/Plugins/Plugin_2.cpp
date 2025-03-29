@@ -139,7 +139,7 @@ void Plugin_2::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+       // clearWorkSpace();
         // Serial.println("drawing plugin 2");
         drawPot(0, 0, potentiometer[presetNr][0], "W~Form");
         drawPot(1, 0, potentiometer[presetNr][1], "Volume");

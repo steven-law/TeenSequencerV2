@@ -117,7 +117,7 @@ void Plugin_5::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        //clearWorkSpace();
         // Serial.println("drawing plugin 5");
         drawPot(0, 0, potentiometer[presetNr][0], "Freq");
         drawPot(1, 0, potentiometer[presetNr][1], "Sweep");
