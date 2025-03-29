@@ -60,7 +60,7 @@ class Track
 public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
-    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0};
+    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0, 0, 0, 128, 0};
     // Stepsequencer
     struct tick_t
     {
@@ -239,7 +239,6 @@ private:
     void set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode7();
 
-    uint8_t setStepFX = 74;
     uint8_t noteToPlay[MAX_VOICES];
 
     bool internal_clock_is_on = false;

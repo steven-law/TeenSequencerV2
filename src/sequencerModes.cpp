@@ -151,7 +151,7 @@ void Track::play_seq_mode2(uint8_t cloock)
             uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, 0) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
             uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, 0);
 
-            sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+            sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
             noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]);
             // Serial.print(track[i].notePlayed[0]);
             // Serial.print("--");
@@ -264,7 +264,7 @@ void Track::play_seq_mode3(uint8_t cloock)
                 uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
 
                 note_is_on[v] = true;
-                sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+                sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                                         // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
             }
@@ -350,7 +350,7 @@ void Track::play_seq_mode4(uint8_t cloock)
                 uint8_t Velo = 99 * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
                 uint8_t StepFX = 128;
                 note_is_on[0] = true;
-                sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+                sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                                         // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
             }
@@ -458,7 +458,7 @@ void Track::play_seq_mode5(uint8_t cloock)
                         uint8_t Velo = 99 * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
                         uint8_t StepFX = 128;
                         note_is_on[i] = true;
-                        sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+                        sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                         noteOn(noteToPlay[i], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                         // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
                         clip[parameter[SET_CLIP2_EDIT]].tick[seq3_clock * TICKS_PER_STEP].voice[i] = noteToPlay[i];
@@ -570,7 +570,7 @@ void Track::play_seq_mode6(uint8_t cloock)
                     uint8_t Velo = 99 * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
                     uint8_t StepFX = 128;
                     note_is_on[i] = true;
-                    sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+                    sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                     noteOn(noteToPlay[i], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                     // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
                 }
@@ -718,7 +718,7 @@ void Track::play_seq_mode7(uint8_t cloock)
                 uint8_t StepFX = random(SeqMod7Value[6], SeqMod7Value[7]) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
                 note_is_on[0] = true;
                 note_is_on[0] = true;
-                sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+                sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                 // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
             }

@@ -84,7 +84,6 @@ void Track::save_track(uint8_t songNr)
             // Serial.printf("save parameter %d = %d\n", i, parameter[i]);
         }
         // Serial.println("settings & seqmodes saved:");
-        this->myTrackFile.print((char)setStepFX);
         this->myTrackFile.print((char)mixGainPot);
         this->myTrackFile.print((char)mixDryPot);
         this->myTrackFile.print((char)mixFX1Pot);
@@ -196,7 +195,6 @@ void Track::load_track(uint8_t songNr)
             SeqMod4Value[i] = this->myTrackFile.read();
             //   Serial.printf("load parameter %d = %d\n", i, parameter[i]);
         }
-        setStepFX = this->myTrackFile.read();
         mixGainPot = this->myTrackFile.read();
         mixDryPot = this->myTrackFile.read();
         mixFX1Pot = this->myTrackFile.read();
