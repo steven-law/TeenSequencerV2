@@ -98,10 +98,10 @@ void show_trellisFX_mixerPage();
 void set_input_level(uint8_t _value);
 void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
-
 void error(const char *message);
 void save_plugin(uint8_t _songNr, uint8_t _pluginNr);
 void load_plugin(uint8_t _songNr, uint8_t _pluginNr);
+
 void setup()
 {
   // while (!Serial)
@@ -190,6 +190,7 @@ void setup()
     trellis.writeDisplay();
     delay(1);
   }
+
 }
 
 void loop()
@@ -1535,6 +1536,8 @@ void load_plugin(uint8_t _songNr, uint8_t _pluginNr)
 {
   allPlugins[_pluginNr]->load_plugin(_songNr);
 }
+
+
 
 bool compareFiles(File &file, SerialFlashFile &ffile)
 {

@@ -75,13 +75,10 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[voice_to_edit] == NO_NOTE)
                 {
                     start_tick = i+1;
-                    Serial.printf("startTick = %d\n", start_tick);
                     break;
                 }
             }
             int note_length = clip[parameter[SET_CLIP2_EDIT]].tick[start_tick].noteLength[voice_to_edit];
-
-            Serial.printf("ticktoedit: %d, startTick = %d, length: %d\n", tick_to_edit, start_tick, note_length);
             // Änderungen anwenden
             for (int i = start_tick; i < note_length; i++)
             {
