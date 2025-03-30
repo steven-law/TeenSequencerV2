@@ -693,7 +693,7 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
 {
     auto& clip = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]];
     auto& tick = clip.tick[_when];
-    
+  //  uint8_t start_tick = tick.startTick[_voice];
     uint8_t note = tick.voice[_voice];
     if (!(note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE &&
           note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)) {

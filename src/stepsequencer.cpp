@@ -68,19 +68,31 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         case SET_STEP_FX:
         {
             // Notenlänge bestimmen
-            int note_length = clip[parameter[SET_CLIP2_EDIT]].tick[tick_to_edit].noteLength[voice_to_edit];
-
-            // Änderungen anwenden
-            for (int i = 0; i < note_length; i++)
+            // int start_tick = clip[parameter[SET_CLIP2_EDIT]].tick[tick_to_edit].startTick[voice_to_edit];
+            int start_tick;
+            for (int i = tick_to_edit; i >= 0; i--)
             {
-                int tick = tick_to_edit + i;
-                if (index == SET_VELO2SET)
-                    clip[parameter[SET_CLIP2_EDIT]].tick[tick].velo[voice_to_edit] = parameter[SET_VELO2SET];
-                else
-                    clip[parameter[SET_CLIP2_EDIT]].tick[tick].stepFX[voice_to_edit] = parameter[SET_STEP_FX];
+                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[voice_to_edit] == NO_NOTE)
+                {
+                    start_tick = i+1;
+                    Serial.printf("startTick = %d\n", start_tick);
+                    break;
+                }
             }
-            erase_note_on_tick(voice_to_edit, tick_to_edit, note_length);
-            draw_note_on_tick(voice_to_edit, tick_to_edit);
+            int note_length = clip[parameter[SET_CLIP2_EDIT]].tick[start_tick].noteLength[voice_to_edit];
+
+            Serial.printf("ticktoedit: %d, startTick = %d, length: %d\n", tick_to_edit, start_tick, note_length);
+            // Änderungen anwenden
+            for (int i = start_tick; i < note_length; i++)
+            {
+                // int tick = tick_to_edit + i;
+                if (index == SET_VELO2SET)
+                    clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[voice_to_edit] = parameter[SET_VELO2SET];
+                else
+                    clip[parameter[SET_CLIP2_EDIT]].tick[i].stepFX[voice_to_edit] = parameter[SET_STEP_FX];
+            }
+            erase_note_on_tick(voice_to_edit, start_tick, note_length);
+            draw_note_on_tick(voice_to_edit, start_tick);
             break;
         }
 
@@ -238,16 +250,17 @@ void Track::set_note_on_tick(int x, int voice, int length)
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = NO_NOTE;
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = 0;
             clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice] = 0;
+            //  clip[parameter[SET_CLIP2_EDIT]].tick[onTick].startTick[voice] = 0;
         }
         else if (noteInClip == NO_NOTE)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = note2set;
             clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = parameter[SET_VELO2SET];
             clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice] = length;
+            //  clip[parameter[SET_CLIP2_EDIT]].tick[onTick].startTick[voice] = x;
         }
 
         // Parameter setzen
-
         clip[parameter[SET_CLIP2_EDIT]].tick[onTick].stepFX[voice] = parameter[SET_STEP_FX];
 
         // Farbe für Trellis bestimmen

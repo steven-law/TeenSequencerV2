@@ -68,6 +68,7 @@ public:
         uint8_t velo[MAX_VOICES];
         uint8_t stepFX[MAX_VOICES];
         uint8_t noteLength[MAX_VOICES];
+      //  uint8_t startTick[MAX_VOICES];
     };
     struct clip_t
     {
@@ -136,6 +137,8 @@ public:
                     clip[c].tick[t].voice[v] = NO_NOTE;
                     clip[c].tick[t].velo[v] = 0;
                     clip[c].tick[t].stepFX[v] = 128;
+                    clip[c].tick[t].noteLength[v] = 0;
+                  //  clip[c].tick[t].startTick[v] = 0;
                 }
             }
         }
