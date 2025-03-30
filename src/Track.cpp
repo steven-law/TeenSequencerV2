@@ -77,10 +77,10 @@ void Track::save_track(uint8_t songNr)
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {
             this->myTrackFile.print((char)parameter[i]);
-            this->myTrackFile.print((char)SeqMod1Value[i]);
-            this->myTrackFile.print((char)SeqMod2Value[i]);
-            this->myTrackFile.print((char)SeqMod3Value[i]);
-            this->myTrackFile.print((char)SeqMod4Value[i]);
+            this->myTrackFile.print((char)seqMod_value[1][i]);
+            this->myTrackFile.print((char)seqMod_value[2][i]);
+            this->myTrackFile.print((char)seqMod_value[3][i]);
+            this->myTrackFile.print((char)seqMod_value[4][i]);
             // Serial.printf("save parameter %d = %d\n", i, parameter[i]);
         }
         // Serial.println("settings & seqmodes saved:");
@@ -189,10 +189,10 @@ void Track::load_track(uint8_t songNr)
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {
             parameter[i] = this->myTrackFile.read();
-            SeqMod1Value[i] = this->myTrackFile.read();
-            SeqMod2Value[i] = this->myTrackFile.read();
-            SeqMod3Value[i] = this->myTrackFile.read();
-            SeqMod4Value[i] = this->myTrackFile.read();
+            seqMod_value[1][i] = this->myTrackFile.read();
+            seqMod_value[2][i] = this->myTrackFile.read();
+            seqMod_value[3][i] = this->myTrackFile.read();
+            seqMod_value[4][i] = this->myTrackFile.read();
             //   Serial.printf("load parameter %d = %d\n", i, parameter[i]);
         }
         mixGainPot = this->myTrackFile.read();

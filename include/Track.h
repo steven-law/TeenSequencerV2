@@ -68,7 +68,7 @@ public:
         uint8_t velo[MAX_VOICES];
         uint8_t stepFX[MAX_VOICES];
         uint8_t noteLength[MAX_VOICES];
-      //  uint8_t startTick[MAX_VOICES];
+        //  uint8_t startTick[MAX_VOICES];
     };
     struct clip_t
     {
@@ -138,7 +138,7 @@ public:
                     clip[c].tick[t].velo[v] = 0;
                     clip[c].tick[t].stepFX[v] = 128;
                     clip[c].tick[t].noteLength[v] = 0;
-                  //  clip[c].tick[t].startTick[v] = 0;
+                    //  clip[c].tick[t].startTick[v] = 0;
                 }
             }
         }
@@ -206,30 +206,29 @@ private:
     void set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label, uint8_t position);
     void change_presets();
 
+    // seqmodes
+    void set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    uint8_t get_random_Note_in_scale();
     void play_seq_mode0(uint8_t cloock);
+
     void play_seq_mode1(uint8_t cloock);
     void set_seq_mode1_parameters(uint8_t row);
-    void set_seq_mode1_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode1();
 
     void play_seq_mode2(uint8_t cloock);
     void set_seq_mode2_parameters(uint8_t row);
-    void set_seq_mode2_value(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
     void draw_seq_mode2();
 
     void play_seq_mode3(uint8_t cloock);
     void set_seq_mode3_parameters(uint8_t row);
-    void set_seq_mode3_value(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
     void draw_seq_mode3();
 
     void play_seq_mode4(uint8_t cloock);
     void set_seq_mode4_parameters(uint8_t row);
-    void set_seq_mode4_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode4();
 
     void play_seq_mode5(uint8_t cloock);
     void set_seq_mode5_parameters(uint8_t row);
-    void set_seq_mode5_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode5();
 
     void play_seq_mode6(uint8_t cloock);
@@ -255,14 +254,10 @@ private:
     bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
     bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};
 
-    uint8_t SeqMod1Value[16]; // oct- ; oct+ ; vol- ; vol+
-    uint8_t SeqMod2Value[16];
-    uint8_t SeqMod3Value[16];
-    uint8_t SeqMod4Value[16];
-    uint8_t SeqMod5Value[16];
-    uint8_t SeqMod6Value[16];
+    uint8_t seqMod_value[NUM_PLAYMODES][16];
+    uint8_t seqMod1NoteMemory[NUM_STEPS];
     uint8_t SeqMod6Value2[16];
-    uint8_t SeqMod7Value[16];
+
     uint8_t maxVal;
 };
 
