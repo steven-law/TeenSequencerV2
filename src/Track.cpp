@@ -48,7 +48,6 @@ void Track::save_track(uint8_t songNr)
                     this->myTrackFile.print((char)this->clip[c].tick[t].velo[v]);
                     this->myTrackFile.print((char)this->clip[c].tick[t].stepFX[v]);
                 }
-                
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
@@ -142,7 +141,6 @@ void Track::load_track(uint8_t songNr)
                     this->clip[c].tick[t].velo[v] = this->myTrackFile.read();
                     this->clip[c].tick[t].stepFX[v] = this->myTrackFile.read();
                 }
-                
             }
         }
         for (int i = 0; i < MAX_TICKS; i++)
@@ -356,6 +354,9 @@ void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
+            clip[parameter[SET_CLIP2_EDIT]].tick[recordStartTick[recordVoice]].noteLength[recordVoice] =
+                (internal_clock + recordStartTick[recordVoice] >= MAX_TICKS) ? ((MAX_TICKS) - recordStartTick[recordVoice]) : i;
+
             trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
         }
     }
