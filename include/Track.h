@@ -34,6 +34,9 @@
 #define ENCODER_MIDICH_OUT 2
 #define ENCODER_CLIP2_EDIT 3
 
+#define ENCODER_PROBABILITY 0
+
+
 #define NUM_PARAMETERS 16
 
 extern File myFile;
@@ -60,7 +63,7 @@ class Track
 public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
-    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0, 0, 0, 128, 0};
+    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0, 127, 0, 128, 0};
     // Stepsequencer
     struct tick_t
     {
@@ -195,6 +198,22 @@ public:
     void set_MIDI_CC(uint8_t row);
 
 private:
+    uint8_t noteToPlay[MAX_VOICES];
+    bool internal_clock_is_on = false;
+
+    int recordStartTick[MAX_VOICES];
+    uint8_t recordLastNote[MAX_VOICES];
+    uint8_t recordVelocity[MAX_VOICES];
+    uint8_t recordVoice;
+
+    uint8_t oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
+    bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
+    uint8_t note_probablity = 127;
+    uint8_t seqMod_value[NUM_PLAYMODES][16];
+    uint8_t seqMod1NoteMemory[NUM_STEPS];
+    uint8_t SeqMod6Value2[16];
+
+    uint8_t maxVal;
     // stepsequencer
     void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
     void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
@@ -240,25 +259,6 @@ private:
     void set_seq_mode7_parameters(uint8_t row);
     void set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode7();
-
-    uint8_t noteToPlay[MAX_VOICES];
-
-    bool internal_clock_is_on = false;
-
-    int recordStartTick[MAX_VOICES];
-    uint8_t recordLastNote[MAX_VOICES];
-    uint8_t recordVelocity[MAX_VOICES];
-    uint8_t recordVoice;
-
-    uint8_t oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
-    bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
-    bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};
-
-    uint8_t seqMod_value[NUM_PLAYMODES][16];
-    uint8_t seqMod1NoteMemory[NUM_STEPS];
-    uint8_t SeqMod6Value2[16];
-
-    uint8_t maxVal;
 };
 
 extern Track *allTracks[8];

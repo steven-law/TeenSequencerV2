@@ -33,15 +33,18 @@ void Track::play_seq_mode0(uint8_t cloock)
         {
             if (!note_is_on[v])
             {
-                noteToPlay[v] = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].voice, v) + noteOffset[external_clock_bar] + performNoteOffset;
-                uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
-                uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
-                note_is_on[v] = true;
-                sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
-                noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]);
+                if (random(126) < parameter[SET_PROBABILTY]) // probabilty
+                {
+                    noteToPlay[v] = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].voice, v) + noteOffset[external_clock_bar] + performNoteOffset;
+                    uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
+                    uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
+                    note_is_on[v] = true;
+                    sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
+                    noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]);
+                }
             }
         }
-        if (get_note_parameter(clip[clip_to_play[external_clock_bar]].tick[cloock].voice, v) == NO_NOTE)
+       else if (get_note_parameter(clip[clip_to_play[external_clock_bar]].tick[cloock].voice, v) == NO_NOTE)
         {
             if (note_is_on[v])
             {
@@ -70,9 +73,9 @@ void Track::play_seq_mode1(uint8_t cloock)
         static int stepCount = (stepCount + 1) % seqMod_value[1][4];
         if (!note_is_on[0])
         {
-            if (random(127) < seqMod_value[1][6]) // probabilty
+            if (random(126) < seqMod_value[1][6]) // probabilty
             {
-                bool useMemory = ((rand() % 127) < seqMod_value[1][5]); //dejavu
+                bool useMemory = ((rand() % 127) < seqMod_value[1][5]); // dejavu
                 int noteToSend = useMemory ? seqMod1NoteMemory[stepCount] : get_random_Note_in_scale();
 
                 noteToPlay[0] = noteToSend + (random(seqMod_value[1][2], seqMod_value[1][3] + 1) * 12) + noteOffset[external_clock_bar] + performNoteOffset;
@@ -80,10 +83,10 @@ void Track::play_seq_mode1(uint8_t cloock)
                 note_is_on[0] = true;
                 noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note
                 if (!useMemory)
-            {
-                seqMod1NoteMemory[stepCount] = noteToPlay[0];
-                //velocityMemory[stepCount] = volSend;
-            }
+                {
+                    seqMod1NoteMemory[stepCount] = noteToPlay[0];
+                    // velocityMemory[stepCount] = volSend;
+                }
             }
         }
     }
@@ -125,12 +128,11 @@ void Track::set_seq_mode1_parameters(uint8_t row)
         set_seq_mode_value(1, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
         set_seq_mode_value(1, 2, 1, "Probality", 0, MIDI_CC_RANGE);
     }
-    if (row == 1)
+    if (row == 2)
     {
 
         set_seq_mode_value(1, 0, 2, "Vol -", 0, MIDI_CC_RANGE);
         set_seq_mode_value(1, 1, 2, "Vol +", 0, MIDI_CC_RANGE);
-
     }
 }
 
@@ -155,7 +157,6 @@ void Track::draw_seq_mode1()
         drawPot(1, 0, seqMod_value[1][1], "Scale");
         drawPot(2, 0, seqMod_value[1][2], "Oct -");
         drawPot(3, 0, seqMod_value[1][3], "Oct +");
-       
 
         drawPot(0, 1, seqMod_value[1][4], "maxSteps");
         drawPot(1, 1, seqMod_value[1][5], "Dejavu");

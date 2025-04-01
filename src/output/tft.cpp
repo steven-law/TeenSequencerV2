@@ -672,11 +672,16 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
             draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->parameter[SET_SEQ_MODE]]);
             draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[allTracks[active_track]->parameter[SET_SCALE]]);
             draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->parameter[SET_MIDICH_OUT]]);
-            draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[11], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[SET_CLIP2_EDIT], NO_NAME);
 
             // draw_stepSequencer_parameter_text(2, ENCODER_SEQ_MODE, 2, seqModname[allTracks[active_track]->parameter[8]], "sMod");
             // draw_stepSequencer_parameter_text(2, ENCODER_MIDICH_OUT, 2, channelOutNames[allTracks[active_track]->parameter[9]], "MCh");
             // draw_stepSequencer_parameter_value(2, ENCODER_CLIP2_EDIT, 2, allTracks[active_track]->parameter[11], "Clip");
+        }
+        if (lastProw == 3)
+        {
+            draw_sequencer_arranger_parameter(active_track, 0, "Prob", allTracks[active_track]->parameter[SET_PROBABILTY], NO_NAME);
+
         }
     }
 }
