@@ -188,8 +188,8 @@ void tft_show()
         drawbarPosition();
         // updateClock = false;
     }
-    tft.fillRect(POSITION_POTROW_BUTTON * STEP_FRAME_W, 0, STEP_FRAME_W - 1, STEP_FRAME_H, ILI9341_DARKGREY);
-    tft.fillRect(STEP_FRAME_W * POSITION_POTROW_BUTTON, lastPotRow * 4, STEP_FRAME_W - 1, 3, ILI9341_ORANGE);
+    
+   
     tft.flush();
     //  tft.updateScreenAsync();
 } // cursor
@@ -453,7 +453,7 @@ void draw_arranger_parameters(uint8_t lastProw)
     {
         // drawOctaveNumber();
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        change_plugin_row = false;
+        //change_plugin_row = false;
         if (lastProw == 0)
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
@@ -471,12 +471,19 @@ void draw_arranger_parameters(uint8_t lastProw)
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Velo", allTracks[gridTouchY - 1]->barVelocity[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
         }
-        if (lastProw == 2)
+        if (lastProw == 3)
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "ccC", allTracks[gridTouchY - 1]->play_presetNr_ccChannel[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "ccV", allTracks[gridTouchY - 1]->play_presetNr_ccValue[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+        }
+        if (lastProw == 2)
+        {
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Prob", allTracks[gridTouchY - 1]->barProbabilty[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
         }
     }
 }
@@ -500,18 +507,26 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
     }
 
     int x_start = ((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1;
-    int y_base = (track->my_Arranger_Y_axis * TRACK_FRAME_H) + 12;
+    int y_base = (track->my_Arranger_Y_axis * TRACK_FRAME_H) + 3;
+
+    int velo = track->barVelocity[_bar];
+    int prob = track->barProbabilty[_bar];
+    int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 2) + y_base;
+    int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H));
+    int radius = map(prob, 127, 0, 0, STEP_FRAME_H / 2);
 
     // Hintergrundlinie zeichnen
-    for (int thickness = -15; thickness < 15; thickness++)
+    // for (int thickness = -15; thickness < 15; thickness++)
     {
-        tft.drawFastHLine(x_start, y_base + thickness, STEP_FRAME_W - 1, ILI9341_DARKGREY);
+        tft.fillRect(x_start, y_base, STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
+        // tft.drawFastHLine(x_start, y_base + thickness, STEP_FRAME_W - 1, ILI9341_DARKGREY);
     }
 
     // Aktive Clip-Farbe zeichnen
-    for (int thickness = -minY; thickness < minY; thickness++)
+    // for (int thickness = -minY; thickness < minY; thickness++)
     {
-        tft.drawFastHLine(x_start, y_base + thickness, STEP_FRAME_W - 1, _color);
+        tft.fillRoundRect(x_start, startY, STEP_FRAME_W, sizeY, radius, _color);
+        // tft.drawFastHLine(x_start, y_base + thickness, STEP_FRAME_W - 1, _color);
     }
 
     // Falls ein Clip existiert, Werte einzeichnen
@@ -641,11 +656,11 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
     if (change_plugin_row)
     {
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawOctaveNumber();
 
         if (lastProw == 0)
-        { 
+        {
             draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1] + (allTracks[active_track]->parameter[SET_OCTAVE] * 12), NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[14]], allTracks[active_track]->parameter[2], NO_NAME);
@@ -680,8 +695,7 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
         }
         if (lastProw == 3)
         {
-            draw_sequencer_arranger_parameter(active_track, 0, "Prob", allTracks[active_track]->parameter[SET_PROBABILTY], NO_NAME);
-
+            // draw_sequencer_arranger_parameter(active_track, 0, "Prob", allTracks[active_track]->parameter[SET_PROBABILTY], NO_NAME);
         }
     }
 }
@@ -696,30 +710,30 @@ void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length)
 
 void draw_note_on_tick(uint8_t _voice, uint8_t _when)
 {
-    auto& clip = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]];
-    auto& tick = clip.tick[_when];
-  //  uint8_t start_tick = tick.startTick[_voice];
+    auto &clip = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]];
+    auto &tick = clip.tick[_when];
+    //  uint8_t start_tick = tick.startTick[_voice];
     uint8_t note = tick.voice[_voice];
     if (!(note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE &&
-          note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)) {
+          note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE))
+    {
         return;
     }
-    
+
     uint8_t velo = tick.velo[_voice];
     uint8_t stepFX = tick.stepFX[_voice];
     uint8_t length = tick.noteLength[_voice];
-    
+
     int xPos = (_when * 3) + (STEP_FRAME_W * 2);
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
-    
+
     int _color = trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
-    
+
     int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 3);
     int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
     int radius = map(stepFX, 127, 0, 0, STEP_FRAME_H / 3);
-    
+
     tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
-    
 }
 void draw_notes_in_grid()
 {
@@ -752,7 +766,7 @@ void draw_MIDI_CC_screen()
     if (change_plugin_row)
     {
         //
-        change_plugin_row = false;
+        //change_plugin_row = false;
         draw_MIDI_CC(0, 0);
         draw_MIDI_CC(1, 0);
         draw_MIDI_CC(2, 0);
@@ -788,7 +802,7 @@ void draw_mixer()
 
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
@@ -820,7 +834,7 @@ void draw_mixer_FX_page1()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixDryPot, "Dry D");
         drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 D");
         drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 D");
@@ -847,7 +861,7 @@ void draw_mixer_FX_page2()
 
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, allTracks[4]->mixDryPot, "Dry 5");
         drawPot(1, 0, allTracks[4]->mixFX1Pot, "FX1 5");
         drawPot(2, 0, allTracks[4]->mixFX2Pot, "FX2 5");
@@ -899,4 +913,3 @@ void draw_clip_launcher()
         }
     }
 }
-

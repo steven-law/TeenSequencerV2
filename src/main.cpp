@@ -190,7 +190,6 @@ void setup()
     trellis.writeDisplay();
     delay(1);
   }
-
 }
 
 void loop()
@@ -230,9 +229,12 @@ void loop()
   unsigned long updateMidiCurrentMillis = micros();
   // if we need to restart the trellisboard
 
-  if (updateMidiCurrentMillis - updateMidiPreviousMillis >= 250)
+  if (change_plugin_row)
   {
     // midi_read();
+    tft.fillRect(POSITION_POTROW_BUTTON, STEP_FRAME_H, 5, STEP_FRAME_H * 12, ILI9341_DARKGREY);
+    tft.fillRect(POSITION_POTROW_BUTTON, (lastPotRow * 3 * STEP_FRAME_H) + STEP_FRAME_H, 5, STEP_FRAME_H * 3, ILI9341_ORANGE);
+    change_plugin_row=false;
     updateMidiPreviousMillis = updateMidiCurrentMillis;
   }
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
@@ -258,7 +260,7 @@ void loop()
   {
     drawPositionCounter();
     tft_show();
-   
+
     //  Serial.printf("active encoder page: %d\n", activeScreen);
     updateTFTScreen = false;
     enc_moved[0] = false;
@@ -703,7 +705,6 @@ void trellis_show_tft_mixer()
         trellis.writeDisplay();
       }
     }
-    
 
     if (trellisPressed[0])
     {
@@ -793,7 +794,6 @@ void trellis_show_tft_mixer()
       clearWorkSpace();
       fx_3.draw_plugin();
       show_active_page_info("FX Ctrl", 3);
-
     }
     if (trellisPressed[6])
     {
@@ -807,7 +807,6 @@ void trellis_show_tft_mixer()
       clearWorkSpace();
       set_perform_page(lastPotRow);
       show_active_page_info("Perform", 0);
-
     }
     if (trellisPressed[7])
     {
@@ -1536,8 +1535,6 @@ void load_plugin(uint8_t _songNr, uint8_t _pluginNr)
 {
   allPlugins[_pluginNr]->load_plugin(_songNr);
 }
-
-
 
 bool compareFiles(File &file, SerialFlashFile &ffile)
 {

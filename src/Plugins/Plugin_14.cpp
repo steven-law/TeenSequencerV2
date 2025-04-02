@@ -140,7 +140,7 @@ void Plugin_14::draw_plugin()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         // Serial.println("drawing plugin 2");
         drawPot(0, 0, potentiometer[presetNr][0], "Rec W~F");
         drawPot(1, 0, potentiometer[presetNr][1], "Rec Vol");

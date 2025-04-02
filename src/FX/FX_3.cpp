@@ -31,7 +31,7 @@ void FX_3::draw_plugin()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, potentiometer[presetNr][0], "Time");
         drawPot(1, 0, potentiometer[presetNr][1], "Feedback");
     }

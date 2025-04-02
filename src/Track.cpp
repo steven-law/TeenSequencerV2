@@ -61,6 +61,7 @@ void Track::save_track(uint8_t songNr)
             this->myTrackFile.print((char)clip_to_play[i]);
             this->myTrackFile.print((char)noteOffset[i]);
             this->myTrackFile.print((char)barVelocity[i]);
+            this->myTrackFile.print((char)barProbabilty[i]);
             this->myTrackFile.print((char)play_presetNr_ccChannel[i]);
             this->myTrackFile.print((char)play_presetNr_ccValue[i]);
         }
@@ -166,6 +167,7 @@ void Track::load_track(uint8_t songNr)
             clip_to_play[i] = this->myTrackFile.read();
             noteOffset[i] = this->myTrackFile.read();
             barVelocity[i] = this->myTrackFile.read();
+            barProbabilty[i] = this->myTrackFile.read();
             play_presetNr_ccChannel[i] = this->myTrackFile.read();
             play_presetNr_ccValue[i] = this->myTrackFile.read();
             if (clip_to_play[i] <= NUM_USER_CLIPS)
@@ -380,12 +382,16 @@ void Track::set_arranger_parameters(uint8_t lastProw)
         set_bar_parameter(2, pixelTouchX, clip_to_play, 0, NUM_USER_CLIPS + 1, "Clip");
         set_bar_parameter(3, pixelTouchX, barVelocity, 0, 127, "Velo");
         break;
-    case 2:
+    case 3:
         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
         set_bar_parameter(2, pixelTouchX, play_presetNr_ccChannel, 0, NUM_PRESETS, "ccC");
         set_bar_parameter(3, pixelTouchX, play_presetNr_ccValue, 0, NUM_PRESETS, "ccV");
         break;
-    case 3:
+    case 2:
+        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        set_bar_parameter(2, pixelTouchX, clip_to_play, 0, NUM_USER_CLIPS + 1, "Clip");
+        set_bar_parameter(3, pixelTouchX, barProbabilty, 0, 127, "Prob");
+        break;
     default:
         break;
     }
@@ -403,7 +409,7 @@ void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int 
             parameterArray[when] = _when;
             for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
             {
-                if (enc_moved[2])
+                if (enc_moved[2] && lastPotRow != 3)
                     clip_to_play[when + i] = _when;
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
@@ -453,6 +459,8 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
             barVelocity[bar_to_edit + i] = barVelocity[bar_for_copying];
             play_presetNr_ccChannel[bar_to_edit + i] = play_presetNr_ccChannel[bar_for_copying];
             play_presetNr_ccValue[bar_to_edit + i] = play_presetNr_ccValue[bar_for_copying];
+            barProbabilty[bar_to_edit + i] = barProbabilty[bar_for_copying];
+
             draw_arrangment_line(my_Arranger_Y_axis - 1, bar_to_edit + i);
         }
     }

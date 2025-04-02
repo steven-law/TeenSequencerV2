@@ -33,7 +33,7 @@ void Track::play_seq_mode0(uint8_t cloock)
         {
             if (!note_is_on[v])
             {
-                if (random(126) < parameter[SET_PROBABILTY]) // probabilty
+                if (random(126) < barProbabilty[internal_clock_bar]) // probabilty
                 {
                     noteToPlay[v] = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].voice, v) + noteOffset[external_clock_bar] + performNoteOffset;
                     uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
@@ -152,7 +152,7 @@ void Track::draw_seq_mode1()
       */
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, seqMod_value[1][0], "baseNote");
         drawPot(1, 0, seqMod_value[1][1], "Scale");
         drawPot(2, 0, seqMod_value[1][2], "Oct -");
@@ -278,7 +278,7 @@ void Track::draw_seq_mode2()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, seqMod_value[2][0], "Drop");
         drawPot(1, 0, seqMod_value[2][1], "Rst @");
         drawPot(2, 0, seqMod_value[2][2], "Oct -");
@@ -358,7 +358,7 @@ void Track::draw_seq_mode3()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, seqMod_value[3][0], noteNames[0]);
         drawPot(1, 0, seqMod_value[3][1], noteNames[1]);
         drawPot(2, 0, seqMod_value[3][2], noteNames[2]);
@@ -447,7 +447,7 @@ void Track::draw_seq_mode4()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, seqMod_value[4][0], "1");
         drawPot(1, 0, seqMod_value[4][1], "2");
         drawPot(2, 0, seqMod_value[4][2], "3");
@@ -553,7 +553,7 @@ void Track::draw_seq_mode5()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, seqMod_value[5][0], "1");
         drawPot(1, 0, seqMod_value[5][1], "2");
         drawPot(2, 0, seqMod_value[5][2], "3");
@@ -701,7 +701,7 @@ void Track::draw_seq_mode6()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, seqMod_value[6][0], "1");
         drawPot(1, 0, seqMod_value[6][1], "2");
         drawPot(2, 0, seqMod_value[6][2], "3");
@@ -848,7 +848,7 @@ void Track::draw_seq_mode7()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         drawPot(0, 0, seqMod_value[7][0], "Steps");
         drawPot(1, 0, seqMod_value[7][1], "Offset");
         drawPot(2, 0, seqMod_value[7][2], "Note -");

@@ -629,7 +629,7 @@ void draw_perform_page()
 {
   if (change_plugin_row)
   {
-    change_plugin_row = false;
+    //change_plugin_row = false;
     for (int i = 0; i < NUM_STEPS; i++)
     {
       drawPot(i % 4, i / 4, performCC[i], "CC");

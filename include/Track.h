@@ -36,7 +36,6 @@
 
 #define ENCODER_PROBABILITY 0
 
-
 #define NUM_PARAMETERS 16
 
 extern File myFile;
@@ -115,10 +114,10 @@ public:
     int clip_to_play[MAX_BARS];
     int noteOffset[MAX_BARS];
     int barVelocity[MAX_BARS];
-    int bar_for_copying;
-
+    int barProbabilty[MAX_BARS] = {127};
     int play_presetNr_ccChannel[MAX_BARS];
     int play_presetNr_ccValue[MAX_BARS];
+    int bar_for_copying;
     Track(uint8_t Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
@@ -158,6 +157,7 @@ public:
             barVelocity[i] = 127;
             play_presetNr_ccChannel[i] = 8;
             play_presetNr_ccValue[i] = 8;
+            barProbabilty[i]=127;
         }
         for (int p = 0; p < NUM_PRESETS + 1; p++)
         {

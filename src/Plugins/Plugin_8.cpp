@@ -110,7 +110,7 @@ void Plugin_8::draw_plugin()
 {
     if (change_plugin_row)
     {
-        change_plugin_row = false;
+        //change_plugin_row = false;
         // Serial.println("drawing plugin 2");
         drawPot(0, 0, potentiometer[presetNr][0], "W~Form");
         drawPot(1, 0, potentiometer[presetNr][1], "Detune");
