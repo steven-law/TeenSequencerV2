@@ -37,7 +37,7 @@ void Track::set_stepSequencer_parameters(uint8_t row)
 
         break;
     case 3:
-       // set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Prob", 0, MIDI_CC_RANGE);
+        // set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Prob", 0, MIDI_CC_RANGE);
 
     default:
         break;
@@ -227,60 +227,69 @@ void Track::set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label,
 
 // helpers
 // sequencer note input stuff
-uint8_t Track::get_note_parameter(uint8_t *parameterArray, uint8_t _voice)
+uint8_t Track::get_note_parameter(const uint8_t *parameterArray, uint8_t _voice)
 {
     return parameterArray[_voice];
 }
 
 void Track::set_note_on_tick(int x, int voice, int length)
 {
-    if (x < 0 || x > 96)
-        return;
+    if (x < 0 || x >= 96 || clip == nullptr)
+        return; // Clip darf nicht null sein!
+
+    clip_t *clipPtr = clip;          // Richtiger Typ
+    tick_t *tickPtr = clipPtr[parameter[SET_CLIP2_EDIT]].tick; // Zugriff auf das Tick-Array
+
     uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-    uint8_t noteInClip = clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice];
-    // oldNote = (oldNote == note2set) ? NO_NOTE : (oldNote == NO_NOTE ? note2set : oldNote);
+    uint8_t noteInClip = tickPtr[x].voice[voice];
+    uint8_t velocity = parameter[SET_VELO2SET];
+    uint8_t stepFX = parameter[SET_STEP_FX];
+
+    bool isNoteClearing = (noteInClip == note2set);
+    bool isNewNote = (noteInClip == NO_NOTE);
+
+    if (isNewNote)
+    {
+        tickPtr[x].noteLength[voice] = length;
+    }
 
     for (int i = 0; i < length; i++)
     {
-
         uint8_t onTick = x + i;
 
-        // Note löschen oder setzen
-        if (noteInClip == note2set)
+        if (isNoteClearing)
         {
-            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = NO_NOTE;
-            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = 0;
-            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice] = 0;
-            //  clip[parameter[SET_CLIP2_EDIT]].tick[onTick].startTick[voice] = 0;
+            tickPtr[onTick].voice[voice] = NO_NOTE;
+            tickPtr[onTick].velo[voice] = 0;
+            tickPtr[x].noteLength[voice] = 0;
         }
-        else if (noteInClip == NO_NOTE)
+        else if (isNewNote)
         {
-            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice] = note2set;
-            clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[voice] = parameter[SET_VELO2SET];
-            clip[parameter[SET_CLIP2_EDIT]].tick[x].noteLength[voice] = length;
-            //  clip[parameter[SET_CLIP2_EDIT]].tick[onTick].startTick[voice] = x;
+            tickPtr[onTick].voice[voice] = note2set;
+            tickPtr[onTick].velo[voice] = velocity;
         }
 
-        // Parameter setzen
-        clip[parameter[SET_CLIP2_EDIT]].tick[onTick].stepFX[voice] = parameter[SET_STEP_FX];
+        tickPtr[onTick].stepFX[voice] = stepFX;
 
-        // Farbe für Trellis bestimmen
+        // Farbe für Trellis bestimmen (nur wenn nötig)
         int trellisColor = TRELLIS_BLACK;
         for (int v = 0; v < MAX_VOICES; v++)
         {
-            if (get_note_parameter(clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice, v) < NO_NOTE)
+            if (get_note_parameter(tickPtr[onTick].voice, v) < NO_NOTE)
             {
                 trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
                 break;
             }
         }
-        // Serial.printf("Set NOte: %d on ntick: %d \n", clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[voice], onTick);
         trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
     }
+
     if (active_track == my_Arranger_Y_axis - 1)
     {
-        if (clip[parameter[SET_CLIP2_EDIT]].tick[x].voice[voice] == NO_NOTE)
+        if (tickPtr[x].voice[voice] == NO_NOTE)
+        {
             erase_note_on_tick(voice, x, length);
+        }
         else
         {
             draw_note_on_tick(voice, x);

@@ -157,7 +157,7 @@ public:
             barVelocity[i] = 127;
             play_presetNr_ccChannel[i] = 8;
             play_presetNr_ccValue[i] = 8;
-            barProbabilty[i]=127;
+            barProbabilty[i] = 127;
         }
         for (int p = 0; p < NUM_PRESETS + 1; p++)
         {
@@ -187,7 +187,7 @@ public:
     void clear_arrangment();
     // stepsequencer
     void set_note_on_tick(int x, int voice, int length);
-    uint8_t get_note_parameter(uint8_t *parameterArray, uint8_t _voice);
+    uint8_t get_note_parameter(const uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters(uint8_t row);
     void clear_active_clip();
     // seqmodes

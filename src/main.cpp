@@ -524,14 +524,13 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     {
       MIDI1.sendNoteOn(Note, Velo, Channel);
     }
-
     if (Channel > 16 && Channel <= 32)
       usbMIDI.sendNoteOn(Note, Velo, Channel - 16);
     if (Channel > 32 && Channel <= 48)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+    //Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)

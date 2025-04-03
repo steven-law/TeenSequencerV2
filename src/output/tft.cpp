@@ -188,8 +188,7 @@ void tft_show()
         drawbarPosition();
         // updateClock = false;
     }
-    
-   
+
     tft.flush();
     //  tft.updateScreenAsync();
 } // cursor
@@ -453,45 +452,49 @@ void draw_arranger_parameters(uint8_t lastProw)
     {
         // drawOctaveNumber();
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        //change_plugin_row = false;
-        if (lastProw == 0)
+        // change_plugin_row = false;
+        switch (lastProw)
+        {
+        case 0:
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Trns", allTracks[gridTouchY - 1]->noteOffset[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
-
-            //
-            // draw_velocity(3, 0);
+            break;
         }
-        if (lastProw == 1)
+        case 1:
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Prob", allTracks[gridTouchY - 1]->barProbabilty[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Velo", allTracks[gridTouchY - 1]->barVelocity[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            break;
         }
-        if (lastProw == 3)
+        case 2:
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "ccC", allTracks[gridTouchY - 1]->play_presetNr_ccChannel[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "ccV", allTracks[gridTouchY - 1]->play_presetNr_ccValue[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            break;
         }
-        if (lastProw == 2)
+        case 3:
         {
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Prob", allTracks[gridTouchY - 1]->barProbabilty[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Tempo", myClock.tempo, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Start", myClock.startOfLoop, "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "End", myClock.endOfLoop, "NO_NAME");
+            break;
         }
-    }
+        default:
+            break;
+        }
+        }
 }
 
 void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
 {
     auto *track = allTracks[_trackNr]; // Zeiger für besseren Zugriff
-    int minY = map(track->barVelocity[_bar], 0, 127, 0, 10);
     int clip = track->clip_to_play[_bar];
 
     // Standardfarben setzen
@@ -656,7 +659,7 @@ void draw_stepSequencer_parameters(uint8_t lastProw)
     if (change_plugin_row)
     {
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        //change_plugin_row = false;
+        // change_plugin_row = false;
         drawOctaveNumber();
 
         if (lastProw == 0)
@@ -766,7 +769,7 @@ void draw_MIDI_CC_screen()
     if (change_plugin_row)
     {
         //
-        //change_plugin_row = false;
+        // change_plugin_row = false;
         draw_MIDI_CC(0, 0);
         draw_MIDI_CC(1, 0);
         draw_MIDI_CC(2, 0);
@@ -802,7 +805,7 @@ void draw_mixer()
 
     if (change_plugin_row)
     {
-        //change_plugin_row = false;
+        // change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
@@ -834,7 +837,7 @@ void draw_mixer_FX_page1()
 {
     if (change_plugin_row)
     {
-        //change_plugin_row = false;
+        // change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixDryPot, "Dry D");
         drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 D");
         drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 D");
@@ -861,7 +864,7 @@ void draw_mixer_FX_page2()
 
     if (change_plugin_row)
     {
-        //change_plugin_row = false;
+        // change_plugin_row = false;
         drawPot(0, 0, allTracks[4]->mixDryPot, "Dry 5");
         drawPot(1, 0, allTracks[4]->mixFX1Pot, "FX1 5");
         drawPot(2, 0, allTracks[4]->mixFX2Pot, "FX2 5");
