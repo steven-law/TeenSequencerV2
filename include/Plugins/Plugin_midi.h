@@ -39,7 +39,7 @@ public:
     {
         if (change_plugin_row)
         {
-            //change_plugin_row = false;
+            change_plugin_row = false;
             // Serial.println("drawing MIDI plugin");
         }
     }

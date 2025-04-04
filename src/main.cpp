@@ -82,10 +82,10 @@ void trellis_play_mixer();
 void trellis_perform();
 
 // mixer
-void set_mixer(uint8_t row);
+void set_mixer();
 void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
-void set_mixer_FX_page1(uint8_t row);
-void set_mixer_FX_page2(uint8_t row);
+void set_mixer_FX_page1();
+void set_mixer_FX_page2();
 void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
@@ -212,10 +212,11 @@ void loop()
   readEncoders();
   trellis_update();
   neotrellis_update();
+
   midi_read();
   touch_update();
   input_behaviour();
-
+  draw_potRow();
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
@@ -226,17 +227,9 @@ void loop()
   get_infobox_background();
   unsigned long loopEndTime = millis();
   unsigned long neotrellisCurrentMillis = millis();
-  unsigned long updateMidiCurrentMillis = micros();
+
   // if we need to restart the trellisboard
 
-  if (change_plugin_row)
-  {
-    // midi_read();
-    tft.fillRect(POSITION_POTROW_BUTTON, STEP_FRAME_H, 5, STEP_FRAME_H * 12, ILI9341_DARKGREY);
-    tft.fillRect(POSITION_POTROW_BUTTON, (lastPotRow * 3 * STEP_FRAME_H) + STEP_FRAME_H, 5, STEP_FRAME_H * 3, ILI9341_ORANGE);
-    change_plugin_row=false;
-    updateMidiPreviousMillis = updateMidiCurrentMillis;
-  }
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
   {
     // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisScreen);
@@ -316,11 +309,11 @@ void input_behaviour()
     if (neotrellisPressed[TRELLIS_POTROW])
     {
       change_plugin_row = true;
-      draw_stepSequencer_parameters(lastPotRow);
+      draw_stepSequencer_parameters();
       Serial.printf("active screen: %d, activeTrack: %d\n", activeScreen, active_track);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
-    allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
+    allTracks[active_track]->set_stepSequencer_parameters();
 
     break;
   }
@@ -328,7 +321,7 @@ void input_behaviour()
   {
     neotrellis_SetCursor(8);
     trellis_set_arranger();
-    allTracks[gridTouchY - 1]->set_arranger_parameters(lastPotRow);
+    allTracks[gridTouchY - 1]->set_arranger_parameters();
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
       allTracks[active_track]->clear_arrangment();
@@ -336,7 +329,7 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
       neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
     }
-    draw_arranger_parameters(lastPotRow);
+    draw_arranger_parameters();
     if (neotrellisPressed[TRELLIS_POTROW])
     {
       Serial.printf("active screen: %d, arrangerpage: %d\n", activeScreen, arrangerpage);
@@ -379,20 +372,20 @@ void input_behaviour()
   }
   case INPUT_FUNCTIONS_FOR_MIXER1:
   {
-    set_mixer(lastPotRow);
+    set_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER2:
   {
     trellis_play_mixer();
-    set_mixer_FX_page1(lastPotRow);
+    set_mixer_FX_page1();
 
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER3:
   {
     trellis_play_mixer();
-    set_mixer_FX_page2(lastPotRow);
+    set_mixer_FX_page2();
     break;
   }
   case INPUT_FUNCTIONS_FOR_FX1:
@@ -530,7 +523,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    //Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -956,18 +949,15 @@ void trellis_perform()
   if (trellisScreen != TRELLIS_SCREEN_PERFORM)
     return;
 
-  set_perform_page(lastPotRow);
   for (int t = 0; t < NUM_TRACKS; t++)
   {
     for (int i = 0; i < NUM_STEPS; i++)
     {
       int _nr = i + (t * TRELLIS_PADS_X_DIM);
       if (trellisPressed[_nr])
-
       {
-        // change_plugin_row = true;
         trellisPressed[_nr] = false;
-        if (_nr % TRELLIS_PADS_X_DIM == 0)
+        if (_nr % TRELLIS_PADS_X_DIM == 0) // volume
         {
 
           for (int s = 0; s < NUM_TRACKS; s++)
@@ -985,7 +975,7 @@ void trellis_perform()
           // tft.printf("send CC%d =  %d ", performCC[0],127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 1)
+        if (_nr % TRELLIS_PADS_X_DIM == 1) // dry mix
         {
           for (int s = 0; s < NUM_TRACKS; s++)
           {
@@ -1008,7 +998,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[1], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 2)
+        if (_nr % TRELLIS_PADS_X_DIM == 2) // reverb mix
         {
           for (int s = 0; s < NUM_TRACKS; s++)
           {
@@ -1030,7 +1020,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[2], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 3)
+        if (_nr % TRELLIS_PADS_X_DIM == 3) // bitcrusher mix
         {
           for (int s = 0; s < NUM_TRACKS; s++)
           {
@@ -1052,7 +1042,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[3], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 4)
+        if (_nr % TRELLIS_PADS_X_DIM == 4) // delay mix
         {
           for (int s = 0; s < NUM_TRACKS; s++)
           {
@@ -1075,7 +1065,7 @@ void trellis_perform()
           reset_infobox_background();
         }
 
-        if (_nr % TRELLIS_PADS_X_DIM == 5)
+        if (_nr % TRELLIS_PADS_X_DIM == 5) // reverb roomsize
         {
           fx_1.potentiometer[fx_1.presetNr][0] = 127 - (t * 16);
           fx_1.freeverb.roomsize((float)map(t, 0, 8, 0, 1.00));
@@ -1091,7 +1081,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[5], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 6)
+        if (_nr % TRELLIS_PADS_X_DIM == 6) // reverb damping
         {
 
           fx_1.potentiometer[fx_1.presetNr][1] = 127 - (t * 16);
@@ -1108,7 +1098,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[6], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 7)
+        if (_nr % TRELLIS_PADS_X_DIM == 7) // bit depth
         {
           fx_2.potentiometer[fx_2.presetNr][0] = 127 - (t * 16);
 
@@ -1125,7 +1115,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[7], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 8)
+        if (_nr % TRELLIS_PADS_X_DIM == 8) // bitrate
         {
           int _rate[Y_DIM] = {44100, 22050, 11025, 5512, 2756, 1378, 1022, 689};
           fx_2.potentiometer[fx_2.presetNr][1] = 127 - (t * 16);
@@ -1142,7 +1132,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[8], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 9)
+        if (_nr % TRELLIS_PADS_X_DIM == 9) // delay time
         {
           fx_3.potentiometer[fx_3.presetNr][0] = 127 - (t * 16);
           fx_3.delay.delay(0, 500 / (t + 1));
@@ -1158,7 +1148,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[9], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 10)
+        if (_nr % TRELLIS_PADS_X_DIM == 10) // delay mix
         {
           fx_3.potentiometer[fx_3.presetNr][1] = 127 - (t * 16);
           fx_3.delayMixer.gain(1, t / 8.00);
@@ -1174,7 +1164,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[10], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 11)
+        if (_nr % TRELLIS_PADS_X_DIM == 11) // filter frequency
         {
           int frequency = note_frequency[t * 16] * tuning;
           MasterOut.finalFilter.frequency(frequency);
@@ -1190,7 +1180,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[11], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 12)
+        if (_nr % TRELLIS_PADS_X_DIM == 12) // filter Resonance
         {
           MasterOut.finalFilter.resonance(map(t, 0, 8, 0, 5.00));
           for (int s = 0; s < NUM_TRACKS; s++)
@@ -1205,7 +1195,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[12], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 13)
+        if (_nr % TRELLIS_PADS_X_DIM == 13) // cliplength
         {
           uint8_t _clipLength[Y_DIM]{MAX_TICKS, 72, 60, MAX_TICKS / 2, 36, MAX_TICKS / 4, MAX_TICKS / 8, MAX_TICKS / 16};
           for (int s = 0; s < NUM_TRACKS; s++)
@@ -1235,7 +1225,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[13], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 14)
+        if (_nr % TRELLIS_PADS_X_DIM == 14) // clock division
         {
           uint8_t _clockDivision[Y_DIM]{0, 1, 2, 3, 4, 6, 8, 16};
           for (int s = 0; s < NUM_TRACKS; s++)
@@ -1260,7 +1250,7 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[14], 127 - (t * 16));
           reset_infobox_background();
         }
-        if (_nr % TRELLIS_PADS_X_DIM == 15)
+        if (_nr % TRELLIS_PADS_X_DIM == 15) // transpose
         {
           int _offset[Y_DIM]{0, -12, -4, -2, 2, 4, 6, 12};
           for (int s = 0; s < NUM_TRACKS; s++)
@@ -1279,37 +1269,53 @@ void trellis_perform()
           tft.printf("send CC%d =  %d ", performCC[15], 127 - (t * 16));
           reset_infobox_background();
         }
+        // change_plugin_row = true;
       }
     }
   }
+  set_perform_page(lastPotRow);
 }
 
 // Mixer
-void set_mixer(uint8_t row)
+void set_mixer()
 {
   draw_mixer();
-  if (row == 0)
+  switch (lastPotRow)
+  {
+  case 0:
   {
     set_mixer_gain(0, 0, "Tr D", 0);
     set_mixer_gain(1, 0, "Tr 2", 1);
     set_mixer_gain(2, 0, "Tr 3", 2);
     set_mixer_gain(3, 0, "Tr 4", 3);
   }
-
-  if (row == 1)
+  break;
+  case 1:
   {
+    set_mixer_gain(0, 0, "Tr D", 0);
+    set_mixer_gain(1, 0, "Tr 2", 1);
+    set_mixer_gain(2, 0, "Tr 3", 2);
+    set_mixer_gain(3, 0, "Tr 4", 3);
   }
-
-  if (row == 2)
+  break;
+  case 2:
   {
     set_mixer_gain(0, 2, "Tr 5", 4);
     set_mixer_gain(1, 2, "Tr 6", 5);
     set_mixer_gain(2, 2, "Tr 7", 6);
     set_mixer_gain(3, 2, "Tr 8", 7);
   }
-
-  if (row == 3)
+  break;
+  case 3:
   {
+    set_mixer_gain(0, 2, "Tr 5", 4);
+    set_mixer_gain(1, 2, "Tr 6", 5);
+    set_mixer_gain(2, 2, "Tr 7", 6);
+    set_mixer_gain(3, 2, "Tr 8", 7);
+  }
+  break;
+  default:
+    break;
   }
 }
 void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
@@ -1349,10 +1355,11 @@ void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn
   }
 }
 
-void set_mixer_FX_page1(uint8_t row)
+void set_mixer_FX_page1()
 {
   draw_mixer_FX_page1();
-  if (row == 0)
+
+  if (lastPotRow == 0)
   {
 
     set_mixer_dry(0, 0, "Dry D", 0);
@@ -1361,7 +1368,7 @@ void set_mixer_FX_page1(uint8_t row)
     set_mixer_FX3(3, 0, "FX3 D", 0);
   }
 
-  if (row == 1)
+  if (lastPotRow == 1)
   {
     set_mixer_dry(0, 1, "Dry 2", 1);
     set_mixer_FX1(1, 1, "FX1 2", 1);
@@ -1369,7 +1376,7 @@ void set_mixer_FX_page1(uint8_t row)
     set_mixer_FX3(3, 1, "FX3 2", 1);
   }
 
-  if (row == 2)
+  if (lastPotRow == 2)
   {
     set_mixer_dry(0, 2, "Dry 3", 2);
     set_mixer_FX1(1, 2, "FX1 3", 2);
@@ -1377,7 +1384,7 @@ void set_mixer_FX_page1(uint8_t row)
     set_mixer_FX3(3, 2, "FX3 3", 2);
   }
 
-  if (row == 3)
+  if (lastPotRow == 3)
   {
     set_mixer_dry(0, 3, "Dry 4", 3);
     set_mixer_FX1(1, 3, "FX1 4", 3);
@@ -1385,10 +1392,10 @@ void set_mixer_FX_page1(uint8_t row)
     set_mixer_FX3(3, 3, "FX3 4", 3);
   }
 }
-void set_mixer_FX_page2(uint8_t row)
+void set_mixer_FX_page2()
 {
   draw_mixer_FX_page1();
-  if (row == 0)
+  if (lastPotRow == 0)
   {
 
     set_mixer_dry(0, 0, "Dry 5", 4);
@@ -1397,7 +1404,7 @@ void set_mixer_FX_page2(uint8_t row)
     set_mixer_FX3(3, 0, "FX3 5", 4);
   }
 
-  if (row == 1)
+  if (lastPotRow == 1)
   {
     set_mixer_dry(0, 1, "Dry 6", 5);
     set_mixer_FX1(1, 1, "FX1 6", 5);
@@ -1405,7 +1412,7 @@ void set_mixer_FX_page2(uint8_t row)
     set_mixer_FX3(3, 1, "FX3 6", 5);
   }
 
-  if (row == 2)
+  if (lastPotRow == 2)
   {
     set_mixer_dry(0, 2, "Dry 7", 6);
     set_mixer_FX1(1, 2, "FX1 7", 6);
@@ -1413,7 +1420,7 @@ void set_mixer_FX_page2(uint8_t row)
     set_mixer_FX3(3, 2, "FX3 7", 6);
   }
 
-  if (row == 3)
+  if (lastPotRow == 3)
   {
     set_mixer_dry(0, 3, "Dry 8", 7);
     set_mixer_FX1(1, 3, "FX1 8", 7);

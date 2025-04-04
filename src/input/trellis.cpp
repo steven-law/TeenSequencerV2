@@ -251,6 +251,7 @@ void neotrellis_set_potRow()
   {
     neotrellisPressed[TRELLIS_POTROW] = false;
     change_plugin_row = true;
+    change_row = true;
     lastPotRow++;
     if (lastPotRow >= 4)
     {
@@ -585,7 +586,7 @@ void trellis_set_arranger()
                 Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", _track, _bar, _clipNr);
                 for (int i = 0; i < allTracks[_track]->parameter[SET_CLOCK_DIVISION]; i++)
                 {
-                  allTracks[_track]->set_clip_to_play_trellis(_bar, _clipNr);
+                  allTracks[_track]->set_clip_to_play_trellis(_bar + i, _clipNr);
                 }
                 break;
               }
@@ -600,21 +601,37 @@ void trellis_set_arranger()
             {
               uint8_t _key = x + (y * TRELLIS_PADS_X_DIM);
               // pixelTouchX = (_key % TRELLIS_PADS_X_DIM)*16+32;
-
+              if (trellisHeld[_key])
+              {
+                uint8_t _track = _key / NUM_STEPS;
+                uint8_t step = _key % NUM_STEPS;
+                uint8_t _bar = step + (arrangerpage * BARS_PER_PAGE);
+                for (int i = 1; i < NUM_STEPS - step; i++)
+                {
+                  if (trellisPressed[_key + i])
+                  {
+                    Serial.printf("tied Arranger track: %d, bar: %d, clip: %d\n", _track, _bar + i, gridTouchY);
+                    for (int b = 0; b <= i; b++)
+                      allTracks[_track]->set_clip_to_play_trellis(_bar + b, gridTouchY);
+                    trellisPressed[_key + i] = false;
+                    change_plugin_row = true;
+                    //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
+                  }
+                }
+              }
               if (trellisPressed[_key])
               {
 
                 uint8_t _clipPos = x;
                 uint8_t _track = y;
-                uint8_t _clipNr = gridTouchY;
                 uint8_t _bar = _clipPos + (arrangerpage * 16);
                 neotrellisPressed[3 + (X_DIM * (t + 4))] = false;
                 trellisPressed[_key] = false;
                 change_plugin_row = true;
-                Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 2\n", _track, _bar, _clipNr);
+                Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 2\n", _track, _bar, gridTouchY);
                 for (int i = 0; i < allTracks[_track]->parameter[SET_CLOCK_DIVISION]; i++)
                 {
-                  allTracks[_track]->set_clip_to_play_trellis(_bar, _clipNr);
+                  allTracks[_track]->set_clip_to_play_trellis(_bar + i, gridTouchY);
                 }
               }
             }
@@ -629,7 +646,7 @@ void draw_perform_page()
 {
   if (change_plugin_row)
   {
-    //change_plugin_row = false;
+     change_plugin_row = false;
     for (int i = 0; i < NUM_STEPS; i++)
     {
       drawPot(i % 4, i / 4, performCC[i], "CC");
@@ -702,37 +719,42 @@ void set_performCC(uint8_t XPos, uint8_t YPos, const char *name)
 void set_perform_page(uint8_t row)
 {
   draw_perform_page();
-  if (row == 0)
+  switch (lastPotRow)
   {
-
+  case 0:
+  {
     set_performCC(0, 0, "CC");
     set_performCC(1, 0, "CC");
     set_performCC(2, 0, "CC");
     set_performCC(3, 0, "CC");
   }
-
-  if (row == 1)
+  break;
+  case 1:
   {
     set_performCC(0, 1, "CC");
     set_performCC(1, 1, "CC");
     set_performCC(2, 1, "CC");
     set_performCC(3, 1, "CC");
   }
-
-  if (row == 2)
+  break;
+  case 2:
   {
     set_performCC(0, 2, "CC");
     set_performCC(1, 2, "CC");
     set_performCC(2, 2, "CC");
     set_performCC(3, 2, "CC");
   }
-
-  if (row == 3)
+  break;
+  case 3:
   {
     set_performCC(0, 3, "CC");
     set_performCC(1, 3, "CC");
     set_performCC(2, 3, "CC");
     set_performCC(3, 3, "CC");
+  }
+  break;
+  default:
+    break;
   }
 }
 void neotrellis_show_tft_plugin()
@@ -787,7 +809,7 @@ void neo_trellis_select_trackClips()
         trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
         // for (int i = 0; i < NUM_PARAMETERS; i++)
         drawStepSequencerStatic();
-        draw_stepSequencer_parameters(lastPotRow);
+        draw_stepSequencer_parameters();
         draw_notes_in_grid();
 
         neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
@@ -814,7 +836,7 @@ void neo_trellis_select_trackClips()
           // for (int i = 0; i < NUM_PARAMETERS; i++)
           change_plugin_row = true;
           drawStepSequencerStatic();
-          draw_stepSequencer_parameters(lastPotRow);
+          draw_stepSequencer_parameters();
           draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
@@ -837,22 +859,7 @@ void trellis_setStepsequencer()
   {
     if (!neotrellisPressed[TRELLIS_BUTTON_SAVELOAD])
     {
-      //  if (neotrellisPressed[TRELLIS_BUTTON_SHIFT] && !neotrellisPressed[TRELLIS_BUTTON_ENTER])
-      //  {
-      //    neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
-      //    for (int _voice = 0; _voice < 5; _voice++)
-      //    {
-      //
-      //      for (int _when = 0; _when < MAX_TICKS; _when++)
-      //      {
-      //        auto &clip = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]];
-      //        auto &tick = clip.tick[_when];
-      //        uint8_t note = tick.voice[_voice];
-      //        Serial.printf("tick = %d, note = %d, voice %d\n", _when, note, _voice);
-      //      }
-      //      Serial.println();
-      //    }
-      //  }
+
       for (int x = 0; x < NUM_STEPS; x++)
       {
         for (int y = 0; y < NUM_TRACKS; y++)
@@ -863,11 +870,6 @@ void trellis_setStepsequencer()
             track = _nr / NUM_STEPS;
             step = _nr % NUM_STEPS;
             int keyTick = step * 6;
-            //  if (oneTrellisIsPressed)
-            //  {
-            //    allTracks[track]->set_note_on_tick(keyTick, trellisNote);
-            //    oneTrellisIsPressed = false;
-            //  }
 
             for (int i = 1; i < NUM_STEPS - step; i++)
             {

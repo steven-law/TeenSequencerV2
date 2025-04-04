@@ -302,25 +302,25 @@ void Track::set_seq_mode_parameters(uint8_t row)
     switch (parameter[SET_SEQ_MODE])
     {
     case 1:
-        set_seq_mode1_parameters(row);
+        set_seq_mode1_parameters();
         break;
     case 2:
-        set_seq_mode2_parameters(row);
+        set_seq_mode2_parameters();
         break;
     case 3:
-        set_seq_mode3_parameters(row);
+        set_seq_mode3_parameters();
         break;
     case 4:
-        set_seq_mode4_parameters(row);
+        set_seq_mode4_parameters();
         break;
     case 5:
-        set_seq_mode5_parameters(row);
+        set_seq_mode5_parameters();
         break;
     case 6:
-        set_seq_mode6_parameters(row);
+        set_seq_mode6_parameters();
         break;
     case 7:
-        set_seq_mode7_parameters(row);
+        set_seq_mode7_parameters();
         break;
     default:
         break;
@@ -389,10 +389,10 @@ void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
     }
 }
 //---------------------------arranger stuff-------------------------------------
-void Track::set_arranger_parameters(uint8_t lastProw)
+void Track::set_arranger_parameters()
 {
 
-    switch (lastProw)
+    switch (lastPotRow)
     {
     case 0:
         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
@@ -401,13 +401,11 @@ void Track::set_arranger_parameters(uint8_t lastProw)
         break;
     case 1:
         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
-        // set_bar_parameter(2, pixelTouchX, clip_to_play, 0, NUM_USER_CLIPS + 1, "Clip");
         set_bar_parameter(2, pixelTouchX, barProbabilty, 0, 127, "Prob");
         set_bar_parameter(3, pixelTouchX, barVelocity, 0, 127, "Velo");
         break;
     case 2:
         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
-        // set_bar_parameter(2, pixelTouchX, clip_to_play, 0, NUM_USER_CLIPS + 1, "Clip");
         set_bar_parameter(2, pixelTouchX, play_presetNr_ccChannel, 0, NUM_PRESETS, "ccC");
         set_bar_parameter(3, pixelTouchX, play_presetNr_ccValue, 0, NUM_PRESETS, "ccV");
         break;
@@ -421,7 +419,7 @@ void Track::set_arranger_parameters(uint8_t lastProw)
         break;
     }
     copy_bar();
-    draw_arranger_parameters(lastProw);
+    draw_arranger_parameters();
 }
 void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int minValue, int maxValue, const char *label)
 {
@@ -493,11 +491,10 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
 void Track::set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr) // Songmode: sets a desired clip on a bar with only trellis input (bar = X, Clip = Y)
 {
 
-    for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
-    {
-        clip_to_play[_bar + i] = _clipNr;
-        draw_arrangment_line(my_Arranger_Y_axis - 1, _bar + i);
-    }
+   
+        clip_to_play[_bar ] = _clipNr;
+        draw_arrangment_line(my_Arranger_Y_axis - 1, _bar );
+    
     // updateTFTScreen = true;
     // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, 2, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
 }

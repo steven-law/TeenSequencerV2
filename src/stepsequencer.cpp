@@ -3,22 +3,20 @@
 
 #include "Track.h"
 
-void Track::set_stepSequencer_parameters(uint8_t row)
+void Track::set_stepSequencer_parameters()
 {
 
-    switch (row)
+    switch (lastPotRow)
     {
     case 0:
-        if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        {
-            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[14]], 0, 128);
-        }
-        if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[14]], 0, 128);
+
         encoder_SetCursor(parameter[SET_STEP_LENGTH] * 3, 14); // Encoder: 0+1
         set_stepSequencer_parameter_value(0, 0, "Tick", 0, 160);
         set_stepSequencer_parameter_value(1, 0, "Note", 0, 14);
-
+        if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[14]], 0, 128); // yPos=3 to get parameter 14
+        else if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[14]], 0, 128); // yPos=0 to get parameter 2
         set_stepSequencer_parameter_value(3, 0, "Velo", 0, 127);
         break;
     case 1:
@@ -42,7 +40,7 @@ void Track::set_stepSequencer_parameters(uint8_t row)
     default:
         break;
     }
-    draw_stepSequencer_parameters(row);
+    draw_stepSequencer_parameters();
 }
 
 void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max)
@@ -237,7 +235,7 @@ void Track::set_note_on_tick(int x, int voice, int length)
     if (x < 0 || x >= 96 || clip == nullptr)
         return; // Clip darf nicht null sein!
 
-    clip_t *clipPtr = clip;          // Richtiger Typ
+    clip_t *clipPtr = clip;                                    // Richtiger Typ
     tick_t *tickPtr = clipPtr[parameter[SET_CLIP2_EDIT]].tick; // Zugriff auf das Tick-Array
 
     uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);

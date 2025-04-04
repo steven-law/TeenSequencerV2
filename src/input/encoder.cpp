@@ -48,6 +48,10 @@ void readEncoders()
             enc_button[i] = true;
             Serial.printf("EncButton: %d\n", i);
         }
+        else if (encButtons[i].rose())
+        {
+            enc_button[i] = false;
+        }
 
         if (!encButtons[i].read())
             encMultiplier[i] = 8;
@@ -60,7 +64,7 @@ void readEncoders()
             updateTFTScreen = true;
             encoded[i] = encMultiplier[i];
             oldEnc[i] = newEnc[i];
-          //  Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
+            //  Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
         }
         if (newEnc[i] < oldEnc[i])
         {
@@ -70,7 +74,7 @@ void readEncoders()
             updateTFTScreen = true;
             encoded[i] = -encMultiplier[i];
             oldEnc[i] = newEnc[i];
-           // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
+            // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
         }
     }
     /*
@@ -91,7 +95,7 @@ void encoder_SetCursor(uint8_t deltaX, uint8_t maxY)
 
     if (enc_moved[0])
     {
-        pixelTouchX = constrain(pixelTouchX + encoded[0] * deltaX, 0, 480-STEP_FRAME_W);
+        pixelTouchX = constrain(pixelTouchX + encoded[0] * deltaX, 0, 480 - STEP_FRAME_W);
         // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", pixelTouchX / 16 - 2, "NO_NAME");
 
         // Serial.printf("encoder: %d + deltaX: %d = pixelTouchX %d\n", encoded[0], deltaX, pixelTouchX);
@@ -100,7 +104,7 @@ void encoder_SetCursor(uint8_t deltaX, uint8_t maxY)
     if (enc_moved[1])
     {
         gridTouchY = constrain(gridTouchY + encoded[1], 0, maxY);
-        
+
         // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
 
         // enc_moved[1] = false;

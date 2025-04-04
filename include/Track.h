@@ -180,7 +180,7 @@ public:
     void save_track(uint8_t songNr);
     void load_track(uint8_t songNr);
     // songmode
-    void set_arranger_parameters(uint8_t lastProw);
+    void set_arranger_parameters();
     void set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr);
     void set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int minValue, int maxValue, const char *label);
     void copy_bar();
@@ -188,7 +188,7 @@ public:
     // stepsequencer
     void set_note_on_tick(int x, int voice, int length);
     uint8_t get_note_parameter(const uint8_t *parameterArray, uint8_t _voice);
-    void set_stepSequencer_parameters(uint8_t row);
+    void set_stepSequencer_parameters();
     void clear_active_clip();
     // seqmodes
     void draw_sequencer_modes(uint8_t mode);
@@ -217,7 +217,6 @@ private:
     // stepsequencer
     void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
     void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
-    void check_for_free_voices(uint8_t onTick, uint8_t cnote);
 
     // midi CC
     void set_CCvalue(uint8_t XPos, uint8_t YPos);
@@ -228,35 +227,36 @@ private:
     // seqmodes
     void set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
     uint8_t get_random_Note_in_scale();
+    void rotateIntArray(uint8_t arr[], int maxSteps, int rotation);
     void play_seq_mode0(uint8_t cloock);
 
     void play_seq_mode1(uint8_t cloock);
-    void set_seq_mode1_parameters(uint8_t row);
+    void set_seq_mode1_parameters();
     void draw_seq_mode1();
 
     void play_seq_mode2(uint8_t cloock);
-    void set_seq_mode2_parameters(uint8_t row);
+    void set_seq_mode2_parameters();
     void draw_seq_mode2();
 
     void play_seq_mode3(uint8_t cloock);
-    void set_seq_mode3_parameters(uint8_t row);
+    void set_seq_mode3_parameters();
     void draw_seq_mode3();
 
     void play_seq_mode4(uint8_t cloock);
-    void set_seq_mode4_parameters(uint8_t row);
+    void set_seq_mode4_parameters();
     void draw_seq_mode4();
 
     void play_seq_mode5(uint8_t cloock);
-    void set_seq_mode5_parameters(uint8_t row);
+    void set_seq_mode5_parameters();
     void draw_seq_mode5();
 
     void play_seq_mode6(uint8_t cloock);
-    void set_seq_mode6_parameters(uint8_t row);
+    void set_seq_mode6_parameters();
     void set_seq_mode6_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode6();
 
     void play_seq_mode7(uint8_t cloock);
-    void set_seq_mode7_parameters(uint8_t row);
+    void set_seq_mode7_parameters();
     void set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode7();
 };

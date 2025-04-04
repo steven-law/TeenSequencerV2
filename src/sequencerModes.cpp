@@ -11,7 +11,23 @@ void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, co
         drawPot(XPos, YPos, seqMod_value[modeindex][n], name);
     }
 }
+void Track::rotateIntArray(uint8_t arr[], int maxSteps, int rotation)
+{
+    int r = ((rotation % maxSteps) + maxSteps) % maxSteps; // Normierung der Rotation
+    if (r == 0)
+        return; // Keine Rotation nötig
 
+    int temp[16]; // Hilfsarray für die Rotation
+    for (int i = 0; i < maxSteps; i++)
+    {
+        temp[i] = arr[(i - r + maxSteps) % maxSteps];
+    }
+
+    for (int i = 0; i < maxSteps; i++)
+    {
+        arr[i] = temp[i];
+    }
+}
 uint8_t Track::get_random_Note_in_scale()
 {
     int randomNote;
@@ -59,38 +75,46 @@ void Track::play_seq_mode0(uint8_t cloock)
     }
 }
 // random
-void Track::play_seq_mode1(uint8_t cloock)
-{
-    /*
-    0  rootnote
-    1  scale
-    2  octmin
-    3  octmax
+/*
+    0  octmin
+    1  octmax
+    2  volmin
+    3  volmax
     4  maxsteps
     5  dejaVu
-    6  probabilty
-    8  volmin
-    9  volmax
       */
+void Track::play_seq_mode1(uint8_t cloock)
+{
+
+    if (enc_button[3])
+    {
+        seqMod_value[1][5] = 127;
+        change_plugin_row = true;
+    }
+    if (lastPotRow == 1 && enc_moved[2])
+        rotateIntArray(seqMod1NoteMemory, seqMod_value[1][4], encoded[2]*(-1));
+
     if (get_note_parameter(clip[clip_to_play[external_clock_bar]].tick[cloock].voice, 0) < NO_NOTE)
     {
-        static int stepCount = (stepCount + 1) % seqMod_value[1][4];
+
         if (!note_is_on[0])
         {
-            if (random(126) < seqMod_value[1][6]) // probabilty
-            {
-                bool useMemory = ((rand() % 127) < seqMod_value[1][5]); // dejavu
-                int noteToSend = useMemory ? seqMod1NoteMemory[stepCount] : get_random_Note_in_scale();
+            static int stepCount;                                  // max Steps
+            stepCount = (stepCount + 1) % seqMod_value[1][4];      // max Steps
+            bool useMemory = ((random(126)) < seqMod_value[1][5]); // dejavu
+            int noteToSend = useMemory ? seqMod1NoteMemory[stepCount] : get_random_Note_in_scale();
+            int note2save = noteToSend + (random(seqMod_value[1][0], seqMod_value[1][1] + 1) * 12) + noteOffset[external_clock_bar] + performNoteOffset;
 
-                noteToPlay[0] = noteToSend + (random(seqMod_value[1][2], seqMod_value[1][3] + 1) * 12) + noteOffset[external_clock_bar] + performNoteOffset;
-                uint8_t Velo = random(seqMod_value[1][8], seqMod_value[1][9]) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
-                note_is_on[0] = true;
-                noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note
-                if (!useMemory)
-                {
-                    seqMod1NoteMemory[stepCount] = noteToPlay[0];
-                    // velocityMemory[stepCount] = volSend;
-                }
+            noteToPlay[0] = seqMod1NoteMemory[stepCount];
+            uint8_t Velo = random(seqMod_value[1][2], seqMod_value[1][3]) * (barVelocity[external_clock_bar] / MIDI_CC_RANGE_FLOAT) * (mixGainPot / MIDI_CC_RANGE_FLOAT);
+            note_is_on[0] = true;
+            noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note
+            // save new note into array
+            if (!useMemory)
+            {
+                seqMod1NoteMemory[stepCount] = note2save;
+                // Serial.printf("PM1 = save note: %d on step: %d\n", seqMod1NoteMemory[stepCount], stepCount);
+                //  velocityMemory[stepCount] = volSend;
             }
         }
     }
@@ -105,69 +129,54 @@ void Track::play_seq_mode1(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode1_parameters(uint8_t row)
-{ /*
-    0  rootnote
-    1  scale
-    2  octmin
-    3  octmax
-    4  maxsteps
-    5  dejaVu
-    6  probabilty
-    8  volmin
-    9  volmax
-      */
+void Track::set_seq_mode1_parameters()
+{
     draw_seq_mode1();
-    if (row == 0)
+    switch (lastPotRow)
     {
-        set_seq_mode_value(1, 0, 0, "baseNote", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(1, 1, 0, "Scale", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(1, 2, 0, "Oct -", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(1, 3, 0, "Oct +", 0, MIDI_CC_RANGE);
-    }
-    if (row == 1)
+    case 0:
     {
 
+        set_seq_mode_value(1, 0, 0, "Oct -", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(1, 1, 0, "Oct +", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(1, 2, 0, "Vol -", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(1, 3, 0, "Vol +", 0, MIDI_CC_RANGE);
+    }
+    break;
+    case 1:
+    {
         set_seq_mode_value(1, 0, 1, "maxSteps", 0, NUM_STEPS);
         set_seq_mode_value(1, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(1, 2, 1, "Probality", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(1, 2, 1, "Rotate", 0, 32);
     }
-    if (row == 2)
+    break;
+    case 2:
     {
-
-        set_seq_mode_value(1, 0, 2, "Vol -", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(1, 1, 2, "Vol +", 0, MIDI_CC_RANGE);
+    }
+    break;
+    case 3:
+    {
+    }
+    break;
+    default:
+        break;
     }
 }
 
 void Track::draw_seq_mode1()
-{ /*
-    0  rootnote
-    1  scale
-    2  octmin
-    3  octmax
-
-    4  maxsteps
-    5  dejaVu
-    6  probabilty
-
-    8  volmin
-    9  volmax
-      */
+{
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
-        drawPot(0, 0, seqMod_value[1][0], "baseNote");
-        drawPot(1, 0, seqMod_value[1][1], "Scale");
-        drawPot(2, 0, seqMod_value[1][2], "Oct -");
-        drawPot(3, 0, seqMod_value[1][3], "Oct +");
+        change_plugin_row = false;
+
+        drawPot(0, 0, seqMod_value[1][0], "Oct -");
+        drawPot(1, 0, seqMod_value[1][1], "Oct +");
+        drawPot(2, 0, seqMod_value[1][2], "Vol -");
+        drawPot(3, 0, seqMod_value[1][3], "Vol +");
 
         drawPot(0, 1, seqMod_value[1][4], "maxSteps");
         drawPot(1, 1, seqMod_value[1][5], "Dejavu");
-        drawPot(2, 1, seqMod_value[1][6], "Probality");
-
-        drawPot(0, 2, seqMod_value[1][8], "Vol -");
-        drawPot(1, 2, seqMod_value[1][9], "Vol +");
+        drawPot(2, 1, seqMod_value[1][6], "Rotate");
     }
 }
 // dropseq
@@ -245,36 +254,45 @@ void Track::play_seq_mode2(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode2_parameters(uint8_t row)
+void Track::set_seq_mode2_parameters()
 {
     draw_seq_mode2();
-    if (row == 0)
+    switch (lastPotRow)
+    {
+    case 0:
     {
         set_seq_mode_value(2, 0, 0, "Drop", 0, NO_NOTE);
         set_seq_mode_value(2, 1, 0, "Rst @", 0, NO_NOTE);
         set_seq_mode_value(2, 2, 0, "Oct -", 0, NO_NOTE);
         set_seq_mode_value(2, 3, 0, "Oct +", 0, NO_NOTE);
     }
-    if (row == 1)
+    break;
+    case 1:
     {
         set_seq_mode_value(2, 0, 1, "C", 0, NO_NOTE);
         set_seq_mode_value(2, 1, 1, "C#", 0, NO_NOTE);
         set_seq_mode_value(2, 2, 1, "D", 0, NO_NOTE);
         set_seq_mode_value(2, 3, 1, "D#", 0, NO_NOTE);
     }
-    if (row == 2)
+    break;
+    case 2:
     {
         set_seq_mode_value(2, 0, 2, "E", 0, NO_NOTE);
         set_seq_mode_value(2, 1, 2, "F", 0, NO_NOTE);
         set_seq_mode_value(2, 2, 2, "F#", 0, NO_NOTE);
         set_seq_mode_value(2, 3, 2, "G", 0, NO_NOTE);
     }
-    if (row == 3)
+    break;
+    case 3:
     {
         set_seq_mode_value(2, 0, 3, "G#", 0, NO_NOTE);
         set_seq_mode_value(2, 1, 3, "A", 0, NO_NOTE);
         set_seq_mode_value(2, 2, 3, "A#", 0, NO_NOTE);
         set_seq_mode_value(2, 3, 3, "B", 0, NO_NOTE);
+    }
+    break;
+    default:
+        break;
     }
 }
 
@@ -282,7 +300,7 @@ void Track::draw_seq_mode2()
 {
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, seqMod_value[2][0], "Drop");
         drawPot(1, 0, seqMod_value[2][1], "Rst @");
         drawPot(2, 0, seqMod_value[2][2], "Oct -");
@@ -338,23 +356,41 @@ void Track::play_seq_mode3(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode3_parameters(uint8_t row)
+void Track::set_seq_mode3_parameters()
 {
     draw_seq_mode3();
-    if (row == 0)
+    switch (lastPotRow)
+    {
+    case 0:
     {
         set_seq_mode_value(3, 0, 0, noteNames[0], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 1, 0, noteNames[1], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 2, 0, noteNames[2], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 3, 0, noteNames[3], 0, MIDI_CC_RANGE * 2);
+    }
+    break;
+    case 1:
+    {
         set_seq_mode_value(3, 0, 1, noteNames[4], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 1, 1, noteNames[5], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 2, 1, noteNames[6], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 3, 1, noteNames[7], 0, MIDI_CC_RANGE * 2);
+    }
+    break;
+    case 2:
+    {
         set_seq_mode_value(3, 0, 2, noteNames[8], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 1, 2, noteNames[9], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 2, 2, noteNames[10], 0, MIDI_CC_RANGE * 2);
         set_seq_mode_value(3, 3, 2, noteNames[11], 0, MIDI_CC_RANGE * 2);
+    }
+    break;
+    case 3:
+    {
+    }
+    break;
+    default:
+        break;
     }
 }
 
@@ -362,7 +398,7 @@ void Track::draw_seq_mode3()
 {
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, seqMod_value[3][0], noteNames[0]);
         drawPot(1, 0, seqMod_value[3][1], noteNames[1]);
         drawPot(2, 0, seqMod_value[3][2], noteNames[2]);
@@ -414,36 +450,45 @@ void Track::play_seq_mode4(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode4_parameters(uint8_t row)
+void Track::set_seq_mode4_parameters()
 {
     draw_seq_mode4();
-    if (row == 0)
+    switch (lastPotRow)
+    {
+    case 0:
     {
         set_seq_mode_value(4, 0, 0, "1", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 1, 0, "2", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 2, 0, "3", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 3, 0, "4", 0, MIDI_CC_RANGE);
     }
-    if (row == 1)
+    break;
+    case 1:
     {
         set_seq_mode_value(4, 0, 1, "5", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 1, 1, "6", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 2, 1, "7", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 3, 1, "8", 0, MIDI_CC_RANGE);
     }
-    if (row == 2)
+    break;
+    case 2:
     {
         set_seq_mode_value(4, 0, 2, "9", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 1, 2, "10", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 2, 2, "11", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 3, 2, "12", 0, MIDI_CC_RANGE);
     }
-    if (row == 3)
+    break;
+    case 3:
     {
         set_seq_mode_value(4, 0, 3, "13", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 1, 3, "14", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 2, 3, "15", 0, MIDI_CC_RANGE);
         set_seq_mode_value(4, 3, 3, "16", 0, MIDI_CC_RANGE);
+    }
+    break;
+    default:
+        break;
     }
 }
 
@@ -451,7 +496,7 @@ void Track::draw_seq_mode4()
 {
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, seqMod_value[4][0], "1");
         drawPot(1, 0, seqMod_value[4][1], "2");
         drawPot(2, 0, seqMod_value[4][2], "3");
@@ -520,36 +565,41 @@ void Track::play_seq_mode5(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode5_parameters(uint8_t row)
+void Track::set_seq_mode5_parameters()
 {
     draw_seq_mode5();
-    if (row == 0)
+    switch (lastPotRow)
+    {
+    case 0:
     {
         set_seq_mode_value(5, 0, 0, "1", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 1, 0, "2", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 2, 0, "3", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 3, 0, "4", 0, MIDI_CC_RANGE);
     }
-    if (row == 1)
+    break;
+    case 1:
     {
         set_seq_mode_value(5, 0, 1, "5", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 1, 1, "6", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 2, 1, "7", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 3, 1, "8", 0, MIDI_CC_RANGE);
     }
-    if (row == 2)
+    break;
+    case 2:
     {
         set_seq_mode_value(5, 0, 2, "9", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 1, 2, "10", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 2, 2, "11", 0, MIDI_CC_RANGE);
         set_seq_mode_value(5, 3, 2, "12", 0, MIDI_CC_RANGE);
     }
-    if (row == 3)
+    break;
+    case 3:
     {
-        //  set_seq_mode5_value(0, 3, "13");
-        //  set_seq_mode5_value(1, 3, "14");
-        //   set_seq_mode5_value(2, 3, "15");
-        //   set_seq_mode5_value(3, 3, "16");
+    }
+    break;
+    default:
+        break;
     }
 }
 
@@ -557,7 +607,7 @@ void Track::draw_seq_mode5()
 {
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, seqMod_value[5][0], "1");
         drawPot(1, 0, seqMod_value[5][1], "2");
         drawPot(2, 0, seqMod_value[5][2], "3");
@@ -622,36 +672,41 @@ void Track::play_seq_mode6(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode6_parameters(uint8_t row)
+void Track::set_seq_mode6_parameters()
 {
     draw_seq_mode6();
-    if (row == 0)
+    switch (lastPotRow)
+    {
+    case 0:
     {
         set_seq_mode6_value(0, 0, "1");
         set_seq_mode6_value(1, 0, "2");
         set_seq_mode6_value(2, 0, "3");
         set_seq_mode6_value(3, 0, "4");
     }
-    if (row == 1)
+    break;
+    case 1:
     {
         set_seq_mode6_value(0, 1, "5");
         set_seq_mode6_value(1, 1, "6");
         set_seq_mode6_value(2, 1, "7");
         set_seq_mode6_value(3, 1, "8");
     }
-    if (row == 2)
+    break;
+    case 2:
     {
         set_seq_mode6_value(0, 2, "9");
         set_seq_mode6_value(1, 2, "10");
         set_seq_mode6_value(2, 2, "11");
         set_seq_mode6_value(3, 2, "12");
     }
-    if (row == 3)
+    break;
+    case 3:
     {
-        //  set_seq_mode6_value(0, 3, "13");
-        //  set_seq_mode6_value(1, 3, "14");
-        //   set_seq_mode6_value(2, 3, "15");
-        //   set_seq_mode6_value(3, 3, "16");
+    }
+    break;
+    default:
+        break;
     }
 }
 void Track::set_seq_mode6_value(uint8_t XPos, uint8_t YPos, const char *name)
@@ -705,7 +760,7 @@ void Track::draw_seq_mode6()
 {
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, seqMod_value[6][0], "1");
         drawPot(1, 0, seqMod_value[6][1], "2");
         drawPot(2, 0, seqMod_value[6][2], "3");
@@ -767,36 +822,37 @@ void Track::play_seq_mode7(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode7_parameters(uint8_t row)
+void Track::set_seq_mode7_parameters()
 {
     draw_seq_mode7();
-    if (row == 0)
+    switch (lastPotRow)
+    {
+    case 0:
     {
         set_seq_mode7_value(0, 0, "Steps");
         set_seq_mode7_value(1, 0, "Offset");
         set_seq_mode7_value(2, 0, "Note -");
         set_seq_mode7_value(3, 0, "Note +");
     }
-    if (row == 1)
+    break;
+    case 1:
     {
         set_seq_mode7_value(0, 1, "Velo -");
         set_seq_mode7_value(1, 1, "Velo +");
         set_seq_mode7_value(2, 1, "FX -");
         set_seq_mode7_value(3, 1, "FX +");
     }
-    if (row == 2)
+    break;
+    case 2:
     {
-        // set_seq_mode7_value(0, 2, "Velo -");
-        // set_seq_mode7_value(1, 2, "Velo +");
-        //  set_seq_mode7_value(2, 2, "FX -");
-        //  set_seq_mode7_value(3, 2, "FX +");
     }
-    if (row == 3)
+    break;
+    case 3:
     {
-        //  set_seq_mode6_value(0, 3, "13");
-        //  set_seq_mode6_value(1, 3, "14");
-        //   set_seq_mode6_value(2, 3, "15");
-        //   set_seq_mode6_value(3, 3, "16");
+    }
+    break;
+    default:
+        break;
     }
 }
 void Track::set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name)
@@ -852,7 +908,7 @@ void Track::draw_seq_mode7()
 {
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, seqMod_value[7][0], "Steps");
         drawPot(1, 0, seqMod_value[7][1], "Offset");
         drawPot(2, 0, seqMod_value[7][2], "Note -");

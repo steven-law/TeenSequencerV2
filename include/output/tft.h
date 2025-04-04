@@ -93,7 +93,7 @@ void reset_infobox_background();
 void set_infobox_next_line(uint8_t _lineNumber); //_lineNumber must be bigger 0
 void show_active_page_info(const char *_pagename, uint8_t _pagenumber);
 void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY);
-
+void draw_potRow();
 void tft_show();
 
 void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
@@ -110,7 +110,7 @@ void clear_positionPointer();
 
 void gridSongMode(int songpageNumber);
 void drawsongmodepageselector(int songpageNumber);
-void draw_arranger_parameters(uint8_t lastProw);
+void draw_arranger_parameters();
 void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar);
 void draw_arrangment_lines(uint8_t _track, uint8_t _page); // b= active page
 void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset);
@@ -122,7 +122,7 @@ void drawOctaveTriangle();
 void drawOctaveNumber();
 void draw_Clipselector();
 
-void draw_stepSequencer_parameters(uint8_t lastProw);
+void draw_stepSequencer_parameters();
 void draw_note_on_tick(uint8_t _voice, uint8_t _when);
 void draw_notes_in_grid();
 void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length);

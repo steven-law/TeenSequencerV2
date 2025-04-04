@@ -89,7 +89,15 @@ void drawPositionCounter()
         tft.print(myClock.stepTick + 1);
     }
 }
-
+void draw_potRow(){
+    if (change_row)
+    {
+      // midi_read();
+      tft.fillRect(POSITION_POTROW_BUTTON, STEP_FRAME_H, 5, STEP_FRAME_H * 12, ILI9341_DARKGREY);
+      tft.fillRect(POSITION_POTROW_BUTTON, (lastPotRow * 3 * STEP_FRAME_H) + STEP_FRAME_H, 5, STEP_FRAME_H * 3, ILI9341_ORANGE);
+      change_row = false;
+    }
+}
 void startUpScreen()
 {
 
@@ -434,7 +442,7 @@ void gridSongMode(int songpageNumber)
     for (int i = 0; i < NUM_TRACKS; i++)
         draw_arrangment_lines(i, songpageNumber);
     change_plugin_row = true;
-    draw_arranger_parameters(lastPotRow);
+    draw_arranger_parameters();
     drawsongmodepageselector(songpageNumber);
     show_active_page_info("Song:", songpageNumber + 1);
 }
@@ -446,14 +454,14 @@ void draw_arrangment_lines(uint8_t _track, uint8_t _page) // b= active page
         // Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b - SONGMODE_PAGE_1)));
     }
 }
-void draw_arranger_parameters(uint8_t lastProw)
+void draw_arranger_parameters()
 {
     if (change_plugin_row)
     {
         // drawOctaveNumber();
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        // change_plugin_row = false;
-        switch (lastProw)
+         change_plugin_row = false;
+        switch (lastPotRow)
         {
         case 0:
         {
@@ -461,35 +469,35 @@ void draw_arranger_parameters(uint8_t lastProw)
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Clip", allTracks[gridTouchY - 1]->clip_to_play[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Trns", allTracks[gridTouchY - 1]->noteOffset[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
-            break;
         }
+        break;
         case 1:
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Prob", allTracks[gridTouchY - 1]->barProbabilty[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Velo", allTracks[gridTouchY - 1]->barVelocity[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
-            break;
         }
+        break;
         case 2:
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "ccC", allTracks[gridTouchY - 1]->play_presetNr_ccChannel[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "ccV", allTracks[gridTouchY - 1]->play_presetNr_ccValue[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
-            break;
         }
+        break;
         case 3:
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Tempo", myClock.tempo, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Start", myClock.startOfLoop, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "End", myClock.endOfLoop, "NO_NAME");
-            break;
         }
+        break;
         default:
             break;
         }
-        }
+    }
 }
 
 void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
@@ -654,51 +662,45 @@ void draw_Clipselector()
         tft.print(ClipNr);
     }
 }
-void draw_stepSequencer_parameters(uint8_t lastProw)
+void draw_stepSequencer_parameters()
 {
     if (change_plugin_row)
     {
-        tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        // change_plugin_row = false;
+        tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 2 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
+         change_plugin_row = false;
         drawOctaveNumber();
-
-        if (lastProw == 0)
+        switch (lastPotRow)
+        {
+        case 0:
         {
             draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1] + (allTracks[active_track]->parameter[SET_OCTAVE] * 12), NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[14]], allTracks[active_track]->parameter[2], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 3, "Velo", allTracks[active_track]->parameter[3], NO_NAME);
-            // draw_stepSequencer_parameter_value(0, 0, 0, allTracks[active_track]->parameter[0], "Tick");
-            // draw_stepSequencer_parameter_value(0, 1, 0, allTracks[active_track]->parameter[1], "Note");
-            //  draw_stepSequencer_parameter_value(0, 2, 0, allTracks[active_track]->parameter[2], CCnames[allTracks[active_track]->parameter[2]]);
-            //  draw_stepSequencer_parameter_value(0, 3, 0, allTracks[active_track]->parameter[3], "Velo");
         }
-        if (lastProw == 1)
+        break;
+        case 1:
         {
             draw_sequencer_arranger_parameter(active_track, 0, "seqL", allTracks[active_track]->parameter[4], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 1, "cDiv", allTracks[active_track]->parameter[5], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 2, "stpL", allTracks[active_track]->parameter[6], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 3, "Oct", allTracks[active_track]->parameter[7], NO_NAME);
-
-            // draw_stepSequencer_parameter_value(1, ENCODER_SEQUENCE_LENGTH, 1, allTracks[active_track]->parameter[4], "seqL");
-            // draw_stepSequencer_parameter_value(1, ENCODER_CLOCK_DIVISION, 1, allTracks[active_track]->parameter[5], "cDiv");
-            // draw_stepSequencer_parameter_value(1, ENCODER_STEP_LENGTH, 1, allTracks[active_track]->parameter[6], "stpL");
-            //  draw_stepSequencer_parameter_value(1, ENCODER_OCTAVE, 1, allTracks[active_track]->parameter[7], "Oct");
         }
-        if (lastProw == 2)
+        break;
+        case 2:
         {
             draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->parameter[SET_SEQ_MODE]]);
             draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[allTracks[active_track]->parameter[SET_SCALE]]);
             draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->parameter[SET_MIDICH_OUT]]);
             draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[SET_CLIP2_EDIT], NO_NAME);
-
-            // draw_stepSequencer_parameter_text(2, ENCODER_SEQ_MODE, 2, seqModname[allTracks[active_track]->parameter[8]], "sMod");
-            // draw_stepSequencer_parameter_text(2, ENCODER_MIDICH_OUT, 2, channelOutNames[allTracks[active_track]->parameter[9]], "MCh");
-            // draw_stepSequencer_parameter_value(2, ENCODER_CLIP2_EDIT, 2, allTracks[active_track]->parameter[11], "Clip");
         }
-        if (lastProw == 3)
+        break;
+        case 3:
         {
-            // draw_sequencer_arranger_parameter(active_track, 0, "Prob", allTracks[active_track]->parameter[SET_PROBABILTY], NO_NAME);
+        }
+        break;
+        default:
+            break;
         }
     }
 }
@@ -769,7 +771,7 @@ void draw_MIDI_CC_screen()
     if (change_plugin_row)
     {
         //
-        // change_plugin_row = false;
+         change_plugin_row = false;
         draw_MIDI_CC(0, 0);
         draw_MIDI_CC(1, 0);
         draw_MIDI_CC(2, 0);
@@ -805,7 +807,7 @@ void draw_mixer()
 
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+         change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
@@ -837,7 +839,7 @@ void draw_mixer_FX_page1()
 {
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+         change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixDryPot, "Dry D");
         drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 D");
         drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 D");
@@ -864,7 +866,7 @@ void draw_mixer_FX_page2()
 
     if (change_plugin_row)
     {
-        // change_plugin_row = false;
+         change_plugin_row = false;
         drawPot(0, 0, allTracks[4]->mixDryPot, "Dry 5");
         drawPot(1, 0, allTracks[4]->mixFX1Pot, "FX1 5");
         drawPot(2, 0, allTracks[4]->mixFX2Pot, "FX2 5");
