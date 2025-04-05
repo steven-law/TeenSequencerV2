@@ -13,14 +13,12 @@ void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, co
 }
 void Track::rotateIntArray(uint8_t arr[], int maxSteps, int rotation)
 {
-    int r = ((rotation % maxSteps) + maxSteps) % maxSteps; // Normierung der Rotation
-    if (r == 0)
-        return; // Keine Rotation nötig
-
+    int r = rotation * (-1);
     int temp[16]; // Hilfsarray für die Rotation
     for (int i = 0; i < maxSteps; i++)
     {
         temp[i] = arr[(i - r + maxSteps) % maxSteps];
+        //  Serial.printf("rotation: %d,maxsteps. %d,i: %d arr[i]: %d, temp[i]: %d\n", rotation, maxSteps, i, arr[i], temp[i]);
     }
 
     for (int i = 0; i < maxSteps; i++)
@@ -86,13 +84,16 @@ void Track::play_seq_mode0(uint8_t cloock)
 void Track::play_seq_mode1(uint8_t cloock)
 {
 
-    if (enc_button[3])
+    if (lastPotRow == 1)
     {
-        seqMod_value[1][5] = 127;
-        change_plugin_row = true;
+        if (enc_button[3])
+        {
+            seqMod_value[1][5] = 127;
+            change_plugin_row = true;
+        }
+        if (enc_moved[2])
+            rotateIntArray(seqMod1NoteMemory, seqMod_value[1][4], encoded[2]);
     }
-    if (lastPotRow == 1 && enc_moved[2])
-        rotateIntArray(seqMod1NoteMemory, seqMod_value[1][4], encoded[2]*(-1));
 
     if (get_note_parameter(clip[clip_to_play[external_clock_bar]].tick[cloock].voice, 0) < NO_NOTE)
     {
@@ -162,7 +163,6 @@ void Track::set_seq_mode1_parameters()
         break;
     }
 }
-
 void Track::draw_seq_mode1()
 {
     if (change_plugin_row)
@@ -219,9 +219,9 @@ void Track::play_seq_mode2(uint8_t cloock)
                 }
             }
 
-            Serial.printf("octave:%d\n", thisOctave);
             note_is_on[0] = true;
             noteToPlay[0] = (maxValIndex) + (thisOctave * 12) + noteOffset[external_clock_bar] + performNoteOffset;
+            // Serial.printf("octave:%d maxValIndex: %d, noteToplay: %d\n", thisOctave, maxValIndex, noteToPlay[0]);
             uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, 0) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
             uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, 0);
 
@@ -295,7 +295,6 @@ void Track::set_seq_mode2_parameters()
         break;
     }
 }
-
 void Track::draw_seq_mode2()
 {
     if (change_plugin_row)
@@ -325,23 +324,30 @@ void Track::draw_seq_mode2()
 // bitread
 void Track::play_seq_mode3(uint8_t cloock)
 {
-    uint8_t seq3_clock = cloock / TICKS_PER_STEP;
+    uint8_t seq3_clock = cloock / 12;
     if (seq3_clock == 8)
         seq3_clock = 0;
     for (int v = 0; v < MAX_VOICES; v++)
     {
         if (bitRead(seqMod_value[3][v], seq3_clock))
         {
+          //  if (note_is_on[v])
+          //  {
+          //      note_is_on[v] = false;
+          //      noteOff(noteToPlay[v], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
+          //        Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+          //  }
             if (!note_is_on[v])
             {
                 noteToPlay[v] = v + (parameter[SET_OCTAVE] * 12) + noteOffset[external_clock_bar] + performNoteOffset;
-                uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
+                // uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
+                uint8_t Velo = parameter[SET_VELO2SET] * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
                 uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
 
                 note_is_on[v] = true;
                 sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                        // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                Serial.printf("ON   tick: %d, clock: %d, voice: %d, note: %d, seqModValue: %d\n", cloock, seq3_clock, v, noteToPlay[v], seqMod_value[3][v]);
             }
         }
 
@@ -393,7 +399,6 @@ void Track::set_seq_mode3_parameters()
         break;
     }
 }
-
 void Track::draw_seq_mode3()
 {
     if (change_plugin_row)
@@ -418,35 +423,33 @@ void Track::draw_seq_mode3()
 // 16 step pot sequencer
 void Track::play_seq_mode4(uint8_t cloock)
 {
-    if (clip_to_play[external_clock_bar] <= NUM_USER_CLIPS)
+
+    uint8_t seq3_clock = cloock / TICKS_PER_STEP;
+    bool seq4_bool = (cloock + 1) % 6;
+    if (seq3_clock == 16)
+        seq3_clock = 0;
+
+    if (seq4_bool)
     {
-        uint8_t seq3_clock = cloock / TICKS_PER_STEP;
-        bool seq4_bool = (cloock + 1) % 6;
-        if (seq3_clock == 16)
-            seq3_clock = 0;
-
-        if (seq4_bool)
+        if (!note_is_on[0])
         {
-            if (!note_is_on[0])
-            {
-                noteToPlay[0] = seqMod_value[4][seq3_clock] + noteOffset[external_clock_bar] + performNoteOffset;
-                uint8_t Velo = 99 * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
-                uint8_t StepFX = 128;
-                note_is_on[0] = true;
-                sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
-                noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                        // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-            }
+            noteToPlay[0] = seqMod_value[4][seq3_clock] + noteOffset[external_clock_bar] + performNoteOffset;
+            uint8_t Velo = 99 * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
+            uint8_t StepFX = 128;
+            note_is_on[0] = true;
+            sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
+            noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
+                                                                    // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
         }
+    }
 
-        else if (!seq4_bool)
+    else if (!seq4_bool)
+    {
+        if (note_is_on[0])
         {
-            if (note_is_on[0])
-            {
-                note_is_on[0] = false;
-                noteOff(noteToPlay[0], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                      // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-            }
+            note_is_on[0] = false;
+            noteOff(noteToPlay[0], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
+                                                                  // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
         }
     }
 }
@@ -491,7 +494,6 @@ void Track::set_seq_mode4_parameters()
         break;
     }
 }
-
 void Track::draw_seq_mode4()
 {
     if (change_plugin_row)
@@ -602,7 +604,6 @@ void Track::set_seq_mode5_parameters()
         break;
     }
 }
-
 void Track::draw_seq_mode5()
 {
     if (change_plugin_row)
@@ -783,7 +784,7 @@ void Track::draw_seq_mode6()
     }
 }
 
-// Euclid
+// Rclid
 void Track::play_seq_mode7(uint8_t cloock)
 {
     uint8_t seq3_clock = cloock / TICKS_PER_STEP;
@@ -799,7 +800,7 @@ void Track::play_seq_mode7(uint8_t cloock)
 
             if (!note_is_on[0])
             {
-                noteToPlay[0] = random(seqMod_value[7][2], seqMod_value[7][3]) + noteOffset[external_clock_bar] + performNoteOffset;
+                noteToPlay[0] = get_random_Note_in_scale() + (random(seqMod_value[7][2], seqMod_value[7][3]) * NOTES_PER_OCTAVE) + noteOffset[external_clock_bar] + performNoteOffset;
                 uint8_t Velo = random(seqMod_value[7][4], seqMod_value[7][5]) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
                 uint8_t StepFX = random(seqMod_value[7][6], seqMod_value[7][7]) * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
                 note_is_on[0] = true;
@@ -831,8 +832,8 @@ void Track::set_seq_mode7_parameters()
     {
         set_seq_mode7_value(0, 0, "Steps");
         set_seq_mode7_value(1, 0, "Offset");
-        set_seq_mode7_value(2, 0, "Note -");
-        set_seq_mode7_value(3, 0, "Note +");
+        set_seq_mode7_value(2, 0, "Oct -");
+        set_seq_mode7_value(3, 0, "Oct +");
     }
     break;
     case 1:
@@ -911,8 +912,8 @@ void Track::draw_seq_mode7()
         change_plugin_row = false;
         drawPot(0, 0, seqMod_value[7][0], "Steps");
         drawPot(1, 0, seqMod_value[7][1], "Offset");
-        drawPot(2, 0, seqMod_value[7][2], "Note -");
-        drawPot(3, 0, seqMod_value[7][3], "Note +");
+        drawPot(2, 0, seqMod_value[7][2], "Oct -");
+        drawPot(3, 0, seqMod_value[7][3], "Oct +");
 
         drawPot(0, 1, seqMod_value[7][4], "Velo -");
         drawPot(1, 1, seqMod_value[7][5], "Velo +");

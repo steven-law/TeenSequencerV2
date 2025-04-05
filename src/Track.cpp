@@ -261,7 +261,8 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     //   Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
-        if (!muted && !muteThruSolo)
+        if (!muted && !muteThruSolo && clip_to_play[external_clock_bar] <= NUM_USER_CLIPS)
+
         {
             // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
             // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
@@ -491,10 +492,9 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
 void Track::set_clip_to_play_trellis(uint8_t _bar, uint8_t _clipNr) // Songmode: sets a desired clip on a bar with only trellis input (bar = X, Clip = Y)
 {
 
-   
-        clip_to_play[_bar ] = _clipNr;
-        draw_arrangment_line(my_Arranger_Y_axis - 1, _bar );
-    
+    clip_to_play[_bar] = _clipNr;
+    draw_arrangment_line(my_Arranger_Y_axis - 1, _bar);
+
     // updateTFTScreen = true;
     // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, 2, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
 }
