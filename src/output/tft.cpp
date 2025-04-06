@@ -553,7 +553,7 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
 
     // Trellis LED Buffer aktualisieren
     trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), track->my_Arranger_Y_axis - 1, _trelliscolor);
-    trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+    
 }
 
 void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset)

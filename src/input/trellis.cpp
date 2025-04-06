@@ -532,10 +532,11 @@ void trellis_show_arranger()
         gridSongMode(arrangerpage);
 
         for (int y = 0; y < NUM_TRACKS; y++)
-          // trellis_get_main_buffer(trellisScreen, i, y);
+          trellis_get_main_buffer(trellisScreen, i, y);
 
-          // trellis_recall_main_buffer(trellisScreen);
-          break;
+        trellis_recall_main_buffer(trellisScreen);
+        trellis.writeDisplay();
+        break;
       }
     }
   }
@@ -588,6 +589,7 @@ void trellis_set_arranger()
                 {
                   allTracks[_track]->set_clip_to_play_trellis(_bar + i, _clipNr);
                 }
+                trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
                 break;
               }
             }
@@ -608,14 +610,25 @@ void trellis_set_arranger()
                 uint8_t _bar = step + (arrangerpage * BARS_PER_PAGE);
                 for (int i = 1; i < NUM_STEPS - step; i++)
                 {
-                  if (trellisPressed[_key + i])
+                  for (int t = 0; t < NUM_TRACKS - _track; t++)
                   {
-                    Serial.printf("tied Arranger track: %d, bar: %d, clip: %d\n", _track, _bar + i, gridTouchY);
-                    for (int b = 0; b <= i; b++)
-                      allTracks[_track]->set_clip_to_play_trellis(_bar + b, gridTouchY);
-                    trellisPressed[_key + i] = false;
-                    change_plugin_row = true;
-                    //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
+                    if (trellisPressed[_key + (i + (t * TRELLIS_PADS_X_DIM))])
+                    {
+                      Serial.printf("first key: %d, second key: %d, i= %d, t= %d\n", _key, _key + (i + (t * TRELLIS_PADS_X_DIM)), i, t);
+                      Serial.printf("tied Arranger track: %d, bar: %d, clip: %d\n", _track + t, _bar + i, gridTouchY);
+                      for (int b = 0; b <= i; b++)
+                      {
+                        for (int _t = 0; _t <= t; _t++)
+                        {
+                          allTracks[_track + _t]->set_clip_to_play_trellis(_bar + b, gridTouchY);
+                        }
+                      }
+                      trellisPressed[_key + i] = false;
+                      change_plugin_row = true;
+                      trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+                      break;
+                      //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
+                    }
                   }
                 }
               }
@@ -633,6 +646,8 @@ void trellis_set_arranger()
                 {
                   allTracks[_track]->set_clip_to_play_trellis(_bar + i, gridTouchY);
                 }
+                trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+                break;
               }
             }
           }
@@ -646,7 +661,7 @@ void draw_perform_page()
 {
   if (change_plugin_row)
   {
-     change_plugin_row = false;
+    change_plugin_row = false;
     for (int i = 0; i < NUM_STEPS; i++)
     {
       drawPot(i % 4, i / 4, performCC[i], "CC");
