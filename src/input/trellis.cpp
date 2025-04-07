@@ -890,8 +890,9 @@ void trellis_setStepsequencer()
             {
               if (trellisPressed[_nr + i])
               {
+                int _note = (trellisNote)+(allTracks[active_track]->parameter[SET_OCTAVE]*NOTES_PER_OCTAVE);
 
-                allTracks[track]->set_note_on_tick(keyTick, trellisNote, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
+                allTracks[track]->set_note_on_tick(keyTick, _note, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
                 trellisPressed[_nr + i] = false;
                 change_plugin_row = true;
                 //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
@@ -904,7 +905,8 @@ void trellis_setStepsequencer()
             uint8_t step = _nr % NUM_STEPS;
             int keyTick = step * 6;
             // Setze die Note auf dem aktuellen Step
-            allTracks[track]->set_note_on_tick(keyTick, trellisNote, allTracks[track]->parameter[SET_STEP_LENGTH]);
+            int _note = (trellisNote)+(allTracks[active_track]->parameter[SET_OCTAVE]*NOTES_PER_OCTAVE);
+            allTracks[track]->set_note_on_tick(keyTick, _note, allTracks[track]->parameter[SET_STEP_LENGTH]);
             trellisPressed[_nr] = false;
             change_plugin_row = true;
             //  Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));

@@ -324,34 +324,49 @@ void Track::draw_seq_mode2()
 // bitread
 void Track::play_seq_mode3(uint8_t cloock)
 {
-    uint8_t seq3_clock = cloock / 12;
-    if (seq3_clock == 8)
-        seq3_clock = 0;
+    uint8_t seq3_clock = cloock / (TICKS_PER_STEP * 2);
+
+    if (lastPotRow == 3 && enc_button[3])
+    {
+        enc_button[3] = false;
+        for (int v = 0; v < MAX_VOICES; v++)
+        {
+            for (int s = 0; s < 8; s++)
+            {
+                if (bitRead(seqMod_value[3][v], s))
+                {
+                    int _note = v + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+                    set_note_on_tick(s * 12, _note, parameter[SET_STEP_LENGTH]);
+                }
+            }
+        }
+    }
     for (int v = 0; v < MAX_VOICES; v++)
     {
-        if (bitRead(seqMod_value[3][v], seq3_clock))
+        if (bitRead(seqMod_value[3][v], seq3_clock) && cloock % (TICKS_PER_STEP * 2) == 0)
         {
-          //  if (note_is_on[v])
-          //  {
-          //      note_is_on[v] = false;
-          //      noteOff(noteToPlay[v], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
-          //        Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-          //  }
+            //  if (note_is_on[v])
+            //  {
+            //      note_is_on[v] = false;
+            //      noteOff(noteToPlay[v], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
+            //        Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+            //  }
             if (!note_is_on[v])
             {
                 noteToPlay[v] = v + (parameter[SET_OCTAVE] * 12) + noteOffset[external_clock_bar] + performNoteOffset;
                 // uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
-                uint8_t Velo = parameter[SET_VELO2SET] * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
+                uint8_t Velo = random(seqMod_value[3][12], seqMod_value[3][13]) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
                 uint8_t StepFX = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].stepFX, v);
 
                 note_is_on[v] = true;
                 sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
-                Serial.printf("ON   tick: %d, clock: %d, voice: %d, note: %d, seqModValue: %d\n", cloock, seq3_clock, v, noteToPlay[v], seqMod_value[3][v]);
+                                                                        // Serial.printf("ON   tick: %d, clock: %d, voice: %d, note: %d, seqModValue: %d\n", cloock, seq3_clock, v, noteToPlay[v], seqMod_value[3][v]);
             }
         }
 
-        if (!bitRead(seqMod_value[3][v], seq3_clock))
+        // if (!bitRead(seqMod_value[3][v], seq3_clock))
+        if ((seq3_clock * TICKS_PER_STEP * 2) + TICKS_PER_STEP == cloock) // bitread is an 8step sequencer(resolution is 2xTICKS_PER_STEP), so if seq3_clock is halfway to the next step, we send noteOffs to active notes
         {
             if (note_is_on[v])
             {
@@ -369,30 +384,32 @@ void Track::set_seq_mode3_parameters()
     {
     case 0:
     {
-        set_seq_mode_value(3, 0, 0, noteNames[0], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 1, 0, noteNames[1], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 2, 0, noteNames[2], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 3, 0, noteNames[3], 0, MIDI_CC_RANGE * 2);
+        set_seq_mode_value(3, 0, 0, noteNames[0], 0, 255);
+        set_seq_mode_value(3, 1, 0, noteNames[1], 0, 255);
+        set_seq_mode_value(3, 2, 0, noteNames[2], 0, 255);
+        set_seq_mode_value(3, 3, 0, noteNames[3], 0, 255);
     }
     break;
     case 1:
     {
-        set_seq_mode_value(3, 0, 1, noteNames[4], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 1, 1, noteNames[5], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 2, 1, noteNames[6], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 3, 1, noteNames[7], 0, MIDI_CC_RANGE * 2);
+        set_seq_mode_value(3, 0, 1, noteNames[4], 0, 255);
+        set_seq_mode_value(3, 1, 1, noteNames[5], 0, 255);
+        set_seq_mode_value(3, 2, 1, noteNames[6], 0, 255);
+        set_seq_mode_value(3, 3, 1, noteNames[7], 0, 255);
     }
     break;
     case 2:
     {
-        set_seq_mode_value(3, 0, 2, noteNames[8], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 1, 2, noteNames[9], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 2, 2, noteNames[10], 0, MIDI_CC_RANGE * 2);
-        set_seq_mode_value(3, 3, 2, noteNames[11], 0, MIDI_CC_RANGE * 2);
+        set_seq_mode_value(3, 0, 2, noteNames[8], 0, 255);
+        set_seq_mode_value(3, 1, 2, noteNames[9], 0, 255);
+        set_seq_mode_value(3, 2, 2, noteNames[10], 0, 255);
+        set_seq_mode_value(3, 3, 2, noteNames[11], 0, 255);
     }
     break;
     case 3:
     {
+        set_seq_mode_value(3, 0, 3, "Vol -", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(3, 1, 3, "Vol +", 0, MIDI_CC_RANGE);
     }
     break;
     default:
@@ -418,12 +435,24 @@ void Track::draw_seq_mode3()
         drawPot(1, 2, seqMod_value[3][9], noteNames[9]);
         drawPot(2, 2, seqMod_value[3][10], noteNames[10]);
         drawPot(3, 2, seqMod_value[3][11], noteNames[11]);
+
+        drawPot(0, 3, seqMod_value[3][12], "Vol -");
+        drawPot(1, 3, seqMod_value[3][13], "Vol +");
     }
 }
 // 16 step pot sequencer
 void Track::play_seq_mode4(uint8_t cloock)
 {
+    if (lastPotRow == 3 && enc_button[3])
+    {
+        enc_button[3] = false;
 
+        for (int s = 0; s < NUM_STEPS; s++)
+        {
+            int _note = (seqMod_value[4][s]);
+            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
+        }
+    }
     uint8_t seq3_clock = cloock / TICKS_PER_STEP;
     bool seq4_bool = (cloock + 1) % 6;
     if (seq3_clock == 16)
@@ -460,34 +489,34 @@ void Track::set_seq_mode4_parameters()
     {
     case 0:
     {
-        set_seq_mode_value(4, 0, 0, "1", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 1, 0, "2", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 2, 0, "3", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 3, 0, "4", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(4, 0, 0, "1", 0, NO_NOTE);
+        set_seq_mode_value(4, 1, 0, "2", 0, NO_NOTE);
+        set_seq_mode_value(4, 2, 0, "3", 0, NO_NOTE);
+        set_seq_mode_value(4, 3, 0, "4", 0, NO_NOTE);
     }
     break;
     case 1:
     {
-        set_seq_mode_value(4, 0, 1, "5", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 1, 1, "6", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 2, 1, "7", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 3, 1, "8", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(4, 0, 1, "5", 0, NO_NOTE);
+        set_seq_mode_value(4, 1, 1, "6", 0, NO_NOTE);
+        set_seq_mode_value(4, 2, 1, "7", 0, NO_NOTE);
+        set_seq_mode_value(4, 3, 1, "8", 0, NO_NOTE);
     }
     break;
     case 2:
     {
-        set_seq_mode_value(4, 0, 2, "9", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 1, 2, "10", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 2, 2, "11", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 3, 2, "12", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(4, 0, 2, "9", 0, NO_NOTE);
+        set_seq_mode_value(4, 1, 2, "10", 0, NO_NOTE);
+        set_seq_mode_value(4, 2, 2, "11", 0, NO_NOTE);
+        set_seq_mode_value(4, 3, 2, "12", 0, NO_NOTE);
     }
     break;
     case 3:
     {
-        set_seq_mode_value(4, 0, 3, "13", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 1, 3, "14", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 2, 3, "15", 0, MIDI_CC_RANGE);
-        set_seq_mode_value(4, 3, 3, "16", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(4, 0, 3, "13", 0, NO_NOTE);
+        set_seq_mode_value(4, 1, 3, "14", 0, NO_NOTE);
+        set_seq_mode_value(4, 2, 3, "15", 0, NO_NOTE);
+        set_seq_mode_value(4, 3, 3, "16", 0, NO_NOTE);
     }
     break;
     default:
@@ -524,45 +553,59 @@ void Track::draw_seq_mode4()
 // beatArray
 void Track::play_seq_mode5(uint8_t cloock)
 {
-    if (clip_to_play[external_clock_bar] <= NUM_USER_CLIPS)
+
+    if (lastPotRow == 3 && enc_button[3])
     {
-        uint8_t seq3_clock = cloock / TICKS_PER_STEP;
-        bool seq4_bool = cloock % TICKS_PER_STEP;
-        if (seq3_clock == 16)
-            seq3_clock = 0;
-
-        if (seq4_bool)
+        enc_button[3] = false;
+        for (int v = 0; v < MAX_VOICES; v++)
         {
-            for (int i = 0; i < MAX_VOICES; i++)
+            for (int s = 0; s < NUM_STEPS; s++)
             {
-                if (beatArray[seqMod_value[5][i]][seq3_clock])
+                if (beatArray[seqMod_value[5][v]][s])
                 {
-
-                    if (!note_is_on[i])
-                    {
-                        noteToPlay[i] = (i + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE)) + noteOffset[external_clock_bar] + performNoteOffset;
-                        uint8_t Velo = 99 * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
-                        uint8_t StepFX = 128;
-                        note_is_on[i] = true;
-                        sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
-                        noteOn(noteToPlay[i], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
-                        // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-                        clip[parameter[SET_CLIP2_EDIT]].tick[seq3_clock * TICKS_PER_STEP].voice[i] = noteToPlay[i];
-                    }
+                    int _note = v + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+                    set_note_on_tick(s * 12, _note, parameter[SET_STEP_LENGTH]);
                 }
             }
         }
+    }
+    uint8_t seq3_clock = cloock / TICKS_PER_STEP;
+    bool seq4_bool = cloock % TICKS_PER_STEP;
+    if (seq3_clock == 16)
+        seq3_clock = 0;
 
-        if (!seq4_bool)
+    if (seq4_bool)
+    {
+        for (int i = 0; i < MAX_VOICES; i++)
         {
-            for (int i = 0; i < MAX_VOICES; i++)
+            if (beatArray[seqMod_value[5][i]][seq3_clock])
             {
-                if (note_is_on[i])
+
+                if (!note_is_on[i])
                 {
-                    note_is_on[i] = false;
-                    noteOff(noteToPlay[i], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                          // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                    noteToPlay[i] = (i + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE)) + noteOffset[external_clock_bar] + performNoteOffset;
+                    uint8_t Velo = random(seqMod_value[5][12], seqMod_value[5][13]) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
+                    // uint8_t Velo = 99 * (barVelocity[external_clock_bar] / 127) * (mixGainPot / 127.00);
+                    uint8_t StepFX = 128;
+                    note_is_on[i] = true;
+                    sendControlChange(parameter[14], StepFX, parameter[SET_MIDICH_OUT]);
+                    noteOn(noteToPlay[i], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
+                    // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                    clip[parameter[SET_CLIP2_EDIT]].tick[seq3_clock * TICKS_PER_STEP].voice[i] = noteToPlay[i];
                 }
+            }
+        }
+    }
+
+    if (!seq4_bool)
+    {
+        for (int i = 0; i < MAX_VOICES; i++)
+        {
+            if (note_is_on[i])
+            {
+                note_is_on[i] = false;
+                noteOff(noteToPlay[i], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
+                                                                      // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
             }
         }
     }
@@ -598,6 +641,8 @@ void Track::set_seq_mode5_parameters()
     break;
     case 3:
     {
+        set_seq_mode_value(5, 0, 3, "Vol -", 0, MIDI_CC_RANGE);
+        set_seq_mode_value(5, 1, 3, "Vol +", 0, MIDI_CC_RANGE);
     }
     break;
     default:
@@ -624,6 +669,8 @@ void Track::draw_seq_mode5()
         drawPot(2, 2, seqMod_value[5][10], "11");
         drawPot(3, 2, seqMod_value[5][11], "12");
 
+        drawPot(0, 3, seqMod_value[5][12], "Vol -");
+        drawPot(1, 3, seqMod_value[5][13], "Vol +");
         //  drawPot(0, 3, seqMod_value[4][12], "13");
         //   drawPot(1, 3, seqMod_value[4][13], "14");
         //   drawPot(2, 3, seqMod_value[4][14], "15");

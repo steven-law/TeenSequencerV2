@@ -238,8 +238,10 @@ void Track::set_note_on_tick(int x, int voice, int length)
     clip_t *clipPtr = clip;                                    // Richtiger Typ
     tick_t *tickPtr = clipPtr[parameter[SET_CLIP2_EDIT]].tick; // Zugriff auf das Tick-Array
 
-    uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-    uint8_t noteInClip = tickPtr[x].voice[voice];
+    uint8_t note2set = voice ;
+    int _voice = voice%12;
+   // uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+    uint8_t noteInClip = tickPtr[x].voice[_voice];
     uint8_t velocity = parameter[SET_VELO2SET];
     uint8_t stepFX = parameter[SET_STEP_FX];
 
@@ -248,7 +250,7 @@ void Track::set_note_on_tick(int x, int voice, int length)
 
     if (isNewNote)
     {
-        tickPtr[x].noteLength[voice] = length;
+        tickPtr[x].noteLength[_voice] = length;
     }
 
     for (int i = 0; i < length; i++)
@@ -257,17 +259,17 @@ void Track::set_note_on_tick(int x, int voice, int length)
 
         if (isNoteClearing)
         {
-            tickPtr[onTick].voice[voice] = NO_NOTE;
-            tickPtr[onTick].velo[voice] = 0;
-            tickPtr[x].noteLength[voice] = 0;
+            tickPtr[onTick].voice[_voice] = NO_NOTE;
+            tickPtr[onTick].velo[_voice] = 0;
+            tickPtr[x].noteLength[_voice] = 0;
         }
         else if (isNewNote)
         {
-            tickPtr[onTick].voice[voice] = note2set;
-            tickPtr[onTick].velo[voice] = velocity;
+            tickPtr[onTick].voice[_voice] = note2set;
+            tickPtr[onTick].velo[_voice] = velocity;
         }
 
-        tickPtr[onTick].stepFX[voice] = stepFX;
+        tickPtr[onTick].stepFX[_voice] = stepFX;
 
         // Farbe für Trellis bestimmen (nur wenn nötig)
         int trellisColor = TRELLIS_BLACK;
@@ -282,15 +284,15 @@ void Track::set_note_on_tick(int x, int voice, int length)
         trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
     }
 
-    if (active_track == my_Arranger_Y_axis - 1)
+    if (active_track == my_Arranger_Y_axis - 1 && activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
-        if (tickPtr[x].voice[voice] == NO_NOTE)
+        if (tickPtr[x].voice[_voice] == NO_NOTE)
         {
-            erase_note_on_tick(voice, x, length);
+            erase_note_on_tick(_voice, x, length);
         }
         else
         {
-            draw_note_on_tick(voice, x);
+            draw_note_on_tick(_voice, x);
         }
     }
 }
