@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "projectVariables.h"
 #include "Track.h"
-
+//hello test
 void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
