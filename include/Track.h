@@ -211,6 +211,8 @@ private:
     uint8_t note_probablity = 127;
     uint8_t seqMod_value[NUM_PLAYMODES][16];
     uint8_t seqMod1NoteMemory[NUM_STEPS];
+    uint8_t seqMod2NoteMemory[NUM_STEPS];
+    uint8_t seqMod7NoteMemory[NUM_STEPS];
     uint8_t SeqMod6Value2[16];
 
     uint8_t maxVal;
