@@ -35,7 +35,7 @@ void Track::set_stepSequencer_parameters()
 
         break;
     case 3:
-         set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Swing", 0, MAX_TICKS);
+         set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Offset", 0, MAX_TICKS);
 
     default:
         break;

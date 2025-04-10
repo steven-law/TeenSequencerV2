@@ -697,7 +697,7 @@ void draw_stepSequencer_parameters()
         break;
         case 3:
         {
-            draw_sequencer_arranger_parameter(active_track, 0, "Swing", allTracks[active_track]->parameter[SET_SWING], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 0, "Offset", allTracks[active_track]->parameter[SET_SWING], NO_NAME);
         }
         break;
         default:
