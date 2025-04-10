@@ -59,7 +59,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define SET_MIDICH_OUT 10
 #define SET_CLIP2_EDIT 11
 
-#define SET_PROBABILTY 12
+#define SET_SWING 12
 
 // pages
 #define TRACK_1_PAGE 0

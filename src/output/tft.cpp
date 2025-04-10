@@ -92,10 +92,10 @@ void drawPositionCounter()
 void draw_potRow(){
     if (change_row)
     {
-      // midi_read();
-      tft.fillRect(POSITION_POTROW_BUTTON, STEP_FRAME_H, 5, STEP_FRAME_H * 12, ILI9341_DARKGREY);
-      tft.fillRect(POSITION_POTROW_BUTTON, (lastPotRow * 3 * STEP_FRAME_H) + STEP_FRAME_H, 5, STEP_FRAME_H * 3, ILI9341_ORANGE);
-      change_row = false;
+        // midi_read();
+        tft.fillRect(POSITION_POTROW_BUTTON, STEP_FRAME_H, 5, STEP_FRAME_H * 12, ILI9341_DARKGREY);
+        tft.fillRect(POSITION_POTROW_BUTTON, (lastPotRow * 3 * STEP_FRAME_H) + STEP_FRAME_H, 5, STEP_FRAME_H * 3, ILI9341_ORANGE);
+        change_row = false;
     }
 }
 void startUpScreen()
@@ -460,7 +460,7 @@ void draw_arranger_parameters()
     {
         // drawOctaveNumber();
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-         change_plugin_row = false;
+        change_plugin_row = false;
         switch (lastPotRow)
         {
         case 0:
@@ -667,7 +667,7 @@ void draw_stepSequencer_parameters()
     if (change_plugin_row)
     {
         tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 2 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-         change_plugin_row = false;
+        change_plugin_row = false;
         drawOctaveNumber();
         switch (lastPotRow)
         {
@@ -697,6 +697,7 @@ void draw_stepSequencer_parameters()
         break;
         case 3:
         {
+            draw_sequencer_arranger_parameter(active_track, 0, "Swing", allTracks[active_track]->parameter[SET_SWING], NO_NAME);
         }
         break;
         default:
@@ -737,7 +738,7 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 3);
     int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
     int radius = map(stepFX, 127, 0, 0, STEP_FRAME_H / 3);
-
+    Serial.printf("draw Note %d,  on Tick %d\n", note, _when);
     tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
 }
 void draw_notes_in_grid()
@@ -771,7 +772,7 @@ void draw_MIDI_CC_screen()
     if (change_plugin_row)
     {
         //
-         change_plugin_row = false;
+        change_plugin_row = false;
         draw_MIDI_CC(0, 0);
         draw_MIDI_CC(1, 0);
         draw_MIDI_CC(2, 0);
@@ -807,7 +808,7 @@ void draw_mixer()
 
     if (change_plugin_row)
     {
-         change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
@@ -839,7 +840,7 @@ void draw_mixer_FX_page1()
 {
     if (change_plugin_row)
     {
-         change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixDryPot, "Dry D");
         drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 D");
         drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 D");
@@ -866,7 +867,7 @@ void draw_mixer_FX_page2()
 
     if (change_plugin_row)
     {
-         change_plugin_row = false;
+        change_plugin_row = false;
         drawPot(0, 0, allTracks[4]->mixDryPot, "Dry 5");
         drawPot(1, 0, allTracks[4]->mixFX1Pot, "FX1 5");
         drawPot(2, 0, allTracks[4]->mixFX2Pot, "FX2 5");
