@@ -35,7 +35,7 @@ void Track::set_stepSequencer_parameters()
 
         break;
     case 3:
-         set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Offset", 0, MAX_TICKS);
+        set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Offset", 0, MAX_TICKS);
 
     default:
         break;
@@ -45,7 +45,8 @@ void Track::set_stepSequencer_parameters()
 
 void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max)
 {
-
+    if (!(gridTouchY > 0 && gridTouchY < 13 && pixelTouchX > SEQ_GRID_LEFT))
+        return;
     if (enc_moved[XPos])
     {
         uint8_t index = XPos + (YPos * NUM_ENCODERS);
@@ -238,9 +239,9 @@ void Track::set_note_on_tick(int x, int voice, int length)
     clip_t *clipPtr = clip;                                    // Richtiger Typ
     tick_t *tickPtr = clipPtr[parameter[SET_CLIP2_EDIT]].tick; // Zugriff auf das Tick-Array
 
-    uint8_t note2set = voice ;
-    int _voice = voice%12;
-   // uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+    uint8_t note2set = voice;
+    int _voice = voice % 12;
+    // uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
     uint8_t noteInClip = tickPtr[x].voice[_voice];
     uint8_t velocity = parameter[SET_VELO2SET];
     uint8_t stepFX = parameter[SET_STEP_FX];

@@ -59,6 +59,8 @@ void clock_to_notes(int _tick);
 void midi_setup(uint8_t dly);
 void midi_read();
 void sendClock();
+void sendStart();
+void sendStop();
 void onExternalStart();
 void onExternalStop();
 
@@ -343,6 +345,7 @@ void input_behaviour()
 
     if (lastPotRow == 3)
     {
+      myClock.set_syncToExtern(0);
       myClock.set_tempo(1);
       myClock.set_start_of_loop(2); // Encoder: 2
       myClock.set_end_of_loop(3);   // Encoder: 3
@@ -485,6 +488,17 @@ void SerialMidi_handleInput()
   //  }
 }
 
+void sendStart(){
+  
+  MIDI1.sendStart();
+  usbMIDI.sendRealTime(usbMIDI.Start);
+  usbMidi1.sendRealTime(usbMIDI.Start);
+}
+void sendStop(){
+  MIDI1.sendStop();
+  usbMIDI.sendRealTime(usbMIDI.Stop);
+  usbMidi1.sendRealTime(usbMIDI.Stop);
+}
 void sendClock()
 {
   MIDI1.sendClock();

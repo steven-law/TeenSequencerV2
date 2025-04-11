@@ -12,8 +12,11 @@
 #include "input/encoder.h"
 #include <projectVariables.h>
 #include "output/tft.h"
-
+#include <MIDI.h>
+#include <USBHost_t36.h>
 //extern tftClass *mytft;
+void sendStart();
+void sendStop();
 void sendClock();
 void clock_to_notes(int _tick);
 extern bool neotrellisPressed[X_DIM * Y_DIM];
@@ -30,6 +33,7 @@ public:
   static uint8_t barTick;
   static File clockFile;
   static bool isPlaying;
+  static bool syncToExtern;
   MyClock(int index);
   void setup();
 
@@ -45,7 +49,7 @@ public:
 
   void draw_clock_option(uint8_t x, uint8_t v);
 
-
+  void set_syncToExtern(uint8_t _encoder);
   void set_start_of_loop(uint8_t n);
   void set_end_of_loop(uint8_t n);
   void save_clock(uint8_t _songNr);

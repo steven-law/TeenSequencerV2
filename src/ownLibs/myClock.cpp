@@ -5,6 +5,7 @@ uint8_t MyClock::tempo = 120;
 uint8_t MyClock::startOfLoop = 0;
 uint8_t MyClock::endOfLoop = 4;
 bool MyClock::isPlaying = false;
+bool MyClock::syncToExtern = true;
 uint8_t MyClock::stepTick = -1;
 uint8_t MyClock::barTick = -1;
 File MyClock::clockFile;
@@ -31,13 +32,13 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
     // Send MIDI_CLOCK to external gears
     // Serial.write(MIDI_CLOCK);
     tick = tick % (MAX_TICKS);
+    clock_to_notes(tick);
 
     // Serial.printf("tick: %d\n", tick);
+    if (syncToExtern)
+        sendClock();
 
-    sendClock();
-    clock_to_notes(tick);
-  
-  //  Serial.println(tick); //passt
+    //  Serial.println(tick); //passt
 }
 void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one step.
 {
@@ -60,28 +61,36 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
 
 void MyClock::onClockStart() // The callback function wich will be called when clock starts by using Clock.start() method.
 {
-    // Serial.write(MIDI_START);
 }
 void MyClock::onClockStop() // The callback function wich will be called when clock stops by using Clock.stop() method.
 {
-    barTick = startOfLoop;
-    // Serial.write(MIDI_STOP);
 }
 
 void MyClock::set_tempo(uint8_t _encoder)
 {
-    static uint8_t tempo;
     if (enc_moved[_encoder])
     {
+        change_plugin_row = true;
         tempo = constrain(tempo + encoded[_encoder], 50, 255);
         uClock.setTempo(tempo);
         draw_value_box(3, POSITION_BPM_BUTTON, 0, 4, 4, tempo, NO_NAME, ILI9341_WHITE, 2, true, false);
+    }
+}
+void MyClock::set_syncToExtern(uint8_t _encoder)
+{
+
+    if (enc_moved[_encoder])
+    {
+        change_plugin_row = true;
+        syncToExtern = constrain(syncToExtern + encoded[_encoder], 0, 1);
     }
 }
 void MyClock::set_start()
 {
     uClock.start();
     isPlaying = true;
+    if (syncToExtern)
+        sendStart();
 }
 void MyClock::set_stop()
 {
@@ -89,6 +98,9 @@ void MyClock::set_stop()
     barTick = -1;
     stepTick = -1;
     isPlaying = false;
+    barTick = startOfLoop;
+    if (syncToExtern)
+        sendStop();
 }
 void MyClock::draw_clock_option(uint8_t x, uint8_t v)
 {
@@ -105,6 +117,7 @@ void MyClock::set_start_of_loop(uint8_t n)
 {
     if (enc_moved[n])
     {
+        change_plugin_row = true;
         startOfLoop = constrain(startOfLoop + encoded[n], 0, 254);
         draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 
@@ -116,6 +129,7 @@ void MyClock::set_end_of_loop(uint8_t n)
 {
     if (enc_moved[n])
     {
+        change_plugin_row = true;
         endOfLoop = constrain(endOfLoop + encoded[n], 1, 255);
 
         draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
@@ -126,7 +140,7 @@ void MyClock::set_end_of_loop(uint8_t n)
 
 void MyClock::save_clock(uint8_t _songNr)
 {
-   // SD.begin(BUILTIN_SDCARD);
+    // SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
@@ -174,14 +188,14 @@ void MyClock::load_clock(uint8_t _songNr)
     uint8_t _tempo;
     uint8_t _startOfLoop;
     uint8_t _endOfLoop;
-   // SD.begin(BUILTIN_SDCARD);
+    // SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
     sprintf(_trackname, "%dclock.txt\0", _songNr);
     Serial.println(_trackname);
     //  open the file for reading:
     this->clockFile = SD.open(_trackname, FILE_READ);
     // Serial.println(_trackname);
-    if ( this->clockFile)
+    if (this->clockFile)
     {
         // Serial.println("opening:");
         //  read from the file until there's nothing else in it:
@@ -201,7 +215,6 @@ void MyClock::load_clock(uint8_t _songNr)
         endOfLoop = _endOfLoop * 2;
         uClock.setTempo(tempo);
 
-        
         draw_value_box(3, POSITION_BPM_BUTTON, 0, 4, 4, tempo, NO_NAME, ILI9341_WHITE, 2, true, false);
         draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
         draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);

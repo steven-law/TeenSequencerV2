@@ -489,6 +489,7 @@ void draw_arranger_parameters()
         break;
         case 3:
         {
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "SyncOut", myClock.syncToExtern, myClock.syncToExtern ? "On" : "Off");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Tempo", myClock.tempo, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "Start", myClock.startOfLoop, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "End", myClock.endOfLoop, "NO_NAME");
