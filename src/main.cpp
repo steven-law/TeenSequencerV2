@@ -368,10 +368,11 @@ void input_behaviour()
   }
   case INPUT_FUNCTIONS_FOR_PLUGIN:
   {
-    if (allTracks[active_track]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+    if (trackChannel <= NUM_MIDI_OUTPUTS)
       allTracks[active_track]->set_MIDI_CC(lastPotRow);
-    else if (allTracks[active_track]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-      MasterOut.set_parameters(allTracks[active_track]->parameter[SET_MIDICH_OUT] - 49, lastPotRow);
+    else if (trackChannel > NUM_MIDI_OUTPUTS)
+      MasterOut.set_parameters(trackChannel - 49, lastPotRow);
     neotrellisPressed[TRELLIS_POTROW] = false;
     break;
   }
@@ -488,13 +489,15 @@ void SerialMidi_handleInput()
   //  }
 }
 
-void sendStart(){
-  
+void sendStart()
+{
+
   MIDI1.sendStart();
   usbMIDI.sendRealTime(usbMIDI.Start);
   usbMidi1.sendRealTime(usbMIDI.Start);
 }
-void sendStop(){
+void sendStop()
+{
   MIDI1.sendStop();
   usbMIDI.sendRealTime(usbMIDI.Stop);
   usbMidi1.sendRealTime(usbMIDI.Stop);
@@ -574,7 +577,8 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    allTracks[channel - 1]->noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
+    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+    allTracks[channel - 1]->noteOn(note, velocity, trackChannel);
   }
   if (channel >= 9)
     sendNoteOn(channel - 1, note, velocity, channel);
@@ -584,7 +588,8 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    allTracks[channel - 1]->noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
+    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+    allTracks[channel - 1]->noteOff(note, velocity, trackChannel);
   }
   if (channel >= 9)
     sendNoteOff(channel - 1, note, velocity, channel);
@@ -606,8 +611,9 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
       }
       if (control == i + 80)
       {
-        int _pluginCh = allTracks[channel - 1]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1);
-        if (allTracks[channel - 1]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+        int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+        int _pluginCh = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+        if (trackChannel> NUM_MIDI_OUTPUTS)
         {
           allPlugins[_pluginCh]->potentiometer[allPlugins[_pluginCh]->presetNr][i] = value;
           Serial.printf("MIDI pluginCh = %d\n", _pluginCh);
@@ -867,6 +873,7 @@ void trellis_play_mixer()
 
     for (int t = 0; t < NUM_TRACKS; t++)
     {
+
       // if (allTracks[t]->parameter[SET_MIDICH_OUT] >= (NUM_MIDI_OUTPUTS + 1))
       {
         for (int s = 0; s < NUM_STEPS; s++)
@@ -876,14 +883,16 @@ void trellis_play_mixer()
 
           if (trellisPressed[_nr])
           {
+            int trackChannel = allTracks[t]->clip[allTracks[t]->clip_to_play[allTracks[t]->internal_clock_bar]].midiChOut;
             trellisPressed[_nr] = false;
             for (int c = 0; c < 4; c++)
             {
 
               if (_nr % TRELLIS_PADS_X_DIM == c)
               {
-                Serial.printf("dry channel = %d, track channel : %d\n", allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[t]->parameter[SET_MIDICH_OUT]);
-                MasterOut.fx_section.dry[allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+               
+                Serial.printf("dry channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
+                MasterOut.fx_section.dry[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
                 allTracks[t]->mixDryPot = (c * 42);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 0, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 1, t, TRELLIS_BLACK);
@@ -899,8 +908,8 @@ void trellis_play_mixer()
               }
               if (_nr % TRELLIS_PADS_X_DIM == c + 4)
               {
-                Serial.printf("fx1 channel = %d, track channel : %d\n", allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[t]->parameter[SET_MIDICH_OUT]);
-                fx_1.pl[allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+                Serial.printf("fx1 channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
+                fx_1.pl[trackChannel- (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
                 allTracks[t]->mixFX1Pot = (c * 42);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 4, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 5, t, TRELLIS_BLACK);
@@ -916,8 +925,8 @@ void trellis_play_mixer()
               }
               if (_nr % TRELLIS_PADS_X_DIM == c + 8)
               {
-                Serial.printf("fx2 channel = %d, track channel : %d\n", allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[t]->parameter[SET_MIDICH_OUT]);
-                fx_2.pl[allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+                Serial.printf("fx2 channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
+                fx_2.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
                 allTracks[t]->mixFX2Pot = (c * 42);
 
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 8, t, TRELLIS_BLACK);
@@ -935,8 +944,8 @@ void trellis_play_mixer()
 
               if (_nr % TRELLIS_PADS_X_DIM == c + 12)
               {
-                Serial.printf("fx3 channel = %d, track channel : %d\n", allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[t]->parameter[SET_MIDICH_OUT]);
-                fx_3.pl[allTracks[t]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+                Serial.printf("fx3 channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
+                fx_3.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
                 allTracks[t]->mixFX3Pot = (c * 42);
 
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 12, t, TRELLIS_BLACK);
@@ -982,7 +991,7 @@ void trellis_perform()
             {
               allTracks[s]->mixGainPot = 127 - (t * 16);
               trellisPerformIndex[0] = t;
-              // sendControlChange(performCC[0], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              // sendControlChange(performCC[0], 127 - (t * 16), trackChannel);
             }
           }
           set_infobox_background(750);
@@ -997,13 +1006,13 @@ void trellis_perform()
           {
             if (allTracks[s]->performIsActive)
             {
-
-              Serial.printf("dry channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+              Serial.printf("dry channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
               allTracks[s]->mixDryPot = 127 - (t * 16);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                MasterOut.fx_section.dry[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[1], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              if (trackChannel > NUM_MIDI_OUTPUTS)
+                MasterOut.fx_section.dry[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (trackChannel <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[1], 127 - (t * 16), trackChannel);
               trellisPerformIndex[1] = t;
               // break;
             }
@@ -1020,12 +1029,13 @@ void trellis_perform()
           {
             if (allTracks[s]->performIsActive)
             {
-              Serial.printf("fx1 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+              Serial.printf("fx1 plugin channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
               allTracks[s]->mixFX1Pot = 127 - (t * 16);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                fx_1.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[2], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              if (trackChannel > NUM_MIDI_OUTPUTS)
+                fx_1.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (trackChannel <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[2], 127 - (t * 16), trackChannel);
               trellisPerformIndex[2] = t;
               // break;
             }
@@ -1042,12 +1052,13 @@ void trellis_perform()
           {
             if (allTracks[s]->performIsActive)
             {
-              Serial.printf("fx2 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+              Serial.printf("fx2 plugin channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
               allTracks[s]->mixFX2Pot = 127 - (t * 16);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                fx_2.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[3], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              if (trackChannel > NUM_MIDI_OUTPUTS)
+                fx_2.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (trackChannel <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[3], 127 - (t * 16), trackChannel);
               trellisPerformIndex[3] = t;
               // break;
             }
@@ -1064,12 +1075,13 @@ void trellis_perform()
           {
             if (allTracks[s]->performIsActive)
             {
-              Serial.printf("fx3 plugin channel = %d, track channel : %d\n", allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+              Serial.printf("fx3 plugin channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
               allTracks[s]->mixFX3Pot = 127 - (t * 16);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-                fx_3.pl[allTracks[s]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[4], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              if (trackChannel > NUM_MIDI_OUTPUTS)
+                fx_3.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
+              if (trackChannel <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[4], 127 - (t * 16), trackChannel);
               trellisPerformIndex[4] = t;
               // break;
             }
@@ -1087,8 +1099,9 @@ void trellis_perform()
           fx_1.freeverb.roomsize((float)map(t, 0, 8, 0, 1.00));
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[5], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[5], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[5] = t;
           set_infobox_background(750);
@@ -1104,8 +1117,9 @@ void trellis_perform()
           fx_1.freeverb.damping((float)map(t, 0, 8, 0, 1.00));
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[6], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[6], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[6] = t;
           set_infobox_background(750);
@@ -1121,8 +1135,9 @@ void trellis_perform()
           fx_2.bitcrusher.bits(map(t, 0, 8, 16, 0));
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[7], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[7], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[7] = t;
           set_infobox_background(750);
@@ -1138,8 +1153,9 @@ void trellis_perform()
           fx_2.bitcrusher.sampleRate(_rate[t]);
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[8], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[8], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[8] = t;
           set_infobox_background(750);
@@ -1154,8 +1170,9 @@ void trellis_perform()
           fx_3.delay.delay(0, 500 / (t + 1));
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[9], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[9], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[9] = t;
           set_infobox_background(750);
@@ -1170,8 +1187,9 @@ void trellis_perform()
           fx_3.delayMixer.gain(1, t / 8.00);
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[10], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[10], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[10] = t;
           set_infobox_background(750);
@@ -1186,8 +1204,9 @@ void trellis_perform()
           MasterOut.finalFilter.frequency(frequency);
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[11], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[11], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[11] = t;
           set_infobox_background(750);
@@ -1201,8 +1220,9 @@ void trellis_perform()
           MasterOut.finalFilter.resonance(map(t, 0, 8, 0, 5.00));
           for (int s = 0; s < NUM_TRACKS; s++)
           {
-            if (allTracks[s]->performIsActive && allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[12], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
+              sendControlChange(performCC[12], 127 - (t * 16), trackChannel);
           }
           trellisPerformIndex[12] = t;
           set_infobox_background(750);
@@ -1219,10 +1239,12 @@ void trellis_perform()
             if (allTracks[s]->performIsActive)
             {
               {
-                allTracks[s]->parameter[SET_SEQUENCE_LENGTH] = _clipLength[t];
-                if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+                int trackSeqLength = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].seqLength;
+                int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+                trackSeqLength = _clipLength[t];
+                if (trackChannel <= NUM_MIDI_OUTPUTS)
                 {
-                  sendControlChange(performCC[13], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+                  sendControlChange(performCC[13], 127 - (t * 16), trackChannel);
                 }
               }
             }
@@ -1248,9 +1270,10 @@ void trellis_perform()
           {
             if (allTracks[s]->performIsActive)
             {
+              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
               allTracks[s]->performClockDivision = _clockDivision[t];
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[14], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              if (trackChannel <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[14], 127 - (t * 16), trackChannel);
             }
             if (t == 0)
             {
@@ -1273,9 +1296,10 @@ void trellis_perform()
           {
             if (allTracks[s]->performIsActive)
             {
+              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
               allTracks[s]->performNoteOffset = _offset[t];
-              if (allTracks[s]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[15], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
+              if (trackChannel <= NUM_MIDI_OUTPUTS)
+                sendControlChange(performCC[15], 127 - (t * 16), trackChannel);
             }
           }
           trellisPerformIndex[15] = t;
@@ -1339,33 +1363,43 @@ void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn
 
   if (enc_moved[XPos])
   {
-
+    int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
     allTracks[trackn]->mixGainPot = constrain(allTracks[trackn]->mixGainPot + encoded[XPos], 0, MIDI_CC_RANGE);
     allTracks[trackn]->mixGain = (float)(allTracks[trackn]->mixGainPot / MIDI_CC_RANGE_FLOAT);
     Serial.printf("set mixgainpot: %d for track %d\n", allTracks[trackn]->mixGainPot, trackn);
-    /*for (int i = 0; i < NUM_PLUGINS; i++)
-   {
-     if (allTracks[trackn]->MIDI_channel_out == i+17)
-       allPlugins[i]->MixGain.gain(allTracks[trackn]->mixGain);
-   }*/
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_1)
+    switch (trackChannel)
+    {
+    case CH_PLUGIN_1:
       plugin_1.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_2)
+      break;
+    case CH_PLUGIN_2:
       plugin_2.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_3)
+      break;
+    case CH_PLUGIN_3:
       plugin_3.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_4)
+      break;
+    case CH_PLUGIN_4:
       plugin_4.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_5)
+      break;
+    case CH_PLUGIN_5:
       plugin_5.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_6)
+      break;
+    case CH_PLUGIN_6:
       plugin_6.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_7)
+      break;
+    case CH_PLUGIN_7:
       plugin_7.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_8)
+      break;
+    case CH_PLUGIN_8:
       plugin_8.MixGain.gain(allTracks[trackn]->mixGain);
-    if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_9)
+      break;
+    case CH_PLUGIN_9:
       plugin_9.MixGain.gain(allTracks[trackn]->mixGain);
+      break;
+
+    default:
+      break;
+    }
 
     drawPot(XPos, YPos, allTracks[trackn]->mixGainPot, name);
   }
@@ -1450,11 +1484,12 @@ void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   {
     if (enc_moved[XPos])
     {
+      int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
       allTracks[trackn]->mixDryPot = constrain(allTracks[trackn]->mixDryPot + encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixDry = (float)(allTracks[trackn]->mixDryPot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
-        if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_1 + i)
+        if (trackChannel == CH_PLUGIN_1 + i)
           MasterOut.fx_section.dry[i].gain(allTracks[trackn]->mixDry);
       }
       drawPot(XPos, YPos, allTracks[trackn]->mixDryPot, name);
@@ -1467,11 +1502,12 @@ void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   {
     if (enc_moved[XPos])
     {
+      int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
       allTracks[trackn]->mixFX1Pot = constrain(allTracks[trackn]->mixFX1Pot + encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixFX1 = (float)(allTracks[trackn]->mixFX1Pot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
-        if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_1 + i)
+        if (trackChannel == CH_PLUGIN_1 + i)
           fx_1.pl[i].gain(allTracks[trackn]->mixFX1);
       }
 
@@ -1485,11 +1521,12 @@ void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   {
     if (enc_moved[XPos])
     {
+      int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
       allTracks[trackn]->mixFX2Pot = constrain(allTracks[trackn]->mixFX2Pot + encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixFX2 = (float)(allTracks[trackn]->mixFX2Pot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
-        if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_1 + i)
+        if (trackChannel == CH_PLUGIN_1 + i)
           fx_2.pl[i].gain(allTracks[trackn]->mixFX2);
       }
       drawPot(XPos, YPos, allTracks[trackn]->mixFX2Pot, name);
@@ -1503,12 +1540,12 @@ void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   {
     if (enc_moved[XPos])
     {
-
+      int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
       allTracks[trackn]->mixFX3Pot = constrain(allTracks[trackn]->mixFX3Pot + encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixFX3 = (float)(allTracks[trackn]->mixFX3Pot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
-        if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_1 + i)
+        if (trackChannel == CH_PLUGIN_1 + i)
           fx_3.pl[i].gain(allTracks[trackn]->mixFX3);
       }
       drawPot(XPos, YPos, allTracks[trackn]->mixFX3Pot, name);

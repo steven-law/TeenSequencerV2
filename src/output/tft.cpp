@@ -84,7 +84,7 @@ void drawPositionCounter()
     }
     else
     {
-        tft.print(myClock.barTick + 1);
+        tft.print(myClock.barTick);
         tft.print(":");
         tft.print(myClock.stepTick + 1);
     }
@@ -357,13 +357,13 @@ void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const c
 {
     // Serial.printf("drawing seq-Arr parameter %s\n", _name);
     uint8_t _ypos = _encoder * 2;
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 5, 4, 4, NO_VALUE, _name, encoder_colour[_encoder], 2, false, false);
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, _value, NO_NAME, encoder_colour[_encoder], 2, true, false);
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 5, 4, 4, NO_VALUE, _name, encoder_colour[_encoder], 1.75, false, false);
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, _value, NO_NAME, encoder_colour[_encoder], 1.75, true, false);
     if (_valuedName != "NO_NAME")
-        draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, NO_VALUE, _valuedName, encoder_colour[_encoder], 2, true, false);
+        draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, NO_VALUE, _valuedName, encoder_colour[_encoder], 1.75, true, false);
 }
 
-void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, uint8_t _size, bool drawRect, bool drawFilling)
+void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, float _size, bool drawRect, bool drawFilling)
 {
     int xPos = XPos * STEP_FRAME_W;
     int yPos = YPos * STEP_FRAME_H;
@@ -639,7 +639,8 @@ void draw_Notenames()
 {
     for (int n = 0; n < MAX_VOICES; n++)
     { // hor notes
-        int color = (scales[allTracks[active_track]->parameter[SET_SCALE]][n]) ? trackColor[active_track] : ILI9341_LIGHTGREY;
+        
+        int color = (scales[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].scale][n]) ? trackColor[active_track] : ILI9341_LIGHTGREY;
         tft.fillRect(STEP_FRAME_W, STEP_FRAME_H * n + STEP_FRAME_H, STEP_FRAME_W, STEP_FRAME_H, color);
         tft.setCursor(STEP_FRAME_W + 1, STEP_FRAME_H * n + 24);
 
@@ -676,23 +677,23 @@ void draw_stepSequencer_parameters()
         {
             draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1] + (allTracks[active_track]->parameter[SET_OCTAVE] * 12), NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[14]], allTracks[active_track]->parameter[2], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[15]], allTracks[active_track]->parameter[2], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 3, "Velo", allTracks[active_track]->parameter[3], NO_NAME);
         }
         break;
         case 1:
         {
-            draw_sequencer_arranger_parameter(active_track, 0, "seqL", allTracks[active_track]->parameter[4], NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 1, "cDiv", allTracks[active_track]->parameter[5], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 0, "seqL", allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].seqLength, NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 1, "cDiv", allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].clockDivision, NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 2, "stpL", allTracks[active_track]->parameter[6], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 3, "Oct", allTracks[active_track]->parameter[7], NO_NAME);
         }
         break;
         case 2:
         {
-            draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->parameter[SET_SEQ_MODE]]);
-            draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[allTracks[active_track]->parameter[SET_SCALE]]);
-            draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->parameter[SET_MIDICH_OUT]]);
+            draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].playMode]);
+            draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].scale]);
+            draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut]);
             draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[SET_CLIP2_EDIT], NO_NAME);
         }
         break;

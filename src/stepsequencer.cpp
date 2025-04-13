@@ -14,9 +14,9 @@ void Track::set_stepSequencer_parameters()
         set_stepSequencer_parameter_value(0, 0, "Tick", 0, 160);
         set_stepSequencer_parameter_value(1, 0, "Note", 0, 14);
         if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[14]], 0, 128); // yPos=3 to get parameter 14
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[15]], 0, 128); // yPos=3 to get parameter 14
         else if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[14]], 0, 128); // yPos=0 to get parameter 2
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[15]], 0, 128); // yPos=0 to get parameter 2
         set_stepSequencer_parameter_value(3, 0, "Velo", 0, 127);
         break;
     case 1:
@@ -27,10 +27,11 @@ void Track::set_stepSequencer_parameters()
 
         break;
     case 2:
-        set_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 2, "sMod", seqModname[parameter[SET_SEQ_MODE]], 0, NUM_PLAYMODES - 1);
+
+        set_stepSequencer_parameter_value(ENCODER_SEQ_MODE, 2, "sMod",  0, NUM_PLAYMODES - 1);
         set_stepSequencer_parameter_value(ENCODER_SCALE, 2, "scal", 0, NUM_SCALES - 1);
 
-        set_stepSequencer_parameter_text(ENCODER_MIDICH_OUT, 2, "MCh", channelOutNames[parameter[SET_MIDICH_OUT]], 0, MAX_OUTPUTS);
+        set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh",  0, MAX_OUTPUTS);
         set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, NUM_USER_CLIPS);
 
         break;
@@ -57,14 +58,39 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         {
         case SET_OCTAVE:
         case SET_CLIP2_EDIT:
-            draw_notes_in_grid();
-            break;
-
-        case SET_SCALE:
+        {
             draw_Notenames();
             trellis_show_piano();
-            break;
-
+            draw_notes_in_grid();
+        }
+        break;
+        case SET_SEQUENCE_LENGTH:
+        {
+            clip[parameter[SET_CLIP2_EDIT]].seqLength = parameter[index];
+        }
+        break;
+        case SET_CLOCK_DIVISION:
+        {
+            clip[parameter[SET_CLIP2_EDIT]].clockDivision = parameter[index];
+        }
+        break;
+        case SET_SCALE:
+        {
+            clip[parameter[SET_CLIP2_EDIT]].scale = parameter[index];
+            draw_Notenames();
+            trellis_show_piano();
+        }
+        break;
+        case SET_SEQ_MODE:
+        {
+            clip[parameter[SET_CLIP2_EDIT]].playMode = parameter[index];
+        }
+        break;
+     
+        case SET_MIDICH_OUT:
+        {
+            clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
+        }
         case SET_VELO2SET:
         case SET_STEP_FX:
         {
@@ -93,9 +119,8 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
             }
             erase_note_on_tick(voice_to_edit, start_tick, note_length);
             draw_note_on_tick(voice_to_edit, start_tick);
-            break;
         }
-
+        break;
         default:
             // Optional: Fehlerbehandlung oder Logging, falls `index` eine unerwartete Zahl ist
             break;
@@ -112,6 +137,25 @@ void Track::set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const c
         // enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s, text %s\n", index, parameter[index], name, text);
+        switch (index)
+        {
+
+        case SET_SEQ_MODE:
+        {
+            clip[parameter[SET_CLIP2_EDIT]].playMode = parameter[index];
+        }
+        break;
+     
+        case SET_MIDICH_OUT:
+        {
+            clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
+        }
+
+        break;
+        default:
+            // Optional: Fehlerbehandlung oder Logging, falls `index` eine unerwartete Zahl ist
+            break;
+        }
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, NO_VALUE, text);
     }
 }
@@ -134,7 +178,7 @@ void Track::set_CCvalue(uint8_t XPos, uint8_t YPos)
     {
         CCvalue[edit_presetNr_ccValue][n] = constrain(CCvalue[edit_presetNr_ccValue][n] + encoded[XPos], 0, 127);
         draw_MIDI_CC(XPos, YPos);
-        sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], parameter[SET_MIDICH_OUT]);
+        sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], clip[parameter[SET_CLIP2_EDIT]].midiChOut);
         // enc_moved[XPos] = false;
     }
 }

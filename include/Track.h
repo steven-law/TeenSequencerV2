@@ -75,6 +75,11 @@ public:
     struct clip_t
     {
         tick_t tick[MAX_TICKS];
+        uint8_t seqLength = MAX_TICKS;
+        uint8_t clockDivision = 1;
+        uint8_t playMode = 0;
+        uint8_t scale = 0;
+        uint8_t midiChOut;
     };
     clip_t *clip = nullptr;
     uint8_t CCvalue[NUM_PRESETS + 1][16];
@@ -132,6 +137,12 @@ public:
 
         for (int c = 0; c < MAX_CLIPS; c++)
         {
+            clip[c].seqLength = MAX_TICKS;
+            clip[c].clockDivision = 1;
+            clip[c].playMode = 0;
+            clip[c].scale = 0;
+            clip[c].midiChOut = Y;
+
             for (int t = 0; t < MAX_TICKS; t++)
             {
                 for (int v = 0; v < MAX_VOICES; v++)

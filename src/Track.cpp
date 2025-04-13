@@ -40,6 +40,11 @@ void Track::save_track(uint8_t songNr)
 
         for (int c = 0; c < MAX_CLIPS; c++)
         {
+            this->myTrackFile.print((char)this->clip[c].seqLength);
+            this->myTrackFile.print((char)this->clip[c].clockDivision);
+            this->myTrackFile.print((char)this->clip[c].playMode);
+            this->myTrackFile.print((char)this->clip[c].scale);
+            this->myTrackFile.print((char)this->clip[c].midiChOut);
             for (int t = 0; t <= MAX_TICKS; t++)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
@@ -51,10 +56,7 @@ void Track::save_track(uint8_t songNr)
                 }
             }
         }
-        for (int t = 0; t <= MAX_TICKS; t++)
-        {
-            // Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", my_Arranger_Y_axis, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
-        }
+
         // Serial.println("array saved:");
         for (int i = 0; i < MAX_BARS; i++)
         {
@@ -103,10 +105,10 @@ void Track::save_track(uint8_t songNr)
         Serial.printf("ERROR save track:%d\n", my_Arranger_Y_axis);
     }
     delay(10);
-    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    int trackChannel = clip[parameter[SET_CLIP2_EDIT]].midiChOut;
+    if (trackChannel > NUM_MIDI_OUTPUTS)
     {
-        save_plugin(songNr, parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
-        // allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->save_plugin(songNr);
+        save_plugin(songNr, trackChannel - (NUM_MIDI_OUTPUTS + 1));
     }
 
     // startUpScreen();
@@ -134,6 +136,11 @@ void Track::load_track(uint8_t songNr)
         //  load track 1
         for (int c = 0; c < MAX_CLIPS; c++)
         {
+            this->clip[c].seqLength = this->myTrackFile.read();
+            this->clip[c].clockDivision = this->myTrackFile.read();
+            this->clip[c].playMode = this->myTrackFile.read();
+            this->clip[c].scale = this->myTrackFile.read();
+            this->clip[c].midiChOut = this->myTrackFile.read();
             for (int t = 0; t <= MAX_TICKS; t++)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
@@ -156,10 +163,7 @@ void Track::load_track(uint8_t songNr)
                 }
             }
         }
-        for (int t = 0; t <= MAX_TICKS; t++)
-        {
-            // Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", my_Arranger_Y_axis, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
-        }
+
         // Serial.println("array loaded:");
 
         for (int i = 0; i < MAX_BARS; i++)
@@ -217,9 +221,11 @@ void Track::load_track(uint8_t songNr)
         Serial.printf("ERROR load track:%d\n", my_Arranger_Y_axis);
     }
     delay(10);
-    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    int trackChannel = clip[parameter[SET_CLIP2_EDIT]].midiChOut;
+
+    if (trackChannel > NUM_MIDI_OUTPUTS)
     {
-        load_plugin(songNr, parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
+        load_plugin(songNr, trackChannel - (NUM_MIDI_OUTPUTS + 1));
     }
 }
 
@@ -229,10 +235,10 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     {
         external_clock_bar++;
     }
-    if (cloock % (parameter[SET_CLOCK_DIVISION] + performClockDivision) == 0)
+    if (cloock % (clip[clip_to_play[internal_clock_bar]].clockDivision + performClockDivision) == 0)
     {
         internal_clock++;
-        if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
+        if (internal_clock >= clip[clip_to_play[internal_clock_bar]].seqLength)
         {
             internal_clock = 0;
         }
@@ -266,7 +272,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         {
             // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
             // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
-            switch (parameter[SET_SEQ_MODE])
+            switch (clip[clip_to_play[internal_clock_bar]].playMode)
             {
             case 0:
                 play_seq_mode0(internal_clock);
@@ -300,7 +306,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 
 void Track::set_seq_mode_parameters(uint8_t row)
 {
-    switch (parameter[SET_SEQ_MODE])
+    switch (clip[parameter[SET_CLIP2_EDIT]].playMode)
     {
     case 1:
         set_seq_mode1_parameters();
@@ -431,7 +437,7 @@ void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int 
         {
             int _when = constrain(parameterArray[when] + encoded[_encoder], minValue, maxValue);
             parameterArray[when] = _when;
-            for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+            for (int i = 0; i < clip[clip_to_play[_when]].clockDivision; i++)
             {
                 if (enc_moved[2] && lastPotRow == 0)
                     clip_to_play[when + i] = _when;
@@ -449,9 +455,10 @@ void Track::change_presets() // change presets, happens when the next bar starts
     {
         if (CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i] < 128)
         {
+            int trackChannel = clip[clip_to_play[internal_clock_bar]].midiChOut;
             Serial.print("cc:");
             Serial.println(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i]);
-            sendControlChange(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_ccValue[internal_clock_bar]][i], parameter[SET_MIDICH_OUT]);
+            sendControlChange(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_ccValue[internal_clock_bar]][i], trackChannel);
             Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
         }
     }
@@ -475,7 +482,7 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
 {
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
-        // for (int i = 0; i < parameter[SET_CLOCK_DIVISION]; i++)
+        // for (int i = 0; i < clip[parameter[SET_CLIP2_EDIT]].clockDivision; i++)
         int i = 0;
         {
             clip_to_play[bar_to_edit + i] = clip_to_play[bar_for_copying];

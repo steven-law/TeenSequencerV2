@@ -5,7 +5,7 @@ uint8_t MyClock::tempo = 120;
 uint8_t MyClock::startOfLoop = 0;
 uint8_t MyClock::endOfLoop = 4;
 bool MyClock::isPlaying = false;
-bool MyClock::syncToExtern = true;
+bool MyClock::syncToExtern = false;
 uint8_t MyClock::stepTick = -1;
 uint8_t MyClock::barTick = -1;
 File MyClock::clockFile;

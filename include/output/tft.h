@@ -99,7 +99,7 @@ void tft_show();
 void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release);
 void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const char *_name, int _value, const char *_valuedName);
-void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, uint8_t _size, bool drawRect, bool drawFilling);
+void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest_X, int offset_Y, int _value, const char *name, int color, float _size, bool drawRect, bool drawFilling);
 
 // clock
 void drawstepPosition();

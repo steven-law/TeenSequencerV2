@@ -84,9 +84,10 @@ void Plugin_14::set_parameters(uint8_t row)
 {
     draw_plugin();
     show_peak();
+    
     for (int i = 0; i < NUM_TRACKS; i++)
-    {
-        if (allTracks[i]->get_recordState() && allTracks[i]->parameter[SET_MIDICH_OUT] == 62)
+    { int trackChannel = allTracks[i]->clip[allTracks[i]->parameter[SET_CLIP2_EDIT]].midiChOut;
+        if (allTracks[i]->get_recordState() && trackChannel == 62)
         {
             if (neotrellisPressed[3 + ((i + 4) * X_DIM)])
                 startrecording = true;
