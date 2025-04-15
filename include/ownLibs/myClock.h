@@ -29,6 +29,7 @@ public:
   static uint8_t tempo;
   static uint8_t startOfLoop;
   static uint8_t endOfLoop;
+  static uint8_t MIDITick;
   static uint8_t stepTick;
   static uint8_t barTick;
   static File clockFile;

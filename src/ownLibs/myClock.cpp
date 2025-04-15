@@ -6,6 +6,7 @@ uint8_t MyClock::startOfLoop = 0;
 uint8_t MyClock::endOfLoop = 4;
 bool MyClock::isPlaying = false;
 bool MyClock::syncToExtern = false;
+uint8_t MyClock::MIDITick = -1;
 uint8_t MyClock::stepTick = -1;
 uint8_t MyClock::barTick = -1;
 File MyClock::clockFile;
@@ -33,7 +34,7 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
     // Serial.write(MIDI_CLOCK);
     tick = tick % (MAX_TICKS);
     clock_to_notes(tick);
-
+    MIDITick = tick;
     // Serial.printf("tick: %d\n", tick);
     if (syncToExtern)
         sendClock();
