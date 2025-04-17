@@ -37,7 +37,7 @@
 #define ENCODER_PROBABILITY 0
 
 #define NUM_PARAMETERS 16
-
+#define MAX_NOTES_PER_CLIP 80
 extern File myFile;
 // Encoder Pins
 extern bool enc_moved[4];
@@ -66,20 +66,21 @@ public:
     // Stepsequencer
     struct tick_t
     {
-        uint8_t voice[MAX_VOICES];
+        uint8_t pitch[MAX_VOICES];
         uint8_t velo[MAX_VOICES];
         uint8_t stepFX[MAX_VOICES];
         uint8_t noteLength[MAX_VOICES];
-        //  uint8_t startTick[MAX_VOICES];
+          uint8_t startTick[MAX_VOICES];
     };
     struct clip_t
     {
-        tick_t tick[MAX_TICKS];
+        tick_t tick[MAX_NOTES_PER_CLIP];
         uint8_t seqLength = MAX_TICKS;
         uint8_t clockDivision = 1;
         uint8_t playMode = 0;
         uint8_t scale = 0;
         uint8_t midiChOut;
+        uint8_t noteCount=0;
     };
     clip_t *clip = nullptr;
     uint8_t CCvalue[NUM_PRESETS + 1][16];
@@ -142,12 +143,13 @@ public:
             clip[c].playMode = 0;
             clip[c].scale = 0;
             clip[c].midiChOut = Y;
+            clip[c].noteCount = 0;
 
-            for (int t = 0; t < MAX_TICKS; t++)
+            for (int t = 0; t < MAX_NOTES_PER_CLIP; t++)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    clip[c].tick[t].voice[v] = NO_NOTE;
+                    clip[c].tick[t].pitch[v] = NO_NOTE;
                     clip[c].tick[t].velo[v] = 0;
                     clip[c].tick[t].stepFX[v] = 128;
                     clip[c].tick[t].noteLength[v] = 0;
@@ -197,7 +199,7 @@ public:
     void copy_bar();
     void clear_arrangment();
     // stepsequencer
-    void set_note_on_tick(int x, int voice, int length);
+    void set_note_on_tick(int startTick, int note, int length);
     uint8_t get_note_parameter(const uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters();
     void clear_active_clip();

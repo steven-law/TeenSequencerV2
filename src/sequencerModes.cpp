@@ -48,7 +48,7 @@ void Track::play_seq_mode0(uint8_t cloock)
 
     for (int v = 0; v < MAX_VOICES; v++)
     {
-        uint8_t noteParam = get_note_parameter(tick.voice, v);
+        uint8_t noteParam = get_note_parameter(tick.pitch, v);
 
         if (noteParam < NO_NOTE)
         {
@@ -110,7 +110,7 @@ void Track::play_seq_mode1(uint8_t cloock)
             set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
         }
     }
-    if (get_note_parameter(clip[clipIndex].tick[cloock].voice, 0) < NO_NOTE)
+    if (get_note_parameter(clip[clipIndex].tick[cloock].pitch, 0) < NO_NOTE)
     {
 
         if (!note_is_on[0])
@@ -138,7 +138,7 @@ void Track::play_seq_mode1(uint8_t cloock)
         }
     }
 
-    if (get_note_parameter(clip[clipIndex].tick[cloock].voice, 0) == NO_NOTE)
+    if (get_note_parameter(clip[clipIndex].tick[cloock].pitch, 0) == NO_NOTE)
     {
         if (note_is_on[0])
         {
@@ -212,7 +212,7 @@ void Track::play_seq_mode2(uint8_t cloock)
     uint8_t cc24 = seqMod_value[2][3];
     uint8_t thisOctave = 4;
 
-    if (get_note_parameter(clip[clipIndex].tick[cloock].voice, 0) < NO_NOTE)
+    if (get_note_parameter(clip[clipIndex].tick[cloock].pitch, 0) < NO_NOTE)
     {
         if (!note_is_on[0])
         {
@@ -259,7 +259,7 @@ void Track::play_seq_mode2(uint8_t cloock)
         }
     }
     // NoteOff
-    if (get_note_parameter(clip[clipIndex].tick[cloock].voice, 0) == NO_NOTE)
+    if (get_note_parameter(clip[clipIndex].tick[cloock].pitch, 0) == NO_NOTE)
     {
         if (note_is_on[0])
         {
@@ -623,7 +623,7 @@ void Track::play_seq_mode5(uint8_t cloock)
                     sendControlChange(parameter[15], StepFX, clip[clipIndex].midiChOut);
                     noteOn(noteToPlay[i], Velo, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
                     // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-                    clip[parameter[SET_CLIP2_EDIT]].tick[seq3_clock * TICKS_PER_STEP].voice[i] = noteToPlay[i];
+                    clip[parameter[SET_CLIP2_EDIT]].tick[seq3_clock * TICKS_PER_STEP].pitch[i] = noteToPlay[i];
                 }
             }
         }

@@ -28,10 +28,10 @@ void Track::set_stepSequencer_parameters()
         break;
     case 2:
 
-        set_stepSequencer_parameter_value(ENCODER_SEQ_MODE, 2, "sMod",  0, NUM_PLAYMODES - 1);
+        set_stepSequencer_parameter_value(ENCODER_SEQ_MODE, 2, "sMod", 0, NUM_PLAYMODES - 1);
         set_stepSequencer_parameter_value(ENCODER_SCALE, 2, "scal", 0, NUM_SCALES - 1);
 
-        set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh",  0, MAX_OUTPUTS);
+        set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh", 0, MAX_OUTPUTS);
         set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, NUM_USER_CLIPS);
 
         break;
@@ -86,20 +86,20 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
             clip[parameter[SET_CLIP2_EDIT]].playMode = parameter[index];
         }
         break;
-     
+
         case SET_MIDICH_OUT:
         {
             clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
         }
         case SET_VELO2SET:
-        case SET_STEP_FX:
+        case SET_STEP_FX: // needs rework due to notecount
         {
             // Notenlänge bestimmen
             // int start_tick = clip[parameter[SET_CLIP2_EDIT]].tick[tick_to_edit].startTick[voice_to_edit];
             int start_tick;
             for (int i = tick_to_edit; i >= 0; i--)
             {
-                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[voice_to_edit] == NO_NOTE)
+                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].pitch[voice_to_edit] == NO_NOTE)
                 {
                     start_tick = i + 1;
 
@@ -145,7 +145,7 @@ void Track::set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const c
             clip[parameter[SET_CLIP2_EDIT]].playMode = parameter[index];
         }
         break;
-     
+
         case SET_MIDICH_OUT:
         {
             clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
@@ -275,18 +275,23 @@ uint8_t Track::get_note_parameter(const uint8_t *parameterArray, uint8_t _voice)
     return parameterArray[_voice];
 }
 
-void Track::set_note_on_tick(int x, int voice, int length)
+void Track::set_note_on_tick(int startTick, int note, int length)
 {
-    if (x < 0 || x >= 96 || clip == nullptr)
+    if (startTick < 0 || startTick >= 96 || clip == nullptr)
         return; // Clip darf nicht null sein!
 
     clip_t *clipPtr = clip;                                    // Richtiger Typ
     tick_t *tickPtr = clipPtr[parameter[SET_CLIP2_EDIT]].tick; // Zugriff auf das Tick-Array
 
-    uint8_t note2set = voice;
-    int _voice = voice % 12;
+    uint8_t note2set = note;
+    int _voice = note % 12;
     // uint8_t note2set = voice + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-    uint8_t noteInClip = tickPtr[x].voice[_voice];
+
+for (int i =0; i<MAX_TICKS;i++){
+    if ()
+}
+
+    uint8_t noteInClip = tickPtr[x].pitch[_voice];
     uint8_t velocity = parameter[SET_VELO2SET];
     uint8_t stepFX = parameter[SET_STEP_FX];
 
@@ -295,8 +300,12 @@ void Track::set_note_on_tick(int x, int voice, int length)
 
     if (isNewNote)
     {
-        tickPtr[x].noteLength[_voice] = length;
+        clipPtr->noteCount++;
+        tickPtr[clipPtr->noteCount].startTick[_voice] = x;
+        tickPtr[clipPtr->noteCount].noteLength[_voice] = length;
     }
+    else if (isNoteClearing)
+        clipPtr->noteCount--;
 
     for (int i = 0; i < length; i++)
     {
@@ -304,13 +313,13 @@ void Track::set_note_on_tick(int x, int voice, int length)
 
         if (isNoteClearing)
         {
-            tickPtr[onTick].voice[_voice] = NO_NOTE;
+            tickPtr[onTick].pitch[_voice] = NO_NOTE;
             tickPtr[onTick].velo[_voice] = 0;
             tickPtr[x].noteLength[_voice] = 0;
         }
         else if (isNewNote)
         {
-            tickPtr[onTick].voice[_voice] = note2set;
+            tickPtr[onTick].pitch[_voice] = note2set;
             tickPtr[onTick].velo[_voice] = velocity;
         }
 
@@ -320,7 +329,7 @@ void Track::set_note_on_tick(int x, int voice, int length)
         int trellisColor = TRELLIS_BLACK;
         for (int v = 0; v < MAX_VOICES; v++)
         {
-            if (get_note_parameter(tickPtr[onTick].voice, v) < NO_NOTE)
+            if (get_note_parameter(tickPtr[onTick].pitch, v) < NO_NOTE)
             {
                 trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
                 break;
@@ -331,7 +340,7 @@ void Track::set_note_on_tick(int x, int voice, int length)
 
     if (active_track == my_Arranger_Y_axis - 1 && activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
-        if (tickPtr[x].voice[_voice] == NO_NOTE)
+        if (tickPtr[x].pitch[_voice] == NO_NOTE)
         {
             erase_note_on_tick(_voice, x, length);
         }
@@ -348,7 +357,7 @@ void Track::clear_active_clip()
         for (int n = 0; n < MAX_VOICES; n++)
         {
 
-            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[n] = NO_NOTE;
+            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].pitch[n] = NO_NOTE;
             this->clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[n] = 0;
 
             // draw_note_on_tick(n, i);

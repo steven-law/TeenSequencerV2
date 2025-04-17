@@ -49,7 +49,7 @@ void Track::save_track(uint8_t songNr)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    this->myTrackFile.print((char)this->clip[c].tick[t].voice[v]);
+                    this->myTrackFile.print((char)this->clip[c].tick[t].pitch[v]);
                     this->myTrackFile.print((char)this->clip[c].tick[t].velo[v]);
                     this->myTrackFile.print((char)this->clip[c].tick[t].stepFX[v]);
                     this->myTrackFile.print((char)this->clip[c].tick[t].noteLength[v]);
@@ -145,7 +145,7 @@ void Track::load_track(uint8_t songNr)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    this->clip[c].tick[t].voice[v] = this->myTrackFile.read();
+                    this->clip[c].tick[t].pitch[v] = this->myTrackFile.read();
                     // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
                     this->clip[c].tick[t].velo[v] = this->myTrackFile.read();
                     this->clip[c].tick[t].stepFX[v] = this->myTrackFile.read();
@@ -157,7 +157,7 @@ void Track::load_track(uint8_t songNr)
         {
             for (int v = 0; v < MAX_VOICES; v++)
             {
-                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
+                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].pitch[v] < NO_NOTE)
                 {
                     trellis_assign_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
                 }
@@ -386,7 +386,7 @@ void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
     {
         for (int i = recordStartTick[recordVoice]; i <= internal_clock; i++)
         {
-            clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
+            clip[parameter[SET_CLIP2_EDIT]].tick[i].pitch[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
             clip[parameter[SET_CLIP2_EDIT]].tick[recordStartTick[recordVoice]].noteLength[recordVoice] =
                 (internal_clock + recordStartTick[recordVoice] >= MAX_TICKS) ? ((MAX_TICKS)-recordStartTick[recordVoice]) : i;
