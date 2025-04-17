@@ -14,9 +14,9 @@ void Track::set_stepSequencer_parameters()
         set_stepSequencer_parameter_value(0, 0, "Tick", 0, 160);
         set_stepSequencer_parameter_value(1, 0, "Note", 0, 14);
         if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[15]], 0, 128); // yPos=3 to get parameter 14
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[14]], 0, 128); // yPos=3 to get parameter 14
         else if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[15]], 0, 128); // yPos=0 to get parameter 2
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[14]], 0, 128); // yPos=0 to get parameter 2
         set_stepSequencer_parameter_value(3, 0, "Velo", 0, 127);
         break;
     case 1:
@@ -28,10 +28,10 @@ void Track::set_stepSequencer_parameters()
         break;
     case 2:
 
-        set_stepSequencer_parameter_value(ENCODER_SEQ_MODE, 2, "sMod",  0, NUM_PLAYMODES - 1);
+        set_stepSequencer_parameter_value(ENCODER_SEQ_MODE, 2, "sMod", 0, NUM_PLAYMODES - 1);
         set_stepSequencer_parameter_value(ENCODER_SCALE, 2, "scal", 0, NUM_SCALES - 1);
 
-        set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh",  0, MAX_OUTPUTS);
+        set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh", 0, MAX_OUTPUTS);
         set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, NUM_USER_CLIPS);
 
         break;
@@ -86,7 +86,7 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
             clip[parameter[SET_CLIP2_EDIT]].playMode = parameter[index];
         }
         break;
-     
+
         case SET_MIDICH_OUT:
         {
             clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
@@ -126,37 +126,6 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
             break;
         }
         // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, parameter[index], "NO_NAME");
-    }
-}
-
-void Track::set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max)
-{
-    if (enc_moved[XPos])
-    {
-        uint8_t index = XPos + (YPos * NUM_ENCODERS);
-        // enc_moved[XPos] = false;
-        parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
-        Serial.printf("parameter: %d, value: %d, name %s, text %s\n", index, parameter[index], name, text);
-        switch (index)
-        {
-
-        case SET_SEQ_MODE:
-        {
-            clip[parameter[SET_CLIP2_EDIT]].playMode = parameter[index];
-        }
-        break;
-     
-        case SET_MIDICH_OUT:
-        {
-            clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
-        }
-
-        break;
-        default:
-            // Optional: Fehlerbehandlung oder Logging, falls `index` eine unerwartete Zahl ist
-            break;
-        }
-        // draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, XPos, name, NO_VALUE, text);
     }
 }
 
@@ -296,6 +265,7 @@ void Track::set_note_on_tick(int x, int voice, int length)
     if (isNewNote)
     {
         tickPtr[x].noteLength[_voice] = length;
+        tickPtr[x].startTick[_voice] = x;
     }
 
     for (int i = 0; i < length; i++)
@@ -307,6 +277,7 @@ void Track::set_note_on_tick(int x, int voice, int length)
             tickPtr[onTick].voice[_voice] = NO_NOTE;
             tickPtr[onTick].velo[_voice] = 0;
             tickPtr[x].noteLength[_voice] = 0;
+            tickPtr[x].startTick[_voice] = MAX_TICKS;
         }
         else if (isNewNote)
         {
@@ -326,10 +297,13 @@ void Track::set_note_on_tick(int x, int voice, int length)
                 break;
             }
         }
-        trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
+        if (onTick >= (clipPage * NUM_STEPS) && onTick < ((clipPage + 1) * NUM_STEPS))
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick, my_Arranger_Y_axis - 1, trellisColor);
+        Serial.printf("Note is Set to: NOte: %d, StartTick: %d, Notelength: %d, Velocity: %d, StepFX: %d\n ",
+                      tickPtr[x].voice[_voice], tickPtr[onTick].startTick[_voice], tickPtr[onTick].noteLength[_voice], tickPtr[onTick].velo[_voice], tickPtr[onTick].stepFX[_voice]);
     }
 
-    if (active_track == my_Arranger_Y_axis - 1 && activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+    if (active_track == my_Arranger_Y_axis - 1 && activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER && x >= (clipPage * NUM_STEPS) && x < ((clipPage + 1) * NUM_STEPS))
     {
         if (tickPtr[x].voice[_voice] == NO_NOTE)
         {
@@ -353,7 +327,7 @@ void Track::clear_active_clip()
 
             // draw_note_on_tick(n, i);
         }
-        trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
+        trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
     }
     draw_notes_in_grid();
 }

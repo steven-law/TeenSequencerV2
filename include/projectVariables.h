@@ -41,7 +41,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define MAX_CLIPS 9
 #define NUM_USER_CLIPS 7
 #define NUM_PRESETS 8
-#define MAX_TICKS 96
+#define MAX_TICKS 64
 #define TICKS_PER_STEP 6
 #define MAX_VOICES 12
 #define MAX_SONGS 9
@@ -94,7 +94,8 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define STEP_FRAME_W 24
 #define STEP_FRAME_H 21
 #define TRACK_FRAME_H 30
-#define PIXEL_PER_TICK 3
+#define PIXEL_PER_TICK 16
+#define NUM_CLIP_PAGES 4
 // for arranger
 #define BARS_PER_PAGE 16
 // for sequencer

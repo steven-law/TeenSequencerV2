@@ -33,7 +33,7 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
     // Send MIDI_CLOCK to external gears
     // Serial.write(MIDI_CLOCK);
     tick = tick % (MAX_TICKS);
-    clock_to_notes(tick);
+    //clock_to_notes(tick);
     MIDITick = tick;
     // Serial.printf("tick: %d\n", tick);
     if (syncToExtern)
@@ -46,6 +46,7 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
 
     tick = tick % NUM_STEPS;
     stepTick = tick;
+    clock_to_notes(tick);
     updateTFTScreen = true;
     if (tick == 0)
     {

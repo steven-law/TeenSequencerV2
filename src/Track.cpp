@@ -159,7 +159,7 @@ void Track::load_track(uint8_t songNr)
             {
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
                 {
-                    trellis_assign_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+                    trellis_assign_main_buffer(parameter[SET_CLIP2_EDIT], (i ), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
                 }
             }
         }

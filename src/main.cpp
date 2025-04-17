@@ -222,10 +222,11 @@ void loop()
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
-    trellis_show_clockbar(i, allTracks[i]->internal_clock / TICKS_PER_STEP);
+    trellis_show_clockbar(i, allTracks[i]->internal_clock );
     // if (allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1) >= 0)
     //  play_plugin_on_DAC(i, allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
   }
+  // trellis_show_clockbar(0, allTracks[0]->internal_clock/4 );
   get_infobox_background();
   unsigned long loopEndTime = millis();
   unsigned long neotrellisCurrentMillis = millis();
@@ -287,7 +288,7 @@ void input_behaviour()
     {
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
       int _note = (gridTouchY - 1) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-      allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
+      allTracks[active_track]->set_note_on_tick(tempTick + (allTracks[active_track]->clipPage * NUM_STEPS), _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
     }
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -305,7 +306,7 @@ void input_behaviour()
       if (tempTick % allTracks[active_track]->parameter[SET_STEP_LENGTH] == 0)
       {
         int _note = (gridTouchY - 1) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-        allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
+        allTracks[active_track]->set_note_on_tick(tempTick + (allTracks[active_track]->clipPage * NUM_STEPS), _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
         updateTFTScreen = true;
         delay(70);
       }
@@ -613,7 +614,7 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
       {
         int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
         int _pluginCh = trackChannel - (NUM_MIDI_OUTPUTS + 1);
-        if (trackChannel> NUM_MIDI_OUTPUTS)
+        if (trackChannel > NUM_MIDI_OUTPUTS)
         {
           allPlugins[_pluginCh]->potentiometer[allPlugins[_pluginCh]->presetNr][i] = value;
           Serial.printf("MIDI pluginCh = %d\n", _pluginCh);
@@ -890,7 +891,7 @@ void trellis_play_mixer()
 
               if (_nr % TRELLIS_PADS_X_DIM == c)
               {
-               
+
                 Serial.printf("dry channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
                 MasterOut.fx_section.dry[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
                 allTracks[t]->mixDryPot = (c * 42);
@@ -909,7 +910,7 @@ void trellis_play_mixer()
               if (_nr % TRELLIS_PADS_X_DIM == c + 4)
               {
                 Serial.printf("fx1 channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-                fx_1.pl[trackChannel- (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+                fx_1.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
                 allTracks[t]->mixFX1Pot = (c * 42);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 4, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 5, t, TRELLIS_BLACK);

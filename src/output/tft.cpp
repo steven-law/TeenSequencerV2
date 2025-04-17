@@ -84,12 +84,13 @@ void drawPositionCounter()
     }
     else
     {
-        tft.print(myClock.barTick);
+        tft.print(myClock.barTick+1);
         tft.print(":");
         tft.print(myClock.stepTick + 1);
     }
 }
-void draw_potRow(){
+void draw_potRow()
+{
     if (change_row)
     {
         // midi_read();
@@ -554,7 +555,6 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
 
     // Trellis LED Buffer aktualisieren
     trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), track->my_Arranger_Y_axis - 1, _trelliscolor);
-    
 }
 
 void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset)
@@ -593,7 +593,7 @@ void drawStepSequencerStatic()
     // draw the Main Grid
     for (int i = 0; i < 17; i++)
     { // vert Lines
-        int step_Frame_X = i * 18;
+        int step_Frame_X = i * STEP_FRAME_W;
         tft.drawFastVLine(step_Frame_X + (STEP_FRAME_W * 2), STEP_FRAME_H, GRID_LENGTH_VERT, ILI9341_WHITE); //(x, y-start, length, color)
         if (i % 4 == 0)
         {
@@ -603,7 +603,7 @@ void drawStepSequencerStatic()
     for (int i = 0; i < 13; i++)
     { // hor lines
         int step_Frame_Y = i * STEP_FRAME_H;
-        tft.drawFastHLine(STEP_FRAME_W * 2, step_Frame_Y + STEP_FRAME_H, NUM_STEPS * 18, ILI9341_WHITE); //(x-start, y, length, color)
+        tft.drawFastHLine(STEP_FRAME_W * 2, step_Frame_Y + STEP_FRAME_H, NUM_STEPS * STEP_FRAME_W, ILI9341_WHITE); //(x-start, y, length, color)
     }
     // tft->asyncUpdateActive();
 }
@@ -611,7 +611,7 @@ void drawOctaveTriangle()
 {
     // draw Octavebuttons
     int leftmost = STEP_FRAME_W * OCTAVE_CHANGE_LEFTMOST;
-    int rightmost = STEP_FRAME_W * OCTAVE_CHANGE_RIGHTMOST;
+    int rightmost = STEP_FRAME_W * OCTAVE_CHANGE_RIGHTMOST-5;
     int UP_topmost = STEP_FRAME_H * OCTAVE_CHANGE_UP_TOPMOST;
     int UP_bottommost = STEP_FRAME_H * OCTAVE_CHANGE_UP_BOTTOMMOST;
     int DOWN_topmost = STEP_FRAME_H * OCTAVE_CHANGE_DOWN_TOPMOST;
@@ -623,7 +623,7 @@ void drawOctaveTriangle()
 void drawOctaveNumber()
 {
     // draw the octave number
-    tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
+    tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2-5, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
     tft.setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT);
     tft.setTextSize(3);
     // tft.setFont(&FreeSans18pt7b);
@@ -639,7 +639,7 @@ void draw_Notenames()
 {
     for (int n = 0; n < MAX_VOICES; n++)
     { // hor notes
-        
+
         int color = (scales[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].scale][n]) ? trackColor[active_track] : ILI9341_LIGHTGREY;
         tft.fillRect(STEP_FRAME_W, STEP_FRAME_H * n + STEP_FRAME_H, STEP_FRAME_W, STEP_FRAME_H, color);
         tft.setCursor(STEP_FRAME_W + 1, STEP_FRAME_H * n + 24);
@@ -668,7 +668,7 @@ void draw_stepSequencer_parameters()
 {
     if (change_plugin_row)
     {
-        tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 2 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
+        tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 2 * STEP_FRAME_W-5, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
         change_plugin_row = false;
         drawOctaveNumber();
         switch (lastPotRow)
@@ -677,7 +677,7 @@ void draw_stepSequencer_parameters()
         {
             draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1] + (allTracks[active_track]->parameter[SET_OCTAVE] * 12), NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[15]], allTracks[active_track]->parameter[2], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[14]], allTracks[active_track]->parameter[2], NO_NAME);
             draw_sequencer_arranger_parameter(active_track, 3, "Velo", allTracks[active_track]->parameter[3], NO_NAME);
         }
         break;
@@ -711,9 +711,9 @@ void draw_stepSequencer_parameters()
 void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length)
 {
 
-    int xPos = (_when * 3) + (STEP_FRAME_W * 2);
+    int xPos = ((_when % NUM_STEPS) * STEP_FRAME_W) + (STEP_FRAME_W * 2);
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
-    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK * note_length, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
+    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), STEP_FRAME_W * note_length, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
 }
 
 void draw_note_on_tick(uint8_t _voice, uint8_t _when)
@@ -723,7 +723,8 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     //  uint8_t start_tick = tick.startTick[_voice];
     uint8_t note = tick.voice[_voice];
     if (!(note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE &&
-          note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE))
+          note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE &&
+          _when >= (allTracks[active_track]->clipPage * NUM_STEPS) && _when < ((allTracks[active_track]->clipPage + 1) * NUM_STEPS)))
     {
         return;
     }
@@ -732,7 +733,7 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     uint8_t stepFX = tick.stepFX[_voice];
     uint8_t length = tick.noteLength[_voice];
 
-    int xPos = (_when * 3) + (STEP_FRAME_W * 2);
+    int xPos = ((_when % NUM_STEPS) * STEP_FRAME_W) + (STEP_FRAME_W * 2);
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
 
     int _color = trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
@@ -740,8 +741,9 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 3);
     int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
     int radius = map(stepFX, 127, 0, 0, STEP_FRAME_H / 3);
-    Serial.printf("draw Note %d,  on Tick %d\n", note, _when);
-    tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
+    if (note != 128)
+        Serial.printf("draw Note %d,  on Tick %d, page: %d\n", note, _when, allTracks[active_track]->clipPage);
+    tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), STEP_FRAME_W * length, sizeY + 1, radius, _color);
 }
 void draw_notes_in_grid()
 {
@@ -750,7 +752,6 @@ void draw_notes_in_grid()
         erase_notes_in_grid(v, 0);
         for (int i = 0; i < MAX_TICKS; i++)
         {
-
             draw_note_on_tick(v, i);
         }
     }
@@ -760,7 +761,7 @@ void erase_notes_in_grid(uint8_t _voice, uint8_t _when)
 
     int xPos = (STEP_FRAME_W * 2);
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
-    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), PIXEL_PER_TICK * MAX_TICKS, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
+    tft.fillRect(xPos, yPos - ((STEP_FRAME_H / 3)), STEP_FRAME_W * 16, (STEP_FRAME_H / 3) * 2, ILI9341_DARKGREY);
 }
 void draw_edit_presetNr_CC(const char *label, uint8_t value, uint8_t row_offset)
 {

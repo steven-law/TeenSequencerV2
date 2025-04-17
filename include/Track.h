@@ -62,7 +62,7 @@ class Track
 public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
-    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0, 0, 0, 128, 0};
+    uint8_t parameter[16]{0, 0, 128, 99, 16, 1, 1, 4, 0, 0, 0, 0, 0, 0, 128, 0};
     // Stepsequencer
     struct tick_t
     {
@@ -70,7 +70,7 @@ public:
         uint8_t velo[MAX_VOICES];
         uint8_t stepFX[MAX_VOICES];
         uint8_t noteLength[MAX_VOICES];
-        //  uint8_t startTick[MAX_VOICES];
+        uint8_t startTick[MAX_VOICES];
     };
     struct clip_t
     {
@@ -111,7 +111,7 @@ public:
     int bar_to_edit = 0;
     int tick_to_edit;
     int voice_to_edit;
-
+    int clipPage = 0;
     // arranger
     int internal_clock = -1;
     int internal_clock_bar = 0;
@@ -137,7 +137,7 @@ public:
 
         for (int c = 0; c < MAX_CLIPS; c++)
         {
-            clip[c].seqLength = MAX_TICKS;
+            clip[c].seqLength = 16;
             clip[c].clockDivision = 1;
             clip[c].playMode = 0;
             clip[c].scale = 0;
@@ -151,7 +151,7 @@ public:
                     clip[c].tick[t].velo[v] = 0;
                     clip[c].tick[t].stepFX[v] = 128;
                     clip[c].tick[t].noteLength[v] = 0;
-                    //  clip[c].tick[t].startTick[v] = 0;
+                    clip[c].tick[t].startTick[v] = 0;
                 }
             }
         }
@@ -229,7 +229,6 @@ private:
     uint8_t maxVal;
     // stepsequencer
     void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
-    void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
 
     // midi CC
     void set_CCvalue(uint8_t XPos, uint8_t YPos);
