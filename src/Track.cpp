@@ -51,7 +51,7 @@ void Track::save_track(uint8_t songNr)
                 {
                     this->myTrackFile.print((char)this->clip[c].tick[t].voice[v]);
                     this->myTrackFile.print((char)this->clip[c].tick[t].velo[v]);
-                    this->myTrackFile.print((char)this->clip[c].tick[t].stepFX[v]);
+                    this->myTrackFile.print((char)this->clip[c].tick[t].stepFX);
                     this->myTrackFile.print((char)this->clip[c].tick[t].noteLength[v]);
                 }
             }
@@ -148,7 +148,7 @@ void Track::load_track(uint8_t songNr)
                     this->clip[c].tick[t].voice[v] = this->myTrackFile.read();
                     // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
                     this->clip[c].tick[t].velo[v] = this->myTrackFile.read();
-                    this->clip[c].tick[t].stepFX[v] = this->myTrackFile.read();
+                    this->clip[c].tick[t].stepFX = this->myTrackFile.read();
                     this->clip[c].tick[t].noteLength[v] = this->myTrackFile.read();
                 }
             }

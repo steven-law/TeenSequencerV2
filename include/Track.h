@@ -68,9 +68,9 @@ public:
     {
         uint8_t voice[MAX_VOICES];
         uint8_t velo[MAX_VOICES];
-        uint8_t stepFX[MAX_VOICES];
+        uint8_t stepFX;
         uint8_t noteLength[MAX_VOICES];
-        //  uint8_t startTick[MAX_VOICES];
+        uint8_t startTick[MAX_VOICES];
     };
     struct clip_t
     {
@@ -149,9 +149,9 @@ public:
                 {
                     clip[c].tick[t].voice[v] = NO_NOTE;
                     clip[c].tick[t].velo[v] = 0;
-                    clip[c].tick[t].stepFX[v] = 128;
+                    clip[c].tick[t].stepFX = 128;
                     clip[c].tick[t].noteLength[v] = 0;
-                    //  clip[c].tick[t].startTick[v] = 0;
+                    clip[c].tick[t].startTick[v] = MAX_TICKS;
                 }
             }
         }
@@ -197,7 +197,7 @@ public:
     void copy_bar();
     void clear_arrangment();
     // stepsequencer
-    void set_note_on_tick(int x, int voice, int length);
+    void set_note_on_tick(int _startTick, int _note, int length);
     uint8_t get_note_parameter(const uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters();
     void clear_active_clip();
@@ -210,6 +210,7 @@ public:
 
 private:
     uint8_t noteToPlay[MAX_VOICES];
+    uint8_t noteOffAt[MAX_VOICES] = {MAX_TICKS};
     bool internal_clock_is_on = false;
 
     int recordStartTick[MAX_VOICES];
