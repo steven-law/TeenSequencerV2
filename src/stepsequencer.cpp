@@ -347,12 +347,12 @@ void Track::clear_active_clip()
 {
     for (int i = 0; i < MAX_TICKS; i++)
     {
-        for (int n = 0; n < MAX_VOICES; n++)
+        for (int v = 0; v < MAX_VOICES; v++)
         {
-
-            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[n] = NO_NOTE;
-            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[n] = 0;
-
+            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] = NO_NOTE;
+            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[v] = 0;
+            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].noteLength[v] = 0;
+            this->clip[parameter[SET_CLIP2_EDIT]].tick[i].startTick[v] = MAX_TICKS;
             // draw_note_on_tick(n, i);
         }
         trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);

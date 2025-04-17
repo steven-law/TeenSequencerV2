@@ -50,7 +50,7 @@ void Track::play_seq_mode0(uint8_t cloock)
     {
         uint8_t noteParam = get_note_parameter(tick.voice, v);
 
-        if (tick.startTick[v] == cloock && noteParam < NO_NOTE)
+        if (get_note_parameter(tick.startTick, v) == cloock && noteParam < NO_NOTE)
         {
             {
                 if (random(126) < barProbabilty[internal_clock_bar])
@@ -63,18 +63,16 @@ void Track::play_seq_mode0(uint8_t cloock)
                     note_is_on[v] = true;
                     sendControlChange(parameter[14], StepFX, clip[clipIndex].midiChOut);
                     noteOn(noteToPlay[v], Velo, clip[clipIndex].midiChOut);
-                    break;
                 }
             }
         }
-        if (noteOffAt[v] == cloock)
+        if (noteOffAt[v] == cloock && note_is_on[v])
         {
             note_is_on[v] = false;
             noteOffAt[v] = 0;
             noteOff(noteToPlay[v], 0, clip[clipIndex].midiChOut);
-            if (my_Arranger_Y_axis == 1)
-                Serial.printf("tick: %d   stop Note: %d, start: %d, length: %d\n", cloock, noteParam, tick.startTick[v], tick.noteLength[v]);
-            break;
+            //  if (my_Arranger_Y_axis == 1)
+            //    Serial.printf("tick: %d   stop Note: %d, start: %d, length: %d\n", cloock, noteToPlay[v], tick.startTick[v], tick.noteLength[v]);
         }
     }
 }

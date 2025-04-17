@@ -151,7 +151,7 @@ public:
                     clip[c].tick[t].velo[v] = 0;
                     clip[c].tick[t].stepFX = 128;
                     clip[c].tick[t].noteLength[v] = 0;
-                    clip[c].tick[t].startTick[v] = MAX_TICKS;
+                    clip[c].tick[t].startTick[v] = MAX_TICKS+1;
                 }
             }
         }
@@ -219,7 +219,7 @@ private:
     uint8_t recordVoice;
 
     uint8_t oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
-    bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
+    bool note_is_on[MAX_VOICES] = {false, false, true, true, true, true, true, true, true, true, true, true};
     uint8_t note_probablity = 127;
     uint8_t seqMod_value[NUM_PLAYMODES][16];
     uint8_t seqMod1NoteMemory[NUM_STEPS];

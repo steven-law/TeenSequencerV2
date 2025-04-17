@@ -611,19 +611,19 @@ void drawOctaveTriangle()
 {
     // draw Octavebuttons
     int leftmost = STEP_FRAME_W * OCTAVE_CHANGE_LEFTMOST;
-    int rightmost = STEP_FRAME_W * OCTAVE_CHANGE_RIGHTMOST;
+    int rightmost = STEP_FRAME_W * OCTAVE_CHANGE_RIGHTMOST-5;
     int UP_topmost = STEP_FRAME_H * OCTAVE_CHANGE_UP_TOPMOST;
     int UP_bottommost = STEP_FRAME_H * OCTAVE_CHANGE_UP_BOTTOMMOST;
     int DOWN_topmost = STEP_FRAME_H * OCTAVE_CHANGE_DOWN_TOPMOST;
     int DOWN_bottommost = STEP_FRAME_H * OCTAVE_CHANGE_DOWN_BOTTOMMOST;
-    tft.fillRect(leftmost + 1, STEP_FRAME_H * 2, STEP_FRAME_W * 2, STEP_FRAME_H * 3, ILI9341_DARKGREY);
+    tft.fillRect(leftmost + 1, STEP_FRAME_H * 2, STEP_FRAME_W * 2-5, STEP_FRAME_H * 3, ILI9341_DARKGREY);
     tft.fillTriangle(leftmost + 1, UP_bottommost, rightmost, UP_bottommost, leftmost + STEP_FRAME_W, UP_topmost, ILI9341_LIGHTGREY);        // octave arrow up
     tft.fillTriangle(leftmost + 1, DOWN_topmost, rightmost - 2, DOWN_topmost, leftmost + STEP_FRAME_W, DOWN_bottommost, ILI9341_LIGHTGREY); // x1, y1, x2, y2, x3, y3
 }
 void drawOctaveNumber()
 {
     // draw the octave number
-    tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
+    tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2-5, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
     tft.setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT);
     tft.setTextSize(3);
     // tft.setFont(&FreeSans18pt7b);
