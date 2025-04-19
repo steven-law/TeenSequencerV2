@@ -83,8 +83,8 @@ const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3",
                                                       "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
                                                       "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
                                                       "UD9", "UD10", "UD11", "UD12", "UD13", "UD14", "UD15", "UD16",
-                                                      "Ua1", "Ua2", "Ua3", "Ua4", "Ua5", "Ua6", "Ua7", "Ua8",
-                                                      "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16",
+                                                      "UH1", "UH2", "UH3", "UH4", "UH5", "UH6", "UH7", "UH8",
+                                                      "UH9", "UH10", "UH11", "UH12", "UH13", "UH14", "UH15", "UH16",
                                                       "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "Nord", "SF2", "PWM", "Raw", "Draw", "Rec"};
 const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 

@@ -84,7 +84,7 @@ void drawPositionCounter()
     }
     else
     {
-        tft.print(myClock.barTick);
+        tft.print(myClock.barTick + 1);
         tft.print(":");
         tft.print(myClock.stepTick + 1);
     }
@@ -428,7 +428,9 @@ void gridSongMode(int songpageNumber)
     // int page_phrase_start = songpageNumber * 16;
     // int page_phrase_end = (songpageNumber + 1) * 16;
     clearWorkSpace();
-
+    pixelTouchX = SEQ_GRID_LEFT ;
+    gridTouchY = 1;
+    lastPotRow = 0;
     // drawActiveRect(18, 3, 2, 2, false, "clear", ILI9341_RED);
 
     // vertical pointer Lines
@@ -586,6 +588,9 @@ void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_of
 // stepsequencer
 void drawStepSequencerStatic()
 {
+    pixelTouchX = SEQ_GRID_LEFT ;
+    gridTouchY = 1;
+    lastPotRow = 0;
     clearWorkSpace();
     draw_Notenames();
     drawOctaveTriangle();
@@ -611,19 +616,19 @@ void drawOctaveTriangle()
 {
     // draw Octavebuttons
     int leftmost = STEP_FRAME_W * OCTAVE_CHANGE_LEFTMOST;
-    int rightmost = STEP_FRAME_W * OCTAVE_CHANGE_RIGHTMOST-5;
+    int rightmost = STEP_FRAME_W * OCTAVE_CHANGE_RIGHTMOST - 5;
     int UP_topmost = STEP_FRAME_H * OCTAVE_CHANGE_UP_TOPMOST;
     int UP_bottommost = STEP_FRAME_H * OCTAVE_CHANGE_UP_BOTTOMMOST;
     int DOWN_topmost = STEP_FRAME_H * OCTAVE_CHANGE_DOWN_TOPMOST;
     int DOWN_bottommost = STEP_FRAME_H * OCTAVE_CHANGE_DOWN_BOTTOMMOST;
-    tft.fillRect(leftmost + 1, STEP_FRAME_H * 2, STEP_FRAME_W * 2-5, STEP_FRAME_H * 3, ILI9341_DARKGREY);
+    tft.fillRect(leftmost + 1, STEP_FRAME_H * 2, STEP_FRAME_W * 2 - 5, STEP_FRAME_H * 3, ILI9341_DARKGREY);
     tft.fillTriangle(leftmost + 1, UP_bottommost, rightmost, UP_bottommost, leftmost + STEP_FRAME_W, UP_topmost, ILI9341_LIGHTGREY);        // octave arrow up
     tft.fillTriangle(leftmost + 1, DOWN_topmost, rightmost - 2, DOWN_topmost, leftmost + STEP_FRAME_W, DOWN_bottommost, ILI9341_LIGHTGREY); // x1, y1, x2, y2, x3, y3
 }
 void drawOctaveNumber()
 {
     // draw the octave number
-    tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2-5, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
+    tft.fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2 - 5, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
     tft.setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT);
     tft.setTextSize(3);
     // tft.setFont(&FreeSans18pt7b);
@@ -666,45 +671,47 @@ void draw_Clipselector()
 }
 void draw_stepSequencer_parameters()
 {
-    if (change_plugin_row)
+    if (!change_plugin_row)
+        return;
+
+    tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 2 * STEP_FRAME_W - 5, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
+    change_plugin_row = false;
+    drawOctaveNumber();
+
+    // Pointer für besseren Zugriff
+    Track *track = allTracks[active_track];
+    uint8_t clipIndex = track->parameter[SET_CLIP2_EDIT];
+    auto *clip = &track->clip[clipIndex];
+
+    switch (lastPotRow)
     {
-        tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 2 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        change_plugin_row = false;
-        drawOctaveNumber();
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-            draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1] + (allTracks[active_track]->parameter[SET_OCTAVE] * 12), NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[14]], allTracks[active_track]->parameter[2], NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 3, "Velo", allTracks[active_track]->parameter[3], NO_NAME);
-        }
+    case 0:
+        draw_sequencer_arranger_parameter(active_track, 0, "Tick", track->parameter[0], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 1, "Note", track->parameter[1] + (track->parameter[SET_OCTAVE] * 12), NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 2, CCnames[track->parameter[14]], track->parameter[2], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 3, "Velo", track->parameter[3], NO_NAME);
         break;
-        case 1:
-        {
-            draw_sequencer_arranger_parameter(active_track, 0, "seqL", allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].seqLength, NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 1, "cDiv", allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].clockDivision, NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 2, "stpL", allTracks[active_track]->parameter[6], NO_NAME);
-            draw_sequencer_arranger_parameter(active_track, 3, "Oct", allTracks[active_track]->parameter[7], NO_NAME);
-        }
+
+    case 1:
+        draw_sequencer_arranger_parameter(active_track, 0, "seqL", clip->seqLength, NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 1, "cDiv", clip->clockDivision, NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 2, "stpL", track->parameter[6], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 3, "Oct", track->parameter[7], NO_NAME);
         break;
-        case 2:
-        {
-            draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].playMode]);
-            draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].scale]);
-            draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut]);
-            draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[SET_CLIP2_EDIT], NO_NAME);
-        }
+
+    case 2:
+        draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[clip->playMode]);
+        draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[clip->scale]);
+        draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[clip->midiChOut]);
+        draw_sequencer_arranger_parameter(active_track, 3, "Clip", track->parameter[SET_CLIP2_EDIT], NO_NAME);
         break;
-        case 3:
-        {
-            draw_sequencer_arranger_parameter(active_track, 0, "Offset", allTracks[active_track]->parameter[SET_SWING], NO_NAME);
-        }
+
+    case 3:
+        draw_sequencer_arranger_parameter(active_track, 0, "Offset", track->parameter[SET_SWING], NO_NAME);
         break;
-        default:
-            break;
-        }
+
+    default:
+        break;
     }
 }
 
@@ -721,6 +728,8 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     auto &clip = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]];
     auto &tick = clip.tick[_when];
     //  uint8_t start_tick = tick.startTick[_voice];
+    if (tick.startTick[_voice] != _when)
+        return;
     uint8_t note = tick.voice[_voice];
     if (!(note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE &&
           note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE))
@@ -742,6 +751,7 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     int radius = map(*stepFX, 127, 0, 0, STEP_FRAME_H / 3);
     Serial.printf("draw Note %d,  on Tick %d\n", note, _when);
     tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
+    tft.drawRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, ILI9341_BLACK);
 }
 void draw_notes_in_grid()
 {

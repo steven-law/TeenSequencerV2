@@ -151,7 +151,7 @@ public:
                     clip[c].tick[t].velo[v] = 0;
                     clip[c].tick[t].stepFX = 128;
                     clip[c].tick[t].noteLength[v] = 0;
-                    clip[c].tick[t].startTick[v] = MAX_TICKS+1;
+                    clip[c].tick[t].startTick[v] = MAX_TICKS + 1;
                 }
             }
         }

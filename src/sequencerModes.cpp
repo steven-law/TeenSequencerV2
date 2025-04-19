@@ -116,7 +116,7 @@ void Track::play_seq_mode1(uint8_t cloock)
         }
     }
 
-    if (tick.startTick[0] == cloock && noteParam < NO_NOTE)
+    if (get_note_parameter(tick.startTick, 0)  == cloock && noteParam < NO_NOTE)
 
     {
 
@@ -214,7 +214,7 @@ void Track::play_seq_mode2(uint8_t cloock)
     uint8_t cc24 = seqMod_value[2][3];
     uint8_t thisOctave = 4;
 
-    if (tick.startTick[0] == cloock && noteParam < NO_NOTE)
+    if (get_note_parameter(tick.startTick, 0)  == cloock && noteParam < NO_NOTE)
     {
 
         maxVal = 0;

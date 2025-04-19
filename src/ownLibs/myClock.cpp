@@ -47,7 +47,8 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     tick = tick % NUM_STEPS;
     stepTick = tick;
     updateTFTScreen = true;
-    if (tick == 0)
+    
+    if (tick == NUM_STEPS-1)
     {
         barTick++;
         barTick = barTick % endOfLoop; // Setze wert2 mit Modulo-Operator zurück
@@ -145,12 +146,13 @@ void MyClock::save_clock(uint8_t _songNr)
     // Serial.println("in save mode:");
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "%dclock.txt\0", _songNr);
+    sprintf(_trackname, "%dclock.txt", _songNr);
     Serial.println(_trackname);
 
     // delete the file:
     // Serial.println("Removing:");
     SD.remove(_trackname);
+    delay(10);
     // Serial.println("Done:");
 
     // open the file.
@@ -191,7 +193,7 @@ void MyClock::load_clock(uint8_t _songNr)
     uint8_t _endOfLoop;
     // SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
-    sprintf(_trackname, "%dclock.txt\0", _songNr);
+    sprintf(_trackname, "%dclock.txt", _songNr);
     Serial.println(_trackname);
     //  open the file for reading:
     this->clockFile = SD.open(_trackname, FILE_READ);
