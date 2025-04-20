@@ -1,5 +1,4 @@
 #include "input/trellis.h"
-
 uint8_t trellisPianoTrack;
 int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
 int trellisControllBuffer[X_DIM][Y_DIM];
@@ -489,8 +488,8 @@ void neotrellis_show_tft_seqMode()
         clearWorkSpace();
 
         show_active_page_info("Track", active_track + 1);
-        int trackPlaymode = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].playMode;
-        allTracks[active_track]->draw_sequencer_modes(trackPlaymode);
+        int trackPlaymode = current_clip->playMode;
+        current_track->draw_sequencer_modes(trackPlaymode);
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
         neotrellis_set_control_buffer(3, 2, trellisTrackColor[active_track]);
         // Serial.println("SeqMode selected");
@@ -788,7 +787,7 @@ void neotrellis_show_tft_plugin()
         clearWorkSpace();
         show_active_page_info("Track", i + 1);
         change_plugin_row = true;
-        // allTracks[active_track]->draw_MIDI_CC_screen();
+        // current_track->draw_MIDI_CC_screen();
         activeScreen = INPUT_FUNCTIONS_FOR_PLUGIN;
         neotrellis_set_control_buffer(2, 3, trellisTrackColor[active_track]);
         break;
@@ -824,7 +823,7 @@ void neo_trellis_select_trackClips()
         // updateTFTScreen = true;
         change_plugin_row = true;
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
-        trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
+        trellisScreen = current_track->parameter[SET_CLIP2_EDIT];
         // for (int i = 0; i < NUM_PARAMETERS; i++)
         drawStepSequencerStatic();
         draw_stepSequencer_parameters();
@@ -858,7 +857,7 @@ void neo_trellis_select_trackClips()
           draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
-          trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
+          trellisScreen = current_track->parameter[SET_CLIP2_EDIT];
           // trellis_get_main_buffer(trellisScreen, x, active_track);
           trellis_recall_main_buffer(trellisScreen);
           trellis_writeDisplay();
@@ -893,7 +892,7 @@ void trellis_setStepsequencer()
             {
               if (trellisPressed[_nr + i])
               {
-                int _note = (trellisNote) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+                int _note = (trellisNote) + (current_track->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
 
                 allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
                 trellisPressed[_nr + i] = false;
@@ -908,7 +907,7 @@ void trellis_setStepsequencer()
             uint8_t step = _nr % NUM_STEPS;
             int keyTick = step * 6;
             // Setze die Note auf dem aktuellen Step
-            int _note = (trellisNote) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+            int _note = (trellisNote) + (current_track->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
             allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, allTracks[track]->parameter[SET_STEP_LENGTH]);
             trellisPressed[_nr] = false;
             change_plugin_row = true;

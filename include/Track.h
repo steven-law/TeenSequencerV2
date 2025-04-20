@@ -218,9 +218,7 @@ private:
     uint8_t recordVelocity[MAX_VOICES];
     uint8_t recordVoice;
 
-    uint8_t oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
     bool note_is_on[MAX_VOICES] = {false, false, true, true, true, true, true, true, true, true, true, true};
-    uint8_t note_probablity = 127;
     uint8_t seqMod_value[NUM_PLAYMODES][16];
     uint8_t seqMod1NoteMemory[NUM_STEPS];
     uint8_t seqMod2NoteMemory[NUM_STEPS];
@@ -276,4 +274,6 @@ private:
 };
 
 extern Track *allTracks[8];
+extern Track* current_track;
+extern Track::clip_t * current_clip;
 #endif

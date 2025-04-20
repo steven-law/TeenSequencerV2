@@ -466,3 +466,5 @@ Track track7(7);
 Track track8(8);
 
 Track *allTracks[8]{&track1, &track2, &track3, &track4, &track5, &track6, &track7, &track8};
+Track *current_track = nullptr;
+Track::clip_t *current_clip = nullptr;
