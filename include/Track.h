@@ -275,5 +275,4 @@ private:
 
 extern Track *allTracks[8];
 extern Track* current_track;
-extern Track::clip_t * current_clip;
 #endif

@@ -196,7 +196,6 @@ void setup()
   }
   pixelTouchX = SEQ_GRID_LEFT;
   gridTouchY = 1;
-
 }
 
 void loop()
@@ -222,8 +221,10 @@ void loop()
 
   midi_read();
   touch_update();
+  updatePointers();
   input_behaviour();
   draw_potRow();
+
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
@@ -243,7 +244,7 @@ void loop()
     trellisReadPreviousMillis = neotrellisCurrentMillis;
     neotrellis_recall_control_buffer();
     neotrellis_show();
-    updatePointers();
+
     // Serial.println(loopEndTime - loopStartTime);
     if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
@@ -373,7 +374,7 @@ void input_behaviour()
   }
   case INPUT_FUNCTIONS_FOR_PLUGIN:
   {
-    int trackChannel = current_clip->midiChOut;
+    int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
     if (trackChannel <= NUM_MIDI_OUTPUTS)
       current_track->set_MIDI_CC(lastPotRow);
     else if (trackChannel > NUM_MIDI_OUTPUTS)
@@ -582,7 +583,7 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    int trackChannel = current_clip->midiChOut;
+    int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
     allTracks[channel - 1]->noteOn(note, velocity, trackChannel);
   }
   if (channel >= 9)
@@ -593,7 +594,7 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    int trackChannel = current_clip->midiChOut;
+    int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
     allTracks[channel - 1]->noteOff(note, velocity, trackChannel);
   }
   if (channel >= 9)
@@ -616,7 +617,7 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
       }
       if (control == i + 80)
       {
-        int trackChannel = current_clip->midiChOut;
+        int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
         int _pluginCh = trackChannel - (NUM_MIDI_OUTPUTS + 1);
         if (trackChannel > NUM_MIDI_OUTPUTS)
         {
@@ -1603,19 +1604,19 @@ void load_plugin(uint8_t _songNr, uint8_t _pluginNr)
 void update_current_clip()
 {
   current_track = allTracks[active_track];
-  current_clip = &current_track->clip[current_track->parameter[SET_CLIP2_EDIT]];
 }
 void updatePointers()
 {
-  static uint8_t last_active_track = 0xFF;
-  static uint8_t last_clip2edit[NUM_TRACKS] = {0xFF};
+  static uint8_t last_active_track = 0;
+  static uint8_t last_clip2edit = 0;
   if (active_track != last_active_track ||
-      current_track->parameter[SET_CLIP2_EDIT] != last_clip2edit[active_track])
+      current_track->parameter[SET_CLIP2_EDIT] != last_clip2edit)
+
   {
 
     update_current_clip();
     last_active_track = active_track;
-    last_clip2edit[active_track] = current_track->parameter[SET_CLIP2_EDIT];
+    last_clip2edit = current_track->parameter[SET_CLIP2_EDIT];
   }
 }
 bool compareFiles(File &file, SerialFlashFile &ffile)

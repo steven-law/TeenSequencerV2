@@ -488,7 +488,7 @@ void neotrellis_show_tft_seqMode()
         clearWorkSpace();
 
         show_active_page_info("Track", active_track + 1);
-        int trackPlaymode = current_clip->playMode;
+        int trackPlaymode = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].playMode;
         current_track->draw_sequencer_modes(trackPlaymode);
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
         neotrellis_set_control_buffer(3, 2, trellisTrackColor[active_track]);
