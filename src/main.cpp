@@ -1,11 +1,13 @@
 #include <Arduino.h>
 
 #include <SPI.h>
+#include <SD.h>
 #include <Wire.h>
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
 #include <MIDI.h>
 #include <USBHost_t36.h>
 #include <Adafruit_MCP4728.h>
+// #include "smfwriter.h"
 #include <SerialFlash.h>
 #include "projectVariables.h"
 
@@ -94,17 +96,15 @@ void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
 template <typename FXClass>
 void set_mixer_FX(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn, FXClass &fx);
-
-void update_current_clip();
-void updatePointers();
+void save_plugin(uint8_t _songNr, uint8_t _pluginNr);
+void load_plugin(uint8_t _songNr, uint8_t _pluginNr);
 void show_trellisFX_mixerPage();
 
 void set_input_level(uint8_t _value);
 void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
 void error(const char *message);
-void save_plugin(uint8_t _songNr, uint8_t _pluginNr);
-void load_plugin(uint8_t _songNr, uint8_t _pluginNr);
+void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24);
 
 void setup()
 {
@@ -161,6 +161,7 @@ void setup()
     fx_3.pl[i].gain(0);
   }
   Serial.println("Audio & MIDI Setup done");
+
   assign_PSRAM_variables();
   // if (!SerialFlash.begin(FlashChipSelect))
   {
@@ -221,7 +222,6 @@ void loop()
 
   midi_read();
   touch_update();
-  updatePointers();
   input_behaviour();
   draw_potRow();
 
@@ -292,26 +292,27 @@ void input_behaviour()
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
-      int _note = (gridTouchY - 1) + (current_track->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-      current_track->set_note_on_tick(tempTick, _note, current_track->parameter[SET_STEP_LENGTH]);
+      int _note = (gridTouchY - 1) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+      allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
     }
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
-      current_track->clear_active_clip();
+      allTracks[active_track]->clear_active_clip();
 
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
       neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
     }
 
-    if (ts.touched())
+    if (tsTouched)
     {
-      // current_track->parameter[SET_STEP_LENGTH] = 1;
+      tsTouched = false;
+      // allTracks[active_track]->parameter[SET_STEP_LENGTH] = 1;
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
-      if (tempTick % current_track->parameter[SET_STEP_LENGTH] == 0)
+      if (tempTick % allTracks[active_track]->parameter[SET_STEP_LENGTH] == 0)
       {
-        int _note = (gridTouchY - 1) + (current_track->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-        current_track->set_note_on_tick(tempTick, _note, current_track->parameter[SET_STEP_LENGTH]);
+        int _note = (gridTouchY - 1) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+        allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
         updateTFTScreen = true;
         delay(70);
       }
@@ -323,7 +324,7 @@ void input_behaviour()
       Serial.printf("active screen: %d, activeTrack: %d\n", activeScreen, active_track);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
-    current_track->set_stepSequencer_parameters();
+    allTracks[active_track]->set_stepSequencer_parameters();
 
     break;
   }
@@ -334,7 +335,7 @@ void input_behaviour()
     allTracks[gridTouchY - 1]->set_arranger_parameters();
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
-      current_track->clear_arrangment();
+      allTracks[active_track]->clear_arrangment();
 
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
       neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
@@ -368,15 +369,15 @@ void input_behaviour()
     // if Shift button is NOT pressed
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
-      current_track->set_seq_mode_parameters(lastPotRow);
+      allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
     }
     break;
   }
   case INPUT_FUNCTIONS_FOR_PLUGIN:
   {
-    int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
+    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
     if (trackChannel <= NUM_MIDI_OUTPUTS)
-      current_track->set_MIDI_CC(lastPotRow);
+      allTracks[active_track]->set_MIDI_CC(lastPotRow);
     else if (trackChannel > NUM_MIDI_OUTPUTS)
       MasterOut.set_parameters(trackChannel - 49, lastPotRow);
     neotrellisPressed[TRELLIS_POTROW] = false;
@@ -583,7 +584,7 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
+    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
     allTracks[channel - 1]->noteOn(note, velocity, trackChannel);
   }
   if (channel >= 9)
@@ -594,7 +595,7 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
+    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
     allTracks[channel - 1]->noteOff(note, velocity, trackChannel);
   }
   if (channel >= 9)
@@ -617,7 +618,7 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
       }
       if (control == i + 80)
       {
-        int trackChannel = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].midiChOut;
+        int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
         int _pluginCh = trackChannel - (NUM_MIDI_OUTPUTS + 1);
         if (trackChannel > NUM_MIDI_OUTPUTS)
         {
@@ -1601,24 +1602,6 @@ void load_plugin(uint8_t _songNr, uint8_t _pluginNr)
   allPlugins[_pluginNr]->load_plugin(_songNr);
 }
 
-void update_current_clip()
-{
-  current_track = allTracks[active_track];
-}
-void updatePointers()
-{
-  static uint8_t last_active_track = 0;
-  static uint8_t last_clip2edit = 0;
-  if (active_track != last_active_track ||
-      current_track->parameter[SET_CLIP2_EDIT] != last_clip2edit)
-
-  {
-
-    update_current_clip();
-    last_active_track = active_track;
-    last_clip2edit = current_track->parameter[SET_CLIP2_EDIT];
-  }
-}
 bool compareFiles(File &file, SerialFlashFile &ffile)
 {
   file.seek(0);
@@ -1737,4 +1720,120 @@ void error(const char *message)
     Serial.println(message);
     delay(2500);
   }
+}
+
+void writeVarLen(File &file, uint32_t value)
+{
+  uint8_t buffer[4];
+  int count = 0;
+  buffer[count++] = value & 0x7F;
+  while ((value >>= 7) > 0)
+  {
+    buffer[count++] = 0x80 | (value & 0x7F);
+  }
+  for (int i = count - 1; i >= 0; i--)
+  {
+    file.write(buffer[i]);
+  }
+}
+
+void writeMidiHeader(File &file, int numTracks, uint16_t ppqn)
+{
+  file.write("MThd", 4); // ✅ Richtig: "MThd"
+  file.write((uint8_t)0);
+  file.write((uint8_t)0);
+  file.write((uint8_t)0);
+  file.write((uint8_t)6);
+  file.write((uint8_t)0);
+  file.write((uint8_t)1); // Format 1
+  file.write((uint8_t)(numTracks >> 8));
+  file.write((uint8_t)(numTracks & 0xFF));
+  file.write((uint8_t)(ppqn >> 8));
+  file.write((uint8_t)(ppqn & 0xFF));
+}
+
+void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
+{
+
+  char filename[20];
+  sprintf(filename, "%02d_%02d.mid", songNr, track->my_Arranger_Y_axis);
+  SD.remove(filename); // ← Alte Datei löschen, damit sie neu geschrieben wird
+  File file = SD.open(filename, FILE_WRITE);
+  if (!file)
+  {
+    Serial.println("Failed to open file");
+    return;
+  }
+
+  writeMidiHeader(file, 1, ppqn);
+
+  uint32_t trackStart = file.position();
+  file.write("MTrk", 4);
+  file.write((uint8_t)0);
+  file.write((uint8_t)0);
+  file.write((uint8_t)0);
+  file.write((uint8_t)0); // placeholder
+
+  uint32_t lastTick = 0;
+  uint32_t noteOffTick[MAX_VOICES] = {0};
+  // Für alle Ticks im Clip
+  // for (int b = 0; b < MAX_BARS; b++)
+  {
+    //   uint8_t barTick = (b * MAX_TICKS);
+    for (int t = 0; t < MAX_TICKS; t++)
+    {
+      //    uint8_t songTick = barTick+t;
+      for (int v = 0; v < MAX_VOICES; v++)
+      {
+        uint8_t _startTick = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].startTick[v]; //+ (b*MAX_TICKS);
+        uint8_t _length = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].noteLength[v];
+        uint8_t _note = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].voice[v];
+        uint8_t _velo = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].velo[v];
+
+        // Falls dies der Startzeitpunkt einer Note ist
+        if (_startTick == t && _note < NO_NOTE && _velo > 0)
+        {
+          // Delta-Time zur vorherigen Nachricht
+          writeVarLen(file, t - lastTick);
+          lastTick = t;
+
+          // Note On
+          file.write(0x90); // Kanal 0
+          file.write(_note);
+          file.write(_velo);
+
+          // Jetzt Note Off planen
+          noteOffTick[v] = t + _length;
+        }
+        else if (_startTick + _length == t)
+        {
+          // Delta-Time: Zeit bis zum Note Off
+          writeVarLen(file, _length);
+          lastTick = noteOffTick[v];
+
+          file.write(0x80);
+          file.write(_note);
+          file.write((uint8_t)0);
+        }
+      }
+    }
+  }
+  // End of Track
+  writeVarLen(file, 0);
+  file.write(0xFF);
+  file.write(0x2F);
+  file.write(0x00);
+
+  // Fix track length
+  uint32_t trackEnd = file.position();
+  uint32_t trackLength = trackEnd - trackStart - 8;
+  file.seek(trackStart + 4);
+  file.write((uint8_t)(trackLength >> 24));
+  file.write((uint8_t)(trackLength >> 16));
+  file.write((uint8_t)(trackLength >> 8));
+  file.write((uint8_t)(trackLength));
+
+  file.close();
+  Serial.print("Exported to MIDI: ");
+  Serial.println(filename);
 }

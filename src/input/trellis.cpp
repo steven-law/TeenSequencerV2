@@ -1,4 +1,5 @@
 #include "input/trellis.h"
+void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24);
 uint8_t trellisPianoTrack;
 int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
 int trellisControllBuffer[X_DIM][Y_DIM];
@@ -18,7 +19,7 @@ const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM]{0, 1, 2, 3, 16
                                                                   76, 77, 78, 79, 92, 93, 94, 95, 108, 109, 110, 111, 124, 125, 126, 127};
 
 int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-
+uint32_t ticks[] = {0, 24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264};
 Adafruit_Trellis matrix0 = Adafruit_Trellis();
 Adafruit_Trellis matrix1 = Adafruit_Trellis();
 Adafruit_Trellis matrix2 = Adafruit_Trellis();
@@ -38,7 +39,7 @@ Adafruit_NeoTrellis t_array[Y_DIM / 4][X_DIM / 4] = {
 
 };
 Adafruit_MultiTrellis neotrellis((Adafruit_NeoTrellis *)t_array, Y_DIM / 4, X_DIM / 4);
-
+// void export_track_to_midi(Track* track, uint8_t songNr , uint16_t ppqn = 24);
 // define a callback for key presses
 TrellisCallback blink(keyEvent evt)
 {
@@ -267,6 +268,7 @@ void neo_trellis_save_load()
     return;
   if (neotrellisPressed[TRELLIS_BUTTON_SAVELOAD])
   {
+    // trellis.clear();
     for (int i = 0; i < MAX_SONGS; i++)
     {
       // neotrellis.setPixelColor(i, 0, TRELLIS_ORANGE);
@@ -274,6 +276,7 @@ void neo_trellis_save_load()
       // neotrellis_show();
       trellis.setLED(TrellisLED[i]);
       trellis.setLED(TrellisLED[i + TRELLIS_PADS_X_DIM]);
+      trellis.setLED(TrellisLED[i + (3 * TRELLIS_PADS_X_DIM)]);
       trellis.writeDisplay();
       if (trellisPressed[i])
       {
@@ -324,8 +327,31 @@ void neo_trellis_save_load()
 
         break;
       }
-
-      // allTracks[7]->load_track();
+      if (trellisPressed[i + (3 * TRELLIS_PADS_X_DIM)])
+      {
+        trellis.clrLED(TrellisLED[i]);
+        trellis.clrLED(TrellisLED[i + TRELLIS_PADS_X_DIM]);
+        trellis.writeDisplay();
+        Serial.printf("save song to MIDI: %d\n", i);
+        set_infobox_background(750);
+        tft.printf("save song to MIDI: %s ", songNames[i]);
+        reset_infobox_background();
+        export_midi_track(allTracks[0], i); 
+        export_midi_track(allTracks[1], i); 
+        export_midi_track(allTracks[2], i); 
+        export_midi_track(allTracks[3], i); 
+        export_midi_track(allTracks[4], i); 
+        export_midi_track(allTracks[5], i); 
+        export_midi_track(allTracks[6], i); 
+        export_midi_track(allTracks[7], i); 
+       // export_track_to_midi(allTracks[0], i);
+       // export_track_to_midi(allTracks[1], i);
+       // export_track_to_midi(allTracks[2], i);
+        trellisPressed[i] = false;
+        neotrellisPressed[TRELLIS_BUTTON_SAVELOAD] = false;
+        updateTFTScreen = true;
+        break;
+      }
     }
   }
 }
@@ -488,8 +514,8 @@ void neotrellis_show_tft_seqMode()
         clearWorkSpace();
 
         show_active_page_info("Track", active_track + 1);
-        int trackPlaymode = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].playMode;
-        current_track->draw_sequencer_modes(trackPlaymode);
+        int trackPlaymode = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].playMode;
+        allTracks[active_track]->draw_sequencer_modes(trackPlaymode);
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
         neotrellis_set_control_buffer(3, 2, trellisTrackColor[active_track]);
         // Serial.println("SeqMode selected");
@@ -787,7 +813,7 @@ void neotrellis_show_tft_plugin()
         clearWorkSpace();
         show_active_page_info("Track", i + 1);
         change_plugin_row = true;
-        // current_track->draw_MIDI_CC_screen();
+        // allTracks[active_track]->draw_MIDI_CC_screen();
         activeScreen = INPUT_FUNCTIONS_FOR_PLUGIN;
         neotrellis_set_control_buffer(2, 3, trellisTrackColor[active_track]);
         break;
@@ -823,7 +849,7 @@ void neo_trellis_select_trackClips()
         // updateTFTScreen = true;
         change_plugin_row = true;
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
-        trellisScreen = current_track->parameter[SET_CLIP2_EDIT];
+        trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
         // for (int i = 0; i < NUM_PARAMETERS; i++)
         drawStepSequencerStatic();
         draw_stepSequencer_parameters();
@@ -857,7 +883,7 @@ void neo_trellis_select_trackClips()
           draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
-          trellisScreen = current_track->parameter[SET_CLIP2_EDIT];
+          trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
           // trellis_get_main_buffer(trellisScreen, x, active_track);
           trellis_recall_main_buffer(trellisScreen);
           trellis_writeDisplay();
@@ -892,7 +918,7 @@ void trellis_setStepsequencer()
             {
               if (trellisPressed[_nr + i])
               {
-                int _note = (trellisNote) + (current_track->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+                int _note = (trellisNote) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
 
                 allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
                 trellisPressed[_nr + i] = false;
@@ -907,7 +933,7 @@ void trellis_setStepsequencer()
             uint8_t step = _nr % NUM_STEPS;
             int keyTick = step * 6;
             // Setze die Note auf dem aktuellen Step
-            int _note = (trellisNote) + (current_track->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+            int _note = (trellisNote) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
             allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, allTracks[track]->parameter[SET_STEP_LENGTH]);
             trellisPressed[_nr] = false;
             change_plugin_row = true;

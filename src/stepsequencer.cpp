@@ -30,8 +30,11 @@ void Track::set_stepSequencer_parameters()
 
         set_stepSequencer_parameter_value(ENCODER_SEQ_MODE, 2, "sMod", 0, NUM_PLAYMODES - 1);
         set_stepSequencer_parameter_value(ENCODER_SCALE, 2, "scal", 0, NUM_SCALES - 1);
-
         set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh", 0, MAX_OUTPUTS);
+        if (neotrellisPressed[TRELLIS_BUTTON_SHIFT] && enc_moved[ENCODER_CLIP2_EDIT])
+        {
+            copy_clip();
+        }
         set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, NUM_USER_CLIPS);
 
         break;
@@ -43,7 +46,35 @@ void Track::set_stepSequencer_parameters()
     }
     draw_stepSequencer_parameters();
 }
+void Track::copy_clip()
+{
+    for (int s = 0; s < MAX_TICKS; s++)
+    {
+        for (int v = 0; v < MAX_VOICES; v++)
+        {
+            clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].tick[s].voice[v] = clip[parameter[SET_CLIP2_EDIT]].tick[s].voice[v];
+            clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].tick[s].startTick[v] = clip[parameter[SET_CLIP2_EDIT]].tick[s].startTick[v];
+            clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].tick[s].noteLength[v] = clip[parameter[SET_CLIP2_EDIT]].tick[s].noteLength[v];
+            clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].tick[s].velo[v] = clip[parameter[SET_CLIP2_EDIT]].tick[s].velo[v];
+            clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].tick[s].stepFX = clip[parameter[SET_CLIP2_EDIT]].tick[s].stepFX;
+        }
+        Serial.printf("tick: %d, newStepFX: %d, oldStepFX: %d\n", s, clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].tick[s].stepFX, clip[parameter[SET_CLIP2_EDIT]].tick[s].stepFX);
+    }
+    clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].clockDivision = clip[parameter[SET_CLIP2_EDIT]].clockDivision;
+    parameter[SET_CLOCK_DIVISION] = clip[parameter[SET_CLIP2_EDIT]].clockDivision;
 
+    clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].midiChOut = clip[parameter[SET_CLIP2_EDIT]].midiChOut;
+    parameter[SET_MIDICH_OUT] = clip[parameter[SET_CLIP2_EDIT]].midiChOut;
+
+    clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].playMode = clip[parameter[SET_CLIP2_EDIT]].playMode;
+    parameter[SET_SEQ_MODE] = clip[parameter[SET_CLIP2_EDIT]].playMode;
+
+    clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].scale = clip[parameter[SET_CLIP2_EDIT]].scale;
+    parameter[SET_SCALE] = clip[parameter[SET_CLIP2_EDIT]].scale;
+
+    clip[parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT]].seqLength = clip[parameter[SET_CLIP2_EDIT]].seqLength;
+    parameter[SET_SEQUENCE_LENGTH] = clip[parameter[SET_CLIP2_EDIT]].seqLength;
+}
 void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max)
 {
     if (!(gridTouchY > 0 && gridTouchY < 13 && pixelTouchX >= SEQ_GRID_LEFT))
@@ -303,7 +334,8 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
         for (int i = 0; i < existingLength; i++)
         {
             int tickToClear = existingStartTick + i;
-            if (tickToClear >= 96) break;
+            if (tickToClear >= 96)
+                break;
 
             tickPtr[tickToClear].voice[_voice] = NO_NOTE;
             tickPtr[tickToClear].velo[_voice] = 0;
@@ -318,7 +350,6 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
         if (active_track == my_Arranger_Y_axis - 1 && activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
         {
             erase_note_on_tick(_voice, existingStartTick, existingLength);
-           
         }
 
         return; // Kein Setzen einer neuen Note in diesem Fall
@@ -332,7 +363,8 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
         for (int i = 0; i < length; i++)
         {
             int onTick = _startTick + i;
-            if (onTick >= 96) break;
+            if (onTick >= 96)
+                break;
 
             tickPtr[onTick].voice[_voice] = note2set;
             tickPtr[onTick].velo[_voice] = velocity;

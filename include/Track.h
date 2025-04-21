@@ -229,7 +229,7 @@ private:
     // stepsequencer
     void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
     void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
-
+    void copy_clip();
     // midi CC
     void set_CCvalue(uint8_t XPos, uint8_t YPos);
     void set_CCchannel(uint8_t XPos, uint8_t YPos);
@@ -274,5 +274,4 @@ private:
 };
 
 extern Track *allTracks[8];
-extern Track* current_track;
 #endif

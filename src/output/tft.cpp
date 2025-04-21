@@ -637,14 +637,14 @@ void drawOctaveNumber()
         tft.setTextColor(ILI9341_WHITE);
 
     // tft.setTextSize(1);
-    tft.print(current_track->parameter[SET_OCTAVE]);
+    tft.print(allTracks[active_track]->parameter[SET_OCTAVE]);
 }
 void draw_Notenames()
 {
     for (int n = 0; n < MAX_VOICES; n++)
     { // hor notes
 
-        int color = (scales[current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].scale][n]) ? trackColor[active_track] : ILI9341_LIGHTGREY;
+        int color = (scales[allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].scale][n]) ? trackColor[active_track] : ILI9341_LIGHTGREY;
         tft.fillRect(STEP_FRAME_W, STEP_FRAME_H * n + STEP_FRAME_H, STEP_FRAME_W, STEP_FRAME_H, color);
         tft.setCursor(STEP_FRAME_W + 1, STEP_FRAME_H * n + 24);
 
@@ -676,33 +676,33 @@ void draw_stepSequencer_parameters()
     tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 2 * STEP_FRAME_W - 5, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
     change_plugin_row = false;
     drawOctaveNumber();
-    uint8_t clipIndex = current_track->parameter[SET_CLIP2_EDIT];
-    auto *clip = &current_track->clip[clipIndex];
+    uint8_t clipIndex = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
+    auto *clip = &allTracks[active_track]->clip[clipIndex];
     switch (lastPotRow)
     {
     case 0:
-        draw_sequencer_arranger_parameter(active_track, 0, "Tick", current_track->parameter[0], NO_NAME);
-        draw_sequencer_arranger_parameter(active_track, 1, "Note", current_track->parameter[1] + (current_track->parameter[SET_OCTAVE] * 12), NO_NAME);
-        draw_sequencer_arranger_parameter(active_track, 2, CCnames[current_track->parameter[14]], current_track->parameter[2], NO_NAME);
-        draw_sequencer_arranger_parameter(active_track, 3, "Velo", current_track->parameter[3], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1] + (allTracks[active_track]->parameter[SET_OCTAVE] * 12), NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[14]], allTracks[active_track]->parameter[2], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 3, "Velo", allTracks[active_track]->parameter[3], NO_NAME);
         break;
 
     case 1:
         draw_sequencer_arranger_parameter(active_track, 0, "seqL", clip->seqLength, NO_NAME);
         draw_sequencer_arranger_parameter(active_track, 1, "cDiv", clip->clockDivision, NO_NAME);
-        draw_sequencer_arranger_parameter(active_track, 2, "stpL", current_track->parameter[6], NO_NAME);
-        draw_sequencer_arranger_parameter(active_track, 3, "Oct", current_track->parameter[7], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 2, "stpL", allTracks[active_track]->parameter[6], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 3, "Oct", allTracks[active_track]->parameter[7], NO_NAME);
         break;
 
     case 2:
         draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[clip->playMode]);
         draw_sequencer_arranger_parameter(active_track, 1, "scal", NO_VALUE, scaleNames[clip->scale]);
         draw_sequencer_arranger_parameter(active_track, 2, "MCh", NO_VALUE, channelOutNames[clip->midiChOut]);
-        draw_sequencer_arranger_parameter(active_track, 3, "Clip", current_track->parameter[SET_CLIP2_EDIT], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[SET_CLIP2_EDIT], NO_NAME);
         break;
 
     case 3:
-        draw_sequencer_arranger_parameter(active_track, 0, "Offset", current_track->parameter[SET_SWING], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 0, "Offset", allTracks[active_track]->parameter[SET_SWING], NO_NAME);
         break;
 
     default:
@@ -720,13 +720,13 @@ void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length)
 
 void draw_note_on_tick(uint8_t _voice, uint8_t _when)
 {
-    auto &tick = current_track->clip[current_track->parameter[SET_CLIP2_EDIT]].tick[_when];
+    auto &tick = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when];
     //  uint8_t start_tick = tick.startTick[_voice];
     if (tick.startTick[_voice] != _when)
         return;
     uint8_t note = tick.voice[_voice];
-    if (!(note >= current_track->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE &&
-          note < (current_track->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE))
+    if (!(note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE &&
+          note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE))
     {
         return;
     }
@@ -738,11 +738,11 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     int xPos = (_when * PIXEL_PER_TICK) + (STEP_FRAME_W * 2);
     int yPos = ((_voice + 1) * STEP_FRAME_H) + 10;
 
-    int _color = trackColor[active_track] + (current_track->parameter[SET_CLIP2_EDIT] * 20);
+    int _color = trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
 
     int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 3);
     int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
-    int radius = map(*stepFX, 127, 0, 0, STEP_FRAME_H / 3);
+    int radius = map(*stepFX, 128, 0, 0, STEP_FRAME_H / 3);
     Serial.printf("draw Note %d,  on Tick %d\n", note, _when);
     tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
     tft.drawRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, ILI9341_BLACK);
@@ -799,14 +799,14 @@ void draw_MIDI_CC_screen()
         draw_MIDI_CC(2, 3);
         draw_MIDI_CC(3, 3);
 
-        draw_edit_presetNr_CC("cc-Set", current_track->edit_presetNr_ccChannel, 2);
-        draw_edit_presetNr_CC("vl-Set", current_track->edit_presetNr_ccValue, 3);
+        draw_edit_presetNr_CC("cc-Set", allTracks[active_track]->edit_presetNr_ccChannel, 2);
+        draw_edit_presetNr_CC("vl-Set", allTracks[active_track]->edit_presetNr_ccValue, 3);
     }
 }
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
-    drawPot(XPos, YPos, current_track->CCvalue[current_track->edit_presetNr_ccValue][n], CCnames[current_track->CCchannel[current_track->edit_presetNr_ccChannel][n]]);
+    drawPot(XPos, YPos, allTracks[active_track]->CCvalue[allTracks[active_track]->edit_presetNr_ccValue][n], CCnames[allTracks[active_track]->CCchannel[allTracks[active_track]->edit_presetNr_ccChannel][n]]);
 }
 
 void draw_mixer()
