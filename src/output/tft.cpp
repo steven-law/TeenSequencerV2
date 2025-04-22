@@ -732,7 +732,7 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     }
 
     uint8_t velo = tick.velo[_voice];
-    uint8_t *stepFX = &tick.stepFX;
+    uint8_t stepFX = tick.stepFX;
     uint8_t length = tick.noteLength[_voice];
 
     int xPos = (_when * PIXEL_PER_TICK) + (STEP_FRAME_W * 2);
@@ -742,8 +742,8 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
 
     int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 3);
     int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
-    int radius = map(*stepFX, 128, 0, 0, STEP_FRAME_H / 3);
-    Serial.printf("draw Note %d,  on Tick %d\n", note, _when);
+    int radius = map(stepFX, 128, 0, 0, STEP_FRAME_H / 3);
+    Serial.printf("draw Note %d,  on Tick %d, velo: %d, stepFX: %d\n", note, _when, velo, stepFX);
     tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
     tft.drawRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, ILI9341_BLACK);
 }
