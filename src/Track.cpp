@@ -232,6 +232,9 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
             case 7:
                 play_seq_mode7(internal_clock);
                 break;
+            case 8:
+                play_seq_mode8(internal_clock);
+                break;
             }
         }
     }
@@ -263,6 +266,9 @@ void Track::set_seq_mode_parameters(uint8_t row)
     case 7:
         set_seq_mode7_parameters();
         break;
+    case 8:
+        set_seq_mode8_parameters();
+        break;
     default:
         break;
     }
@@ -284,6 +290,8 @@ void Track::draw_sequencer_modes(uint8_t mode)
         draw_seq_mode6();
     if (mode == 7)
         draw_seq_mode7();
+    if (mode == 8)
+        draw_seq_mode8();
 }
 
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -466,4 +474,3 @@ Track track7(7);
 Track track8(8);
 
 Track *allTracks[8]{&track1, &track2, &track3, &track4, &track5, &track6, &track7, &track8};
-

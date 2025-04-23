@@ -37,6 +37,7 @@ Plugin_8 plugin_8("dTune", 8);
 Plugin_9 plugin_9("rDrm", 9);
 Plugin_10 plugin_10("SF2", 9);
 Plugin_11 plugin_11("Ext", 9);*/
+//Midi import
 
 PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13, &plugin_14};
 // PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13};
@@ -105,10 +106,14 @@ void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
 void error(const char *message);
 void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24);
+bool loadMidiFile(const char *filename, MidiTrack &track);
+//int getNoteAtTick(MidiTrack &track, int miditick);
+int getPPQN(const MidiTrack &track);
+bool fillNoteInfoAtTick(MidiTrack &track, int miditick);
 
 void setup()
 {
-  // while (!Serial)
+   while (!Serial)
   {
     /* code */
   }
@@ -197,6 +202,19 @@ void setup()
   }
   pixelTouchX = SEQ_GRID_LEFT;
   gridTouchY = 1;
+  if (loadMidiFile("0.mid", myMidi)) {
+    Serial.println("MIDI geladen!");
+  } else {
+    Serial.println("Fehler beim Laden");
+  }
+  if (fillNoteInfoAtTick(myMidi, 0)) {
+    Serial.print("Note: "); Serial.println(noteInfo[0]);
+    Serial.print("Vel : "); Serial.println(noteInfo[1]);
+    Serial.print("Start: "); Serial.println(noteInfo[2]);
+    Serial.print("Len  : "); Serial.println(noteInfo[3]);
+  } else {
+    Serial.println("Keine Note gefunden.");
+  }
 }
 
 void loop()
@@ -1888,3 +1906,184 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
   Serial.print("Exported to MIDI: ");
   Serial.println(filename);
 }
+
+bool loadMidiFile(const char *filename, MidiTrack &track) {
+  track.file = SD.open(filename);
+  if (!track.file) return false;
+
+  // Header Chunk lesen
+  if (track.file.read() != 'M' || track.file.read() != 'T' || track.file.read() != 'h' || track.file.read() != 'd') return false;
+  uint32_t headerLength = (track.file.read() << 24) | (track.file.read() << 16) | (track.file.read() << 8) | track.file.read();
+  int format = (track.file.read() << 8) | track.file.read();
+  int numTracks = (track.file.read() << 8) | track.file.read();
+  track.division = (track.file.read() << 8) | track.file.read();
+
+  if (format != 0 && format != 1) return false;
+
+  // Erste Spur mit echten Notenereignissen finden
+  for (int i = 0; i < numTracks; i++) {
+    if (track.file.read() != 'M' || track.file.read() != 'T' || track.file.read() != 'r' || track.file.read() != 'k') return false;
+    uint32_t trackLength = (track.file.read() << 24) | (track.file.read() << 16) | (track.file.read() << 8) | track.file.read();
+    uint32_t pos = track.file.position();
+
+    // Suche Note-On Event in dieser Spur
+    bool hasNotes = false;
+    uint32_t bytesLeft = trackLength;
+    int runningStatus = 0;
+    while (bytesLeft > 0 && track.file.available()) {
+      // DeltaTime überspringen
+      int b, dummy;
+      do { b = track.file.read(); bytesLeft--; } while ((b & 0x80) && bytesLeft > 0);
+
+      if (!track.file.available()) break;
+      int status = track.file.read(); bytesLeft--;
+
+      if (status < 0x80) {
+        status = runningStatus;
+        track.file.seek(track.file.position() - 1);
+      } else {
+        runningStatus = status;
+      }
+
+      int type = status & 0xF0;
+      if (type == 0x90) {
+        int note = track.file.read(); bytesLeft--;
+        int vel  = track.file.read(); bytesLeft--;
+        if (vel > 0) {
+          hasNotes = true;
+          break;
+        }
+      } else if (type == 0x80 || type == 0xA0 || type == 0xB0 || type == 0xE0) {
+        track.file.seek(track.file.position() + 2); bytesLeft -= 2;
+      } else if (type == 0xC0 || type == 0xD0) {
+        track.file.seek(track.file.position() + 1); bytesLeft -= 1;
+      } else if (status == 0xFF) {
+        dummy = track.file.read(); bytesLeft--;
+        do { b = track.file.read(); bytesLeft--; } while (b & 0x80 && bytesLeft > 0);
+      } else if (status == 0xF0 || status == 0xF7) {
+        int len = track.file.read(); bytesLeft--;
+        track.file.seek(track.file.position() + len); bytesLeft -= len;
+      }
+    }
+
+    if (hasNotes) {
+      track.trackStart = pos;
+      track.trackLength = trackLength;
+      track.file.seek(pos); // Setze auf Track-Beginn zurück
+      return true;
+    } else {
+      track.file.seek(pos + trackLength); // nächste Spur prüfen
+    }
+  }
+
+  return false;
+}
+
+bool fillNoteInfoAtTick(MidiTrack &track, int miditick) {
+  if (!track.file) return false;
+
+  track.file.seek(track.trackStart);
+  int tick = 0;
+  int runningStatus = 0;
+
+  uint32_t bytesLeft = track.trackLength;
+
+  while (bytesLeft > 0 && track.file.available()) {
+    // DeltaTime lesen
+    int delta = 0, b;
+    do {
+      b = track.file.read(); bytesLeft--;
+      delta = (delta << 7) | (b & 0x7F);
+    } while (b & 0x80 && bytesLeft > 0);
+    tick += delta;
+
+    int status = track.file.read(); bytesLeft--;
+    if (status < 0x80) {
+      track.file.seek(track.file.position() - 1);
+      status = runningStatus;
+    } else {
+      runningStatus = status;
+    }
+
+    int type = status & 0xF0;
+    if (type == 0x90 || type == 0x80) {
+      int note = track.file.read(); bytesLeft--;
+      int vel  = track.file.read(); bytesLeft--;
+
+      if (type == 0x90 && vel > 0 && tick == miditick) {
+        // Note-On bei gewünschtem Tick gefunden
+        noteInfo[0] = note;
+        noteInfo[1] = vel;
+        noteInfo[2] = tick;
+
+        // Suche Note-Off
+        int noteOffTick = tick;
+        while (bytesLeft > 0 && track.file.available()) {
+          // DeltaTime
+          int delta2 = 0;
+          do {
+            b = track.file.read(); bytesLeft--;
+            delta2 = (delta2 << 7) | (b & 0x7F);
+          } while (b & 0x80 && bytesLeft > 0);
+          noteOffTick += delta2;
+
+          int s = track.file.read(); bytesLeft--;
+          if (s < 0x80) {
+            track.file.seek(track.file.position() - 1);
+            s = runningStatus;
+          } else {
+            runningStatus = s;
+          }
+
+          int t = s & 0xF0;
+          if (t == 0x90 || t == 0x80) {
+            int n = track.file.read(); bytesLeft--;
+            int v = track.file.read(); bytesLeft--;
+
+            if ((t == 0x80 || (t == 0x90 && v == 0)) && n == note) {
+              noteInfo[3] = noteOffTick - tick;
+              return true;
+            }
+          } else if (s == 0xFF) {
+            int metaType = track.file.read(); bytesLeft--;
+            int len = 0;
+            do {
+              b = track.file.read(); bytesLeft--;
+              len = (len << 7) | (b & 0x7F);
+            } while (b & 0x80 && bytesLeft > 0);
+            track.file.seek(track.file.position() + len); bytesLeft -= len;
+          } else if (s == 0xF0 || s == 0xF7) {
+            int len = track.file.read(); bytesLeft--;
+            track.file.seek(track.file.position() + len); bytesLeft -= len;
+          } else {
+            int skip = (t == 0xC0 || t == 0xD0) ? 1 : 2;
+            track.file.seek(track.file.position() + skip); bytesLeft -= skip;
+          }
+        }
+
+        noteInfo[3] = -1; // Kein Note-Off gefunden
+        return true;
+      }
+    } else if (status == 0xFF) {
+      int metaType = track.file.read(); bytesLeft--;
+      int len = 0;
+      do {
+        b = track.file.read(); bytesLeft--;
+        len = (len << 7) | (b & 0x7F);
+      } while (b & 0x80 && bytesLeft > 0);
+      track.file.seek(track.file.position() + len); bytesLeft -= len;
+    } else if (status == 0xF0 || status == 0xF7) {
+      int len = track.file.read(); bytesLeft--;
+      track.file.seek(track.file.position() + len); bytesLeft -= len;
+    } else {
+      int skip = (type == 0xC0 || type == 0xD0) ? 1 : 2;
+      track.file.seek(track.file.position() + skip); bytesLeft -= skip;
+    }
+  }
+
+  return false;
+}
+int getPPQN(const MidiTrack &track) {
+  return track.division;
+}
+

@@ -12,7 +12,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_NAME "NO_NAME"
 
 #define NUM_PLUGINS 14
-#define NUM_PLAYMODES 8
+#define NUM_PLAYMODES 9
 #define NUM_SCALES 23
 #define NUM_FX 3
 
@@ -98,7 +98,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 // for arranger
 #define BARS_PER_PAGE 16
 // for sequencer
-#define SEQ_GRID_LEFT (2 * STEP_FRAME_W) 
+#define SEQ_GRID_LEFT (2 * STEP_FRAME_W)
 #define SEQ_GRID_RIGHT (18 * STEP_FRAME_W) - 2
 #define SEQ_GRID_TOP 1
 #define SEQ_GRID_BOTTOM 12
@@ -235,4 +235,14 @@ extern const char FLASHMEM *noteNames[12];
 
 // touch
 extern bool isTouched;
+struct MidiTrack
+{
+    File file;
+    uint32_t trackStart;  // Position der Track-Daten im File
+    uint32_t trackLength; // Länge des Track-Chunks
+    int division;         // Ticks per Quarter Note (PPQN)
+};
+
+extern int noteInfo[4]; //noote, velo, start, length
+extern MidiTrack myMidi;
 #endif

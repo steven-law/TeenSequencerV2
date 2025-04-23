@@ -60,9 +60,9 @@ const bool PROGMEM scales[NUM_SCALES][12]{
     {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0}  // Diminished (Octatonic)
 
 };
- const char FLASHMEM *scaleNames[NUM_SCALES]{"Chroma", "Major", "natMi", "Dorian", "Phryg","Lydian", "Mixol", "Locria", "harMi", "melMi", "Blues", "Hungar", "Whole", "neapMi", "neapMa", "bepMa", "bepMi", "bepDo", "bepMM", "bepHM", "Persia", "Span", "Dimin"};
+const char FLASHMEM *scaleNames[NUM_SCALES]{"Chroma", "Major", "natMi", "Dorian", "Phryg", "Lydian", "Mixol", "Locria", "harMi", "melMi", "Blues", "Hungar", "Whole", "neapMi", "neapMa", "bepMa", "bepMi", "bepDo", "bepMM", "bepHM", "Persia", "Span", "Dimin"};
 
-const char *bankNames[NUM_SAMPLE_BANKS] FLASHMEM = { "K", "C", "H", "S", "P", "F", "X", ""};
+const char *bankNames[NUM_SAMPLE_BANKS] FLASHMEM = {"K", "C", "H", "S", "P", "F", "X", ""};
 // char  **CCnames;
 const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
                                   "CC10", "CC11", "CC12", "CC13", "CC14", "CC15", "CC16", "CC17", "CC18", "CC19",
@@ -78,7 +78,7 @@ const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6
                                   "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
                                   "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "none"};
 
-const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld"};
+const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld", ".mid"};
 const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
                                                       "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
                                                       "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
@@ -94,3 +94,6 @@ bool *beatArrayPM7;
 
 // touch
 bool isTouched;
+
+MidiTrack myMidi;
+int noteInfo[4] = {128, 0, 0, 0};

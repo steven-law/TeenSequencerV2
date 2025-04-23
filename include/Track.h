@@ -56,6 +56,10 @@ void neotrellis_show();
 // extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;
 void save_plugin(uint8_t _songNr, uint8_t _pluginNr);
 void load_plugin(uint8_t _songNr, uint8_t _pluginNr);
+bool loadMidiFile(const char *filename, MidiTrack &track);
+int getNoteAtTick(MidiTrack &track, int miditick);
+int getPPQN(const MidiTrack &track);
+bool fillNoteInfoAtTick(MidiTrack &track, int miditick);
 class Track
 {
 
@@ -210,7 +214,7 @@ public:
 
 private:
     uint8_t noteToPlay[MAX_VOICES];
-    uint8_t noteOffAt[MAX_VOICES] = {MAX_TICKS};
+    int noteOffAt[MAX_VOICES] = {MAX_TICKS};
     bool internal_clock_is_on = false;
 
     int recordStartTick[MAX_VOICES];
@@ -271,6 +275,11 @@ private:
     void set_seq_mode7_parameters();
     void set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name);
     void draw_seq_mode7();
+
+    void play_seq_mode8(uint8_t cloock);
+    void set_seq_mode8_parameters();
+    void draw_seq_mode8();
+    void select_file(uint8_t XPos, uint8_t YPos, const char *name);
 };
 
 extern Track *allTracks[8];

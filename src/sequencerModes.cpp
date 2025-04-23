@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "projectVariables.h"
 #include "Track.h"
+extern MidiTrack myMidi;
 // hello test
 void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
@@ -116,7 +117,7 @@ void Track::play_seq_mode1(uint8_t cloock)
         }
     }
 
-    if (get_note_parameter(tick.startTick, 0)  == cloock && noteParam < NO_NOTE)
+    if (get_note_parameter(tick.startTick, 0) == cloock && noteParam < NO_NOTE)
 
     {
 
@@ -214,7 +215,7 @@ void Track::play_seq_mode2(uint8_t cloock)
     uint8_t cc24 = seqMod_value[2][3];
     uint8_t thisOctave = 4;
 
-    if (get_note_parameter(tick.startTick, 0)  == cloock && noteParam < NO_NOTE)
+    if (get_note_parameter(tick.startTick, 0) == cloock && noteParam < NO_NOTE)
     {
 
         maxVal = 0;
@@ -1072,5 +1073,117 @@ void Track::draw_seq_mode7()
         //   drawPot(1, 3, seqMod_value[4][13], "14");
         //   drawPot(2, 3, seqMod_value[4][14], "15");
         //   drawPot(3, 3, seqMod_value[4][15], "16");
+    }
+}
+
+// MIDI
+void Track::play_seq_mode8(uint8_t cloock)
+{
+    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
+    /*if (lastPotRow == 3 && enc_button[3]) // save to clip
+        {
+            enc_button[3] = false;
+
+            for (int s = 0; s < seqMod_value[1][4]; s++)
+            {
+                int _note = seqMod1NoteMemory[s];
+                set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
+            }
+        }*/
+    int readTick = cloock * seqMod_value[8][3];
+    unsigned long songTick = readTick + (internal_clock_bar * MAX_TICKS);
+    
+    fillNoteInfoAtTick(myMidi, readTick);
+    // if (fillNoteInfoAtTick(myMidi, readTick))
+    {
+        Serial.printf("In file note: %d, velo: %d  Start: %d, Len: %d, readTick: %d\n", noteInfo[0], noteInfo[1], noteInfo[2], noteInfo[3], readTick);
+        int startTick = noteInfo[2] ;
+
+        uint8_t _v = noteInfo[0] % MAX_VOICES;
+        if (noteInfo[0] < NO_NOTE && startTick == songTick && noteOffAt[_v] == -1)
+        {
+            int length = noteInfo[3] ;
+
+            noteToPlay[_v] = noteInfo[0] + noteOffset[external_clock_bar] + performNoteOffset;
+            // noteOffAt[0] = tick.startTick[0] + tick.noteLength[0];
+            uint8_t Velo = noteInfo[1] * (barVelocity[external_clock_bar] / MIDI_CC_RANGE_FLOAT) * (mixGainPot / MIDI_CC_RANGE_FLOAT);
+            uint8_t StepFX = random(seqMod_value[8][1], seqMod_value[8][2]);
+            sendControlChange(parameter[14], StepFX, clip[clipIndex].midiChOut);
+            noteOn(noteToPlay[_v], Velo, clip[clipIndex].midiChOut); // Send a Note
+            noteOffAt[_v] = startTick + length;
+            Serial.printf("Midifile NOte: %d, Vel: %d, Start: %d, Len: %d, noteOffAt: %d, voice: %d, tick: %d\n", noteToPlay[_v], Velo, startTick, length, noteOffAt[_v], _v, songTick);
+        }
+    }
+    // else
+    {
+        //   Serial.println("Keine Note gefunden.");
+    }
+    for (int v = 0; v < MAX_VOICES; v++)
+    {
+        if (noteOffAt[v] == songTick&& noteOffAt[v] != -1)
+        {
+            noteOffAt[v] = -1;
+            noteOff(noteToPlay[v], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
+            // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+             Serial.printf("Midifile NOteOFF: %d,  Start: %d, Len: %d, voice: %d, tick %d\n", noteToPlay[v],  noteInfo[2], noteInfo[3], v,songTick);
+        }
+    }
+}
+void Track::select_file(uint8_t XPos, uint8_t YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        int n = XPos + (YPos * NUM_ENCODERS);
+        seqMod_value[8][n] = constrain(seqMod_value[8][n] + encoded[XPos], 0, 127); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
+        char filename[20];
+        sprintf(filename, "%d.mid", seqMod_value[8][n]);
+        loadMidiFile(filename, myMidi);
+        seqMod_value[8][3] = getPPQN(myMidi) / 24;
+        drawPot(XPos, YPos, seqMod_value[8][n], name);
+    }
+}
+void Track::set_seq_mode8_parameters()
+{
+    draw_seq_mode8();
+    switch (lastPotRow)
+    {
+    case 0:
+    {
+
+        select_file(0, 0, "File");
+        set_seq_mode_value(8, 1, 0, "StepFX -", 0, MIDI_CC_RANGE + 1);
+        set_seq_mode_value(8, 2, 0, "StepFX +", 0, MIDI_CC_RANGE + 1);
+        set_seq_mode_value(8, 3, 0, "CMult", 1, 40);
+    }
+    break;
+    case 1:
+    {
+        // set_seq_mode_value(1, 0, 1, "maxSteps", 0, NUM_STEPS);
+        // set_seq_mode_value(1, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
+        // set_seq_mode_value(1, 2, 1, "Rotate", 0, 32);
+    }
+    break;
+    case 2:
+    {
+    }
+    break;
+    case 3:
+    {
+    }
+    break;
+    default:
+        break;
+    }
+}
+void Track::draw_seq_mode8()
+{
+    if (change_plugin_row)
+    {
+        change_plugin_row = false;
+
+        drawPot(0, 0, seqMod_value[8][0], "File");
+        drawPot(1, 0, seqMod_value[8][1], "StepFX -");
+        drawPot(2, 0, seqMod_value[8][2], "StepFX +");
+        drawPot(3, 0, seqMod_value[8][3], "CMult");
     }
 }
