@@ -201,7 +201,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     //   Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
-        if (!muted && !muteThruSolo && clip_to_play[external_clock_bar] <= NUM_USER_CLIPS)
+        if (clip_to_play[external_clock_bar] <= NUM_USER_CLIPS)
 
         {
             // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
@@ -297,22 +297,22 @@ void Track::draw_sequencer_modes(uint8_t mode)
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-    sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
-    if (recordState)
-        record_noteOn(Note, Velo, Channel);
-
-    // MIDI1.sendNoteOn(Note, Velo, Channel);
-    // usbMIDI.sendNoteOn(Note, Velo, Channel);
-    //
+    if (!muted && !muteThruSolo)
+    {
+        sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
+        if (recordState)
+            record_noteOn(Note, Velo, Channel);
+    }
 }
 void Track::noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-    sendNoteOff(my_Arranger_Y_axis - 1, Note, Velo, Channel);
-    if (recordState)
-        record_noteOff(Note, Velo, Channel);
-    // MIDI1.sendNoteOn(Note, Velo, Channel);
-    // usbMIDI.sendNoteOn(Note, Velo, Channel);
+   // if (!muted && !muteThruSolo)
+    {
+        sendNoteOff(my_Arranger_Y_axis - 1, Note, Velo, Channel);
+        if (recordState)
+            record_noteOff(Note, Velo, Channel);
+    }
 }
 void Track::record_noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {

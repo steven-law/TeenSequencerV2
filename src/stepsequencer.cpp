@@ -383,7 +383,12 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
             }
             trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
         }
-
+       // Serial.printf("note is set to: note: %d, startTick: %d, length: %d, velo: %d, stepFx: %d\n",
+       //               tickPtr[_startTick].voice[_voice],
+       //               tickPtr[_startTick].startTick[_voice],
+       //               tickPtr[_startTick].noteLength[_voice],
+       //               tickPtr[_startTick].velo[_voice], 
+       //               tickPtr[_startTick].stepFX);
         // Zeichnen der Note
         if (active_track == my_Arranger_Y_axis - 1 && activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
         {

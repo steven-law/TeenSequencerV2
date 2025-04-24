@@ -214,7 +214,7 @@ public:
 
 private:
     uint8_t noteToPlay[MAX_VOICES];
-    int noteOffAt[MAX_VOICES] = {MAX_TICKS};
+    int noteOffAt[MAX_VOICES] = {-1};
     bool internal_clock_is_on = false;
 
     int recordStartTick[MAX_VOICES];

@@ -2086,7 +2086,7 @@ int fillNoteInfoAtTick(MidiTrack &track, int miditick)
       bytesLeft--;
 
       // Speichere alle Note-Ons am gewünschten Tick
-      if (type == 0x90 && vel > 0 && tick == miditick && numNotes < MAX_VOICES)
+      if  (type == 0x90 && vel > 0 && abs(tick - miditick) <= 10 && numNotes < MAX_VOICES)
       {
         notes[numNotes++] = {static_cast<uint8_t>(note), static_cast<uint8_t>(vel), tick, false, -1};
       }

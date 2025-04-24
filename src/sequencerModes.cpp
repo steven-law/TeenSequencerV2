@@ -1080,26 +1080,27 @@ void Track::draw_seq_mode7()
 void Track::play_seq_mode8(uint8_t cloock)
 {
     const uint8_t clipIndex = clip_to_play[internal_clock_bar];
-    /*if (lastPotRow == 3 && enc_button[3]) // save to clip
-        {
-            enc_button[3] = false;
 
-            for (int s = 0; s < seqMod_value[1][4]; s++)
-            {
-                int _note = seqMod1NoteMemory[s];
-                set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-            }
-        }*/
-    int readTick = cloock * seqMod_value[8][3];
-    unsigned long songTick = cloock + (internal_clock_bar * MAX_TICKS);
-    
-    int numVoices = fillNoteInfoAtTick(myMidi, readTick);
-   for (int v=0;v<numVoices;v++)
+    unsigned long songTick = cloock + ((internal_clock_bar % seqMod_value[8][4]) * MAX_TICKS);
+    unsigned long readTick = songTick * seqMod_value[8][3];
+    // unsigned long songTick = cloock + (internal_clock_bar * MAX_TICKS);
+    for (int v = 0; v < MAX_VOICES; v++)
     {
-        Serial.printf("In file note: %d, velo: %d  Start: %d, Len: %d, readTick: %d\n", noteInfo[v][0], noteInfo[v][1], noteInfo[v][2], noteInfo[v][3], readTick);
-        int startTick = noteInfo[v][2] / seqMod_value[8][3];
+        if (noteOffAt[v] == songTick)
+        {
+            noteOffAt[v] = -1;
+            noteOff(noteToPlay[v], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
+                                                                  // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+           // Serial.printf("PL8 NOteOFF: %d,  Start: %d, Len: %d, voice: %d, tick %d\n", noteToPlay[v], noteInfo[v][2], noteInfo[v][3], v, songTick);
+        }
+    }
+    int numVoices = fillNoteInfoAtTick(myMidi, readTick);
 
-        
+    for (int v = 0; v < numVoices; v++)
+    {
+        Serial.printf("In file note: %d, velo: %d  Start: %d, Len: %d, readTick: %d, songTick: %d\n", noteInfo[v][0], noteInfo[v][1], noteInfo[v][2], noteInfo[v][3], readTick, songTick * seqMod_value[8][3]);
+        unsigned long startTick = noteInfo[v][2] / seqMod_value[8][3];
+
         if (noteInfo[v][0] < NO_NOTE && startTick == songTick && noteOffAt[v] == -1)
         {
             int length = noteInfo[v][3] / seqMod_value[8][3];
@@ -1111,23 +1112,11 @@ void Track::play_seq_mode8(uint8_t cloock)
             sendControlChange(parameter[14], StepFX, clip[clipIndex].midiChOut);
             noteOn(noteToPlay[v], Velo, clip[clipIndex].midiChOut); // Send a Note
             noteOffAt[v] = startTick + length;
-            Serial.printf("Midifile NOte: %d, Vel: %d, Start: %d, Len: %d, noteOffAt: %d, voice: %d, tick: %d\n", noteToPlay[v], Velo, startTick, length, noteOffAt[v], v, songTick);
+            Serial.printf("PL8 NOte: %d, Vel: %d, Start: %d, Len: %d, noteOffAt: %d, voice: %d, tick: %d\n", noteToPlay[v], Velo, startTick, length, noteOffAt[v], v, songTick);
         }
     }
-    // else
-    {
-        //   Serial.println("Keine Note gefunden.");
-    }
-    for (int v = 0; v < MAX_VOICES; v++)
-    {
-        if (noteOffAt[v] == songTick&& noteOffAt[v] != -1)
-        {
-            noteOffAt[v] = -1;
-            noteOff(noteToPlay[v], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
-            // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-             Serial.printf("Midifile NOteOFF: %d,  Start: %d, Len: %d, voice: %d, tick %d\n", noteToPlay[v],  noteInfo[2], noteInfo[3], v,songTick);
-        }
-    }
+
+    
 }
 void Track::select_file(uint8_t XPos, uint8_t YPos, const char *name)
 {
@@ -1145,6 +1134,26 @@ void Track::select_file(uint8_t XPos, uint8_t YPos, const char *name)
 void Track::set_seq_mode8_parameters()
 {
     draw_seq_mode8();
+    if (lastPotRow == 3 && enc_button[3]) // save to clip
+    {
+        int multiplier = seqMod_value[8][3]; //40 for 960ppqn to 24ppqn conversion
+        enc_button[3] = false;
+        for (int s = 0; s < MAX_TICKS; s++)
+        {
+            int numVoices = fillNoteInfoAtTick(myMidi, s * multiplier);
+            for (int v = 0; v < numVoices; v++)
+            {
+                int _note = noteInfo[v][0];
+                parameter[SET_VELO2SET] = noteInfo[v][1];
+                parameter[SET_STEP_FX] = random(seqMod_value[8][1], seqMod_value[8][2]);
+                int start = noteInfo[v][2] / multiplier;
+                int length = noteInfo[v][3] / multiplier;
+                Serial.printf("store PL8 note: %d, start: %d, length: %d, velo: %d\n", _note, start, length, parameter[SET_VELO2SET]);
+                if (start == s)
+                    set_note_on_tick(start, _note, length);
+            }
+        }
+    }
     switch (lastPotRow)
     {
     case 0:
@@ -1153,12 +1162,12 @@ void Track::set_seq_mode8_parameters()
         select_file(0, 0, "File");
         set_seq_mode_value(8, 1, 0, "StepFX -", 0, MIDI_CC_RANGE + 1);
         set_seq_mode_value(8, 2, 0, "StepFX +", 0, MIDI_CC_RANGE + 1);
-        set_seq_mode_value(8, 3, 0, "CMult", 1, 40);
+        set_seq_mode_value(8, 3, 0, "CMult", 1, MIDI_CC_RANGE);
     }
     break;
     case 1:
     {
-        // set_seq_mode_value(1, 0, 1, "maxSteps", 0, NUM_STEPS);
+        set_seq_mode_value(8, 0, 1, "maxBars", 1, 255);
         // set_seq_mode_value(1, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
         // set_seq_mode_value(1, 2, 1, "Rotate", 0, 32);
     }
@@ -1185,5 +1194,6 @@ void Track::draw_seq_mode8()
         drawPot(1, 0, seqMod_value[8][1], "StepFX -");
         drawPot(2, 0, seqMod_value[8][2], "StepFX +");
         drawPot(3, 0, seqMod_value[8][3], "CMult");
+        drawPot(0, 1, seqMod_value[8][4], "maxBars");
     }
 }
