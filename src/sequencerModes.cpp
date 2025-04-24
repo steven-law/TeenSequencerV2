@@ -1091,27 +1091,27 @@ void Track::play_seq_mode8(uint8_t cloock)
             }
         }*/
     int readTick = cloock * seqMod_value[8][3];
-    unsigned long songTick = readTick + (internal_clock_bar * MAX_TICKS);
+    unsigned long songTick = cloock + (internal_clock_bar * MAX_TICKS);
     
-    fillNoteInfoAtTick(myMidi, readTick);
-    // if (fillNoteInfoAtTick(myMidi, readTick))
+    int numVoices = fillNoteInfoAtTick(myMidi, readTick);
+   for (int v=0;v<numVoices;v++)
     {
-        Serial.printf("In file note: %d, velo: %d  Start: %d, Len: %d, readTick: %d\n", noteInfo[0], noteInfo[1], noteInfo[2], noteInfo[3], readTick);
-        int startTick = noteInfo[2] ;
+        Serial.printf("In file note: %d, velo: %d  Start: %d, Len: %d, readTick: %d\n", noteInfo[v][0], noteInfo[v][1], noteInfo[v][2], noteInfo[v][3], readTick);
+        int startTick = noteInfo[v][2] / seqMod_value[8][3];
 
-        uint8_t _v = noteInfo[0] % MAX_VOICES;
-        if (noteInfo[0] < NO_NOTE && startTick == songTick && noteOffAt[_v] == -1)
+        
+        if (noteInfo[v][0] < NO_NOTE && startTick == songTick && noteOffAt[v] == -1)
         {
-            int length = noteInfo[3] ;
+            int length = noteInfo[v][3] / seqMod_value[8][3];
 
-            noteToPlay[_v] = noteInfo[0] + noteOffset[external_clock_bar] + performNoteOffset;
+            noteToPlay[v] = noteInfo[v][0] + noteOffset[external_clock_bar] + performNoteOffset;
             // noteOffAt[0] = tick.startTick[0] + tick.noteLength[0];
-            uint8_t Velo = noteInfo[1] * (barVelocity[external_clock_bar] / MIDI_CC_RANGE_FLOAT) * (mixGainPot / MIDI_CC_RANGE_FLOAT);
+            uint8_t Velo = noteInfo[v][1] * (barVelocity[external_clock_bar] / MIDI_CC_RANGE_FLOAT) * (mixGainPot / MIDI_CC_RANGE_FLOAT);
             uint8_t StepFX = random(seqMod_value[8][1], seqMod_value[8][2]);
             sendControlChange(parameter[14], StepFX, clip[clipIndex].midiChOut);
-            noteOn(noteToPlay[_v], Velo, clip[clipIndex].midiChOut); // Send a Note
-            noteOffAt[_v] = startTick + length;
-            Serial.printf("Midifile NOte: %d, Vel: %d, Start: %d, Len: %d, noteOffAt: %d, voice: %d, tick: %d\n", noteToPlay[_v], Velo, startTick, length, noteOffAt[_v], _v, songTick);
+            noteOn(noteToPlay[v], Velo, clip[clipIndex].midiChOut); // Send a Note
+            noteOffAt[v] = startTick + length;
+            Serial.printf("Midifile NOte: %d, Vel: %d, Start: %d, Len: %d, noteOffAt: %d, voice: %d, tick: %d\n", noteToPlay[v], Velo, startTick, length, noteOffAt[v], v, songTick);
         }
     }
     // else

@@ -96,4 +96,4 @@ bool *beatArrayPM7;
 bool isTouched;
 
 MidiTrack myMidi;
-int noteInfo[4] = {128, 0, 0, 0};
+int noteInfo[MAX_VOICES][4] = {128, 0, 0, 0};

@@ -59,7 +59,7 @@ void load_plugin(uint8_t _songNr, uint8_t _pluginNr);
 bool loadMidiFile(const char *filename, MidiTrack &track);
 int getNoteAtTick(MidiTrack &track, int miditick);
 int getPPQN(const MidiTrack &track);
-bool fillNoteInfoAtTick(MidiTrack &track, int miditick);
+int fillNoteInfoAtTick(MidiTrack &track, int miditick);
 class Track
 {
 

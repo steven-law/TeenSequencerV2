@@ -243,6 +243,6 @@ struct MidiTrack
     int division;         // Ticks per Quarter Note (PPQN)
 };
 
-extern int noteInfo[4]; //noote, velo, start, length
+extern int noteInfo[MAX_VOICES][4]; //noote, velo, start, length
 extern MidiTrack myMidi;
 #endif
