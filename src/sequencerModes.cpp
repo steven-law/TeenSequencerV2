@@ -1081,7 +1081,7 @@ void Track::play_seq_mode8(uint8_t cloock)
 {
     const uint8_t clipIndex = clip_to_play[internal_clock_bar];
 
-    unsigned long songTick = cloock + ((internal_clock_bar % seqMod_value[8][4]) * MAX_TICKS);
+    unsigned long songTick = cloock + (((internal_clock_bar+ seqMod_value[8][4] % seqMod_value[8][5]) * MAX_TICKS);
     unsigned long readTick = songTick * seqMod_value[8][3];
     // unsigned long songTick = cloock + (internal_clock_bar * MAX_TICKS);
     for (int v = 0; v < MAX_VOICES; v++)
@@ -1167,7 +1167,8 @@ void Track::set_seq_mode8_parameters()
     break;
     case 1:
     {
-        set_seq_mode_value(8, 0, 1, "maxBars", 1, 255);
+        set_seq_mode_value(8, 0, 1, "StartBar", 0, 255);
+        set_seq_mode_value(8, 1, 1, "EndBar", 1, 255);
         // set_seq_mode_value(1, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
         // set_seq_mode_value(1, 2, 1, "Rotate", 0, 32);
     }
@@ -1194,6 +1195,7 @@ void Track::draw_seq_mode8()
         drawPot(1, 0, seqMod_value[8][1], "StepFX -");
         drawPot(2, 0, seqMod_value[8][2], "StepFX +");
         drawPot(3, 0, seqMod_value[8][3], "CMult");
-        drawPot(0, 1, seqMod_value[8][4], "maxBars");
+        drawPot(0, 1, seqMod_value[8][4], "StartBar");
+        drawPot(1, 1, seqMod_value[8][5], "EndBar");
     }
 }
