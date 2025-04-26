@@ -60,7 +60,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define SET_CLIP2_EDIT 11
 
 #define SET_SWING 12
-
+#define PRESET_ENCODER 0
 // pages
 #define TRACK_1_PAGE 0
 #define TRACK_2_PAGE 1
@@ -235,14 +235,15 @@ extern const char FLASHMEM *noteNames[12];
 
 // touch
 extern bool isTouched;
-struct MidiTrack
-{
-    File file;
-    uint32_t trackStart;  // Position der Track-Daten im File
-    uint32_t trackLength; // Länge des Track-Chunks
-    int division;         // Ticks per Quarter Note (PPQN)
-};
+
 
 extern int noteInfo[MAX_VOICES][4]; //noote, velo, start, length
-extern MidiTrack myMidi;
+struct MidiTrack
+    {
+        File file;
+        uint32_t trackStart;  // Position der Track-Daten im File
+        uint32_t trackLength; // Länge des Track-Chunks
+        int division;         // Ticks per Quarter Note (PPQN)
+    };
+extern MidiTrack myMidi[NUM_TRACKS];
 #endif

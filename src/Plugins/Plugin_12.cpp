@@ -176,7 +176,7 @@ void Plugin_12::assign_voice_bank(uint8_t value)
 {
 
     // uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-    sprintf(_filename, "%s%d.raw\0", bankNames[value], potentiometer[presetNr][1]);
+    sprintf(_filename, "%s%d.raw", bankNames[value], potentiometer[presetNr][1]);
 
     // waveform.begin(walveform);
 }
@@ -191,7 +191,7 @@ void Plugin_12::assign_voice_waveform(uint8_t value)
 {
 
     // uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-    sprintf(_filename, "%s%d.raw\0", bankNames[potentiometer[presetNr][0]], value);
+    sprintf(_filename, "%s%d.raw", bankNames[potentiometer[presetNr][0]], value);
 
     // waveform.begin(walveform);
 }

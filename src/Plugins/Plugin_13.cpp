@@ -284,7 +284,7 @@ void Plugin_13::redraw_customWaveform(int8_t YPos)
 }
 void Plugin_13::assign_voice_waveform(uint8_t value)
 {
-    uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 27);
+    //uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 27);
 }
 
 void Plugin_13::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)

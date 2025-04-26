@@ -95,5 +95,23 @@ bool *beatArrayPM7;
 // touch
 bool isTouched;
 
-MidiTrack myMidi;
+MidiTrack myMidi1;
+MidiTrack myMidi2;
+MidiTrack myMidi3;
+MidiTrack myMidi4;
+MidiTrack myMidi5;
+MidiTrack myMidi6;
+MidiTrack myMidi7;
+MidiTrack myMidi8;
+MidiTrack myMidi[NUM_TRACKS] = {
+    myMidi1,
+    myMidi1,
+    myMidi1,
+    myMidi1,
+    myMidi1,
+    myMidi1,
+    myMidi1,
+    myMidi1,
+};
+
 int noteInfo[MAX_VOICES][4] = {128, 0, 0, 0};

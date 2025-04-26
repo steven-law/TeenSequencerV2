@@ -57,7 +57,6 @@ void neotrellis_show();
 void save_plugin(uint8_t _songNr, uint8_t _pluginNr);
 void load_plugin(uint8_t _songNr, uint8_t _pluginNr);
 bool loadMidiFile(const char *filename, MidiTrack &track);
-int getNoteAtTick(MidiTrack &track, int miditick);
 int getPPQN(const MidiTrack &track);
 int fillNoteInfoAtTick(MidiTrack &track, int miditick);
 class Track
@@ -66,7 +65,7 @@ class Track
 public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
-    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 4, 0, 0, 0, 0, 0, 0, 128, 0};
+    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 5, 0, 0, 0, 0, 0, 0, 128, 0};
     // Stepsequencer
     struct tick_t
     {
@@ -86,6 +85,7 @@ public:
         uint8_t midiChOut;
     };
     clip_t *clip = nullptr;
+  
     uint8_t CCvalue[NUM_PRESETS + 1][16];
     uint8_t CCchannel[NUM_PRESETS + 1][16];
     uint8_t edit_presetNr_ccChannel = 0;
@@ -117,15 +117,15 @@ public:
     int voice_to_edit;
 
     // arranger
-    int internal_clock = -1;
-    int internal_clock_bar = 0;
+    int internal_clock = 0;
+    int internal_clock_bar = -1;
     int external_clock_bar = 0;
     int clip_to_play[MAX_BARS];
     int noteOffset[MAX_BARS];
     int barVelocity[MAX_BARS];
     int barProbabilty[MAX_BARS] = {127};
-    int play_presetNr_ccChannel[MAX_BARS];
-    int play_presetNr_ccValue[MAX_BARS];
+    int play_presetNr_Playmode_ccChannel[MAX_BARS];
+    int play_presetNr_Plugin_ccValue[MAX_BARS];
     int bar_for_copying;
     Track(uint8_t Y)
     {
@@ -170,8 +170,8 @@ public:
             clip_to_play[i] = 8;
             noteOffset[i] = 0;
             barVelocity[i] = 127;
-            play_presetNr_ccChannel[i] = 8;
-            play_presetNr_ccValue[i] = 8;
+            play_presetNr_Playmode_ccChannel[i] = 0;
+            play_presetNr_Plugin_ccValue[i] = 0;
             barProbabilty[i] = 127;
         }
         for (int p = 0; p < NUM_PRESETS + 1; p++)
@@ -223,12 +223,12 @@ private:
     uint8_t recordVoice;
 
     bool note_is_on[MAX_VOICES] = {false, false, true, true, true, true, true, true, true, true, true, true};
-    uint8_t seqMod_value[NUM_PLAYMODES][16];
+    uint8_t seqMod_value[NUM_PLAYMODES][NUM_PRESETS][16];
     uint8_t seqMod1NoteMemory[NUM_STEPS];
     uint8_t seqMod2NoteMemory[NUM_STEPS];
     uint8_t seqMod7NoteMemory[NUM_STEPS];
     uint8_t SeqMod6Value2[16];
-
+    uint8_t PMpresetNr = 0;
     uint8_t maxVal;
     // stepsequencer
     void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
@@ -241,6 +241,7 @@ private:
     void change_presets();
 
     // seqmodes
+    void set_presetNr();
     void set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
     uint8_t get_random_Note_in_scale();
     void rotateIntArray(uint8_t arr[], int maxSteps, int rotation);
@@ -280,6 +281,7 @@ private:
     void set_seq_mode8_parameters();
     void draw_seq_mode8();
     void select_file(uint8_t XPos, uint8_t YPos, const char *name);
+    void refresh_mode8();
 };
 
 extern Track *allTracks[8];

@@ -379,7 +379,7 @@ void neotrellis_stop_clock()
     {
       allTracks[i]->internal_clock = -1;
       allTracks[i]->internal_clock_bar = -1;
-      allTracks[i]->external_clock_bar = -1;
+     // allTracks[i]->external_clock_bar = -1;
     }
     neotrellisPressed[TRELLIS_STOP_CLOCK] = false;
   }

@@ -192,7 +192,7 @@ void Plugin_14::set_rec_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 void Plugin_14::assign_rec_waveform(uint8_t value)
 {
 
-    sprintf(_recFilename, "%d.raw\0", value);
+    sprintf(_recFilename, "%d.raw", value);
     // newdigate::flashloader loader;
     // sample = loader.loadSample(_recFileName);
 }
@@ -218,7 +218,7 @@ void Plugin_14::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 }
 void Plugin_14::assign_voice_waveform(uint8_t value)
 {
-    sprintf(_playFilename, "%d.raw\0", value);
+    sprintf(_playFilename, "%d.raw", value);
 }
 void Plugin_14::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
 {

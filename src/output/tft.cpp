@@ -428,9 +428,9 @@ void gridSongMode(int songpageNumber)
     // int page_phrase_start = songpageNumber * 16;
     // int page_phrase_end = (songpageNumber + 1) * 16;
     clearWorkSpace();
-    pixelTouchX = SEQ_GRID_LEFT;
-    gridTouchY = 0;
-    lastPotRow = 0;
+    //pixelTouchX = SEQ_GRID_LEFT;
+    //gridTouchY = 0;
+    //lastPotRow = 0;
     // drawActiveRect(18, 3, 2, 2, false, "clear", ILI9341_RED);
 
     // vertical pointer Lines
@@ -486,8 +486,8 @@ void draw_arranger_parameters()
         {
             draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", ((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 1, "NO_NAME");
             draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Trk", gridTouchY - 1, "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "ccC", allTracks[gridTouchY - 1]->play_presetNr_ccChannel[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
-            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "ccV", allTracks[gridTouchY - 1]->play_presetNr_ccValue[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 2, "PM/ccC", allTracks[gridTouchY - 1]->play_presetNr_Playmode_ccChannel[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
+            draw_sequencer_arranger_parameter(gridTouchY - 1, 3, "Pl/ccV", allTracks[gridTouchY - 1]->play_presetNr_Plugin_ccValue[((pixelTouchX / STEP_FRAME_W) + (arrangerpage * BARS_PER_PAGE)) - 2], "NO_NAME");
         }
         break;
         case 3:
@@ -551,8 +551,8 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
         draw_arrangerLine_value(_trackNr, _bar, clip, POSITION_TEXT_ARRANGERLINE_TOP);
         draw_arrangerLine_value(_trackNr, _bar, track->noteOffset[_bar], POSITION_TEXT_ARRANGERLINE_BOTTOM);
 
-        draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccChannel[_bar], POSITION_CC_ARRANGERLINE_TOP);
-        draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_ccValue[_bar], POSITION_CC_ARRANGERLINE_BOTTOM);
+        draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_Playmode_ccChannel[_bar], POSITION_CC_ARRANGERLINE_TOP);
+        draw_arrangerLine_value(_trackNr, _bar, track->play_presetNr_Plugin_ccValue[_bar], POSITION_CC_ARRANGERLINE_BOTTOM);
     }
 
     // Trellis LED Buffer aktualisieren

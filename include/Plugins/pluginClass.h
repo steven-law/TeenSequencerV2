@@ -11,7 +11,7 @@
 #include "input/trellis.h"
 #include "output/tft.h"
 
-#define PRESET_ENCODER 0
+
 #define SAMPLE_ROOT 69
 #define MAX_RESONANCE 5.00
 #define MAX_FILTERSWEEP 7.00

@@ -107,7 +107,6 @@ bool compareFiles(File &file, SerialFlashFile &ffile);
 void error(const char *message);
 void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24);
 bool loadMidiFile(const char *filename, MidiTrack &track);
-// int getNoteAtTick(MidiTrack &track, int miditick);
 int getPPQN(const MidiTrack &track);
 int fillNoteInfoAtTick(MidiTrack &track, int miditick);
 
@@ -202,7 +201,7 @@ void setup()
   }
   pixelTouchX = SEQ_GRID_LEFT;
   gridTouchY = 1;
-  if (loadMidiFile("0.mid", myMidi))
+  if (loadMidiFile("0.mid", myMidi[0]))
   {
     Serial.println("MIDI geladen!");
   }
@@ -210,7 +209,7 @@ void setup()
   {
     Serial.println("Fehler beim Laden");
   }
-  if (fillNoteInfoAtTick(myMidi, 0) > 0)
+  if (fillNoteInfoAtTick(myMidi[0], 0) > 0)
   {
     Serial.print("Note: ");
     Serial.println(noteInfo[0][0]);
@@ -253,10 +252,24 @@ void loop()
   input_behaviour();
   draw_potRow();
 
+  static int lastBar;
+  if (lastBar != myClock.barTick)
+  {
+    for (int t = 0; t < NUM_TRACKS; t++)
+    {
+      for (int p = 0; p < NUM_PLUGINS; p++)
+      {
+        if (allTracks[t]->clip[allTracks[t]->clip_to_play[myClock.barTick]].midiChOut == p + NUM_MIDI_OUTPUTS)
+          allPlugins[p]->presetNr = allTracks[t]->play_presetNr_Plugin_ccValue[myClock.barTick];
+      }
+    }
+    lastBar = myClock.barTick;
+  }
+
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
-    trellis_show_clockbar(i, allTracks[i]->internal_clock / TICKS_PER_STEP);
+    // trellis_show_clockbar(i, allTracks[i]->internal_clock / TICKS_PER_STEP);
     // if (allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1) >= 0)
     //  play_plugin_on_DAC(i, allTracks[i]->parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
   }
@@ -265,7 +278,8 @@ void loop()
   unsigned long neotrellisCurrentMillis = millis();
 
   // if we need to restart the trellisboard
-
+  // if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+  // Serial.println("shift pressed");
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
   {
     // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisScreen);
@@ -299,7 +313,7 @@ void loop()
     trellis_writeDisplay();
   }
 
-  if (loopEndTime - loopStartTime > 500 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
+  if (loopEndTime - loopStartTime > 1000 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
   {
     trellisRestartPreviousMillis = trellisRestartMillis;
     // trellis.trellisReset();
@@ -395,10 +409,9 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
     // if Shift button is NOT pressed
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-      allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
-    }
+
+    allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
+
     break;
   }
   case INPUT_FUNCTIONS_FOR_PLUGIN:
@@ -2086,7 +2099,7 @@ int fillNoteInfoAtTick(MidiTrack &track, int miditick)
       bytesLeft--;
 
       // Speichere alle Note-Ons am gewünschten Tick
-      if  (type == 0x90 && vel > 0 && abs(tick - miditick) <= 10 && numNotes < MAX_VOICES)
+      if (type == 0x90 && vel > 0 && abs(tick - miditick) <= 10 && numNotes < MAX_VOICES)
       {
         notes[numNotes++] = {static_cast<uint8_t>(note), static_cast<uint8_t>(vel), tick, false, -1};
       }

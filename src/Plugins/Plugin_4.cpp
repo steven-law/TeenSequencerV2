@@ -156,7 +156,7 @@ void Plugin_4::set_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 void Plugin_4::assign_waveform(uint8_t value, uint8_t channel)
 {
 
-    sprintf(_fileName[channel], "%s%d.raw\0", bankNames[channel], value);
+    sprintf(_fileName[channel], "%s%d.raw", bankNames[channel], value);
     newdigate::flashloader loader;
     sample[channel] = loader.loadSample(_fileName[channel]);
 }

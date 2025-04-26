@@ -3,6 +3,7 @@
 // File myFile;
 //  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
 //   midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> *midi_out_serial = &MIDI1;
+
 void Track::update(int PixelX, uint8_t gridY)
 {
     // MIDI1.read();
@@ -50,26 +51,21 @@ void Track::save_track(uint8_t songNr)
         myTrackFile.write(noteOffset[i]);
         myTrackFile.write(barVelocity[i]);
         myTrackFile.write(barProbabilty[i]);
-        myTrackFile.write(play_presetNr_ccChannel[i]);
-        myTrackFile.write(play_presetNr_ccValue[i]);
+        myTrackFile.write(play_presetNr_Playmode_ccChannel[i]);
+        myTrackFile.write(play_presetNr_Plugin_ccValue[i]);
     }
-
-    for (int p = 0; p < NUM_PRESETS + 1; p++)
+    for (int t = 0; t < NUM_PARAMETERS; t++)
     {
-        for (int t = 0; t < NUM_PARAMETERS; t++)
+        myTrackFile.write(parameter[t]);
+        for (int p = 0; p < NUM_PRESETS + 1; p++)
         {
             myTrackFile.write(CCchannel[p][t]);
             myTrackFile.write(CCvalue[p][t]);
+            myTrackFile.write(seqMod_value[1][p][t]);
+            myTrackFile.write(seqMod_value[2][p][t]);
+            myTrackFile.write(seqMod_value[3][p][t]);
+            myTrackFile.write(seqMod_value[4][p][t]);
         }
-    }
-
-    for (int i = 0; i < NUM_PARAMETERS; i++)
-    {
-        myTrackFile.write(parameter[i]);
-        myTrackFile.write(seqMod_value[1][i]);
-        myTrackFile.write(seqMod_value[2][i]);
-        myTrackFile.write(seqMod_value[3][i]);
-        myTrackFile.write(seqMod_value[4][i]);
     }
 
     myTrackFile.write(mixGainPot);
@@ -126,31 +122,26 @@ void Track::load_track(uint8_t songNr)
         noteOffset[i] = myTrackFile.read();
         barVelocity[i] = myTrackFile.read();
         barProbabilty[i] = myTrackFile.read();
-        play_presetNr_ccChannel[i] = myTrackFile.read();
-        play_presetNr_ccValue[i] = myTrackFile.read();
+        play_presetNr_Playmode_ccChannel[i] = myTrackFile.read();
+        play_presetNr_Plugin_ccValue[i] = myTrackFile.read();
         if (clip_to_play[i] <= NUM_USER_CLIPS)
         {
             // Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
             trellis_assign_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
         }
     }
-
-    for (int p = 0; p < NUM_PRESETS + 1; p++)
+    for (int t = 0; t < NUM_PARAMETERS; t++)
     {
-        for (int t = 0; t < NUM_PARAMETERS; t++)
+        parameter[t] = myTrackFile.read();
+        for (int p = 0; p < NUM_PRESETS + 1; p++)
         {
             CCchannel[p][t] = myTrackFile.read();
             CCvalue[p][t] = myTrackFile.read();
+            seqMod_value[1][p][t] = myTrackFile.read();
+            seqMod_value[2][p][t] = myTrackFile.read();
+            seqMod_value[3][p][t] = myTrackFile.read();
+            seqMod_value[4][p][t] = myTrackFile.read();
         }
-    }
-
-    for (int i = 0; i < NUM_PARAMETERS; i++)
-    {
-        parameter[i] = myTrackFile.read();
-        seqMod_value[1][i] = myTrackFile.read();
-        seqMod_value[2][i] = myTrackFile.read();
-        seqMod_value[3][i] = myTrackFile.read();
-        seqMod_value[4][i] = myTrackFile.read();
     }
 
     mixGainPot = myTrackFile.read();
@@ -165,9 +156,9 @@ void Track::load_track(uint8_t songNr)
 
 void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 {
-    if (cloock == 0) // fehler hier
+    // if (cloock == 0) // fehler hier
     {
-        external_clock_bar++;
+        external_clock_bar = myClock.barTick;
     }
     if (cloock % (clip[clip_to_play[internal_clock_bar]].clockDivision + performClockDivision) == 0)
     {
@@ -176,25 +167,25 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         {
             internal_clock = 0;
         }
+
         if (internal_clock == 0)
         {
             internal_clock_bar++;
             change_presets();
         }
-
+        if (internal_clock_bar >= end)
+            internal_clock_bar = start;
         internal_clock_is_on = true;
     }
     else
         internal_clock_is_on = false;
 
-    if (external_clock_bar >= end)
-        external_clock_bar = start;
-    if (internal_clock_bar >= end)
-        internal_clock_bar = start;
+    //  if (external_clock_bar >= end)
+    //      external_clock_bar = start;
 
     // if (my_Arranger_Y_axis == 1)
     // {
-    //     Serial.printf("internal bar:  %d, external bar:  %d\n", internal_clock_bar, external_clock_bar);
+    //   Serial.printf("internal bar:  %d, external bar:  %d\n", internal_clock_bar, external_clock_bar);
     //     Serial.printf("internal tick: %d, external tick: %d\n", internal_clock, cloock);
     //     Serial.println();
     // }
@@ -202,39 +193,41 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     if (internal_clock_is_on)
     {
         if (clip_to_play[external_clock_bar] <= NUM_USER_CLIPS)
-
         {
-            // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
-            // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
-            switch (clip[clip_to_play[internal_clock_bar]].playMode)
+
             {
-            case 0:
-                play_seq_mode0(internal_clock);
-                break;
-            case 1:
-                play_seq_mode1(internal_clock);
-                break;
-            case 2:
-                play_seq_mode2(internal_clock);
-                break;
-            case 3:
-                play_seq_mode3(internal_clock);
-                break;
-            case 4:
-                play_seq_mode4(internal_clock);
-                break;
-            case 5:
-                play_seq_mode5(internal_clock);
-                break;
-            case 6:
-                play_seq_mode6(internal_clock);
-                break;
-            case 7:
-                play_seq_mode7(internal_clock);
-                break;
-            case 8:
-                play_seq_mode8(internal_clock);
-                break;
+                // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
+                // Serial.printf("internalClock=%d, externalClock= %d\n", internal_clock, cloock);
+                switch (clip[clip_to_play[internal_clock_bar]].playMode)
+                {
+                case 0:
+                    play_seq_mode0(internal_clock);
+                    break;
+                case 1:
+                    play_seq_mode1(internal_clock);
+                    break;
+                case 2:
+                    play_seq_mode2(internal_clock);
+                    break;
+                case 3:
+                    play_seq_mode3(internal_clock);
+                    break;
+                case 4:
+                    play_seq_mode4(internal_clock);
+                    break;
+                case 5:
+                    play_seq_mode5(internal_clock);
+                    break;
+                case 6:
+                    play_seq_mode6(internal_clock);
+                    break;
+                case 7:
+                    play_seq_mode7(internal_clock);
+                    break;
+                case 8:
+                    play_seq_mode8(internal_clock);
+                    break;
+                }
             }
         }
     }
@@ -297,17 +290,20 @@ void Track::draw_sequencer_modes(uint8_t mode)
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-    if (!muted && !muteThruSolo)
+   
     {
-        sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
-        if (recordState)
-            record_noteOn(Note, Velo, Channel);
+        if (!muted && !muteThruSolo)
+        {
+            sendNoteOn(my_Arranger_Y_axis - 1, Note, Velo, Channel);
+            if (recordState)
+                record_noteOn(Note, Velo, Channel);
+        }
     }
 }
 void Track::noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-   // if (!muted && !muteThruSolo)
+    // if (!muted && !muteThruSolo)
     {
         sendNoteOff(my_Arranger_Y_axis - 1, Note, Velo, Channel);
         if (recordState)
@@ -370,8 +366,8 @@ void Track::set_arranger_parameters()
         break;
     case 2:
         encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
-        set_bar_parameter(2, pixelTouchX, play_presetNr_ccChannel, 0, NUM_PRESETS, "ccC");
-        set_bar_parameter(3, pixelTouchX, play_presetNr_ccValue, 0, NUM_PRESETS, "ccV");
+        set_bar_parameter(2, pixelTouchX, play_presetNr_Playmode_ccChannel, 0, NUM_PRESETS, "PM/ccC");
+        set_bar_parameter(3, pixelTouchX, play_presetNr_Plugin_ccValue, 0, NUM_PRESETS, "Pl/ccV");
         break;
     case 3:
         // --
@@ -410,15 +406,16 @@ void Track::change_presets() // change presets, happens when the next bar starts
 {
     for (int i = 0; i < 16; i++)
     {
-        if (CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i] < 128)
+        if (CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i] < 128)
         {
             int trackChannel = clip[clip_to_play[internal_clock_bar]].midiChOut;
             Serial.print("cc:");
-            Serial.println(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i]);
-            sendControlChange(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_ccValue[internal_clock_bar]][i], trackChannel);
+            Serial.println(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i]);
+            sendControlChange(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_Plugin_ccValue[internal_clock_bar]][i], trackChannel);
             Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
         }
     }
+    refresh_mode8();
 }
 void Track::clear_arrangment()
 {
@@ -429,8 +426,8 @@ void Track::clear_arrangment()
             clip_to_play[i] = MAX_CLIPS - 1;
             noteOffset[i] = 0;
             barVelocity[i] = 0;
-            play_presetNr_ccChannel[i] = NUM_PRESETS;
-            play_presetNr_ccValue[bar_to_edit + i] = NUM_PRESETS;
+            play_presetNr_Playmode_ccChannel[i] = NUM_PRESETS;
+            play_presetNr_Plugin_ccValue[bar_to_edit + i] = NUM_PRESETS;
         }
         draw_arrangment_lines(my_Arranger_Y_axis - 1, arrangerpage);
     }
@@ -445,8 +442,8 @@ void Track::copy_bar() // copy the last edited barParameters to the desired bar 
             clip_to_play[bar_to_edit + i] = clip_to_play[bar_for_copying];
             noteOffset[bar_to_edit + i] = noteOffset[bar_for_copying];
             barVelocity[bar_to_edit + i] = barVelocity[bar_for_copying];
-            play_presetNr_ccChannel[bar_to_edit + i] = play_presetNr_ccChannel[bar_for_copying];
-            play_presetNr_ccValue[bar_to_edit + i] = play_presetNr_ccValue[bar_for_copying];
+            play_presetNr_Playmode_ccChannel[bar_to_edit + i] = play_presetNr_Playmode_ccChannel[bar_for_copying];
+            play_presetNr_Plugin_ccValue[bar_to_edit + i] = play_presetNr_Plugin_ccValue[bar_for_copying];
             barProbabilty[bar_to_edit + i] = barProbabilty[bar_for_copying];
 
             draw_arrangment_line(my_Arranger_Y_axis - 1, bar_to_edit + i);

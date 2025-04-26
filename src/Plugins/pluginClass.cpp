@@ -44,7 +44,7 @@ void PluginControll::save_plugin(uint8_t _songNr)
     // Serial.println("in save mode:");
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "%dplugin%d.txt\0", _songNr, myID);
+    sprintf(_trackname, "%dplugin%d.txt", _songNr, myID);
 
     Serial.println(_trackname);
 
@@ -91,7 +91,7 @@ void PluginControll::load_plugin(uint8_t _songNr)
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
 
-    sprintf(_trackname, "%dplugin%d.txt\0", _songNr, myID);
+    sprintf(_trackname, "%dplugin%d.txt", _songNr, myID);
     Serial.println(_trackname);
 
     // open the file.

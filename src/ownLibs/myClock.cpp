@@ -8,7 +8,7 @@ bool MyClock::isPlaying = false;
 bool MyClock::syncToExtern = false;
 uint8_t MyClock::MIDITick = -1;
 uint8_t MyClock::stepTick = -1;
-uint8_t MyClock::barTick = -1;
+uint8_t MyClock::barTick = 0;
 File MyClock::clockFile;
 MyClock *MyClock::instance = nullptr;
 
@@ -52,12 +52,14 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     {
         barTick++;
         barTick = barTick % endOfLoop; // Setze wert2 mit Modulo-Operator zurück
+        
     }
     // Serial.printf("Bar: %d\n", tick);
 
     for (int i = 0; i < NUM_TRACKS; i++)
     {
         trellisShowClockPixel[i] = true;
+        trellis_show_clockbar(i, allTracks[i]->internal_clock / TICKS_PER_STEP);
     }
 }
 
@@ -97,7 +99,6 @@ void MyClock::set_start()
 void MyClock::set_stop()
 {
     uClock.stop();
-    barTick = -1;
     stepTick = -1;
     isPlaying = false;
     barTick = startOfLoop;
