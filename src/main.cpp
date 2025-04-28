@@ -1829,14 +1829,17 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
     // for (int t = 0; t < MAX_TICKS; t++)
     {
       // uint32_t songTick = barTick + (t * MAX_TICKS);
+      
       uint32_t songTick = barTick + (t * track->clip[track->clip_to_play[b]].clockDivision);
       for (int v = 0; v < MAX_VOICES; v++)
       {
+        
         uint32_t _startTick = track->clip[track->clip_to_play[b]].tick[t].startTick[v] + barTick;
         uint32_t _length = track->clip[track->clip_to_play[b]].tick[t].noteLength[v];
         uint8_t _note = track->clip[track->clip_to_play[b]].tick[t].voice[v] + track->noteOffset[b];
         uint8_t _velo = track->clip[track->clip_to_play[b]].tick[t].velo[v] * (track->barVelocity[b] / 127.00);
         uint8_t midiChannel = track->my_Arranger_Y_axis;
+        
         // Note On
         if (_startTick == songTick && _note < NO_NOTE && _velo > 0)
         {
@@ -1846,7 +1849,7 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
           file.write(0x90 | (midiChannel & 0x0F)); // Note On, Kanal 0
           file.write(_note);
           file.write(_velo);
-
+          Serial.printf("vc%d_c%d_s%d_l%d_n%d_v%d\n", v, midiChannel, _startTick, _length, _note, _velo);
           noteOffTick[v] = songTick + _length;
           activeNote[v] = _note;
         }
@@ -1866,49 +1869,6 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
       }
     }
   }
-  // for (int b = 0; b < myClock.endOfLoop; b++)
-  /* {
-     // uint32_t barTick = (b * MAX_TICKS);
-     for (int t = 0; t < MAX_TICKS; t++)
-     {
-       //  uint32_t songTick = barTick + t;
-       for (int v = 0; v < MAX_VOICES; v++)
-       {
-         uint32_t _startTick = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].startTick[v]; // + (b * MAX_TICKS);
-         uint32_t _length = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].noteLength[v];
-         uint8_t _note = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].voice[v]; // + track->noteOffset[b];
-         uint8_t _velo = track->clip[track->parameter[SET_CLIP2_EDIT]].tick[t].velo[v];  // + track->barVelocity[b];
-         uint8_t midiChannel = track->clip[track->parameter[SET_CLIP2_EDIT]].midiChOut;
-         // Note On
-         if (_startTick == t && _note < NO_NOTE && _velo > 0)
-         {
-           writeVarLen(file, t - lastTick);
-           lastTick = t;
-
-           file.write(0x90); // Note On, Kanal 0
-           file.write(_note);
-           file.write(_velo);
-
-           noteOffTick[v] = t + _length;
-           activeNote[v] = _note;
-         }
-
-         // Note Off
-         if (noteOffTick[v] == t && activeNote[v] < NO_NOTE)
-         {
-           writeVarLen(file, t - lastTick);
-           lastTick = t;
-
-           file.write(0x80); // Note Off, Kanal 0
-           file.write(activeNote[v]);
-           file.write((uint8_t)0);
-
-           activeNote[v] = NO_NOTE;
-         }
-       }
-     }
-   }
-     */
   // End of Track
   writeVarLen(file, 0);
   file.write(0xFF);

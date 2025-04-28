@@ -228,6 +228,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
                     play_seq_mode8(internal_clock);
                     break;
                 }
+                
             }
         }
     }

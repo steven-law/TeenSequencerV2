@@ -379,7 +379,12 @@ void neotrellis_stop_clock()
     {
       allTracks[i]->internal_clock = -1;
       allTracks[i]->internal_clock_bar = -1;
-     // allTracks[i]->external_clock_bar = -1;
+      for (int v = 0; v < MAX_VOICES; v++)
+      {
+        if (allTracks[i]->noteToPlay[v] < NO_NOTE)
+          allTracks[i]->noteOff(allTracks[i]->noteToPlay[v], 0, allTracks[i]->clip[allTracks[i]->clip_to_play[allTracks[i]->internal_clock_bar]].midiChOut);
+      }
+      // allTracks[i]->external_clock_bar = -1;
     }
     neotrellisPressed[TRELLIS_STOP_CLOCK] = false;
   }

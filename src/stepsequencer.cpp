@@ -323,7 +323,7 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
     bool isNewNote = (existingNote == NO_NOTE);
     int existingStartTick = tickPtr[_startTick].startTick[_voice];
     int existingLength = tickPtr[existingStartTick].noteLength[_voice];
-
+    int trellisColor = TRELLIS_BLACK;
     // Prüfen, ob _startTick innerhalb einer bestehenden Note liegt
     if (existingNote != NO_NOTE &&
         existingStartTick >= 0 && existingStartTick < 96 &&
@@ -341,7 +341,18 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
             tickPtr[tickToClear].velo[_voice] = 0;
             tickPtr[tickToClear].startTick[_voice] = MAX_TICKS;
             tickPtr[tickToClear].stepFX = 0;
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, TRELLIS_BLACK);
+
+            for (int v = 0; v < MAX_VOICES; v++)
+            {
+                if (get_note_parameter(tickPtr[_startTick].voice, v) < NO_NOTE)
+                {
+                    trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
+                    break;
+                }
+            }
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
+
+            // trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, TRELLIS_BLACK);
         }
 
         tickPtr[existingStartTick].noteLength[_voice] = 0;
@@ -370,24 +381,14 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
             tickPtr[onTick].velo[_voice] = velocity;
             tickPtr[onTick].startTick[_voice] = _startTick;
             tickPtr[onTick].stepFX = stepFX;
-
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1]);
             // Farbe fürs Display
-            int trellisColor = TRELLIS_BLACK;
-            for (int v = 0; v < MAX_VOICES; v++)
-            {
-                if (get_note_parameter(tickPtr[onTick].voice, v) < NO_NOTE)
-                {
-                    trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
-                    break;
-                }
-            }
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
         }
         Serial.printf("note is set to: note: %d, startTick: %d, length: %d, velo: %d, stepFx: %d\n",
                       tickPtr[_startTick].voice[_voice],
                       tickPtr[_startTick].startTick[_voice],
                       tickPtr[_startTick].noteLength[_voice],
-                      tickPtr[_startTick].velo[_voice], 
+                      tickPtr[_startTick].velo[_voice],
                       tickPtr[_startTick].stepFX);
         // Zeichnen der Note
         if (active_track == my_Arranger_Y_axis - 1 && activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)

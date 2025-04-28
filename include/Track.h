@@ -85,7 +85,7 @@ public:
         uint8_t midiChOut;
     };
     clip_t *clip = nullptr;
-  
+
     uint8_t CCvalue[NUM_PRESETS + 1][16];
     uint8_t CCchannel[NUM_PRESETS + 1][16];
     uint8_t edit_presetNr_ccChannel = 0;
@@ -115,6 +115,7 @@ public:
     int bar_to_edit = 0;
     int tick_to_edit;
     int voice_to_edit;
+    uint8_t noteToPlay[MAX_VOICES];
 
     // arranger
     int internal_clock = 0;
@@ -182,6 +183,11 @@ public:
                 CCvalue[p][t] = 0;
             }
         }
+        if (my_Arranger_Y_axis == 1)
+        {
+            parameter[SET_OCTAVE] = 0;
+            parameter[SET_MIDICH_OUT] = 13;
+        }
     }
 
     // update
@@ -213,7 +219,6 @@ public:
     void set_MIDI_CC(uint8_t row);
 
 private:
-    uint8_t noteToPlay[MAX_VOICES];
     int noteOffAt[MAX_VOICES] = {-1};
     bool internal_clock_is_on = false;
 

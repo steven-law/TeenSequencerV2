@@ -84,6 +84,7 @@ void Track::play_seq_mode0(uint8_t cloock)
             noteOff(noteToPlay[v], 0, clip[clipIndex].midiChOut);
             //  if (my_Arranger_Y_axis == 1)
             //    Serial.printf("tick: %d   stop Note: %d, start: %d, length: %d\n", cloock, noteToPlay[v], tick.startTick[v], tick.noteLength[v]);
+            noteToPlay[v] = NO_NOTE;
         }
     }
 }
@@ -136,7 +137,8 @@ void Track::play_seq_mode1(uint8_t cloock)
     {
         noteOffAt[0] = 0;
         noteOff(noteToPlay[0], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                              // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+        // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+        noteToPlay[0] = NO_NOTE;
     }
 }
 void Track::set_seq_mode1_parameters()
@@ -282,6 +284,7 @@ void Track::play_seq_mode2(uint8_t cloock)
     {
         noteOffAt[0] = 0;
         noteOff(noteToPlay[0], 0, clip[clipIndex].midiChOut);
+        noteToPlay[0] = NO_NOTE;
         // Serial.println(track[i].notePlayed[0]);
     }
 
@@ -390,7 +393,7 @@ void Track::play_seq_mode3(uint8_t cloock)
                 // uint8_t Velo = get_note_parameter(clip[clip_to_play[internal_clock_bar]].tick[cloock].velo, v) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
                 uint8_t Velo = random(seqMod_value[3][playPresetNr][12], seqMod_value[3][playPresetNr][13]) * (barVelocity[external_clock_bar] / 127.00) * (mixGainPot / 127.00);
                 uint8_t StepFX = random(seqMod_value[3][playPresetNr][14], seqMod_value[3][playPresetNr][15]);
-
+                noteOffAt[v] = (seq3_clock * TICKS_PER_STEP * 2) + TICKS_PER_STEP;
                 note_is_on[v] = true;
                 sendControlChange(parameter[14], StepFX, clip[clipIndex].midiChOut);
                 noteOn(noteToPlay[v], Velo, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
@@ -399,13 +402,14 @@ void Track::play_seq_mode3(uint8_t cloock)
         }
 
         // if (!bitRead(seqMod_value[3][v], seq3_clock))
-        if ((seq3_clock * TICKS_PER_STEP * 2) + TICKS_PER_STEP == cloock) // bitread is an 8step sequencer(resolution is 2xTICKS_PER_STEP), so if seq3_clock is halfway to the next step, we send noteOffs to active notes
+        if (noteOffAt[v] == cloock) // bitread is an 8step sequencer(resolution is 2xTICKS_PER_STEP), so if seq3_clock is halfway to the next step, we send noteOffs to active notes
         {
             if (note_is_on[v])
             {
                 note_is_on[v] = false;
                 noteOff(noteToPlay[v], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
                 //  Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                noteToPlay[v] = NO_NOTE;
             }
         }
     }
@@ -530,7 +534,8 @@ void Track::play_seq_mode4(uint8_t cloock)
         {
             note_is_on[0] = false;
             noteOff(noteToPlay[0], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                  // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+            // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+            noteToPlay[0] = NO_NOTE;
         }
     }
 }
@@ -661,7 +666,8 @@ void Track::play_seq_mode5(uint8_t cloock)
             {
                 note_is_on[i] = false;
                 noteOff(noteToPlay[i], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                      // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                noteToPlay[i] = NO_NOTE;
             }
         }
     }
@@ -800,7 +806,8 @@ void Track::play_seq_mode6(uint8_t cloock)
             {
                 note_is_on[i] = false;
                 noteOff(noteToPlay[i], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                      // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+                noteToPlay[i] = NO_NOTE;
             }
         }
     }
@@ -1004,7 +1011,8 @@ void Track::play_seq_mode7(uint8_t cloock)
         {
             note_is_on[0] = false;
             noteOff(noteToPlay[0], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                  // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+            // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+            noteToPlay[0] = NO_NOTE;
         }
     }
 }
@@ -1153,8 +1161,9 @@ void Track::play_seq_mode8(uint8_t cloock)
         {
             noteOffAt[v] = -2;
             noteOff(noteToPlay[v], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
-                                                                  // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-                                                                  // Serial.printf("PL8 NOteOFF: %d,  Start: %d, Len: %d, voice: %d, tick %d\n", noteToPlay[v], noteInfo[v][2], noteInfo[v][3], v, songTick);
+            // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+            // Serial.printf("PL8 NOteOFF: %d,  Start: %d, Len: %d, voice: %d, tick %d\n", noteToPlay[v], noteInfo[v][2], noteInfo[v][3], v, songTick);
+            noteToPlay[v] = NO_NOTE;
         }
     }
     int numVoices = fillNoteInfoAtTick(myMidi[my_Arranger_Y_axis - 1], readTick);
