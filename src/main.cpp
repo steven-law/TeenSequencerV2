@@ -1821,25 +1821,29 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
   uint32_t noteOffTick[MAX_VOICES] = {0};
   uint32_t activeNote[MAX_VOICES] = {NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
   // Für alle Ticks im Clip
-  for (int b = 0; b < myClock.endOfLoop; b++)
+  for (int b = 0; b < myClock.endOfLoop; b += track->clip[track->clip_to_play[b]].clockDivision)
   {
     // uint32_t barTick = b * MAX_TICKS; // (b * track->clip[track->clip_to_play[b]].seqLength);
     uint32_t barTick = (b * track->clip[track->clip_to_play[b]].seqLength);
+    // Serial.printf("b= %d, cd= %d, clip2play: %d\n", b, track->clip[track->clip_to_play[b]].clockDivision, track->clip_to_play[b]);
     for (int t = 0; t < track->clip[track->clip_to_play[b]].seqLength; t++)
     // for (int t = 0; t < MAX_TICKS; t++)
     {
       // uint32_t songTick = barTick + (t * MAX_TICKS);
-      
-      uint32_t songTick = barTick + (t * track->clip[track->clip_to_play[b]].clockDivision);
+
+      uint32_t songTick = barTick + t; //(t * track->clip[track->clip_to_play[b]].clockDivision);
       for (int v = 0; v < MAX_VOICES; v++)
       {
-        
-        uint32_t _startTick = track->clip[track->clip_to_play[b]].tick[t].startTick[v] + barTick;
-        uint32_t _length = track->clip[track->clip_to_play[b]].tick[t].noteLength[v];
+
+        uint32_t _startTick = (track->clip[track->clip_to_play[b]].tick[t].startTick[v] * track->clip[track->clip_to_play[b]].clockDivision) + barTick; //* track->clip[track->clip_to_play[b]].clockDivision;
+
+        uint32_t _length = track->clip[track->clip_to_play[b]].tick[t].noteLength[v] * track->clip[track->clip_to_play[b]].clockDivision;
         uint8_t _note = track->clip[track->clip_to_play[b]].tick[t].voice[v] + track->noteOffset[b];
+        //   if (track->clip[track->clip_to_play[b]].clockDivision > 1 && v == 0)
+        //   Serial.printf("startTick: %d, songTick: %d, note: %d\n", _startTick, songTick, _note);
         uint8_t _velo = track->clip[track->clip_to_play[b]].tick[t].velo[v] * (track->barVelocity[b] / 127.00);
         uint8_t midiChannel = track->my_Arranger_Y_axis;
-        
+
         // Note On
         if (_startTick == songTick && _note < NO_NOTE && _velo > 0)
         {
@@ -1869,6 +1873,7 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
       }
     }
   }
+
   // End of Track
   writeVarLen(file, 0);
   file.write(0xFF);
