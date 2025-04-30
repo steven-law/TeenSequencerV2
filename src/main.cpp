@@ -55,7 +55,7 @@ USBHIDParser hid1(myusb);
 MouseController mouse1(myusb);
 IntervalTimer usbDeviceTimer;
 IntervalTimer SerialMidiTimer;
-
+String inputString = "";
 void input_behaviour();
 // midi
 void clock_to_notes(int _tick);
@@ -106,6 +106,7 @@ void assign_PSRAM_variables();
 bool compareFiles(File &file, SerialFlashFile &ffile);
 void error(const char *message);
 void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24);
+void export_serial_Midi(Track *track, uint16_t ppqn = 24);
 bool loadMidiFile(const char *filename, MidiTrack &track);
 int getPPQN(const MidiTrack &track);
 int fillNoteInfoAtTick(MidiTrack &track, int miditick);
@@ -252,6 +253,33 @@ void loop()
   input_behaviour();
   draw_potRow();
 
+  if (Serial.available())
+  {
+    inputString = Serial.readStringUntil('\n');
+    inputString.trim(); // Entfernt \r, \n und Leerzeichen
+
+    if (inputString == "send")
+    {
+      delay(5);
+      Serial.println("Sende Tracks...");
+      export_serial_Midi(allTracks[0]);
+      export_serial_Midi(allTracks[1]);
+      export_serial_Midi(allTracks[2]);
+      export_serial_Midi(allTracks[3]);
+      export_serial_Midi(allTracks[4]);
+      export_serial_Midi(allTracks[5]);
+      export_serial_Midi(allTracks[6]);
+      export_serial_Midi(allTracks[7]);
+      Serial.println("Fertig.");
+    }
+    else
+    {
+      Serial.print("Unbekannter Befehl: ");
+      Serial.println(inputString);
+    }
+
+    inputString = ""; // Vorbereitung für nächsten Befehl
+  }
   static int lastBar;
   if (lastBar != myClock.barTick)
   {
@@ -1820,55 +1848,54 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
   uint32_t lastTick = 0;
   uint32_t noteOffTick[MAX_VOICES] = {0};
   uint32_t activeNote[MAX_VOICES] = {NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
+  uint32_t readBar = 0;
   // Für alle Ticks im Clip
   for (int b = 0; b < myClock.endOfLoop; b += track->clip[track->clip_to_play[b]].clockDivision)
   {
-    // uint32_t barTick = b * MAX_TICKS; // (b * track->clip[track->clip_to_play[b]].seqLength);
-    uint32_t barTick = (b * track->clip[track->clip_to_play[b]].seqLength);
-    // Serial.printf("b= %d, cd= %d, clip2play: %d\n", b, track->clip[track->clip_to_play[b]].clockDivision, track->clip_to_play[b]);
-    for (int t = 0; t < track->clip[track->clip_to_play[b]].seqLength; t++)
-    // for (int t = 0; t < MAX_TICKS; t++)
+    uint8_t activeClip = track->clip_to_play[b];
+    uint32_t barTick = (b * track->clip[activeClip].seqLength);
+    // if (b % track->clip[activeClip].clockDivision == 0)
     {
-      // uint32_t songTick = barTick + (t * MAX_TICKS);
 
-      uint32_t songTick = barTick + t; //(t * track->clip[track->clip_to_play[b]].clockDivision);
-      for (int v = 0; v < MAX_VOICES; v++)
+      for (int t = 0; t < track->clip[activeClip].seqLength; t++)
       {
-
-        uint32_t _startTick = (track->clip[track->clip_to_play[b]].tick[t].startTick[v] * track->clip[track->clip_to_play[b]].clockDivision) + barTick; //* track->clip[track->clip_to_play[b]].clockDivision;
-
-        uint32_t _length = track->clip[track->clip_to_play[b]].tick[t].noteLength[v] * track->clip[track->clip_to_play[b]].clockDivision;
-        uint8_t _note = track->clip[track->clip_to_play[b]].tick[t].voice[v] + track->noteOffset[b];
-        //   if (track->clip[track->clip_to_play[b]].clockDivision > 1 && v == 0)
-        //   Serial.printf("startTick: %d, songTick: %d, note: %d\n", _startTick, songTick, _note);
-        uint8_t _velo = track->clip[track->clip_to_play[b]].tick[t].velo[v] * (track->barVelocity[b] / 127.00);
-        uint8_t midiChannel = track->my_Arranger_Y_axis;
-
-        // Note On
-        if (_startTick == songTick && _note < NO_NOTE && _velo > 0)
+        uint32_t songTick = barTick + (t * track->clip[activeClip].clockDivision);
+        for (int v = 0; v < MAX_VOICES; v++)
         {
-          writeVarLen(file, songTick - lastTick);
-          lastTick = songTick;
 
-          file.write(0x90 | (midiChannel & 0x0F)); // Note On, Kanal 0
-          file.write(_note);
-          file.write(_velo);
-          Serial.printf("vc%d_c%d_s%d_l%d_n%d_v%d\n", v, midiChannel, _startTick, _length, _note, _velo);
-          noteOffTick[v] = songTick + _length;
-          activeNote[v] = _note;
-        }
+          uint32_t _startTick = (track->clip[activeClip].tick[t].startTick[v] * track->clip[activeClip].clockDivision) + barTick;
+          uint32_t _length = track->clip[activeClip].tick[t].noteLength[v] * track->clip[activeClip].clockDivision;
+          uint8_t _note = track->clip[activeClip].tick[t].voice[v] + track->noteOffset[b];
 
-        // Note Off
-        if (noteOffTick[v] == songTick && activeNote[v] < NO_NOTE)
-        {
-          writeVarLen(file, songTick - lastTick);
-          lastTick = songTick;
+          uint8_t _velo = track->clip[activeClip].tick[t].velo[v] * (track->barVelocity[b] / 127.00);
+          uint8_t midiChannel = track->my_Arranger_Y_axis;
 
-          file.write(0x80 | (midiChannel & 0x0F)); // Note Off, Kanal 0
-          file.write(activeNote[v]);
-          file.write((uint8_t)0);
+          // Note On
+          if (_startTick == songTick && _note < NO_NOTE && _velo > 0)
+          {
+            writeVarLen(file, songTick - lastTick);
+            lastTick = songTick;
 
-          activeNote[v] = NO_NOTE;
+            file.write(0x90 | (midiChannel & 0x0F)); // Note On, Kanal 0
+            file.write(_note);
+            file.write(_velo);
+            Serial.printf("vc%d_c%d_s%d_l%d_n%d_v%d\n", v, midiChannel, _startTick, _length, _note, _velo);
+            noteOffTick[v] = songTick + _length;
+            activeNote[v] = _note;
+          }
+
+          // Note Off
+          if (noteOffTick[v] == songTick && activeNote[v] < NO_NOTE)
+          {
+            writeVarLen(file, songTick - lastTick);
+            lastTick = songTick;
+
+            file.write(0x80 | (midiChannel & 0x0F)); // Note Off, Kanal 0
+            file.write(activeNote[v]);
+            file.write((uint8_t)0);
+
+            activeNote[v] = NO_NOTE;
+          }
         }
       }
     }
@@ -1894,7 +1921,41 @@ void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24)
   Serial.print("Exported to MIDI: ");
   Serial.println(filename);
 }
+void export_serial_Midi(Track *track, uint16_t ppqn = 24)
+{
 
+  // Für alle Ticks im Clip
+  for (int b = 0; b < myClock.endOfLoop; b += track->clip[track->clip_to_play[b]].clockDivision)
+  {
+    uint8_t activeClip = track->clip_to_play[b];
+    uint32_t barTick = (b * track->clip[activeClip].seqLength);
+    // if (b % track->clip[activeClip].clockDivision == 0)
+    {
+
+      for (int t = 0; t < track->clip[activeClip].seqLength; t++)
+      {
+        uint32_t songTick = barTick + (t * track->clip[activeClip].clockDivision);
+        for (int v = 0; v < MAX_VOICES; v++)
+        {
+
+          uint32_t _startTick = (track->clip[activeClip].tick[t].startTick[v] * track->clip[activeClip].clockDivision) + barTick;
+          uint32_t _length = track->clip[activeClip].tick[t].noteLength[v] * track->clip[activeClip].clockDivision;
+          uint8_t _note = track->clip[activeClip].tick[t].voice[v] + track->noteOffset[b];
+
+          uint8_t _velo = track->clip[activeClip].tick[t].velo[v] * (track->barVelocity[b] / 127.00);
+          uint8_t midiChannel = track->my_Arranger_Y_axis;
+
+          // Note On
+          if (_startTick == songTick && _note < NO_NOTE && _velo > 0)
+          {
+
+            Serial.printf("vc%d_c%d_s%d_l%d_n%d_v%d\n", v, midiChannel, _startTick, _length, _note, _velo);
+          }
+        }
+      }
+    }
+  }
+}
 bool loadMidiFile(const char *filename, MidiTrack &track)
 {
   track.file = SD.open(filename);
