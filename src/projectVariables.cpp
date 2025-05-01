@@ -64,7 +64,7 @@ const char FLASHMEM *scaleNames[NUM_SCALES]{"Chroma", "Major", "natMi", "Dorian"
 
 const char *bankNames[NUM_SAMPLE_BANKS] FLASHMEM = {"K", "C", "H", "S", "P", "F", "X", ""};
 // char  **CCnames;
-const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
+const char FLASHMEM *CCnames[130]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
                                   "CC10", "CC11", "CC12", "CC13", "CC14", "CC15", "CC16", "CC17", "CC18", "CC19",
                                   "CC20", "CC21", "CC22", "CC23", "CC24", "CC25", "CC26", "CC27", "CC28", "CC29",
                                   "CC30", "CC31", "CC32", "CC33", "CC34", "CC35", "CC36", "CC37", "CC38", "CC39",
@@ -76,7 +76,7 @@ const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6
                                   "CC90", "CC91", "CC92", "CC93", "CC94", "CC95", "CC96", "CC97", "CC98", "CC99",
                                   "CC100", "CC101", "CC102", "CC103", "CC104", "CC105", "CC106", "CC107", "CC108", "CC109",
                                   "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
-                                  "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "none"};
+                                  "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127","PrgCh", "none"};
 
 const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld", ".mid"};
 const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",

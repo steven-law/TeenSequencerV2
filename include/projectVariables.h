@@ -222,7 +222,7 @@ extern const bool PROGMEM scales[NUM_SCALES][12];
 extern const char FLASHMEM *scaleNames[NUM_SCALES];
 extern bool updateTFTScreen;
 extern const char *bankNames[NUM_SAMPLE_BANKS];
-extern const char FLASHMEM *CCnames[129];
+extern const char FLASHMEM *CCnames[130];
 extern const char FLASHMEM *seqModname[NUM_PLAYMODES];
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];

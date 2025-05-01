@@ -103,19 +103,14 @@ void Track::load_track(uint8_t songNr)
                 clip[c].tick[t].stepFX = myTrackFile.read();
                 clip[c].tick[t].noteLength[v] = myTrackFile.read();
                 clip[c].tick[t].startTick[v] = myTrackFile.read();
+                if (clip[c].tick[t].voice[v] < NO_NOTE)
+                {
+                    trellis_assign_main_buffer(c, (t / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+                }
             }
         }
     }
-    for (int i = 0; i < MAX_TICKS; i++)
-    {
-        for (int v = 0; v < MAX_VOICES; v++)
-        {
-            if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
-            {
-                trellis_assign_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
-            }
-        }
-    }
+    
     for (int i = 0; i < MAX_BARS; i++)
     {
         clip_to_play[i] = myTrackFile.read();
@@ -228,7 +223,6 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
                     play_seq_mode8(internal_clock);
                     break;
                 }
-                
             }
         }
     }
@@ -291,7 +285,7 @@ void Track::draw_sequencer_modes(uint8_t mode)
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
-   
+
     {
         if (!muted && !muteThruSolo)
         {

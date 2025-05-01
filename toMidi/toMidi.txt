@@ -1,6 +1,6 @@
-save song to MIDI: 3
-vc0_c1_s0_l3_n0_v99 
-vc2_c1_s0_l3_n2_v99 
+Sende Tracks...
+vc0_c1_s0_l3_n0_v99
+vc2_c1_s0_l3_n2_v99
 vc3_c1_s12_l3_n3_v99
 vc0_c1_s24_l3_n0_v99
 vc1_c1_s24_l3_n1_v99
@@ -63,7 +63,6 @@ vc1_c1_s360_l3_n1_v99
 vc2_c1_s360_l3_n2_v99
 vc3_c1_s372_l3_n3_v99
 vc2_c1_s378_l3_n2_v99
-Exported to MIDI: 03_01.mid
 vc0_c2_s0_l3_n60_v99
 vc0_c2_s18_l3_n0_v99
 vc0_c2_s24_l3_n60_v99
@@ -84,12 +83,16 @@ vc0_c2_s306_l3_n0_v99
 vc0_c2_s312_l3_n60_v99
 vc0_c2_s336_l3_n60_v99
 vc0_c2_s360_l3_n60_v99
-Exported to MIDI: 03_02.mid
-vc0_c3_s0_l15_n60_v99
-vc0_c3_s96_l15_n60_v99
-vc0_c3_s192_l15_n60_v99
-vc0_c3_s288_l15_n60_v99
-Exported to MIDI: 03_03.mid
+vc0_c3_s0_l30_n60_v99
+vc0_c3_s144_l6_n60_v99
+vc0_c3_s156_l6_n60_v99
+vc0_c3_s168_l6_n60_v99
+vc0_c3_s180_l6_n60_v99
+vc0_c3_s192_l30_n60_v99
+vc0_c3_s336_l6_n60_v99
+vc0_c3_s348_l6_n60_v99
+vc0_c3_s360_l6_n60_v99
+vc0_c3_s372_l6_n60_v99
 vc0_c4_s18_l3_n60_v99
 vc0_c4_s36_l3_n60_v99
 vc0_c4_s54_l3_n60_v99
@@ -110,7 +113,6 @@ vc0_c4_s324_l3_n60_v99
 vc0_c4_s342_l3_n60_v99
 vc0_c4_s360_l3_n60_v99
 vc0_c4_s372_l3_n60_v99
-Exported to MIDI: 03_04.mid
 vc0_c5_s12_l3_n60_v99
 vc0_c5_s36_l3_n60_v99
 vc0_c5_s60_l3_n60_v99
@@ -127,7 +129,4 @@ vc0_c5_s300_l3_n60_v99
 vc0_c5_s324_l3_n60_v99
 vc0_c5_s348_l3_n60_v99
 vc0_c5_s372_l3_n60_v99
-Exported to MIDI: 03_05.mid
-Exported to MIDI: 03_06.mid
-Exported to MIDI: 03_07.mid
-Exported to MIDI: 03_08.mid
+Fertig.

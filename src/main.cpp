@@ -436,7 +436,6 @@ void input_behaviour()
       tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
-    // if Shift button is NOT pressed
 
     allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
 
@@ -646,6 +645,16 @@ void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
       usbMIDI.sendControlChange(control, value, Channel - 16);
     if (Channel > 32 && Channel <= 48)
       usbMidi1.sendControlChange(control, value, Channel - 32);
+  }
+  if (value < 128 && control == 128)
+  {
+    Serial.printf("send Progchange: %d, Control: %d, value: %d\n", Channel, control, value);
+    if (Channel > 0 && Channel <= 16)
+      MIDI1.sendProgramChange(value, Channel);
+    if (Channel > 16 && Channel <= 32)
+      usbMIDI.sendProgramChange(value, Channel - 16);
+    if (Channel > 32 && Channel <= 48)
+      usbMidi1.sendProgramChange(value, Channel - 32);
   }
 }
 

@@ -75,5 +75,5 @@ for channel, events in events_per_channel.items():
     track.append(mido.MetaMessage('end_of_track', time=0))
 
 # Speichern
-mid.save('output_fixed_tracks.mid')
-print('Fertig! MIDI gespeichert als output_fixed_tracks.mid')
+mid.save('TeensyDAW_Quick_export.mid')
+print('Fertig! MIDI gespeichert als TeensyDAW_Quick_export.mid')

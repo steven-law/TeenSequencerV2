@@ -678,6 +678,7 @@ void Track::set_seq_mode5_parameters()
     if (lastPotRow == 3 && enc_button[3]) // save to clip
     {
         enc_button[3] = false;
+        clear_active_clip();
         for (int v = 0; v < MAX_VOICES; v++)
         {
             for (int s = 0; s < NUM_STEPS; s++)
@@ -686,6 +687,7 @@ void Track::set_seq_mode5_parameters()
                 {
                     int _note = v + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
                     set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
+                    Serial.printf("pl5 copy to clip note: %d, step: %d, \n", _note, s);
                 }
             }
         }

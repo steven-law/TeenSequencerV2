@@ -65,7 +65,7 @@ class Track
 public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
-    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 5, 0, 0, 0, 0, 0, 0, 128, 0};
+    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 5, 0, 0, 0, 0, 0, 0, 129, 0};
     // Stepsequencer
     struct tick_t
     {
@@ -154,7 +154,7 @@ public:
                 {
                     clip[c].tick[t].voice[v] = NO_NOTE;
                     clip[c].tick[t].velo[v] = 0;
-                    clip[c].tick[t].stepFX = 128;
+                    clip[c].tick[t].stepFX = 129;
                     clip[c].tick[t].noteLength[v] = 0;
                     clip[c].tick[t].startTick[v] = MAX_TICKS + 1;
                 }
@@ -179,7 +179,7 @@ public:
         {
             for (int t = 0; t < 16; t++)
             {
-                CCchannel[p][t] = 128;
+                CCchannel[p][t] = 129;
                 CCvalue[p][t] = 0;
             }
         }
