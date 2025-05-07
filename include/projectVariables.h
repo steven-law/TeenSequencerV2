@@ -12,7 +12,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_NAME "NO_NAME"
 
 #define NUM_PLUGINS 14
-#define NUM_PLAYMODES 9
+#define NUM_PLAYMODES 10
 #define NUM_SCALES 23
 #define NUM_FX 3
 
@@ -60,6 +60,8 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define SET_CLIP2_EDIT 11
 
 #define SET_SWING 12
+#define SET_HUMANIZE 13
+#define SET_STEPFX_CHAN 14
 #define PRESET_ENCODER 0
 // pages
 #define TRACK_1_PAGE 0
@@ -246,4 +248,6 @@ struct MidiTrack
         int division;         // Ticks per Quarter Note (PPQN)
     };
 extern MidiTrack myMidi[NUM_TRACKS];
+float lfo_semitone_tri(float phase);
+float lfo_semitone_saw(float phase);
 #endif

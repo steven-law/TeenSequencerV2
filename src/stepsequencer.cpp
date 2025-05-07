@@ -40,6 +40,7 @@ void Track::set_stepSequencer_parameters()
         break;
     case 3:
         set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Offset", 0, MAX_TICKS);
+        //set_stepSequencer_parameter_value(ENCODER_HUMANIZE, 3, "Human", 0, MAX_TICKS);
 
     default:
         break;
@@ -126,6 +127,7 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         {
             clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
         }
+        
         case SET_VELO2SET:
         case SET_STEP_FX:
         {

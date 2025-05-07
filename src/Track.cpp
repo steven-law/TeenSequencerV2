@@ -110,7 +110,7 @@ void Track::load_track(uint8_t songNr)
             }
         }
     }
-    
+
     for (int i = 0; i < MAX_BARS; i++)
     {
         clip_to_play[i] = myTrackFile.read();
@@ -222,6 +222,9 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
                 case 8:
                     play_seq_mode8(internal_clock);
                     break;
+                case 9:
+                    play_seq_mode9(internal_clock);
+                    break;
                 }
             }
         }
@@ -257,6 +260,9 @@ void Track::set_seq_mode_parameters(uint8_t row)
     case 8:
         set_seq_mode8_parameters();
         break;
+    case 9:
+        set_seq_mode9_parameters();
+        break;
     default:
         break;
     }
@@ -280,6 +286,8 @@ void Track::draw_sequencer_modes(uint8_t mode)
         draw_seq_mode7();
     if (mode == 8)
         draw_seq_mode8();
+    if (mode == 9)
+        draw_seq_mode9();
 }
 
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)

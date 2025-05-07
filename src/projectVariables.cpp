@@ -76,9 +76,9 @@ const char FLASHMEM *CCnames[130]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6
                                   "CC90", "CC91", "CC92", "CC93", "CC94", "CC95", "CC96", "CC97", "CC98", "CC99",
                                   "CC100", "CC101", "CC102", "CC103", "CC104", "CC105", "CC106", "CC107", "CC108", "CC109",
                                   "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
-                                  "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127","PrgCh", "none"};
+                                  "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "PrgCh", "none"};
 
-const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld", ".mid"};
+const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld", ".mid", "LFO"};
 const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
                                                       "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
                                                       "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
@@ -115,3 +115,16 @@ MidiTrack myMidi[NUM_TRACKS] = {
 };
 
 int noteInfo[MAX_VOICES][4] = {128, 0, 0, 0};
+
+float lfo_semitone_tri(float phase)
+{
+    // triangle wave: -1.0 .. +1.0
+    float tri = 2.0f * fabs(2.0f * (phase - floor(phase + 0.5f))) - 1.0f;
+    // skalieren auf -12 bis +12
+    return round(tri );
+}
+float lfo_semitone_saw(float phase)
+{
+    float saw = 2.0f * (phase - floor(phase + 0.5f)); // -1.0 .. +1.0
+    return round(saw );
+}

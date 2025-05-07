@@ -703,6 +703,7 @@ void draw_stepSequencer_parameters()
 
     case 3:
         draw_sequencer_arranger_parameter(active_track, 0, "Offset", allTracks[active_track]->parameter[SET_SWING], NO_NAME);
+       // draw_sequencer_arranger_parameter(active_track, 1, "Human", allTracks[active_track]->parameter[SET_HUMANIZE], NO_NAME);
         break;
 
     default:

@@ -617,7 +617,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+     Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -662,7 +662,7 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+    int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
     allTracks[channel - 1]->noteOn(note, velocity, trackChannel);
   }
   if (channel >= 9)
@@ -673,7 +673,7 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+    int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
     allTracks[channel - 1]->noteOff(note, velocity, trackChannel);
   }
   if (channel >= 9)

@@ -35,6 +35,7 @@
 #define ENCODER_CLIP2_EDIT 3
 
 #define ENCODER_PROBABILITY 0
+#define ENCODER_HUMANIZE 1
 
 #define NUM_PARAMETERS 16
 
@@ -83,6 +84,7 @@ public:
         uint8_t playMode = 0;
         uint8_t scale = 0;
         uint8_t midiChOut;
+        // int8_t humanize = 0;
     };
     clip_t *clip = nullptr;
 
@@ -147,6 +149,11 @@ public:
             clip[c].playMode = 0;
             clip[c].scale = 0;
             clip[c].midiChOut = Y;
+            if (my_Arranger_Y_axis == 1)
+            {
+                parameter[SET_MIDICH_OUT] = 13;
+                clip[c].midiChOut = 13;
+            }
 
             for (int t = 0; t < MAX_TICKS; t++)
             {
@@ -185,7 +192,7 @@ public:
         }
         if (my_Arranger_Y_axis == 1)
         {
-            parameter[SET_OCTAVE] = 0;
+            parameter[SET_OCTAVE] = 5;
             parameter[SET_MIDICH_OUT] = 13;
         }
     }
@@ -287,6 +294,11 @@ private:
     void draw_seq_mode8();
     void select_file(uint8_t XPos, uint8_t YPos, const char *name);
     void refresh_mode8();
+
+    void play_seq_mode9(uint8_t cloock);
+    void set_seq_mode9_parameters();
+    void draw_seq_mode9();
+    int degree = 0;
 };
 
 extern Track *allTracks[8];

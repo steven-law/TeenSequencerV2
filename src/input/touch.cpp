@@ -22,9 +22,9 @@ void touch_update()
             tsTouched = true;
             pixelTouchX = map(p.x, TS_MINX, TS_MAXX, 0, 480 - STEP_FRAME_W / 2);
             if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
-                gridTouchY = map(p.y, TS_MINY, TS_MAXY, 0, 8);
+                gridTouchY = map(p.y, TS_MINY + 200, TS_MAXY - 400, 0, 8);
             else
-                gridTouchY = map(p.y, TS_MINY, TS_MAXY, 0, 14);
+                gridTouchY = map(p.y, TS_MINY, TS_MAXY , 0, 14);
         }
         else if (pX >= SEQ_GRID_RIGHT)
         {
