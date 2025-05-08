@@ -1305,7 +1305,7 @@ void Track::draw_seq_mode8()
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 1.75, true, false);
     }
 }
-//place for experiments
+// place for experiments
 void Track::play_seq_mode9(uint8_t cloock)
 {
     const uint8_t clipIndex = clip_to_play[internal_clock_bar];
@@ -1318,49 +1318,38 @@ void Track::play_seq_mode9(uint8_t cloock)
         switch (seqMod_value[9][playPresetNr][10])
         {
         case 0:
-            lfo = sin((M_PI * cloock * seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = sin((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 1:
-            lfo = cos((M_PI * cloock * seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = cos((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 2:
-            lfo = tan((M_PI * cloock * seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = tan((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 3:
-            lfo = lfo_semitone_tri((M_PI * cloock * seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = lfo_semitone_tri((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 4:
-            lfo = -lfo_semitone_tri((M_PI * cloock * seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = -lfo_semitone_tri((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 5:
-            lfo = lfo_semitone_saw((M_PI * cloock * seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = lfo_semitone_saw((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 6:
-            lfo = -lfo_semitone_saw((M_PI * cloock * seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = -lfo_semitone_saw((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         default:
             break;
         }
-        static int stepCount;                                                // max Steps
-        stepCount = (stepCount + 1) % seqMod_value[1][playPresetNr][4];      // max Steps
-        bool useMemory = ((random(126)) < seqMod_value[9][playPresetNr][5]); // dejavu
-        int noteToSend = useMemory ? seqMod1NoteMemory[stepCount] : get_random_Note_in_scale();
+        Serial.printf("pm9 lfo: %02f, depth: %02f\n", lfo, lfo * seqMod_value[9][playPresetNr][1]);
 
-        int note2save = noteParam + (lfo * seqMod_value[9][playPresetNr][1]) + noteOffset[external_clock_bar] + performNoteOffset; // +/- 1 bis 2 Halbtonschritte + noteOffset[external_clock_bar] + performNoteOffset;
-        noteToPlay[0] = note2save;
+        noteToPlay[0] = noteParam + (lfo * seqMod_value[9][playPresetNr][1]) + noteOffset[external_clock_bar] + performNoteOffset;
         noteOffAt[0] = constrain(tick.startTick[0] + tick.noteLength[0], 0, MAX_TICKS - 1);
         uint8_t Velo = random(seqMod_value[9][playPresetNr][2], seqMod_value[9][playPresetNr][3]) * (barVelocity[external_clock_bar] / MIDI_CC_RANGE_FLOAT) * (mixGainPot / MIDI_CC_RANGE_FLOAT);
         uint8_t StepFX = random(seqMod_value[9][playPresetNr][8], seqMod_value[9][playPresetNr][9]);
         sendControlChange(parameter[14], StepFX, clip[clipIndex].midiChOut);
         noteOn(noteToPlay[0], Velo, clip[clipIndex].midiChOut); // Send a Note
-
-        // save new note into array
-        if (!useMemory)
-        {
-            seqMod1NoteMemory[stepCount] = note2save;
-            // Serial.printf("PM1 = save note: %d on step: %d\n", seqMod1NoteMemory[stepCount], stepCount);
-            //  velocityMemory[stepCount] = volSend;
-        }
+        seqMod1NoteMemory[cloock / TICKS_PER_STEP] = noteToPlay[0];
     }
 
     if (noteOffAt[0] == cloock)
