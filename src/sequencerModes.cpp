@@ -1327,15 +1327,18 @@ void Track::play_seq_mode9(uint8_t cloock)
             lfo = tan((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 3:
-            lfo = lfo_semitone_tri((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = -tan((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 4:
-            lfo = -lfo_semitone_tri((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = lfo_semitone_tri((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 5:
-            lfo = lfo_semitone_saw((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            lfo = -lfo_semitone_tri((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         case 6:
+            lfo = lfo_semitone_saw((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
+            break;
+        case 7:
             lfo = -lfo_semitone_saw((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
         default:
@@ -1391,7 +1394,7 @@ void Track::set_seq_mode9_parameters()
         case 0:
         {
 
-            set_seq_mode_value(9, 0, 0, "Speed", 0, MIDI_CC_RANGE);
+            set_seq_mode_value(9, 0, 0, "Degree", 0, MIDI_CC_RANGE);
             set_seq_mode_value(9, 1, 0, "Depth", 0, MIDI_CC_RANGE);
             set_seq_mode_value(9, 2, 0, "Vol -", 0, MIDI_CC_RANGE);
             set_seq_mode_value(9, 3, 0, "Vol +", 0, MIDI_CC_RANGE);
@@ -1408,7 +1411,7 @@ void Track::set_seq_mode9_parameters()
         {
             set_seq_mode_value(9, 0, 2, "StepFX -", 0, MIDI_CC_RANGE + 1);
             set_seq_mode_value(9, 1, 2, "StepFX +", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(9, 2, 2, "Type", 0, 6);
+            set_seq_mode_value(9, 2, 2, "Type", 0, 7);
         }
         break;
         case 3:
