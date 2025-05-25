@@ -13,6 +13,7 @@ uint8_t trellisScreen;
 uint8_t active_track;
 uint8_t arrangerpage;
 bool change_plugin_row;
+ bool getArrangerFromPC = false;
 const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 unsigned long neotrellisReadPreviousMillis = 0; // will store last time LED was updated
 unsigned long updateMidiPreviousMillis = 0;     // will store last time LED was updated
@@ -78,7 +79,7 @@ const char FLASHMEM *CCnames[130]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6
                                   "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
                                   "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "PrgCh", "none"};
 
-const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld", ".mid", "LFO"};
+const char FLASHMEM *seqModname[NUM_PLAYMODES]{"Step", "Rand", "Drop", "BitRd", "PotS", "Beats", "Ecld", "Rcld", ".mid", "LFO", "psyB"};
 const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
                                                       "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
                                                       "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",

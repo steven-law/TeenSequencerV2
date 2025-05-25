@@ -66,7 +66,7 @@ class Track
 public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
-    uint8_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 5, 0, 0, 0, 0, 0, 0, 129, 0};
+    int16_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 5, 0, 0, 0, 0, 0, 0, 129, 0};
     // Stepsequencer
     struct tick_t
     {
@@ -243,7 +243,7 @@ private:
     uint8_t PMpresetNr = 0;
     uint8_t maxVal;
     // stepsequencer
-    void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max);
+    void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, int min, uint8_t max);
     void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
     void copy_clip();
     // midi CC
@@ -251,11 +251,12 @@ private:
     void set_CCchannel(uint8_t XPos, uint8_t YPos);
     void set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label, uint8_t position);
     void change_presets();
-
+    void rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int maxTicks);
     // seqmodes
     void set_presetNr();
     void set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
     uint8_t get_random_Note_in_scale();
+    uint8_t transpose_to_scale(uint8_t noteToChange);
     void rotateIntArray(uint8_t arr[], int maxSteps, int rotation);
     void play_seq_mode0(uint8_t cloock);
 
@@ -299,6 +300,10 @@ private:
     void set_seq_mode9_parameters();
     void draw_seq_mode9();
     int degree = 0;
+
+    void play_seq_mode10(uint8_t cloock);
+    void set_seq_mode10_parameters();
+    void draw_seq_mode10();
 };
 
 extern Track *allTracks[8];

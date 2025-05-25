@@ -40,7 +40,7 @@ void Track::set_stepSequencer_parameters()
         break;
     case 3:
         set_stepSequencer_parameter_value(ENCODER_PROBABILITY, 3, "Offset", 0, MAX_TICKS);
-        //set_stepSequencer_parameter_value(ENCODER_HUMANIZE, 3, "Human", 0, MAX_TICKS);
+        set_stepSequencer_parameter_value(ENCODER_HUMANIZE, 3, "rotVc", -1, 1);
 
     default:
         break;
@@ -80,7 +80,7 @@ void Track::copy_clip()
     clip[nextClip].seqLength = clip[parameter[SET_CLIP2_EDIT]].seqLength;
     parameter[SET_SEQUENCE_LENGTH] = clip[parameter[SET_CLIP2_EDIT]].seqLength;
 }
-void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, uint8_t min, uint8_t max)
+void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, int min, uint8_t max)
 {
     if (!(gridTouchY > 0 && gridTouchY < 13 && pixelTouchX >= SEQ_GRID_LEFT))
         return;
@@ -97,6 +97,22 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         {
             draw_Notenames();
             trellis_show_piano();
+            draw_notes_in_grid();
+        }
+        break;
+        case SET_HUMANIZE:
+        {
+            if (clip != nullptr)
+            {
+                rotateVoiceInClip(clip[parameter[SET_CLIP2_EDIT]], voice_to_edit, encoded[ENCODER_HUMANIZE], clip[parameter[SET_CLIP2_EDIT]].seqLength);
+            }
+            else
+            {
+                Serial.println("clip is null!");
+            }
+
+            // draw_Notenames();
+            // trellis_show_piano();
             draw_notes_in_grid();
         }
         break;
@@ -127,7 +143,7 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         {
             clip[parameter[SET_CLIP2_EDIT]].midiChOut = parameter[index];
         }
-        
+
         case SET_VELO2SET:
         case SET_STEP_FX:
         {
@@ -292,6 +308,87 @@ void Track::set_MIDI_CC(uint8_t row)
         // set_edit_presetNr_ccValue(3, 0);
     }
     draw_MIDI_CC_screen();
+}
+void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int maxTicks)
+{
+    // Temporäre Arrays für alle Parameter
+    uint8_t voiceTemp[MAX_TICKS];
+    uint8_t veloTemp[MAX_TICKS];
+    uint8_t noteLengthTemp[MAX_TICKS];
+    uint8_t startTickTemp[MAX_TICKS];
+    uint8_t stepFXTemp[MAX_TICKS]; // Wird nur gespeichert, wenn voiceIndex == 0
+    uint8_t trellisTemp[NUM_STEPS];
+    bool doOnce = true;
+    Serial.println("Saving to temp arrays...");
+
+    for (int i = 0; i < maxTicks; ++i)
+    {
+        voiceTemp[i] = clip.tick[i].voice[voiceIndex];
+        veloTemp[i] = clip.tick[i].velo[voiceIndex];
+        noteLengthTemp[i] = clip.tick[i].noteLength[voiceIndex];
+        startTickTemp[i] = clip.tick[i].startTick[voiceIndex];
+        trellisTemp[i / TICKS_PER_STEP] = trellisMainGridBuffer[parameter[SET_CLIP2_EDIT]][i / TICKS_PER_STEP][my_Arranger_Y_axis - 1];
+        // stepFXTemp[i] = clip.tick[i].stepFX;
+    }
+
+    Serial.println("Rotating temp arrays...");
+
+    rotateIntArray(voiceTemp, maxTicks, rotation);
+    rotateIntArray(veloTemp, maxTicks, rotation);
+    rotateIntArray(noteLengthTemp, maxTicks, rotation);
+    rotateIntArray(startTickTemp, maxTicks, rotation);
+    rotateIntArray(trellisTemp, NUM_STEPS, rotation);
+
+    // rotateIntArray(stepFXTemp, maxTicks, rotation);
+
+    Serial.println("Writing rotated data back...");
+
+    for (int i = 0; i < maxTicks; ++i)
+    {
+        clip.tick[i].voice[voiceIndex] = voiceTemp[i];
+        clip.tick[i].velo[voiceIndex] = veloTemp[i];
+        clip.tick[i].noteLength[voiceIndex] = noteLengthTemp[i];
+        static int oldNote;
+        int temptick = -1;
+        if (oldNote != clip.tick[i].voice[voiceIndex])
+        {
+            temptick = i;
+            oldNote = clip.tick[i].voice[voiceIndex];
+            Serial.printf("oldNote= %d\n", oldNote);
+        }
+        clip.tick[i].startTick[voiceIndex] = temptick;
+
+        int trelliscolorTemp = TRELLIS_BLACK;
+
+        //  if (clip.tick[i].voice[voiceIndex] == NO_NOTE)
+        //  {
+        //      doOnce = false;
+        //      trelliscolorTemp = TRELLIS_BLACK;
+        //  }
+        //  if (clip.tick[i].voice[voiceIndex] < NO_NOTE)
+        //  {
+        //      trelliscolorTemp = trellisTrackColor[my_Arranger_Y_axis - 1];
+        //  }
+
+        for (int l = 0; l < TICKS_PER_STEP; l++)
+        {
+            if (clip.tick[i + l].voice[voiceIndex] < NO_NOTE)
+            {
+                trelliscolorTemp = trellisTrackColor[my_Arranger_Y_axis - 1];
+                break;
+            }
+        }
+
+        if (i % TICKS_PER_STEP == 0)
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], i / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trelliscolorTemp);
+        //
+        // trellisMainGridBuffer[parameter[SET_CLIP2_EDIT]][i / TICKS_PER_STEP][my_Arranger_Y_axis - 1]=trellisTemp[i/TICKS_PER_STEP];
+        // clip.tick[i].stepFX = stepFXTemp[i];
+        if (clip.tick[i].voice[voiceIndex] != NO_NOTE && clip.tick[i].startTick[voiceIndex] < MAX_TICKS && clip.tick[i].velo[voiceIndex] != 0)
+            Serial.printf("note= %d, start= %d, length= %d,  velo= %d\n", clip.tick[i].voice[voiceIndex], clip.tick[i].startTick[voiceIndex], clip.tick[i].noteLength[voiceIndex], clip.tick[i].velo[voiceIndex]);
+    }
+    trellis_writeDisplay();
+    Serial.println("Done rotating voice and associated parameters.");
 }
 
 void Track::set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label, uint8_t position)

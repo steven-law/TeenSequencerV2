@@ -428,10 +428,10 @@ void gridSongMode(int songpageNumber)
     // int page_phrase_start = songpageNumber * 16;
     // int page_phrase_end = (songpageNumber + 1) * 16;
     clearWorkSpace();
-    //pixelTouchX = SEQ_GRID_LEFT;
-    //gridTouchY = 0;
-    //lastPotRow = 0;
-    // drawActiveRect(18, 3, 2, 2, false, "clear", ILI9341_RED);
+    // pixelTouchX = SEQ_GRID_LEFT;
+    // gridTouchY = 0;
+    // lastPotRow = 0;
+    //  drawActiveRect(18, 3, 2, 2, false, "clear", ILI9341_RED);
 
     // vertical pointer Lines
     for (int f = 0; f < BARS_PER_PAGE; f++)
@@ -703,7 +703,7 @@ void draw_stepSequencer_parameters()
 
     case 3:
         draw_sequencer_arranger_parameter(active_track, 0, "Offset", allTracks[active_track]->parameter[SET_SWING], NO_NAME);
-       // draw_sequencer_arranger_parameter(active_track, 1, "Human", allTracks[active_track]->parameter[SET_HUMANIZE], NO_NAME);
+        draw_sequencer_arranger_parameter(active_track, 1, "rotVc", allTracks[active_track]->parameter[SET_HUMANIZE], NO_NAME);
         break;
 
     default:
@@ -744,7 +744,7 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 3);
     int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
     int radius = map(stepFX, 128, 0, 0, STEP_FRAME_H / 3);
-    Serial.printf("draw Note %d,  on Tick %d, velo: %d, stepFX: %d\n", note, _when, velo, stepFX);
+    Serial.printf("draw Note %d,  on Tick %d, length: %d, velo: %d, stepFX: %d\n", note, _when, length, velo, stepFX);
     tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
     tft.drawRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, ILI9341_BLACK);
 }

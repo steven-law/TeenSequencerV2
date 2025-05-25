@@ -25,7 +25,7 @@ void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, co
 void Track::rotateIntArray(uint8_t arr[], int maxSteps, int rotation)
 {
     int r = rotation * (-1);
-    int temp[16]; // Hilfsarray für die Rotation
+    int temp[MAX_TICKS]; // Hilfsarray für die Rotation
     for (int i = 0; i < maxSteps; i++)
     {
         temp[i] = arr[(i - r + maxSteps) % maxSteps];
@@ -45,9 +45,34 @@ uint8_t Track::get_random_Note_in_scale()
     // Wiederhole, bis eine gültige Note gefunden wurde
     do
     {
-        randomNote = random(0, 11);
+        randomNote = random(0, 12);
     } while (!scales[clip[clipIndex].midiChOut][randomNote]);
     return randomNote;
+}
+uint8_t Track::transpose_to_scale(uint8_t noteToChange)
+{
+    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
+    const uint8_t scaleChannel = clip[clipIndex].midiChOut;
+    uint8_t noteName = noteToChange % 12;
+
+    // Wenn Note bereits in Skala, zurückgeben
+    if (scales[scaleChannel][noteName])
+    {
+        return noteName;
+    }
+
+    // Suche nächsthöhere Note in Skala (zyklisch von 0–11)
+    for (uint8_t i = 1; i < 12; ++i)
+    {
+        uint8_t nextNote = (noteName + i) % 12;
+        if (scales[scaleChannel][nextNote])
+        {
+            return nextNote;
+        }
+    }
+
+    // Fallback (theoretisch unnötig, wenn Skala mindestens 1 Note enthält)
+    return noteName;
 }
 void Track::play_seq_mode0(uint8_t cloock)
 {
@@ -1305,7 +1330,7 @@ void Track::draw_seq_mode8()
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 1.75, true, false);
     }
 }
-// place for experiments
+// LFO
 void Track::play_seq_mode9(uint8_t cloock)
 {
     const uint8_t clipIndex = clip_to_play[internal_clock_bar];
@@ -1341,12 +1366,15 @@ void Track::play_seq_mode9(uint8_t cloock)
         case 7:
             lfo = -lfo_semitone_saw((M_PI * cloock + seqMod_value[9][playPresetNr][0]) / 180); // lfo_phase von 0 bis 1 über N Ticks
             break;
+        case 8:
+            lfo = random(-MIDI_CC_RANGE, MIDI_CC_RANGE) / MIDI_CC_RANGE; // lfo_phase von 0 bis 1 über N Ticks
+            break;
         default:
             break;
         }
         Serial.printf("pm9 lfo: %02f, depth: %02f\n", lfo, lfo * seqMod_value[9][playPresetNr][1]);
 
-        noteToPlay[0] = noteParam + (lfo * seqMod_value[9][playPresetNr][1]) + noteOffset[external_clock_bar] + performNoteOffset;
+        noteToPlay[0] = transpose_to_scale(noteParam + (lfo * seqMod_value[9][playPresetNr][1])) + noteOffset[external_clock_bar] + performNoteOffset;
         noteOffAt[0] = constrain(tick.startTick[0] + tick.noteLength[0], 0, MAX_TICKS - 1);
         uint8_t Velo = random(seqMod_value[9][playPresetNr][2], seqMod_value[9][playPresetNr][3]) * (barVelocity[external_clock_bar] / MIDI_CC_RANGE_FLOAT) * (mixGainPot / MIDI_CC_RANGE_FLOAT);
         uint8_t StepFX = random(seqMod_value[9][playPresetNr][8], seqMod_value[9][playPresetNr][9]);
@@ -1411,7 +1439,7 @@ void Track::set_seq_mode9_parameters()
         {
             set_seq_mode_value(9, 0, 2, "StepFX -", 0, MIDI_CC_RANGE + 1);
             set_seq_mode_value(9, 1, 2, "StepFX +", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(9, 2, 2, "Type", 0, 7);
+            set_seq_mode_value(9, 2, 2, "Type", 0, 8);
         }
         break;
         case 3:
@@ -1443,6 +1471,163 @@ void Track::draw_seq_mode9()
         drawPot(0, 2, seqMod_value[9][PMpresetNr][8], "StepFX -");
         drawPot(1, 2, seqMod_value[9][PMpresetNr][9], "StepFX +");
         drawPot(2, 2, seqMod_value[9][PMpresetNr][10], "Type");
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
+    }
+}
+
+// psy
+void Track::play_seq_mode10(uint8_t cloock)
+{
+    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
+    const auto &tick = clip[clipIndex].tick[cloock];
+    uint8_t playPresetNr = play_presetNr_Playmode_ccChannel[external_clock_bar];
+
+    // --- Parameter aus seqMod_value[1][playPresetNr][x] ---
+
+    uint8_t rootNote = seqMod_value[10][playPresetNr][0]; // z. B. 0 = kein Oktavsprung
+    uint8_t accentNote = seqMod_value[10][playPresetNr][1]; // z. B. 1 = max. 1 Oktave höher
+    uint8_t volMin = seqMod_value[10][playPresetNr][2];
+    uint8_t volMax = seqMod_value[10][playPresetNr][3];
+    uint8_t prob = seqMod_value[10][playPresetNr][6];   // Note Trigger Wahrscheinlichkeit
+    uint8_t style = seqMod_value[10][playPresetNr][10]; // Stilwahl
+
+    // --- Psytrance-Rhythmusgenerator (Triolen) ---
+    // z. B. bei 24 PPQN: Schritte alle 8 Ticks (Triolen)
+
+    uint8_t stepInBar = cloock / 8; // 0–2, 3–5, ...
+
+    // Beispielmuster: [Root, Octave, Varianz]
+    bool shouldPlay = false;
+    switch (style % 3)
+    {
+    case 0:                                // Full-On Standard
+        shouldPlay = (stepInBar % 3 == 0); // nur Downbeat (0, 3, 6, 9...)
+        break;
+    case 1: // Oktav-Wechsel
+        shouldPlay = true;
+        break;
+    case 2:                                // Variiertes Muster
+        shouldPlay = (stepInBar % 3 != 1); // z. B. nur 2 von 3 Triolen
+        break;
+    }
+
+    if (shouldPlay && random(126) < prob)
+    {
+        // Basisnote erzeugen (in Skala)
+        uint8_t baseNote = rootNote+(12 * parameter[SET_OCTAVE])+noteOffset[external_clock_bar] + performNoteOffset; // eigene Funktion
+        uint8_t finalNote = 36;
+        uint8_t velocity = random(volMin, volMax);
+        velocity *= (barVelocity[external_clock_bar] / MIDI_CC_RANGE_FLOAT);
+        velocity *= (mixGainPot / MIDI_CC_RANGE_FLOAT);
+
+        uint8_t stepFX = random(seqMod_value[10][playPresetNr][8], seqMod_value[10][playPresetNr][9]);
+
+        sendControlChange(parameter[14], stepFX, clip[clipIndex].midiChOut);
+        noteToPlay[0] = finalNote;
+        noteOffAt[0] = constrain(cloock + tick.noteLength[0], 0, MAX_TICKS - 1);
+        noteOn(finalNote, velocity, clip[clipIndex].midiChOut);
+    }
+
+    if (noteOffAt[0] == cloock)
+    {
+        noteOffAt[0] = -1;
+        noteOff(noteToPlay[0], 0, clip[clipIndex].midiChOut);
+        noteToPlay[0] = NO_NOTE;
+    }
+}
+void Track::set_seq_mode10_parameters()
+{ // random
+    /*
+        0  octmin
+        1  octmax
+        2  volmin
+        3  volmax
+        4  maxsteps
+        5  dejaVu
+        6  rotate
+        7  save to clip
+        8  StepFX -
+        9  StepFX +
+          */
+    draw_seq_mode10();
+    if (lastPotRow == 3 && enc_button[3]) // save to clip
+    {
+        clear_active_clip();
+        enc_button[3] = false;
+
+        for (int s = 0; s < seqMod_value[10][PMpresetNr][4]; s++)
+        {
+            int _note = seqMod1NoteMemory[s];
+            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
+        }
+    }
+    if (lastPotRow == 1) // lock sequence immedietly
+    {
+        if (enc_button[3])
+        {
+            seqMod_value[10][PMpresetNr][5] = 127;
+            change_plugin_row = true;
+        }
+        if (enc_moved[2])
+            rotateIntArray(seqMod1NoteMemory, seqMod_value[10][PMpresetNr][4], encoded[2]);
+    }
+    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+        switch (lastPotRow)
+        {
+        case 0:
+        {
+
+            set_seq_mode_value(10, 0, 0, "Oct -", 0, 11);
+            set_seq_mode_value(10, 1, 0, "Oct +", 0, 11);
+            set_seq_mode_value(10, 2, 0, "Vol -", 0, MIDI_CC_RANGE);
+            set_seq_mode_value(10, 3, 0, "Vol +", 0, MIDI_CC_RANGE);
+        }
+        break;
+        case 1:
+        {
+            set_seq_mode_value(10, 0, 1, "maxSteps", 0, NUM_STEPS);
+            set_seq_mode_value(10, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
+            set_seq_mode_value(10, 2, 1, "Prob", 0, MIDI_CC_RANGE);
+        }
+        break;
+        case 2:
+        {
+            set_seq_mode_value(10, 0, 2, "StepFX -", 0, MIDI_CC_RANGE + 1);
+            set_seq_mode_value(10, 1, 2, "StepFX +", 0, MIDI_CC_RANGE + 1);
+            set_seq_mode_value(10, 2, 2, "Style", 0, MIDI_CC_RANGE);
+        }
+        break;
+        case 3:
+        {
+        }
+        break;
+        default:
+            break;
+        }
+    }
+    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+        set_presetNr();
+}
+void Track::draw_seq_mode10()
+{
+    if (change_plugin_row)
+    {
+        change_plugin_row = false;
+
+        drawPot(0, 0, seqMod_value[10][PMpresetNr][0], "Oct -");
+        drawPot(1, 0, seqMod_value[10][PMpresetNr][1], "Oct +");
+        drawPot(2, 0, seqMod_value[10][PMpresetNr][2], "Vol -");
+        drawPot(3, 0, seqMod_value[10][PMpresetNr][3], "Vol +");
+
+        drawPot(0, 1, seqMod_value[10][PMpresetNr][4], "maxSteps");
+        drawPot(1, 1, seqMod_value[10][PMpresetNr][5], "Dejavu");
+        drawPot(2, 1, seqMod_value[10][PMpresetNr][6], "Prob");
+
+        drawPot(0, 2, seqMod_value[10][PMpresetNr][8], "StepFX -");
+        drawPot(1, 2, seqMod_value[10][PMpresetNr][9], "StepFX +");
+        drawPot(2, 2, seqMod_value[10][PMpresetNr][10], "Style");
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }

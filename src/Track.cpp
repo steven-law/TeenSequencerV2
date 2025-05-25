@@ -225,6 +225,9 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
                 case 9:
                     play_seq_mode9(internal_clock);
                     break;
+                case 10:
+                    play_seq_mode10(internal_clock);
+                    break;
                 }
             }
         }
@@ -263,6 +266,9 @@ void Track::set_seq_mode_parameters(uint8_t row)
     case 9:
         set_seq_mode9_parameters();
         break;
+    case 10:
+        set_seq_mode10_parameters();
+        break;
     default:
         break;
     }
@@ -288,6 +294,8 @@ void Track::draw_sequencer_modes(uint8_t mode)
         draw_seq_mode8();
     if (mode == 9)
         draw_seq_mode9();
+    if (mode == 10)
+        draw_seq_mode10();
 }
 
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)

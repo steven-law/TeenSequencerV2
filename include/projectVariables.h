@@ -12,7 +12,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_NAME "NO_NAME"
 
 #define NUM_PLUGINS 14
-#define NUM_PLAYMODES 10
+#define NUM_PLAYMODES 11
 #define NUM_SCALES 23
 #define NUM_FX 3
 
@@ -139,7 +139,7 @@ extern bool change_plugin_row;
 extern const int encoder_colour[NUM_ENCODERS];
 extern unsigned long neotrellisReadPreviousMillis; // will store last time LED was updated
 extern unsigned long updateMidiPreviousMillis;     // will store last time LED was updated
-
+extern bool getArrangerFromPC;
 extern uint16_t tftRAM[16][16];
 #define BEAT_ARRAY_SIZE 128
 // extern const bool seqM_Beats[BEAT_ARRAY_SIZE][NUM_STEPS];
@@ -238,15 +238,14 @@ extern const char FLASHMEM *noteNames[12];
 // touch
 extern bool isTouched;
 
-
-extern int noteInfo[MAX_VOICES][4]; //noote, velo, start, length
+extern int noteInfo[MAX_VOICES][4]; // noote, velo, start, length
 struct MidiTrack
-    {
-        File file;
-        uint32_t trackStart;  // Position der Track-Daten im File
-        uint32_t trackLength; // Länge des Track-Chunks
-        int division;         // Ticks per Quarter Note (PPQN)
-    };
+{
+    File file;
+    uint32_t trackStart;  // Position der Track-Daten im File
+    uint32_t trackLength; // Länge des Track-Chunks
+    int division;         // Ticks per Quarter Note (PPQN)
+};
 extern MidiTrack myMidi[NUM_TRACKS];
 float lfo_semitone_tri(float phase);
 float lfo_semitone_saw(float phase);
