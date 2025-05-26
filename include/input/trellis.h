@@ -17,7 +17,6 @@ void trellis_play_mixer();
 void trellis_perform();
 #define NEOTRELLIS_INT_PIN 39
 
-
 #define TRELLIS_POTROW 0
 #define TRELLIS_BUTTON_SAVELOAD 1
 #define TRELLIS_START_CLOCK 2
@@ -80,8 +79,8 @@ extern int trellisControllBuffer[X_DIM][Y_DIM];
 extern Adafruit_NeoTrellis t_array[Y_DIM / 4][X_DIM / 4];
 extern Adafruit_MultiTrellis neotrellis;
 
-extern const  long trellisReadInterval;             // interval at which to blink (milliseconds)
-extern const unsigned long neotrellisReadInterval;          // interval at which to blink (milliseconds)
+extern const long trellisReadInterval;             // interval at which to blink (milliseconds)
+extern const unsigned long neotrellisReadInterval; // interval at which to blink (milliseconds)
 extern const long trellisRestartInterval;          // interval at which to blink (milliseconds)
 extern unsigned long trellisRestartPreviousMillis; // will store last time LED was updated
 extern unsigned long trellisReadPreviousMillis;    // will store last time LED was updated
@@ -91,7 +90,7 @@ extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_
 extern uint8_t bar2edit;
 
 TrellisCallback blink(keyEvent evt);
-
+uint16_t rgb24to565(uint32_t color24);
 void neotrellis_setup(int dly);
 void neotrellis_assign_start_buffer();
 void neotrellis_set_control_buffer(int _x, int _y, int _color);

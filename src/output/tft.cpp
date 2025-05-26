@@ -115,12 +115,7 @@ void startUpScreen()
     tft.print("S");
 
     // other tracks buttons
-    for (int otherTracks = 1; otherTracks <= 8; otherTracks++)
-    {
-        tft.fillRect(1, TRACK_FRAME_H * otherTracks, STEP_FRAME_W, TRACK_FRAME_H, trackColor[otherTracks - 1]); // Xmin, Ymin, Xlength, Ylength, color
-        tft.setCursor(4, TRACK_FRAME_H * otherTracks + 6);
-        tft.print(otherTracks);
-    }
+    tft_showTrackColors();
     // Mixer button
     tft.fillRect(1, STEP_FRAME_H * 13, STEP_FRAME_W, TRACK_FRAME_H, ILI9341_LIGHTGREY); // Xmin, Ymin, Xlength, Ylength, color
     tft.setCursor(3, STEP_FRAME_H * 13 + 14);
@@ -140,6 +135,17 @@ void startUpScreen()
     draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, myClock.startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
     // end of loop
     draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, myClock.endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
+}
+void tft_showTrackColors()
+{
+    tft.setTextColor(ILI9341_BLACK);
+    tft.setTextSize(2);
+    for (int otherTracks = 1; otherTracks <= 8; otherTracks++)
+    {
+        tft.fillRect(1, TRACK_FRAME_H * otherTracks, STEP_FRAME_W-1, TRACK_FRAME_H, trackColor[otherTracks - 1]); // Xmin, Ymin, Xlength, Ylength, color
+        tft.setCursor(4, TRACK_FRAME_H * otherTracks + 6);
+        tft.print(otherTracks);
+    }
 }
 void show_active_track()
 {

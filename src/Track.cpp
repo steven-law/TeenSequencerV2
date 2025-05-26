@@ -394,6 +394,8 @@ void Track::set_arranger_parameters()
 }
 void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int minValue, int maxValue, const char *label)
 {
+    if (bar_to_edit < 0)
+        return;
     if (gridTouchY == my_Arranger_Y_axis)
     {
         uint8_t when = (((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage));

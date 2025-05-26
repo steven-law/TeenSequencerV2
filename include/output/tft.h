@@ -96,7 +96,7 @@ void show_active_page_info(const char *_pagename, uint8_t _pagenumber);
 void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY);
 void draw_potRow();
 void tft_show();
-
+void tft_showTrackColors();
 void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release);
 void draw_sequencer_arranger_parameter(uint8_t _track, uint8_t _encoder, const char *_name, int _value, const char *_valuedName);

@@ -328,7 +328,7 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
         noteLengthTemp[i] = clip.tick[i].noteLength[voiceIndex];
         startTickTemp[i] = clip.tick[i].startTick[voiceIndex];
         trellisTemp[i / TICKS_PER_STEP] = trellisMainGridBuffer[parameter[SET_CLIP2_EDIT]][i / TICKS_PER_STEP][my_Arranger_Y_axis - 1];
-        // stepFXTemp[i] = clip.tick[i].stepFX;
+         stepFXTemp[i] = clip.tick[i].stepFX;
     }
 
     Serial.println("Rotating temp arrays...");
@@ -339,7 +339,7 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
     rotateIntArray(startTickTemp, maxTicks, rotation);
     rotateIntArray(trellisTemp, NUM_STEPS, rotation);
 
-    // rotateIntArray(stepFXTemp, maxTicks, rotation);
+     rotateIntArray(stepFXTemp, maxTicks, rotation);
 
     Serial.println("Writing rotated data back...");
 
@@ -383,7 +383,7 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
             trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], i / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trelliscolorTemp);
         //
         // trellisMainGridBuffer[parameter[SET_CLIP2_EDIT]][i / TICKS_PER_STEP][my_Arranger_Y_axis - 1]=trellisTemp[i/TICKS_PER_STEP];
-        // clip.tick[i].stepFX = stepFXTemp[i];
+         clip.tick[i].stepFX = stepFXTemp[i];
         if (clip.tick[i].voice[voiceIndex] != NO_NOTE && clip.tick[i].startTick[voiceIndex] < MAX_TICKS && clip.tick[i].velo[voiceIndex] != 0)
             Serial.printf("note= %d, start= %d, length= %d,  velo= %d\n", clip.tick[i].voice[voiceIndex], clip.tick[i].startTick[voiceIndex], clip.tick[i].noteLength[voiceIndex], clip.tick[i].velo[voiceIndex]);
     }

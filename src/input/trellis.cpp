@@ -58,6 +58,12 @@ TrellisCallback blink(keyEvent evt)
   // neotrellis_show();
   return 0;
 }
+uint16_t rgb24to565(uint32_t color24) {
+  uint8_t r = (color24 >> 16) & 0xFF;
+  uint8_t g = (color24 >> 8) & 0xFF;
+  uint8_t b = color24 & 0xFF;
+  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
 void neotrellis_setup(int dly)
 {
   pinMode(NEOTRELLIS_INT_PIN, INPUT);
@@ -563,6 +569,7 @@ void trellis_show_arranger()
         // trellis_set_main_buffer(TRELLIS_SCREEN_SONGPAGE_SELECTION, i, 0, TRELLIS_BLACK);
         //  neotrellis_show();
         //   Serial.printf("songpage= %d\n", _key);
+        startUpScreen();
         gridSongMode(arrangerpage);
 
         for (int y = 0; y < NUM_TRACKS; y++)

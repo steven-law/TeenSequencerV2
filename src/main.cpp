@@ -435,6 +435,19 @@ void input_behaviour()
       myClock.set_start_of_loop(2); // Encoder: 2
       myClock.set_end_of_loop(3);   // Encoder: 3
     }
+    if (pixelTouchX == 0 && enc_moved[3] == true)
+    {
+      int tempTrack = (gridTouchY)-1;
+      Serial.printf("encmoved: %s, track: %d\n", enc_moved[3] ? "true" : "false", tempTrack);
+      enc_moved[3] = false;
+
+      trellisTrackColor[tempTrack] = trellisTrackColor[tempTrack] + encoded[3];
+      trackColor[tempTrack] = rgb24to565(trellisTrackColor[tempTrack]);
+      trellisScreen = arrangerpage;
+      tft_showTrackColors();
+      neotrellis_set_control_buffer(3, tempTrack + 4, trellisTrackColor[tempTrack]);
+      updateTFTScreen = true;
+    }
     break;
   }
   case INPUT_FUNCTIONS_FOR_SEQUENCER_MODES:

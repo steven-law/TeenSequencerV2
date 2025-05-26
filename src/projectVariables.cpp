@@ -2,7 +2,7 @@
 
 #include "projectVariables.h"
 File myFile;
-
+uint16_t rgb24to565(uint32_t color24);
 const int FlashChipSelect = 6; // digital pin for flash chip CS pin
 int pixelTouchX;
 int gridTouchY;
@@ -28,7 +28,7 @@ bool updateTFTScreen;
 uint8_t FLASHMEM gateOutputPin[8]{22, 40, 38, 37, 36, 35, 34, 33};
 
 bool trellisShowClockPixel[TRELLIS_PADS_Y_DIM];
-int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
+int trackColor[9]{rgb24to565(TRELLIS_RED), rgb24to565(TRELLIS_PURPLE), rgb24to565(TRELLIS_OLIVE), rgb24to565( TRELLIS_YELLOW), rgb24to565( TRELLIS_BLUE), rgb24to565( 9365295), rgb24to565( TRELLIS_AQUA), rgb24to565( TRELLIS_GREEN), rgb24to565( 900909)};
 uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 uint8_t performCC[TRELLIS_PADS_X_DIM];
 bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
