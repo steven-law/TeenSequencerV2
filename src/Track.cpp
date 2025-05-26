@@ -67,7 +67,7 @@ void Track::save_track(uint8_t songNr)
             myTrackFile.write(seqMod_value[4][p][t]);
         }
     }
-
+    myTrackFile.write(trackColor[my_Arranger_Y_axis - 1]);
     myTrackFile.write(mixGainPot);
     myTrackFile.write(mixDryPot);
     myTrackFile.write(mixFX1Pot);
@@ -139,6 +139,7 @@ void Track::load_track(uint8_t songNr)
         }
     }
 
+    trackColor[my_Arranger_Y_axis - 1] = myTrackFile.read();
     mixGainPot = myTrackFile.read();
     mixDryPot = myTrackFile.read();
     mixFX1Pot = myTrackFile.read();
