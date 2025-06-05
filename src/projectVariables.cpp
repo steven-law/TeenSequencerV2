@@ -13,7 +13,8 @@ uint8_t trellisScreen;
 uint8_t active_track;
 uint8_t arrangerpage;
 bool change_plugin_row;
- bool getArrangerFromPC = false;
+bool getArrangerFromPC = false;
+bool i2c_busy = false;
 const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 unsigned long neotrellisReadPreviousMillis = 0; // will store last time LED was updated
 unsigned long updateMidiPreviousMillis = 0;     // will store last time LED was updated
@@ -28,7 +29,7 @@ bool updateTFTScreen;
 uint8_t FLASHMEM gateOutputPin[8]{22, 40, 38, 37, 36, 35, 34, 33};
 
 bool trellisShowClockPixel[TRELLIS_PADS_Y_DIM];
-int trackColor[9]{rgb24to565(TRELLIS_RED), rgb24to565(TRELLIS_PURPLE), rgb24to565(TRELLIS_OLIVE), rgb24to565( TRELLIS_YELLOW), rgb24to565( TRELLIS_BLUE), rgb24to565( 9365295), rgb24to565( TRELLIS_AQUA), rgb24to565( TRELLIS_GREEN), rgb24to565( 900909)};
+int trackColor[9]{rgb24to565(TRELLIS_RED), rgb24to565(TRELLIS_PURPLE), rgb24to565(TRELLIS_OLIVE), rgb24to565(TRELLIS_YELLOW), rgb24to565(TRELLIS_BLUE), rgb24to565(9365295), rgb24to565(TRELLIS_AQUA), rgb24to565(TRELLIS_GREEN), rgb24to565(900909)};
 uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 uint8_t performCC[TRELLIS_PADS_X_DIM];
 bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
@@ -122,10 +123,10 @@ float lfo_semitone_tri(float phase)
     // triangle wave: -1.0 .. +1.0
     float tri = 2.0f * fabs(2.0f * (phase - floor(phase + 0.5f))) - 1.0f;
     // skalieren auf -12 bis +12
-    return round(tri );
+    return round(tri);
 }
 float lfo_semitone_saw(float phase)
 {
     float saw = 2.0f * (phase - floor(phase + 0.5f)); // -1.0 .. +1.0
-    return round(saw );
+    return round(saw);
 }

@@ -76,7 +76,7 @@ uint8_t Track::transpose_to_scale(uint8_t noteToChange)
 }
 void Track::play_seq_mode0(uint8_t cloock)
 {
-    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
+    const uint8_t clipIndex = clip_to_play[external_clock_bar];
     const auto &tick = clip[clipIndex].tick[cloock];
 
     const float velocityScale = (barVelocity[external_clock_bar] / 127.0f) * (mixGainPot / 127.0f);

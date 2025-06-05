@@ -32,53 +32,62 @@ void dac_setup(int dly)
 }
 void sendNoteOn_CV_Gate(uint8_t _track, uint8_t _note)
 {
+
   if (_note < 64)
   {
-    if (_track == 0)
+    if (!i2c_busy)
     {
-      // uint8_t _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
-      mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[0], true);
-      Serial.printf("cv Note On: %d\n", _note);
+      i2c_busy = true;
+      if (_track == 0)
+      {
+        // uint8_t _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
+        mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * _note);
+        //  digitalWrite(gateOutputPin[0], true);
+        Serial.printf("cv Note On: %d\n", _note);
+      }
+
+      if (_track == 1)
+      {
+        mcp.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * _note);
+        //  digitalWrite(gateOutputPin[1], true);
+      }
+
+      if (_track == 2)
+      {
+        mcp.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * _note);
+        //  digitalWrite(gateOutputPin[2], true);
+      }
+
+      if (_track == 3)
+      {
+        mcp.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * _note);
+        // digitalWrite(gateOutputPin[3], true);
+      }
+      if (_track == 4)
+      {
+        mcp2.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * _note);
+        // digitalWrite(gateOutputPin[4], true);
+      }
+      if (_track == 5)
+      {
+        mcp2.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * _note);
+        // digitalWrite(gateOutputPin[5], true);
+      }
+      if (_track == 6)
+      {
+        mcp2.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * _note);
+        // digitalWrite(gateOutputPin[6], true);
+      }
+      if (_track == 7)
+      {
+        mcp2.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * _note);
+        // digitalWrite(gateOutputPin[7], true);
+      }
+      i2c_busy = false;
     }
 
-    if (_track == 1)
-    {
-      mcp.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[1], true);
-    }
-
-    if (_track == 2)
-    {
-      mcp.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[2], true);
-    }
-
-    if (_track == 3)
-    {
-      mcp.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[3], true);
-    }
-    if (_track == 4)
-    {
-      mcp2.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[4], true);
-    }
-    if (_track == 5)
-    {
-      mcp2.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[5], true);
-    }
-    if (_track == 6)
-    {
-      mcp2.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[6], true);
-    }
-    if (_track == 7)
-    {
-      mcp2.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * _note);
-      digitalWrite(gateOutputPin[7], true);
-    }
+    digitalWrite(gateOutputPin[_track], true);
+    delay(1);
   }
 }
 void sendNoteOff_CV_Gate(uint8_t _track, uint8_t _note)
@@ -87,5 +96,3 @@ void sendNoteOff_CV_Gate(uint8_t _track, uint8_t _note)
   digitalWrite(gateOutputPin[_track], false);
   Serial.println("cv Note Off");
 }
-
-

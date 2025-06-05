@@ -119,6 +119,8 @@ void setup()
     /* code */
   }
   Serial.begin(115200);
+  Wire.begin();
+  Wire.setClock(180000);
   Wire1.begin();
   Wire1.setClock(100000);
   SD.begin(BUILTIN_SDCARD);
@@ -185,7 +187,7 @@ void setup()
       t_array[y][x].pixels.setBrightness(5);
     }
   }
-  neotrellis.show();
+  neotrellis_show();
   trellis.setBrightness(0);
   // light up all the LEDs in order
   for (uint8_t i = 0; i < numKeys; i++)
@@ -235,18 +237,18 @@ void loop()
     unsigned long loopStartTime = millis();
     unsigned long trellisRestartMillis = millis();
 
-    if (!digitalRead(NEOTRELLIS_INT_PIN))
+    if (!digitalRead(NEOTRELLIS_INT_PIN) && !i2c_busy)
     {
+     // i2c_busy = true;
       // Serial.println("reading trellis");
       neotrellis.read();
       neotrellis.setPixelColor(3, 1, TRELLIS_AQUA);
-      neotrellis.show();
-
-      delay(0);
+      neotrellis_show();
+    //  i2c_busy = false;
     }
     neotrellis_set_control_buffer(3, 1, TRELLIS_BLACK);
-    // neotrellis.setPixelColor(3, 1, TRELLIS_BLACK);
-    // neotrellis.show();
+    neotrellis.setPixelColor(3, 1, TRELLIS_BLACK);
+    neotrellis_show();
     readEncoders();
     trellis_update();
     neotrellis_update();
@@ -312,7 +314,7 @@ void loop()
     // if we need to restart the trellisboard
     // if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     // Serial.println("shift pressed");
-    if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
+    if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval && !i2c_busy)
     {
       // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisScreen);
       trellisReadPreviousMillis = neotrellisCurrentMillis;
@@ -641,7 +643,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -2104,7 +2106,7 @@ void receiveClipData()
 {
   static String inputBuffer = "";
   static int trackIndex = 0;
-  static int clipIndex = 0;
+  static bool receivedDataThisRound = false;
 
   while (Serial.available())
   {
@@ -2118,29 +2120,22 @@ void receiveClipData()
         Serial.println(">> Aufnahme gestartet");
         getArrangerFromPC = true;
         trackIndex = 0;
-        clipIndex = 0;
-
-        //  tft.setCursor(20, 20);
-        //  tft.setTextColor(ILI9341_BLACK);
-        //  tft.setTextSize(2);
-        //  tft.println("record to arranger");
+        receivedDataThisRound = false;
       }
       else if (inputBuffer == "EoL" && getArrangerFromPC)
       {
-        //  tft.print(">> Zeile ");
-        //  tft.print(trackIndex);
-        //  tft.println(" abgeschlossen");
-        Serial.print(">> Zeile ");
-        Serial.print(trackIndex);
-        Serial.println(" abgeschlossen");
-        allTracks[trackIndex]->clear_arrangment();
-        trackIndex++;
-        clipIndex = 0;
+        if (receivedDataThisRound)
+        {
+          Serial.printf(">> Zeile %d abgeschlossen\n", trackIndex);
+
+          trackIndex++;
+          allTracks[trackIndex]->clear_arrangment();
+          receivedDataThisRound = false;
+        }
 
         if (trackIndex >= NUM_TRACKS)
         {
           getArrangerFromPC = false;
-          //   tft.println(">> Alle Tracks empfangen.");
           set_infobox_background(500);
           tft.printf("got Arrangement");
           reset_infobox_background();
@@ -2148,6 +2143,7 @@ void receiveClipData()
       }
       else if (getArrangerFromPC)
       {
+        receivedDataThisRound = true;
         for (unsigned int i = 0; i < inputBuffer.length() && i < MAX_BARS; i++)
         {
           char c = inputBuffer.charAt(i);
@@ -2155,8 +2151,6 @@ void receiveClipData()
           {
             uint8_t value = c - '0';
             allTracks[trackIndex]->clip_to_play[i] = value;
-            // Serial.printf("%d,", value);
-            // tft.printf("%d", value);
           }
           else
           {
@@ -2165,11 +2159,11 @@ void receiveClipData()
         }
       }
 
-      inputBuffer = ""; // clear after processing
+      inputBuffer = "";
     }
     else
     {
-      inputBuffer += c; // keep adding characters
+      inputBuffer += c;
     }
   }
 }

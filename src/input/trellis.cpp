@@ -43,22 +43,28 @@ Adafruit_MultiTrellis neotrellis((Adafruit_NeoTrellis *)t_array, Y_DIM / 4, X_DI
 // define a callback for key presses
 TrellisCallback blink(keyEvent evt)
 {
-
-  if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_RISING)
+  if (!i2c_busy)
   {
-    Serial.printf("neotrellispressed :%d\n", evt.bit.NUM);
-    neotrellisPressed[evt.bit.NUM] = true;
-    updateTFTScreen = true;
-    change_plugin_row = true;
-  }
-  else if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_FALLING)
-  {
-    neotrellisPressed[evt.bit.NUM] = false;
+    i2c_busy = true;
+    if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_RISING)
+    {
+      Serial.printf("neotrellispressed :%d\n", evt.bit.NUM);
+      neotrellisPressed[evt.bit.NUM] = true;
+      updateTFTScreen = true;
+      change_plugin_row = true;
+    }
+    else if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_FALLING)
+    {
+      neotrellisPressed[evt.bit.NUM] = false;
+    }
+    i2c_busy = false;
+    // delay(3);
   }
   // neotrellis_show();
   return 0;
 }
-uint16_t rgb24to565(uint32_t color24) {
+uint16_t rgb24to565(uint32_t color24)
+{
   uint8_t r = (color24 >> 16) & 0xFF;
   uint8_t g = (color24 >> 8) & 0xFF;
   uint8_t b = color24 & 0xFF;
@@ -153,9 +159,13 @@ void neotrellis_assign_start_buffer()
 }
 void neotrellis_set_control_buffer(int _x, int _y, int _color)
 {
+
   trellisControllBuffer[_x][_y] = _color;
   neotrellis.setPixelColor(_x, _y, _color);
-  neotrellis.show();
+
+  delay(3);
+  neotrellis_show();
+
   // Serial.println("set control buffer");
 }
 int neotrellis_get_control_buffer(int _x, int _y)
@@ -231,24 +241,35 @@ void neo_trellis_set_brightness()
 }
 void neotrellis_show()
 {
-  neotrellis.show();
+  if (!i2c_busy)
+  {
+    i2c_busy = true;
+    neotrellis.show();
+    delay(3);
+    i2c_busy = false;
+  }
 }
 void neotrellis_update()
 {
-  neotrellis_start_clock();
-  neotrellis_stop_clock();
-  neotrellis_set_potRow();
-  trellis_show_tft_mixer();
-  neo_trellis_select_trackClips();
-  neo_trellis_save_load();
-  neotrellis_perform_set_active();
-  neotrellis_show_tft_seqMode();
-  neotrellis_show_tft_plugin();
-  neotrellis_set_piano();
-  neotrellis_set_mute();
-  neotrellis_set_solo();
-  neotrellis_set_fast_record();
-  neo_trellis_set_brightness();
+  if (!i2c_busy)
+  {
+    i2c_busy = true;
+    neotrellis_start_clock();
+    neotrellis_stop_clock();
+    neotrellis_set_potRow();
+    trellis_show_tft_mixer();
+    neo_trellis_select_trackClips();
+    neo_trellis_save_load();
+    neotrellis_perform_set_active();
+    neotrellis_show_tft_seqMode();
+    neotrellis_show_tft_plugin();
+    neotrellis_set_piano();
+    neotrellis_set_mute();
+    neotrellis_set_solo();
+    neotrellis_set_fast_record();
+    neo_trellis_set_brightness();
+    i2c_busy = false;
+  }
 }
 // 1st row
 void neotrellis_set_potRow()
@@ -1126,36 +1147,40 @@ void trellis_setup(int dly)
 }
 void trellis_read()
 {
-
-  // If a button was just pressed or released...
-  if (trellis.readSwitches())
+  if (!i2c_busy)
   {
-    // go through every button
-    for (uint8_t i = 0; i < numKeys; i++)
+    i2c_busy = true;
+    // If a button was just pressed or released...
+    if (trellis.readSwitches())
     {
-
-      // if it was pressed, turn it on
-      if (trellis.justPressed(TrellisLED[i]))
+      // go through every button
+      for (uint8_t i = 0; i < numKeys; i++)
       {
-        updateTFTScreen = true;
-        trellisPressed[i] = true;
-        oneTrellisIsPressed = true;
-        Serial.print("nr");
-        Serial.println(i);
-      }
 
-      if (trellis.isKeyPressed(TrellisLED[i]))
-      {
-        trellisHeld[i] = true;
-      }
+        // if it was pressed, turn it on
+        if (trellis.justPressed(TrellisLED[i]))
+        {
+          updateTFTScreen = true;
+          trellisPressed[i] = true;
+          oneTrellisIsPressed = true;
+          Serial.print("nr");
+          Serial.println(i);
+        }
 
-      // if it was released, turn it off
-      if (trellis.justReleased(TrellisLED[i]))
-      {
-        trellisPressed[i] = false;
-        trellisHeld[i] = false;
+        if (trellis.isKeyPressed(TrellisLED[i]))
+        {
+          trellisHeld[i] = true;
+        }
+
+        // if it was released, turn it off
+        if (trellis.justReleased(TrellisLED[i]))
+        {
+          trellisPressed[i] = false;
+          trellisHeld[i] = false;
+        }
       }
     }
+    i2c_busy = false;
   }
 }
 

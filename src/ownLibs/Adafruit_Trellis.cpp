@@ -54,7 +54,7 @@ void Adafruit_Trellis::begin(uint8_t _addr = 0x70) {
   Wire1.begin();
 
   Wire1.beginTransmission(i2c_addr);
-  Wire.write(0x21);  // turn on oscillator
+  Wire1.write(0x21);  // turn on oscillator
   Wire1.endTransmission();
   blinkRate(HT16K33_BLINK_OFF);
   

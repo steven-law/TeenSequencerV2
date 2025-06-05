@@ -156,10 +156,10 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     {
         external_clock_bar = myClock.barTick;
     }
-    if (cloock % (clip[clip_to_play[internal_clock_bar]].clockDivision + performClockDivision) == 0)
+    if (cloock % (clip[clip_to_play[external_clock_bar]].clockDivision + performClockDivision) == 0)
     {
         internal_clock++;
-        if (internal_clock >= clip[clip_to_play[internal_clock_bar]].seqLength)
+        if (internal_clock >= clip[clip_to_play[external_clock_bar]].seqLength)
         {
             internal_clock = 0;
         }
@@ -168,6 +168,9 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
         {
             internal_clock_bar++;
             change_presets();
+            if (internal_clock_bar % clip[clip_to_play[external_clock_bar]].clockDivision == 0)
+                internal_clock_bar = external_clock_bar;
+            Serial.printf(" track: %d, clip: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar]);
         }
         if (internal_clock_bar >= end)
             internal_clock_bar = start;
