@@ -100,7 +100,7 @@ public:
     virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
     virtual void change_preset() override;
-
+virtual void set_gain(uint8_t gain) override;
     void set_rec_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
     void assign_rec_waveform(uint8_t value);
     void set_rec_amplitude(uint8_t XPos, uint8_t YPos, const char *name);

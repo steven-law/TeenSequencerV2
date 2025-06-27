@@ -169,7 +169,10 @@ void Plugin_3::get_peak()
 {
     // Serial.printf("Pl3: %f  ", peak.read());
 }
-
+void Plugin_3::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_3::set_mod_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])

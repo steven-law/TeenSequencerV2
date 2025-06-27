@@ -172,7 +172,10 @@ void Plugin_6::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
-
+void Plugin_6::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_6::draw_plugin()
 {
     if (change_plugin_row)
@@ -233,9 +236,9 @@ void Plugin_6::change_preset()
     assign_filter_frequency(potentiometer[presetNr][12]);
     assign_filter_resonance(potentiometer[presetNr][13]);
 
-    assign_envelope_attack(potentiometer[presetNr][14], 1000);
     assign_envelope_release(potentiometer[presetNr][15], 2000);
 }
+
 void Plugin_6::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
@@ -263,6 +266,7 @@ void Plugin_6::assign_voice_offset(uint8_t voice, uint8_t value)
 {
     pl6Offset[voice] = value;
 }
+
 void Plugin_6::set_voice_amplitude(uint8_t voice, uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
@@ -292,7 +296,6 @@ void Plugin_6::assign_filter_frequency(uint8_t value)
     filter.frequency(frequency);
     // ladder.frequency(frequency);
 }
-
 void Plugin_6::set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
@@ -322,111 +325,15 @@ void Plugin_6::assign_filter_sweep(uint8_t value)
     filter.octaveControl(value);
     // ladder.octaveControl(swp);
 }
-void Plugin_6::set_filter_type(uint8_t XPos, uint8_t YPos, const char *name)
-{
-    if (enc_moved[XPos])
-    {
-        selectFilterType(constrain(get_Potentiometer(XPos, YPos, name), 0, 3));
-    }
-}
-void Plugin_6::selectFilterType(uint8_t mixerchannel)
-{
-
-    fMixer.gain(0, 0);
-    fMixer.gain(1, 0);
-    fMixer.gain(2, 0);
-    fMixer.gain(3, 0);
-    fMixer.gain(mixerchannel, 1);
-}
-
-void Plugin_6::assign_envelope_attack(uint8_t value, int max)
-{
-    int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
-
-    Fenv.attack(attack);
-    Aenv.attack(attack);
-}
-void Plugin_6::assign_envelope_decay(uint8_t value, int max)
-{
-    int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
-
-    Fenv.decay(decay);
-    Aenv.decay(decay);
-}
-void Plugin_6::assign_envelope_sustain(uint8_t value)
-{
-    float ampl = value / MIDI_CC_RANGE_FLOAT;
-
-    Fenv.sustain(ampl);
-    Aenv.sustain(ampl);
-}
 void Plugin_6::assign_envelope_release(uint8_t value, int max)
 {
     int release = map(value, 0, MIDI_CC_RANGE, 0, max);
-    Fenv.attack(release / 2);
-    Aenv.attack(release / 2);
+    //Fenv.attack(release / 8);
+    //Aenv.attack(release / 2);
     Fenv.decay(release / 3);
     Aenv.decay(release / 3);
     Fenv.release(release);
     Aenv.release(release);
-}
-void Plugin_6::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
-{
-
-    if (enc_moved[0])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][0 + rowIx] = constrain(potentiometer[presetNr][0 + rowIx] + encoded[0], 0, MIDI_CC_RANGE);
-        assign_envelope_attack(potentiometer[presetNr][0 + rowIx], maxA);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-    if (enc_moved[1])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][1 + rowIx] = constrain(potentiometer[presetNr][1 + rowIx] + encoded[1], 0, MIDI_CC_RANGE);
-        assign_envelope_decay(potentiometer[presetNr][1 + rowIx], maxD);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-    if (enc_moved[2])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][2 + rowIx] = constrain(potentiometer[presetNr][2 + rowIx] + encoded[2], 0, MIDI_CC_RANGE);
-        assign_envelope_sustain(potentiometer[presetNr][2 + rowIx]);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-    if (enc_moved[3])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][3 + rowIx] = constrain(potentiometer[presetNr][3 + rowIx] + encoded[3], 0, MIDI_CC_RANGE);
-        assign_envelope_release(potentiometer[presetNr][3 + rowIx], maxR);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-}
-void Plugin_6::set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max)
-{
-    if (enc_moved[XPos])
-    {
-        assign_envelope_attack(get_Potentiometer(XPos, YPos, name), max);
-    }
-}
-void Plugin_6::set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max)
-{
-    if (enc_moved[XPos])
-    {
-        assign_envelope_decay(get_Potentiometer(XPos, YPos, name), max);
-    }
-}
-void Plugin_6::set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name)
-{
-    if (enc_moved[XPos])
-    {
-
-        assign_envelope_sustain(get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT);
-    }
 }
 void Plugin_6::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {

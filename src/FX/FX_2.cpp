@@ -37,7 +37,10 @@ void FX_2::draw_plugin()
         drawPot(1, 0, potentiometer[presetNr][1], "SmpRate");
     }
 }
-
+void FX_2::set_gain(uint8_t gain)
+{
+    //MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void FX_2::set_BC_bits(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])

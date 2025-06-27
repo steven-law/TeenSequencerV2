@@ -19,6 +19,7 @@ void PluginControll::noteOff(uint8_t notePlayed, uint8_t voice) {}
 void PluginControll::set_parameters(uint8_t row) {}
 void PluginControll::draw_plugin() {}
 void PluginControll::change_preset() {}
+void PluginControll::set_gain(uint8_t gain) {}
 
 void PluginControll::set_presetNr()
 {
@@ -40,25 +41,15 @@ uint8_t PluginControll::get_Potentiometer(uint8_t XPos, uint8_t YPos, const char
 
 void PluginControll::save_plugin(uint8_t _songNr)
 {
-    SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    char filename[20];
+    sprintf(filename, "%02d_plugin%02d.dat", _songNr, myID);
+    Serial.println(filename);
+    if (SD.exists(filename))
+        SD.remove(filename);
+    myFile = SD.open(filename, FILE_WRITE);
 
-    sprintf(_trackname, "%dplugin%d.txt", _songNr, myID);
-
-    Serial.println(_trackname);
-
-    // delete the file:
-    // Serial.println("Removing:");
-    SD.remove(_trackname);
-    // Serial.println("Done:");
-
-    // open the file.
-    // Serial.println("Creating and opening:");
-    myFile = SD.open(_trackname, FILE_WRITE);
-    // Serial.println(_trackname);
-    // Serial.println("Done:");
-    //  if the file opened okay, write to it:
     if (myFile)
     {
         // save tracks
@@ -69,12 +60,13 @@ void PluginControll::save_plugin(uint8_t _songNr)
 
             for (int v = 0; v < 16; v++)
             {
-                myFile.print((char)this->potentiometer[p][v]);
-               // Serial.printf("save plugin parameter preset: %d, value: %d\n", p, this->potentiometer[p][v]);
+                myFile.write(potentiometer[p][v]);
+                // Serial.printf("save plugin parameter preset: %d, value: %d\n", p, this->potentiometer[p][v]);
             }
         }
-        myFile.print((char)this->presetNr);
+        myFile.write(presetNr);
         // close the file:
+        myFile.flush();
         myFile.close();
         // Serial.println("all saved:");
         Serial.println("plugin saving Done:");
@@ -88,15 +80,15 @@ void PluginControll::save_plugin(uint8_t _songNr)
 }
 void PluginControll::load_plugin(uint8_t _songNr)
 {
-    SD.begin(BUILTIN_SDCARD);
+    char filename[20];
+    sprintf(filename, "%02d_plugin%02d.dat", _songNr, myID);
+    // open the file.
+    myFile = SD.open(filename, FILE_READ);
+
     // Serial.println("in save mode:");
 
-    sprintf(_trackname, "%dplugin%d.txt", _songNr, myID);
-    Serial.println(_trackname);
+    Serial.println(filename);
 
-    // open the file.
-    // Serial.println("Creating and opening:");
-    myFile = SD.open(_trackname, FILE_READ);
     // Serial.println(_trackname);
     // Serial.println("Done:");
     //  if the file opened okay, write to it:
@@ -109,12 +101,12 @@ void PluginControll::load_plugin(uint8_t _songNr)
         {
             for (int v = 0; v < 16; v++)
             {
-                this->potentiometer[p][v] = myFile.read();
+                potentiometer[p][v] = myFile.read();
 
-                Serial.printf("load plugin parameter preset: %d, value: %d\n", p, this->potentiometer[p][v]);
+                Serial.printf("load plugin parameter preset: %d, value: %d\n", p, potentiometer[p][v]);
             }
         }
-        this->presetNr = myFile.read();
+        presetNr = myFile.read();
         // close the file:
         myFile.close();
         Serial.println("all loaded:");

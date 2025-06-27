@@ -37,6 +37,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define INPUT_FUNCTIONS_FOR_FX3 12
 #define INPUT_FUNCTIONS_FOR_PERFORM 13
 #define INPUT_FUNCTIONS_FOR_CLIPLAUNCHER 15
+#define INPUT_FUNCTIONS_FOR_SGTL 25
 // clips
 #define MAX_CLIPS 9
 #define NUM_USER_CLIPS 7
@@ -124,7 +125,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 
 // plugins
 #define NUM_PLUGIN_PRESETS 8
-extern const char FLASHMEM *songNames[MAX_SONGS];
+extern const char FLASHMEM *songNames[16];
 
 extern char _trackname[20];
 extern int pixelTouchX;
@@ -147,7 +148,7 @@ extern uint16_t tftRAM[16][16];
 extern bool **beatArray;
 extern bool **beatArrayPM6;
 extern bool *beatArrayPM7;
-
+extern uint8_t sgtlparameter[16];
 #define Y_DIM 12 // number of rows of key
 #define X_DIM 4  // number of columns of keys
 #define TRELLIS_PADS_X_DIM 16

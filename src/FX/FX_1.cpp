@@ -28,6 +28,10 @@ void FX_1::set_parameters(uint8_t row)
         set_RC_damping(1, 0, "Damping");
     }
 }
+void FX_1::set_gain(uint8_t gain)
+{
+    //MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void FX_1::draw_plugin()
 {
     if (change_plugin_row)

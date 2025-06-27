@@ -91,7 +91,10 @@ void Plugin_9::noteOff(uint8_t notePlayed, uint8_t voice)
     Fenv.noteOff();
     Aenv.noteOff();
 }
-
+void Plugin_9::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_9::set_parameters(uint8_t row)
 {
     draw_plugin();

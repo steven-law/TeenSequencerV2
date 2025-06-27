@@ -182,7 +182,10 @@ void Plugin_2::change_preset()
     assign_envelope_sustain(potentiometer[presetNr][14]);
     assign_envelope_release(potentiometer[presetNr][15], 2000);
 }
-
+void Plugin_2::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_2::set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])

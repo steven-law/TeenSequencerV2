@@ -114,6 +114,7 @@ public:
     bool performIsActive = false;
     int performNoteOffset = 0;
     int performClockDivision = 0;
+    float performSeqLengthDiv=1;
     int bar_to_edit = 0;
     int tick_to_edit;
     int voice_to_edit;
@@ -135,7 +136,6 @@ public:
         // MIDI1.setHandleNoteOn(myNoteOn);
         // MIDI1.setHandleNoteOff(myNoteOff);
         // MIDI1.begin();
-        // SD.begin(BUILTIN_SDCARD);
         my_Arranger_Y_axis = Y;
         parameter[SET_MIDICH_OUT] = Y;
         // allocate tracks0-7 "array"
@@ -236,15 +236,12 @@ private:
 
     bool note_is_on[MAX_VOICES] = {false, false, true, true, true, true, true, true, true, true, true, true};
     uint8_t seqMod_value[NUM_PLAYMODES][NUM_PRESETS][16];
-    uint8_t seqMod1NoteMemory[NUM_STEPS];
-    uint8_t seqMod2NoteMemory[NUM_STEPS];
-    uint8_t seqMod7NoteMemory[NUM_STEPS];
+    uint8_t seqModNoteMemory[NUM_STEPS];
     uint8_t SeqMod6Value2[16];
     uint8_t PMpresetNr = 0;
     uint8_t maxVal;
     // stepsequencer
     void set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const char *name, int min, uint8_t max);
-    void set_stepSequencer_parameter_text(uint8_t XPos, uint8_t YPos, const char *name, const char *text, uint8_t min, uint8_t max);
     void copy_clip();
     // midi CC
     void set_CCvalue(uint8_t XPos, uint8_t YPos);

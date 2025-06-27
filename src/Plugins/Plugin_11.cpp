@@ -151,7 +151,10 @@ void Plugin_11::draw_plugin()
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
-
+void Plugin_11::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_11::change_preset()
 {
     assign_PWMdc_amplitude(potentiometer[presetNr][0]);

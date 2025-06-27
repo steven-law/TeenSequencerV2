@@ -135,7 +135,10 @@ void Plugin_7::draw_plugin()
     }
 }
 void Plugin_7::change_preset() {}
-
+void Plugin_7::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 // test
 void Plugin_7::set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos, const char *name)
 {

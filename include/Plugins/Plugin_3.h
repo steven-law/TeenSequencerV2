@@ -81,7 +81,7 @@ public:
     virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
     virtual void change_preset() override;
-
+virtual void set_gain(uint8_t gain) override;
     void get_peak();
     void set_mod_waveform(uint8_t XPos, uint8_t YPos, const char *name);
     void assign_mod_waveform(uint8_t value);

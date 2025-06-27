@@ -64,7 +64,7 @@ public:
     virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
     virtual void change_preset() override;
-
+virtual void set_gain(uint8_t gain) override;
     void set_DL_time(uint8_t XPos, uint8_t YPos, const char *name);
     void set_DL_feedback(uint8_t XPos, uint8_t YPos, const char *name);
 };

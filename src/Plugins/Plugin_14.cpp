@@ -137,6 +137,10 @@ void Plugin_14::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
+void Plugin_14::set_gain(uint8_t gain)
+{
+    MixGain.gain(0, gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_14::draw_plugin()
 {
     if (change_plugin_row)

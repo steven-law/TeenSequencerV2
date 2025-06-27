@@ -111,7 +111,10 @@ void Plugin_1::change_preset()
         assign_mixer_gain(potentiometer[presetNr][i], i);
     }
 }
-
+void Plugin_1::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_1::set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])

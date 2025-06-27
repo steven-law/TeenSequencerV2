@@ -47,12 +47,11 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     tick = tick % NUM_STEPS;
     stepTick = tick;
     updateTFTScreen = true;
-    
-    if (tick == NUM_STEPS-1)
+
+    if (tick == NUM_STEPS - 1)
     {
         barTick++;
         barTick = barTick % endOfLoop; // Setze wert2 mit Modulo-Operator zurück
-        
     }
     // Serial.printf("Bar: %d\n", tick);
 
@@ -104,6 +103,15 @@ void MyClock::set_stop()
     barTick = startOfLoop;
     if (syncToExtern)
         sendStop();
+    allTracks[0]->save_track(15);
+    allTracks[1]->save_track(15);
+    allTracks[2]->save_track(15);
+    allTracks[3]->save_track(15);
+    allTracks[4]->save_track(15);
+    allTracks[5]->save_track(15);
+    allTracks[6]->save_track(15);
+    allTracks[7]->save_track(15);
+    myClock.save_clock(15);
 }
 void MyClock::draw_clock_option(uint8_t x, uint8_t v)
 {
@@ -143,7 +151,6 @@ void MyClock::set_end_of_loop(uint8_t n)
 
 void MyClock::save_clock(uint8_t _songNr)
 {
-    // SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
@@ -192,12 +199,11 @@ void MyClock::load_clock(uint8_t _songNr)
     uint8_t _tempo;
     uint8_t _startOfLoop;
     uint8_t _endOfLoop;
-    // SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
     sprintf(_trackname, "%dclock.txt", _songNr);
     Serial.println(_trackname);
     //  open the file for reading:
-    this->clockFile = SD.open(_trackname, FILE_READ);
+    clockFile = SD.open(_trackname, FILE_READ);
     // Serial.println(_trackname);
     if (this->clockFile)
     {
@@ -205,15 +211,15 @@ void MyClock::load_clock(uint8_t _songNr)
         //  read from the file until there's nothing else in it:
         //  load track 1
 
-        _tempo = this->clockFile.read();
-        _startOfLoop = this->clockFile.read();
-        _endOfLoop = this->clockFile.read();
+        _tempo = clockFile.read();
+        _startOfLoop = clockFile.read();
+        _endOfLoop = clockFile.read();
 
         // Serial.println("settings loaded:");
 
         // startUpScreen();
         //  close the file:
-        this->clockFile.close();
+        clockFile.close();
         tempo = _tempo * 2;
         startOfLoop = _startOfLoop * 2;
         endOfLoop = _endOfLoop * 2;

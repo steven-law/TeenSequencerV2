@@ -36,7 +36,10 @@ void FX_3::draw_plugin()
         drawPot(1, 0, potentiometer[presetNr][1], "Feedback");
     }
 }
-
+void FX_3::set_gain(uint8_t gain)
+{
+    //MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void FX_3::set_DL_time(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])

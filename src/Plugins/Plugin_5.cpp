@@ -110,6 +110,10 @@ void Plugin_5::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
+void Plugin_5::set_gain(uint8_t gain)
+{
+    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+}
 void Plugin_5::draw_plugin()
 {
 

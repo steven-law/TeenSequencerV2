@@ -43,23 +43,19 @@ Adafruit_MultiTrellis neotrellis((Adafruit_NeoTrellis *)t_array, Y_DIM / 4, X_DI
 // define a callback for key presses
 TrellisCallback blink(keyEvent evt)
 {
-  if (!i2c_busy)
+
+  if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_RISING)
   {
-    i2c_busy = true;
-    if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_RISING)
-    {
-      Serial.printf("neotrellispressed :%d\n", evt.bit.NUM);
-      neotrellisPressed[evt.bit.NUM] = true;
-      updateTFTScreen = true;
-      change_plugin_row = true;
-    }
-    else if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_FALLING)
-    {
-      neotrellisPressed[evt.bit.NUM] = false;
-    }
-    i2c_busy = false;
-    // delay(3);
+    Serial.printf("neotrellispressed :%d\n", evt.bit.NUM);
+    neotrellisPressed[evt.bit.NUM] = true;
+    updateTFTScreen = true;
+    change_plugin_row = true;
   }
+  else if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_FALLING)
+  {
+    neotrellisPressed[evt.bit.NUM] = false;
+  }
+
   // neotrellis_show();
   return 0;
 }
@@ -163,7 +159,6 @@ void neotrellis_set_control_buffer(int _x, int _y, int _color)
   trellisControllBuffer[_x][_y] = _color;
   neotrellis.setPixelColor(_x, _y, _color);
 
-  delay(3);
   neotrellis_show();
 
   // Serial.println("set control buffer");
@@ -241,35 +236,26 @@ void neo_trellis_set_brightness()
 }
 void neotrellis_show()
 {
-  if (!i2c_busy)
-  {
-    i2c_busy = true;
-    neotrellis.show();
-    delay(3);
-    i2c_busy = false;
-  }
+
+  neotrellis.show();
 }
 void neotrellis_update()
 {
-  if (!i2c_busy)
-  {
-    i2c_busy = true;
-    neotrellis_start_clock();
-    neotrellis_stop_clock();
-    neotrellis_set_potRow();
-    trellis_show_tft_mixer();
-    neo_trellis_select_trackClips();
-    neo_trellis_save_load();
-    neotrellis_perform_set_active();
-    neotrellis_show_tft_seqMode();
-    neotrellis_show_tft_plugin();
-    neotrellis_set_piano();
-    neotrellis_set_mute();
-    neotrellis_set_solo();
-    neotrellis_set_fast_record();
-    neo_trellis_set_brightness();
-    i2c_busy = false;
-  }
+
+  neotrellis_start_clock();
+  neotrellis_stop_clock();
+  neotrellis_set_potRow();
+  trellis_show_tft_mixer();
+  neo_trellis_select_trackClips();
+  neo_trellis_save_load();
+  neotrellis_perform_set_active();
+  neotrellis_show_tft_seqMode();
+  neotrellis_show_tft_plugin();
+  neotrellis_set_piano();
+  neotrellis_set_mute();
+  neotrellis_set_solo();
+  neotrellis_set_fast_record();
+  neo_trellis_set_brightness();
 }
 // 1st row
 void neotrellis_set_potRow()
@@ -303,6 +289,7 @@ void neo_trellis_save_load()
       // neotrellis_show();
       trellis.setLED(TrellisLED[i]);
       trellis.setLED(TrellisLED[i + TRELLIS_PADS_X_DIM]);
+      trellis.setLED(TrellisLED[15 + TRELLIS_PADS_X_DIM]);
       trellis.setLED(TrellisLED[i + (3 * TRELLIS_PADS_X_DIM)]);
       trellis.writeDisplay();
       if (trellisPressed[i])
@@ -330,9 +317,11 @@ void neo_trellis_save_load()
         updateTFTScreen = true;
         break;
       }
-      if (trellisPressed[i + TRELLIS_PADS_X_DIM])
+      if (trellisPressed[i + TRELLIS_PADS_X_DIM] || trellisPressed[15 + TRELLIS_PADS_X_DIM])
       {
         uint8_t _songNr = i;
+        if (trellisPressed[15 + TRELLIS_PADS_X_DIM])
+          _songNr = 15;
         Serial.printf("load song: %d\n", _songNr);
         set_infobox_background(750);
         tft.printf("Loading song: %s ", songNames[_songNr]);

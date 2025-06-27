@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "Track.h"
+
 // File myFile;
 //  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
 //   midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> *midi_out_serial = &MIDI1;
@@ -24,7 +25,7 @@ void Track::save_track(uint8_t songNr)
     myTrackFile = SD.open(filename, FILE_WRITE);
     if (!myTrackFile)
         return;
-
+    myTrackFile.write(trackColor[my_Arranger_Y_axis - 1]);
     for (int c = 0; c < MAX_CLIPS; c++)
     {
         myTrackFile.write(clip[c].seqLength);
@@ -67,7 +68,7 @@ void Track::save_track(uint8_t songNr)
             myTrackFile.write(seqMod_value[4][p][t]);
         }
     }
-    myTrackFile.write(trackColor[my_Arranger_Y_axis - 1]);
+
     myTrackFile.write(mixGainPot);
     myTrackFile.write(mixDryPot);
     myTrackFile.write(mixFX1Pot);
@@ -77,6 +78,11 @@ void Track::save_track(uint8_t songNr)
 
     myTrackFile.flush();
     myTrackFile.close();
+    Serial.printf("saved track: %d\n", my_Arranger_Y_axis - 1);
+    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    {
+        save_plugin(songNr, parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
+    }
 }
 void Track::load_track(uint8_t songNr)
 {
@@ -86,7 +92,7 @@ void Track::load_track(uint8_t songNr)
     myTrackFile = SD.open(filename, FILE_READ);
     if (!myTrackFile)
         return;
-
+    trackColor[my_Arranger_Y_axis - 1] = myTrackFile.read();
     for (int c = 0; c < MAX_CLIPS; c++)
     {
         clip[c].seqLength = myTrackFile.read();
@@ -139,15 +145,18 @@ void Track::load_track(uint8_t songNr)
         }
     }
 
-    trackColor[my_Arranger_Y_axis - 1] = myTrackFile.read();
     mixGainPot = myTrackFile.read();
     mixDryPot = myTrackFile.read();
     mixFX1Pot = myTrackFile.read();
     mixFX2Pot = myTrackFile.read();
     mixFX3Pot = myTrackFile.read();
     performNoteOffset = (int8_t)(myTrackFile.read()) - 64;
-
     myTrackFile.close();
+    Serial.printf("loaded track: %d\n", my_Arranger_Y_axis - 1);
+    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    {
+        load_plugin(songNr, parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1));
+    }
 }
 
 void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
@@ -159,7 +168,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     if (cloock % (clip[clip_to_play[external_clock_bar]].clockDivision + performClockDivision) == 0)
     {
         internal_clock++;
-        if (internal_clock >= clip[clip_to_play[external_clock_bar]].seqLength)
+        if (internal_clock >= constrain(clip[clip_to_play[external_clock_bar]].seqLength / performSeqLengthDiv, 6, MAX_TICKS))
         {
             internal_clock = 0;
         }
@@ -170,7 +179,8 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
             change_presets();
             if (internal_clock_bar % clip[clip_to_play[external_clock_bar]].clockDivision == 0)
                 internal_clock_bar = external_clock_bar;
-            Serial.printf(" track: %d, clip: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar]);
+            // Serial.printf("seqlength: %d\n", clip[clip_to_play[external_clock_bar]].seqLength);
+            // Serial.printf(" track: %d, clip: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar]);
         }
         if (internal_clock_bar >= end)
             internal_clock_bar = start;

@@ -11,11 +11,11 @@
 #include <Plugins/pluginClass.h>
 #include <ownLibs/synth_fm_drum.h>
 ////#include "hardware/tftClass.h"
-//class tftClass;
-// TeensyDAW: begin automatically generated code
-// Name: Drum
-// Description: Synthesize 12 Drum sounds
-// Voices: 12
+// class tftClass;
+//  TeensyDAW: begin automatically generated code
+//  Name: Drum
+//  Description: Synthesize 12 Drum sounds
+//  Voices: 12
 
 // Kick
 // Pot 1: Freq
@@ -60,7 +60,7 @@ public:
     AudioSynthSimpleDrum tomH;
     AudioMixer12 mixer;
     AudioAmplifier MixGain;
-    //AudioAmplifier SongVol;
+    // AudioAmplifier SongVol;
     AudioConnection *patchCord[11]; // total patchCordCount:12 including array typed ones.
 
     // constructor (this is called when class-object is created)
@@ -81,8 +81,8 @@ public:
         patchCord[pci++] = new AudioConnection(tomM, 0, mixer, 4);
         patchCord[pci++] = new AudioConnection(tomH, 0, mixer, 5);
         patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        //patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
-       // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
+        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }
     virtual ~Plugin_5() = default;
 
@@ -91,8 +91,8 @@ public:
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void set_parameters(uint8_t row) override;
     virtual void draw_plugin() override;
-virtual void change_preset() override;
-
+    virtual void change_preset() override;
+    virtual void set_gain(uint8_t gain) override;
     void set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
     void set_fmsnare_pitchMod(uint8_t XPos, uint8_t YPos, const char *name);
     void set_fmsnare_decay(uint8_t XPos, uint8_t YPos, const char *name);

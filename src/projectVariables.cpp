@@ -20,7 +20,7 @@ unsigned long neotrellisReadPreviousMillis = 0; // will store last time LED was 
 unsigned long updateMidiPreviousMillis = 0;     // will store last time LED was updated
 uint16_t tftRAM[16][16];
 
-const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit"};
+const char FLASHMEM *songNames[16]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit", "10", "11", "12", "13", "14", "15", "Auto-Save"};
 
 char _trackname[20];
 
@@ -64,7 +64,7 @@ const bool PROGMEM scales[NUM_SCALES][12]{
 };
 const char FLASHMEM *scaleNames[NUM_SCALES]{"Chroma", "Major", "natMi", "Dorian", "Phryg", "Lydian", "Mixol", "Locria", "harMi", "melMi", "Blues", "Hungar", "Whole", "neapMi", "neapMa", "bepMa", "bepMi", "bepDo", "bepMM", "bepHM", "Persia", "Span", "Dimin"};
 
-const char *bankNames[NUM_SAMPLE_BANKS] FLASHMEM = {"K", "C", "H", "S", "P", "F", "X", ""};
+const char *bankNames[NUM_SAMPLE_BANKS] FLASHMEM = {"K", "C", "H", "S", "P", "F", "X", "X"};
 // char  **CCnames;
 const char FLASHMEM *CCnames[130]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
                                   "CC10", "CC11", "CC12", "CC13", "CC14", "CC15", "CC16", "CC17", "CC18", "CC19",
@@ -93,7 +93,7 @@ const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G
 bool **beatArray;
 bool **beatArrayPM6;
 bool *beatArrayPM7;
-
+uint8_t sgtlparameter[16];
 // touch
 bool isTouched;
 

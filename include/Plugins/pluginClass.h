@@ -56,6 +56,7 @@ public:
     virtual void set_parameters(uint8_t row) = 0;
     virtual void draw_plugin() = 0;
     virtual void change_preset() = 0;
+    virtual void set_gain(uint8_t gain) = 0;
 
     virtual void set_presetNr();
     virtual void save_plugin(uint8_t _songNr);
