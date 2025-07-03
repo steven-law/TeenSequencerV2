@@ -33,6 +33,7 @@ public:
     uint8_t myID;
     uint8_t potentiometer[NUM_PLUGIN_PRESETS][16];
     uint8_t presetNr = 0;
+    uint8_t MixerGain;
    // AudioAnalyzePeak dacOut;
 
     const char *name;

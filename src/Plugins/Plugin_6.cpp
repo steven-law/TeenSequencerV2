@@ -6,8 +6,8 @@
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
-//#include <ILI9341_t3n.h>
-//#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+// #include <ILI9341_t3n.h>
+// #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include "projectVariables.h"
 
 #include <Plugins/Plugin_6.h>
@@ -112,6 +112,8 @@ void Plugin_6::setup()
 void Plugin_6::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency[PL6_VOICES];
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    MixGain.gain(velo);
     for (int i = 0; i < PL6_VOICES; i++)
     {
         frequency[i] = note_frequency[notePlayed + pl6Offset[i]] * tuning;
@@ -174,7 +176,7 @@ void Plugin_6::set_parameters(uint8_t row)
 }
 void Plugin_6::set_gain(uint8_t gain)
 {
-    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+    MixerGain = gain;
 }
 void Plugin_6::draw_plugin()
 {
@@ -328,8 +330,8 @@ void Plugin_6::assign_filter_sweep(uint8_t value)
 void Plugin_6::assign_envelope_release(uint8_t value, int max)
 {
     int release = map(value, 0, MIDI_CC_RANGE, 0, max);
-    //Fenv.attack(release / 8);
-    //Aenv.attack(release / 2);
+    // Fenv.attack(release / 8);
+    // Aenv.attack(release / 2);
     Fenv.decay(release / 3);
     Aenv.decay(release / 3);
     Fenv.release(release);

@@ -71,6 +71,8 @@ void Plugin_12::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     // float frequency = note_frequency[notePlayed] * tuning;
     //  waveform.frequency(frequency);
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    MixGain.gain(velo);
     waveform.setPlaybackRate(note_frequency[notePlayed]);
     waveform.playRaw(_filename, 1);
     Fenv.noteOn();
@@ -150,7 +152,7 @@ void Plugin_12::draw_plugin()
 }
 void Plugin_12::set_gain(uint8_t gain)
 {
-    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+    MixerGain=gain;
 }
 void Plugin_12::change_preset()
 {

@@ -661,7 +661,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+     Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -676,7 +676,7 @@ void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), Note % 12);
-  // Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+   Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
 }
 void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
 {

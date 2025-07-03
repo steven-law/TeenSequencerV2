@@ -39,8 +39,10 @@ void Plugin_4::setup()
 }
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    AEnv[voice].noteOn();
+    
+    AEnv[voice].sustain(velocity / MIDI_CC_RANGE_FLOAT);
     playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize, 1);
+    AEnv[voice].noteOn();
     // playMem[voice].play(_fileName[voice]);
     //  playMem[voice].playRaw(sample[voice]->sampledata,1);
 
@@ -124,7 +126,8 @@ void Plugin_4::draw_plugin()
 }
 void Plugin_4::set_gain(uint8_t gain)
 {
-    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+    float velo = ((gain / MIDI_CC_RANGE_FLOAT));
+    MixGain.gain(velo);
 }
 void Plugin_4::set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name)
 {

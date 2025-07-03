@@ -42,8 +42,11 @@ void Plugin_5::setup()
 }
 void Plugin_5::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    MixGain.gain(velo);
     if (voice == 0)
         fm_drum.noteOn();
+
     if (voice == 1)
         fm_snare.noteOn();
     if (voice == 2)
@@ -110,10 +113,7 @@ void Plugin_5::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
-void Plugin_5::set_gain(uint8_t gain)
-{
-    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
-}
+
 void Plugin_5::draw_plugin()
 {
 
@@ -146,6 +146,10 @@ void Plugin_5::draw_plugin()
     }
 }
 void Plugin_5::change_preset() {}
+void Plugin_5::set_gain(uint8_t gain)
+{
+    MixerGain=gain;
+}
 void Plugin_5::set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])

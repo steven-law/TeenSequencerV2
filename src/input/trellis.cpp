@@ -488,7 +488,7 @@ void trellis_play_piano()
   auto track = allTracks[trellisPianoTrack];
   int trackChannel = track->clip[track->parameter[SET_CLIP2_EDIT]].midiChOut;
   static bool _holdNote[NUM_STEPS * NUM_TRACKS];
-  static uint8_t _noteSend;
+  static uint8_t _noteSend[MAX_VOICES];
 
   for (int x = 0; x < NUM_STEPS; x++)
   {
@@ -499,24 +499,21 @@ void trellis_play_piano()
       {
         if (trellisPressed[key] && !_holdNote[key])
         {
-          uint8_t _octave = (NUM_TRACKS - 1) - (key / NUM_STEPS);
+          uint8_t _octave = ((NUM_TRACKS - 1) - (key / NUM_STEPS))+track->parameter[SET_OCTAVE];
 
-          _noteSend = x + (_octave * NOTES_PER_OCTAVE);
+          _noteSend[x] = x + (_octave * NOTES_PER_OCTAVE);
           _holdNote[key] = true;
 
-          track->noteOn(_noteSend, 99, trackChannel);
-          Serial.printf("trellisPiano NoteON note:%d, octave:%d\n", _noteSend, _octave);
+          track->noteOn(_noteSend[x], 99, trackChannel);
+          Serial.printf("trellisPiano NoteON note:%d, octave:%d\n", _noteSend[x], _octave);
           break;
         }
 
         else if (!trellisPressed[key] && _holdNote[key])
         {
           _holdNote[key] = false;
-
-          auto track = allTracks[trellisPianoTrack];
-          track->noteOff(_noteSend, 0, trackChannel);
-
-          Serial.printf("trellisPiano NoteOff key:%d, track:%d\n", key, trellisPianoTrack);
+          track->noteOff(_noteSend[x], 0, trackChannel);
+          Serial.printf("trellisPiano NoteOff note:%d, track:%d\n", _noteSend[x], trellisPianoTrack);
           break;
         }
       }

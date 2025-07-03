@@ -65,6 +65,8 @@ void Plugin_3::setup()
 void Plugin_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     Serial.println("2FM-NoteOn");
+     float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    MixGain.gain(velo);
     float carrier_frequency = note_frequency[notePlayed] * tuning;
     float modulator_frequency = carrier_frequency * modulator_ratio;
     carrier.frequency(carrier_frequency);
@@ -164,14 +166,13 @@ void Plugin_3::change_preset()
     assign_envelope_sustain(potentiometer[presetNr][10]);
     assign_envelope_release(potentiometer[presetNr][11], 2000);
 }
-
+void Plugin_3::set_gain(uint8_t gain)
+{
+    MixerGain= gain;
+}
 void Plugin_3::get_peak()
 {
     // Serial.printf("Pl3: %f  ", peak.read());
-}
-void Plugin_3::set_gain(uint8_t gain)
-{
-    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
 }
 void Plugin_3::set_mod_waveform(uint8_t XPos, uint8_t YPos, const char *name)
 {

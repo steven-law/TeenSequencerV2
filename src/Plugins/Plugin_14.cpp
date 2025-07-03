@@ -66,6 +66,9 @@ void Plugin_14::setup()
 
 void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    MixGain.gain(0, velo);
+    MixGain.gain(1, velo);
     Serial.printf("pl14: notePlayed= %d\n", notePlayed);
     playMem.setPlaybackRate(note_frequency[notePlayed]);
     //  playMem.playRaw(_playFilename, 1);
@@ -84,9 +87,10 @@ void Plugin_14::set_parameters(uint8_t row)
 {
     draw_plugin();
     show_peak();
-    
+
     for (int i = 0; i < NUM_TRACKS; i++)
-    { int trackChannel = allTracks[i]->clip[allTracks[i]->parameter[SET_CLIP2_EDIT]].midiChOut;
+    {
+        int trackChannel = allTracks[i]->clip[allTracks[i]->parameter[SET_CLIP2_EDIT]].midiChOut;
         if (allTracks[i]->get_recordState() && trackChannel == 62)
         {
             if (neotrellisPressed[3 + ((i + 4) * X_DIM)])
@@ -139,7 +143,7 @@ void Plugin_14::set_parameters(uint8_t row)
 }
 void Plugin_14::set_gain(uint8_t gain)
 {
-    MixGain.gain(0, gain/ MIDI_CC_RANGE_FLOAT);
+    MixerGain = gain;
 }
 void Plugin_14::draw_plugin()
 {

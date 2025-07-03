@@ -67,6 +67,8 @@ void Plugin_13::setup()
 }
 void Plugin_13::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    MixGain.gain(velo);
     float frequency = note_frequency[notePlayed] * tuning;
     Serial.printf("pl13: notePlayed= %d\n", notePlayed);
     waveform.frequency(frequency);
@@ -144,7 +146,7 @@ void Plugin_13::draw_plugin()
 }
 void Plugin_13::set_gain(uint8_t gain)
 {
-    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+    MixerGain=gain;
 }
 void Plugin_13::change_preset()
 {

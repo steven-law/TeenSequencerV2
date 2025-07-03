@@ -30,6 +30,8 @@ void Plugin_1::setup()
 void Plugin_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
+    
+    mixer.gain(voice, (velocity*(potentiometer[presetNr][voice]/MIDI_CC_RANGE_FLOAT))/MIDI_CC_RANGE_FLOAT);
     string[voice].noteOn(frequency, velocity);
     // Serial.printf("ON voice: %d, freq: %f \n", voice, frequency);
 }
