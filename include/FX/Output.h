@@ -47,11 +47,11 @@ public:
     void setup()
     {
 
-       if (!sgtl5000.enable())
-       Serial.println("AudioBoard NOT available");
-       else
-       Serial.println("AudioBoard available");
-        //sgtl5000.inputSelect(AUDIO_INPUT_LINEIN);
+        if (!sgtl5000.enable())
+            Serial.println("AudioBoard NOT available");
+        else
+            Serial.println("AudioBoard available");
+        // sgtl5000.inputSelect(AUDIO_INPUT_LINEIN);
         sgtl5000.volume(1);
         fx_section.setup();
 
@@ -63,8 +63,9 @@ public:
     }
     void noteOn(uint8_t note, uint8_t velo, uint8_t _channel, uint8_t voice)
     {
-        // Serial.printf("recieve NoteON channel:%d\n", _channel);
-        allPlugins[_channel]->noteOn(note, 1, voice);
+        Serial.printf("recieve NoteON channel:%d, velocity: %d\n", _channel, velo);
+
+        allPlugins[_channel]->noteOn(note, velo / MIDI_CC_RANGE_FLOAT, voice);
     }
     void noteOff(uint8_t note, uint8_t velo, uint8_t _channel, uint8_t voice)
     {

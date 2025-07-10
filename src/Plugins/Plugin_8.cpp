@@ -57,7 +57,7 @@ void Plugin_8::setup()
 }
 void Plugin_8::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
     MixGain.gain(velo);
     waveform.frequency((note_frequency[notePlayed] + detune1) * tuning);
     waveform1.frequency((note_frequency[notePlayed] + detune2) * tuning);

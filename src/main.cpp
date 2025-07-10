@@ -661,7 +661,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-     Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -676,7 +676,7 @@ void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), Note % 12);
-   Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+  // Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
 }
 void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
 {
@@ -1754,20 +1754,23 @@ void set_sgtlControls(uint8_t row)
 
       set_sgtlcontrol(0, 1, "Attack");
       set_sgtlcontrol(1, 1, "Decay");
-      set_sgtlcontrol(2, 1, "CP On/Of");
-      set_sgtlcontrol(3, 1, "AP ON/Of");
+      set_sgtlcontrol(2, 1, "Comp O/I");
+      set_sgtlcontrol(3, 1, "AP O/I");
     }
 
     if (row == 2)
     {
-      // set_sgtlcontrol(0, 2, "Vol");
-      // set_sgtlcontrol(1, 2, "Vol");
-      // set_sgtlcontrol(2, 2, "Vol");
-      // set_sgtlcontrol(3, 2, "Vol");
+      set_sgtlcontrol(0, 2, "Width");
+      set_sgtlcontrol(1, 2, "Stereo O/I");
+      set_sgtlcontrol(2, 2, "Bass O/I");
+      set_sgtlcontrol(3, 2, "In Lvl");
     }
 
     if (row == 3)
     {
+      set_sgtlcontrol(0, 3, "Bass Lvl");
+      set_sgtlcontrol(1, 3, "Hipass");
+      set_sgtlcontrol(2, 3, "Cutoff");
       set_sgtlcontrol(3, 3, "OutVol");
     }
   }
@@ -1788,13 +1791,17 @@ void draw_sgtlControls()
 
     drawPot(0, 1, sgtlparameter[4], "Attack");
     drawPot(1, 1, sgtlparameter[5], "Decay");
-    drawPot(2, 1, sgtlparameter[6], "CP On/Of");
-    drawPot(3, 1, sgtlparameter[7], "AP On/Of");
+    drawPot(2, 1, sgtlparameter[6], "Comp O/I");
+    drawPot(3, 1, sgtlparameter[7], "AP O/I");
 
-    // drawPot(0, 2, sgtlparameter[8], "Vol");
-    // drawPot(1, 2, sgtlparameter[9], "Vol");
-    // drawPot(2, 2, sgtlparameter[10], "Vol");
-    // drawPot(3, 2, sgtlparameter[11], "Vol");
+    drawPot(0, 2, sgtlparameter[8], "Width");
+    drawPot(1, 2, sgtlparameter[9], "Stereo O/I");
+    drawPot(2, 2, sgtlparameter[10], "Bass O/I");
+    drawPot(3, 2, sgtlparameter[11], "In Lvl");
+
+    drawPot(0, 3, sgtlparameter[12], "Bass Lvl");
+    drawPot(1, 3, sgtlparameter[13], "Hipass I/O");
+    drawPot(2, 3, sgtlparameter[14], "Cutoff");
     drawPot(3, 3, sgtlparameter[15], "OutVol");
   }
 }
@@ -1812,7 +1819,6 @@ void set_sgtlcontrol(uint8_t _xPos, uint8_t _yPos, const char *name)
       static float threshold;
       static float attack;
       static float decay;
-
       switch (index)
       {
       case 0:
@@ -1842,7 +1848,7 @@ void set_sgtlcontrol(uint8_t _xPos, uint8_t _yPos, const char *name)
 
     else if (index == 6)
     {
-      if (get_sgtl_potentiometer(6, 0, 1, "CP On/Of") == 0)
+      if (get_sgtl_potentiometer(6, 0, 1, "Comp O/I") == 0)
       {
         MasterOut.sgtl5000.autoVolumeDisable();
       }
@@ -1851,12 +1857,60 @@ void set_sgtlcontrol(uint8_t _xPos, uint8_t _yPos, const char *name)
     }
     else if (index == 7)
     {
-      if (get_sgtl_potentiometer(7, 0, 1, "AP On/Of") == 0)
+      if (get_sgtl_potentiometer(7, 0, 1, "AP O/I") == 0)
       {
         MasterOut.sgtl5000.audioProcessorDisable();
       }
       else
         MasterOut.sgtl5000.audioPostProcessorEnable();
+    }
+    else if (index == 8)
+    {
+      uint8_t width = get_sgtl_potentiometer(8, 0, 7, "Width");
+      MasterOut.sgtl5000.surroundSound(width, 2);
+    }
+    else if (index == 9)
+    {
+      if (get_sgtl_potentiometer(9, 0, 1, "Stereo O/I") == 0)
+      {
+        MasterOut.sgtl5000.surroundSoundDisable();
+      }
+      else
+        MasterOut.sgtl5000.surroundSoundEnable();
+    }
+    else if (index == 10)
+    {
+      if (get_sgtl_potentiometer(10, 0, 1, "Bass O/I") == 0)
+      {
+        MasterOut.sgtl5000.enhanceBassDisable();
+      }
+      else
+        MasterOut.sgtl5000.enhanceBassEnable();
+    }
+    else if (index >= 11 && index <= 14)
+    {
+      static float bass_levl;
+      static float bass_levl_bass;
+      static uint8_t bass_hipass;
+      static uint8_t bass_cutoff;
+      switch (index)
+      {
+      case 11:
+        bass_levl = get_sgtl_potentiometer(11, 0, 127, "In Lvl") / MIDI_CC_RANGE_FLOAT;
+        break;
+      case 12:
+        bass_levl_bass = get_sgtl_potentiometer(12, 0, 127, "Bass Lvl") / MIDI_CC_RANGE_FLOAT;
+        break;
+      case 13:
+        bass_hipass = get_sgtl_potentiometer(13, 0, 1, "Hipass I/O");
+        break;
+      case 14:
+        bass_cutoff = get_sgtl_potentiometer(14, 0, 6, "Cutoff I/O");
+      default:
+        break;
+      }
+
+      MasterOut.sgtl5000.enhanceBass(bass_levl, bass_levl_bass, bass_hipass, bass_cutoff);
     }
     else if (index == 15)
     {

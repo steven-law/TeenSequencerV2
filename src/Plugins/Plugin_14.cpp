@@ -66,7 +66,7 @@ void Plugin_14::setup()
 
 void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(0, velo);
     MixGain.gain(1, velo);
     Serial.printf("pl14: notePlayed= %d\n", notePlayed);

@@ -79,12 +79,13 @@ void Plugin_2::setup()
 }
 void Plugin_2::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-     float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     float frequency = note_frequency[notePlayed] * tuning;
     waveform.frequency(frequency);
     Fenv.noteOn();
     Aenv.noteOn();
+    Serial.printf("pl2 note %d on voice %d, velocity: %f velo: %02f\n", notePlayed, voice, velocity, velo);
 }
 void Plugin_2::noteOff(uint8_t notePlayed, uint8_t voice)
 {

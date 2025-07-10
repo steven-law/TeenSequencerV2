@@ -398,7 +398,7 @@ void neotrellis_stop_clock()
       for (int v = 0; v < MAX_VOICES; v++)
       {
         if (allTracks[i]->noteToPlay[v] < NO_NOTE)
-          allTracks[i]->noteOff(allTracks[i]->noteToPlay[v], 0, allTracks[i]->clip[allTracks[i]->clip_to_play[allTracks[i]->internal_clock_bar]].midiChOut);
+          allTracks[i]->noteOff(allTracks[i]->noteToPlay[v], 0, allTracks[i]->clip[allTracks[i]->clip_to_play[allTracks[i]->external_clock_bar]].midiChOut);
       }
       // allTracks[i]->external_clock_bar = -1;
     }
@@ -505,7 +505,7 @@ void trellis_play_piano()
           _holdNote[key] = true;
 
           track->noteOn(_noteSend[x], 99, trackChannel);
-          Serial.printf("trellisPiano NoteON note:%d, octave:%d\n", _noteSend[x], _octave);
+         // Serial.printf("trellisPiano NoteON note:%d, octave:%d\n", _noteSend[x], _octave);
           break;
         }
 
@@ -513,7 +513,7 @@ void trellis_play_piano()
         {
           _holdNote[key] = false;
           track->noteOff(_noteSend[x], 0, trackChannel);
-          Serial.printf("trellisPiano NoteOff note:%d, track:%d\n", _noteSend[x], trellisPianoTrack);
+         // Serial.printf("trellisPiano NoteOff note:%d, track:%d\n", _noteSend[x], trellisPianoTrack);
           break;
         }
       }

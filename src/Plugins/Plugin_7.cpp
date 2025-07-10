@@ -59,7 +59,7 @@ void Plugin_7::setup()
 }
 void Plugin_7::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     float frequence = note_frequency[notePlayed] * tuning;
     fm_drum.frequency(frequence);

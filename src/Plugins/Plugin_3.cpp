@@ -65,7 +65,7 @@ void Plugin_3::setup()
 void Plugin_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     Serial.println("2FM-NoteOn");
-     float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+     float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
     MixGain.gain(velo);
     float carrier_frequency = note_frequency[notePlayed] * tuning;
     float modulator_frequency = carrier_frequency * modulator_ratio;

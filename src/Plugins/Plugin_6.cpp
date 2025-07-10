@@ -112,7 +112,7 @@ void Plugin_6::setup()
 void Plugin_6::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency[PL6_VOICES];
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
     MixGain.gain(velo);
     for (int i = 0; i < PL6_VOICES; i++)
     {

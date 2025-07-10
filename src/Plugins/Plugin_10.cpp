@@ -66,7 +66,7 @@ void Plugin_10::setup()
     // SongVol.gain(1);
 }
 void Plugin_10::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
-{float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) / MIDI_CC_RANGE_FLOAT;
+{float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
     MixGain.gain(velo);
     float frequency = note_frequency[notePlayed] * tuning;
     Serial.printf("pl10: notePlayed= %d\n", notePlayed);

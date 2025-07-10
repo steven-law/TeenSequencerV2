@@ -376,7 +376,7 @@ void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 //---------------------------arranger stuff-------------------------------------
 void Track::set_arranger_parameters()
 {
-
+   
     switch (lastPotRow)
     {
     case 0:
@@ -408,6 +408,8 @@ void Track::set_arranger_parameters()
 }
 void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int minValue, int maxValue, const char *label)
 {
+     if (myClock.isPlaying && bar_to_edit == myClock.barTick)
+        return;
     if (bar_to_edit < 0)
         return;
     if (gridTouchY == my_Arranger_Y_axis)

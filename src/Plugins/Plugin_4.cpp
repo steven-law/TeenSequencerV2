@@ -39,14 +39,15 @@ void Plugin_4::setup()
 }
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    
-    AEnv[voice].sustain(velocity / MIDI_CC_RANGE_FLOAT);
+
+    AEnv[voice].sustain(velocity);
     playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize, 1);
     AEnv[voice].noteOn();
     // playMem[voice].play(_fileName[voice]);
     //  playMem[voice].playRaw(sample[voice]->sampledata,1);
 
     // Serial.printf("pl4 play %s on voice %d\n", _fileName[voice], voice);
+    Serial.printf("pl4 play %s on voice %d, velocity: %02f\n", _fileName[voice], voice, velocity);
 }
 void Plugin_4::noteOff(uint8_t notePlayed, uint8_t voice)
 {
