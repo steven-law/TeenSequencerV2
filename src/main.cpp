@@ -704,9 +704,11 @@ void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
 
 void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
-  if (channel < 9 && !allTracks[channel - 1]->muted)
+  int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  if (channel < 9 && !allTracks[channel - 1]->muted && channel != trackChannel%16)
   {
-    int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  Serial.printf("recieve note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
+
     allTracks[channel - 1]->noteOn(note, velocity, trackChannel);
   }
   if (channel >= 9)

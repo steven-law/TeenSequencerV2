@@ -112,13 +112,13 @@ void Plugin_6::setup()
 void Plugin_6::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency[PL6_VOICES];
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     for (int i = 0; i < PL6_VOICES; i++)
     {
-        frequency[i] = note_frequency[notePlayed + pl6Offset[i]] * tuning;
+        frequency[i] = note_frequency[notePlayed + chords[pl6ChoosenChord][i]] * tuning;
         waveform[i].frequency(frequency[i]);
-        Serial.printf("pl6 note %d, v= %d, freq: %f\n", notePlayed + pl6Offset[i], i, frequency[i]);
+        Serial.printf("pl6 note %d, v= %d, freq: %f\n", notePlayed + chords[pl6ChoosenChord][i], i, frequency[i]);
     }
 
     Fenv.noteOn();
@@ -145,28 +145,24 @@ void Plugin_6::set_parameters(uint8_t row)
 
         if (row == 1)
         {
-            set_voice_offset(0, 1, "Note 1");
-            set_voice_offset(1, 1, "Note 2");
-            set_voice_offset(2, 1, "Note 3");
-            set_voice_offset(3, 1, "Note 4");
+            set_voice_offset(0, 1, "Chord");
+            set_voice_amplitude(1, 1, 1, "Volumes");
+            //  set_voice_offset(2, 1, "Note 3");
+            //  set_voice_offset(3, 1, "Note 4");
         }
 
         if (row == 2)
         {
-            set_voice_amplitude(0, 0, 2, "Vol 1");
-            set_voice_amplitude(1, 1, 2, "Vol 2");
-            set_voice_amplitude(2, 2, 2, "Vol 3");
-            set_voice_amplitude(3, 3, 2, "Vol 4");
-            //  set_filter_sweep(2, 2, "Sweep");
-            //  set_filter_type(3, 2, filterName[potentiometer[presetNr][11]]);
+            set_filter_frequency(0, 2, "Filt-Frq");
+            set_filter_resonance(1, 2, "Resonance");
+            set_filter_sweep(2, 2, "Sweep");
+            //set_envelope_release(3, 2, "Release", 2000);
         }
 
         if (row == 3)
         {
-            set_filter_frequency(0, 3, "Filt-Frq");
-            set_filter_resonance(1, 3, "Resonance");
-            set_filter_sweep(2, 3, "Sweep");
-            set_envelope_release(3, 3, "Release", 2000);
+
+            set_envelope_ADSR(3, 1000, 500, 2000);
         }
     }
     if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -189,27 +185,21 @@ void Plugin_6::draw_plugin()
         drawPot(2, 0, potentiometer[presetNr][2], "W~F 3");
         drawPot(3, 0, potentiometer[presetNr][3], "W~F 4");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Note 1");
-        drawPot(1, 1, potentiometer[presetNr][5], "Note 2");
-        drawPot(2, 1, potentiometer[presetNr][6], "Note 3");
-        drawPot(3, 1, potentiometer[presetNr][7], "Note 4");
+        drawPot(0, 1, potentiometer[presetNr][4], "Chord");
+        drawPot(1, 1, potentiometer[presetNr][5], "Volumes");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Vol 1");
-        drawPot(1, 2, potentiometer[presetNr][9], "Vol 2");
-        drawPot(2, 2, potentiometer[presetNr][10], "Vol 3");
-        drawPot(3, 2, potentiometer[presetNr][11], "Vol 4");
+        drawPot(0, 2, potentiometer[presetNr][8], "Filt-Frq");
+        drawPot(1, 2, potentiometer[presetNr][9], "Resonance");
+        drawPot(2, 2, potentiometer[presetNr][10], "Sweep");
 
-        drawPot(0, 3, potentiometer[presetNr][12], "Filt-Frq");
-        drawPot(1, 3, potentiometer[presetNr][13], "Resonance");
-        drawPot(2, 3, potentiometer[presetNr][14], "Sweep");
-        drawPot(3, 3, potentiometer[presetNr][15], "Release");
+        // drawPot(3, 3, potentiometer[presetNr][11], "Release");
 
         // drawPot(2, 2, potentiometer[presetNr][10], "Sweep");
         // drawPot(3, 2, potentiometer[presetNr][11], filterName[potentiometer[presetNr][11]]);
 
-        /* drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
-                      potentiometer[presetNr][14], potentiometer[presetNr][15]);
- */
+        drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
+                     potentiometer[presetNr][14], potentiometer[presetNr][15]);
+
         // drawPot(1, 3, potentiometer[presetNr][13], "Decay");
         // drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
 
@@ -259,14 +249,14 @@ void Plugin_6::set_voice_offset(uint8_t XPos, uint8_t YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
-        int walveform = get_Potentiometer(XPos, YPos, name);
+        int chordType = get_Potentiometer(XPos, YPos, name);
 
-        assign_voice_offset(XPos, walveform);
+        assign_voice_offset(XPos, chordType);
     }
 }
 void Plugin_6::assign_voice_offset(uint8_t voice, uint8_t value)
 {
-    pl6Offset[voice] = value;
+    pl6ChoosenChord = value;
 }
 
 void Plugin_6::set_voice_amplitude(uint8_t voice, uint8_t XPos, uint8_t YPos, const char *name)
@@ -278,9 +268,11 @@ void Plugin_6::set_voice_amplitude(uint8_t voice, uint8_t XPos, uint8_t YPos, co
 }
 void Plugin_6::assign_voice_amplitude(uint8_t voice, uint8_t value)
 {
-    float ampl = value / MIDI_CC_RANGE_FLOAT;
-
-    waveform[voice].amplitude(ampl);
+    for (int i = 0; i < PL6_VOICES; i++)
+    {
+        float ampl = chordVolumes[value][voice] / MIDI_CC_RANGE_FLOAT;
+        waveform[i].amplitude(ampl);
+    }
 }
 
 void Plugin_6::set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name)
@@ -327,16 +319,8 @@ void Plugin_6::assign_filter_sweep(uint8_t value)
     filter.octaveControl(value);
     // ladder.octaveControl(swp);
 }
-void Plugin_6::assign_envelope_release(uint8_t value, int max)
-{
-    int release = map(value, 0, MIDI_CC_RANGE, 0, max);
-    // Fenv.attack(release / 8);
-    // Aenv.attack(release / 2);
-    Fenv.decay(release / 3);
-    Aenv.decay(release / 3);
-    Fenv.release(release);
-    Aenv.release(release);
-}
+
+
 void Plugin_6::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
@@ -345,4 +329,68 @@ void Plugin_6::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name
     }
 } // TeensyDAW: end automatically generated code
 
+void Plugin_6::assign_envelope_attack(uint8_t value, int max)
+{
+    int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
+
+    Fenv.attack(attack);
+    Aenv.attack(attack);
+}
+void Plugin_6::assign_envelope_decay(uint8_t value, int max)
+{
+    int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
+
+    Fenv.decay(decay);
+    Aenv.decay(decay);
+}
+void Plugin_6::assign_envelope_sustain(uint8_t value)
+{
+    float ampl = value / MIDI_CC_RANGE_FLOAT;
+
+    Fenv.sustain(ampl);
+    Aenv.sustain(ampl);
+}
+void Plugin_6::assign_envelope_release(uint8_t value, int max)
+{
+    int release = map(value, 0, MIDI_CC_RANGE, 0, max);
+
+    Fenv.release(release);
+    Aenv.release(release);
+}
+void Plugin_6::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
+{
+
+    if (enc_moved[0])
+    {
+        uint8_t rowIx = YPos * 4;
+        potentiometer[presetNr][0 + rowIx] = constrain(potentiometer[presetNr][0 + rowIx] + encoded[0], 0, MIDI_CC_RANGE);
+        assign_envelope_attack(potentiometer[presetNr][0 + rowIx], maxA);
+        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
+    }
+    if (enc_moved[1])
+    {
+        uint8_t rowIx = YPos * 4;
+        potentiometer[presetNr][1 + rowIx] = constrain(potentiometer[presetNr][1 + rowIx] + encoded[1], 0, MIDI_CC_RANGE);
+        assign_envelope_decay(potentiometer[presetNr][1 + rowIx], maxD);
+        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
+    }
+    if (enc_moved[2])
+    {
+        uint8_t rowIx = YPos * 4;
+        potentiometer[presetNr][2 + rowIx] = constrain(potentiometer[presetNr][2 + rowIx] + encoded[2], 0, MIDI_CC_RANGE);
+        assign_envelope_sustain(potentiometer[presetNr][2 + rowIx]);
+        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
+    }
+    if (enc_moved[3])
+    {
+        uint8_t rowIx = YPos * 4;
+        potentiometer[presetNr][3 + rowIx] = constrain(potentiometer[presetNr][3 + rowIx] + encoded[3], 0, MIDI_CC_RANGE);
+        assign_envelope_release(potentiometer[presetNr][3 + rowIx], maxR);
+        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
+    }
+}
 Plugin_6 plugin_6("Adtv", 6);

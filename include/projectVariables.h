@@ -14,6 +14,8 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NUM_PLUGINS 14
 #define NUM_PLAYMODES 11
 #define NUM_SCALES 23
+#define NUM_CHORDS 34
+#define NUM_CHORD_VOLUMES 81
 #define NUM_FX 3
 
 #define NUM_TRACKS 8
@@ -230,6 +232,8 @@ extern const char FLASHMEM *CCnames[130];
 extern const char FLASHMEM *seqModname[NUM_PLAYMODES];
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];
+extern const uint8_t chords[NUM_CHORDS][4];
+extern const uint8_t chordVolumes[NUM_CHORD_VOLUMES][4];
 
 // screen
 #define POSITION_BPM_BUTTON 14

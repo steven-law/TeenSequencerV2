@@ -58,7 +58,7 @@ public:
     AudioAmplifier MixGain;
     // AudioAmplifier SongVol;
     AudioConnection *patchCord[9]; // total patchCordCount:98 including array typed ones.
-    int8_t pl6Offset[PL6_VOICES]{0, 3, 7, 10};
+    int8_t pl6ChoosenChord;
     // constructor (this is called when class-object is created)
     Plugin_6(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
