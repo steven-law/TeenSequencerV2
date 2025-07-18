@@ -86,6 +86,12 @@ void trellis_show_tft_mixer();
 void trellis_play_mixer();
 void trellis_perform();
 
+void sendCCToActiveTracks(uint8_t cc, uint8_t val);
+void printInfo(const char *label, int val, uint8_t cc);
+template <typename T>
+void updateFxVolume(uint8_t val, float gainVal, uint8_t cc, T *fxArray);
+;
+
 // mixer
 void set_mixer();
 void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn);
@@ -705,9 +711,9 @@ void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
 void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
-  if (channel < 9 && !allTracks[channel - 1]->muted && channel != trackChannel%16)
+  if (channel < 9 && !allTracks[channel - 1]->muted && channel != trackChannel % 16)
   {
-  Serial.printf("recieve note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
+    Serial.printf("recieve note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 
     allTracks[channel - 1]->noteOn(note, velocity, trackChannel);
   }
@@ -1117,6 +1123,43 @@ void trellis_play_mixer()
     }
   }
 }
+// Hilfsfunktionen
+void sendCCToActiveTracks(uint8_t cc, uint8_t val)
+{
+  for (int s = 0; s < NUM_TRACKS; s++)
+  {
+    if (!allTracks[s]->performIsActive)
+      continue;
+    uint8_t ch = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+    if (ch <= NUM_MIDI_OUTPUTS)
+      sendControlChange(cc, val, ch);
+  }
+}
+
+void updateFxVolume(uint8_t val, float gainVal, uint8_t cc, int fxNr)
+{
+  for (int s = 0; s < NUM_TRACKS; s++)
+  {
+    if (!allTracks[s]->performIsActive)
+      continue;
+    uint8_t ch = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
+    if (ch > NUM_MIDI_OUTPUTS)
+      MasterOut.setFXGain(fxNr, ch - (NUM_MIDI_OUTPUTS + 1), gainVal);
+    else
+      sendControlChange(cc, val, ch);
+  }
+}
+
+void printInfo(const char *label, int val, uint8_t cc)
+{
+  set_infobox_background(750);
+  tft.printf("%s = %d ", label, val);
+  set_infobox_next_line(1);
+  tft.printf("send CC%d = %d ", cc, val);
+  reset_infobox_background();
+}
+
+// Hauptfunktion für Perform-Modus
 void trellis_perform()
 {
   if (trellisScreen != TRELLIS_SCREEN_PERFORM)
@@ -1127,343 +1170,154 @@ void trellis_perform()
     for (int i = 0; i < NUM_STEPS; i++)
     {
       int _nr = i + (t * TRELLIS_PADS_X_DIM);
-      if (trellisPressed[_nr])
+      if (!trellisPressed[_nr])
+        continue;
+
+      trellisPressed[_nr] = false;
+      int col = _nr % TRELLIS_PADS_X_DIM;
+      int row = _nr / TRELLIS_PADS_X_DIM;
+      int value = 127 - (t * 16);
+      trellisPerformIndex[col] = row;
+
+      switch (col)
       {
-        trellisPressed[_nr] = false;
-        if (_nr % TRELLIS_PADS_X_DIM == 0) // volume
-        {
+      case 0:
+        for (int s = 0; s < NUM_TRACKS; s++)
+          if (allTracks[s]->performIsActive)
+            allTracks[s]->mixGainPot = value;
+        printInfo("Master Vol", value, performCC[0]);
+        break;
 
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            if (allTracks[s]->performIsActive)
-            {
-              allTracks[s]->mixGainPot = 127 - (t * 16);
-              trellisPerformIndex[0] = t;
-              // sendControlChange(performCC[0], 127 - (t * 16), trackChannel);
-            }
-          }
-          set_infobox_background(750);
-          tft.printf("Master Vol =  %d ", 127 - (t * 16));
-          // set_infobox_next_line(1);
-          // tft.printf("send CC%d =  %d ", performCC[0],127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 1) // dry mix
-        {
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            if (allTracks[s]->performIsActive)
-            {
-              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-              Serial.printf("dry channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-              allTracks[s]->mixDryPot = 127 - (t * 16);
-              if (trackChannel > NUM_MIDI_OUTPUTS)
-                MasterOut.fx_section.dry[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (trackChannel <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[1], 127 - (t * 16), trackChannel);
-              trellisPerformIndex[1] = t;
-              // break;
-            }
-          }
-          set_infobox_background(750);
-          tft.printf("dry Vol =  %d ", 127 - (t * 16));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[1], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 2) // reverb mix
-        {
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            if (allTracks[s]->performIsActive)
-            {
-              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-              Serial.printf("fx1 plugin channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-              allTracks[s]->mixFX1Pot = 127 - (t * 16);
-              if (trackChannel > NUM_MIDI_OUTPUTS)
-                fx_1.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (trackChannel <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[2], 127 - (t * 16), trackChannel);
-              trellisPerformIndex[2] = t;
-              // break;
-            }
-          }
-          set_infobox_background(750);
-          tft.printf("FX1 Vol =  %d ", 127 - (t * 16));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[2], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 3) // bitcrusher mix
-        {
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            if (allTracks[s]->performIsActive)
-            {
-              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-              Serial.printf("fx2 plugin channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-              allTracks[s]->mixFX2Pot = 127 - (t * 16);
-              if (trackChannel > NUM_MIDI_OUTPUTS)
-                fx_2.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (trackChannel <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[3], 127 - (t * 16), trackChannel);
-              trellisPerformIndex[3] = t;
-              // break;
-            }
-          }
-          set_infobox_background(750);
-          tft.printf("FX2 Vol =  %d ", 127 - (t * 16));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[3], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 4) // delay mix
-        {
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            if (allTracks[s]->performIsActive)
-            {
-              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-              Serial.printf("fx3 plugin channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-              allTracks[s]->mixFX3Pot = 127 - (t * 16);
-              if (trackChannel > NUM_MIDI_OUTPUTS)
-                fx_3.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(t / 8.00);
-              if (trackChannel <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[4], 127 - (t * 16), trackChannel);
-              trellisPerformIndex[4] = t;
-              // break;
-            }
-          }
-          set_infobox_background(750);
-          tft.printf("FX3 Vol =  %d ", 127 - (t * 16));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[4], 127 - (t * 16));
-          reset_infobox_background();
-        }
+      case 1:
+        updateFxVolume(value, row / 8.0f, performCC[1], 0);
+        printInfo("Dry Vol", value, performCC[1]);
+        break;
 
-        if (_nr % TRELLIS_PADS_X_DIM == 5) // reverb roomsize
-        {
-          fx_1.potentiometer[fx_1.presetNr][0] = 127 - (t * 16);
-          fx_1.freeverb.roomsize((float)map(t, 0, 8, 0, 1.00));
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[5], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[5] = t;
-          set_infobox_background(750);
-          tft.printf("FX1 Roomsize =  %d ", 127 - (t * 16));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[5], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 6) // reverb damping
-        {
+      case 2:
+        updateFxVolume(value, row / 8.0f, performCC[2], 1);
+        printInfo("FX1 Vol", value, performCC[2]);
+        break;
 
-          fx_1.potentiometer[fx_1.presetNr][1] = 127 - (t * 16);
-          fx_1.freeverb.damping((float)map(t, 0, 8, 0, 1.00));
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[6], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[6] = t;
-          set_infobox_background(750);
-          tft.printf("FX1 Damping =  %d ", 127 - (t * 16));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[6], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 7) // bit depth
-        {
-          fx_2.potentiometer[fx_2.presetNr][0] = 127 - (t * 16);
+      case 3:
+        updateFxVolume(value, row / 8.0f, performCC[3], 2);
+        printInfo("FX2 Vol", value, performCC[3]);
+        break;
 
-          fx_2.bitcrusher.bits(map(t, 0, 8, 16, 0));
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[7], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[7] = t;
-          set_infobox_background(750);
-          tft.printf("FX2 BitDepth =  %d ", map(t, 0, 8, 16, 0));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[7], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 8) // bitrate
-        {
-          int _rate[Y_DIM] = {44100, 22050, 11025, 5512, 2756, 1378, 1022, 689};
-          fx_2.potentiometer[fx_2.presetNr][1] = 127 - (t * 16);
-          fx_2.bitcrusher.sampleRate(_rate[t]);
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[8], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[8] = t;
-          set_infobox_background(750);
-          tft.printf("FX2 SmplRate =  %d ", _rate[t]);
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[8], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 9) // delay time
-        {
-          fx_3.potentiometer[fx_3.presetNr][0] = 127 - (t * 16);
-          fx_3.delay.delay(0, 500 / (t + 1));
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[9], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[9] = t;
-          set_infobox_background(750);
-          tft.printf("FX3 DlyTime =  %d ", 500 / (t + 1));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[9], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 10) // delay mix
-        {
-          fx_3.potentiometer[fx_3.presetNr][1] = 127 - (t * 16);
-          fx_3.delayMixer.gain(1, t / 8.00);
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[10], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[10] = t;
-          set_infobox_background(750);
-          tft.printf("FX3 Feedback =  %d ", 127 - (t * 16));
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[10], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 11) // filter frequency
-        {
-          int frequency = note_frequency[t * 16] * tuning;
-          MasterOut.finalFilter.frequency(frequency);
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[11], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[11] = t;
-          set_infobox_background(750);
-          tft.printf("Fltr Freq =  %d ", frequency);
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[11], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 12) // filter Resonance
-        {
-          MasterOut.finalFilter.resonance(t * 18);
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
-            int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-            if (allTracks[s]->performIsActive && trackChannel <= NUM_MIDI_OUTPUTS)
-              sendControlChange(performCC[12], 127 - (t * 16), trackChannel);
-          }
-          trellisPerformIndex[12] = t;
-          set_infobox_background(750);
-          tft.printf("Fltr Reso =  %02f ", t * 0.714);
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[12], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 13) // cliplength
-        {
-          float _clipLengthDiv[Y_DIM]{1, 1.3333, 1.6, 2, 2.6666, 4, 8, 16};
-          for (int s = 0; s < NUM_TRACKS; s++)
-          {
+      case 4:
+        updateFxVolume(value, row / 8.0f, performCC[4], 3);
+        printInfo("FX3 Vol", value, performCC[4]);
+        break;
 
-            // Serial.printf("seqlength: %d\n", trackSeqLength[s]);
+      case 5:
+        fx_1.potentiometer[fx_1.presetNr][0] = value;
+        fx_1.freeverb.roomsize(map(row, 0, 8, 0.0, 1.0));
+        sendCCToActiveTracks(performCC[5], value);
+        printInfo("FX1 Roomsize", value, performCC[5]);
+        break;
 
-            if (allTracks[s]->performIsActive)
-            {
-              {
-                allTracks[s]->performSeqLengthDiv = _clipLengthDiv[t];
-                int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-                //  allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].seqLength = _clipLength[t];
-                if (trackChannel <= NUM_MIDI_OUTPUTS)
-                {
-                  sendControlChange(performCC[13], 127 - (t * 16), trackChannel);
-                }
-              }
-            }
+      case 6:
+        fx_1.potentiometer[fx_1.presetNr][1] = value;
+        fx_1.freeverb.damping(map(row, 0, 8, 0.0, 1.0));
+        sendCCToActiveTracks(performCC[6], value);
+        printInfo("FX1 Damping", value, performCC[6]);
+        break;
 
-            if (t == 0)
-            {
-              // allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].seqLength = trackSeqLength[s];
-              allTracks[s]->internal_clock = 0;
-              allTracks[s]->internal_clock_bar = myClock.barTick;
-              allTracks[s]->external_clock_bar = myClock.barTick;
-            }
-          }
-          trellisPerformIndex[13] = t;
-          set_infobox_background(750);
-          tft.printf("Clip Length =  %d ", MAX_TICKS / _clipLengthDiv[t]);
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[13], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 14) // clock division
+      case 7:
+        fx_2.potentiometer[fx_2.presetNr][0] = value;
+        fx_2.bitcrusher.bits(map(row, 0, 8, 16, 0));
+        sendCCToActiveTracks(performCC[7], value);
+        printInfo("FX2 BitDepth", map(row, 0, 8, 16, 0), performCC[7]);
+        break;
+
+      case 8:
+      {
+        int _rate[] = {44100, 22050, 11025, 5512, 2756, 1378, 1022, 689};
+        fx_2.potentiometer[fx_2.presetNr][1] = value;
+        fx_2.bitcrusher.sampleRate(_rate[row]);
+        sendCCToActiveTracks(performCC[8], value);
+        printInfo("FX2 SmplRate", _rate[row], performCC[8]);
+        break;
+      }
+
+      case 9:
+        fx_3.potentiometer[fx_3.presetNr][0] = value;
+        fx_3.delay.delay(0, 500 / (row + 1));
+        sendCCToActiveTracks(performCC[9], value);
+        printInfo("FX3 DlyTime", 500 / (row + 1), performCC[9]);
+        break;
+
+      case 10:
+        fx_3.potentiometer[fx_3.presetNr][1] = value;
+        fx_3.delayMixer.gain(1, row / 8.0f);
+        sendCCToActiveTracks(performCC[10], value);
+        printInfo("FX3 Feedback", value, performCC[10]);
+        break;
+
+      case 11:
+      {
+        int freq = note_frequency[row * 16] * tuning;
+        MasterOut.finalFilter.frequency(freq);
+        sendCCToActiveTracks(performCC[11], value);
+        printInfo("Fltr Freq", freq, performCC[11]);
+        break;
+      }
+
+      case 12:
+        MasterOut.finalFilter.resonance(row * 18);
+        sendCCToActiveTracks(performCC[12], value);
+        printInfo("Fltr Reso", row * 18, performCC[12]);
+        break;
+
+      case 13:
+      {
+        float _div[] = {1, 1.3333f, 1.6f, 2, 2.6666f, 4, 8, 16};
+        for (int s = 0; s < NUM_TRACKS; s++)
         {
-          uint8_t _clockDivision[Y_DIM]{0, 1, 2, 3, 4, 6, 8, 16};
-          for (int s = 0; s < NUM_TRACKS; s++)
+          if (!allTracks[s]->performIsActive)
+            continue;
+          allTracks[s]->performSeqLengthDiv = _div[row];
+          if (row == 0)
           {
-            if (allTracks[s]->performIsActive)
-            {
-              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-              allTracks[s]->performClockDivision = _clockDivision[t];
-              Serial.printf("performclockdiv: %d, clockdiv: %d\n", allTracks[s]->performClockDivision, _clockDivision[t]);
+            allTracks[s]->internal_clock = 0;
+            allTracks[s]->internal_clock_bar = myClock.barTick;
+            allTracks[s]->external_clock_bar = myClock.barTick;
+          }
+        }
+        sendCCToActiveTracks(performCC[13], value);
+        printInfo("Clip Length", (int)(MAX_TICKS / _div[row]), performCC[13]);
+        break;
+      }
 
-              if (trackChannel <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[14], 127 - (t * 16), trackChannel);
-            }
-            if (t == 0)
-            {
-              allTracks[s]->internal_clock = 0;
-              allTracks[s]->internal_clock_bar = myClock.barTick;
-              allTracks[s]->external_clock_bar = myClock.barTick;
-            }
-          }
-          trellisPerformIndex[14] = t;
-          set_infobox_background(750);
-          tft.printf("Step Div =  %d ", _clockDivision[t]);
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[14], 127 - (t * 16));
-          reset_infobox_background();
-        }
-        if (_nr % TRELLIS_PADS_X_DIM == 15) // transpose
+      case 14:
+      {
+        uint8_t _div[] = {0, 1, 2, 3, 4, 6, 8, 16};
+        for (int s = 0; s < NUM_TRACKS; s++)
         {
-          int _offset[Y_DIM]{0, -12, -4, -2, 2, 4, 6, 12};
-          for (int s = 0; s < NUM_TRACKS; s++)
+          if (!allTracks[s]->performIsActive)
+            continue;
+          allTracks[s]->performClockDivision = _div[row];
+          if (row == 0)
           {
-            if (allTracks[s]->performIsActive)
-            {
-              int trackChannel = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
-              allTracks[s]->performNoteOffset = _offset[t];
-              if (trackChannel <= NUM_MIDI_OUTPUTS)
-                sendControlChange(performCC[15], 127 - (t * 16), trackChannel);
-            }
+            allTracks[s]->internal_clock = 0;
+            allTracks[s]->internal_clock_bar = myClock.barTick;
+            allTracks[s]->external_clock_bar = myClock.barTick;
           }
-          trellisPerformIndex[15] = t;
-          set_infobox_background(750);
-          tft.printf("Note Transpose =  %d ", _offset[t]);
-          set_infobox_next_line(1);
-          tft.printf("send CC%d =  %d ", performCC[15], 127 - (t * 16));
-          reset_infobox_background();
         }
-        // change_plugin_row = true;
+        sendCCToActiveTracks(performCC[14], value);
+        printInfo("Step Div", _div[row], performCC[14]);
+        break;
+      }
+
+      case 15:
+      {
+        int8_t _offset[] = {0, -12, -4, -2, 2, 4, 6, 12};
+        for (int s = 0; s < NUM_TRACKS; s++)
+          if (allTracks[s]->performIsActive)
+            allTracks[s]->performNoteOffset = _offset[row];
+        sendCCToActiveTracks(performCC[15], value);
+        printInfo("Note Transpose", _offset[row], performCC[15]);
+        break;
+      }
       }
     }
   }

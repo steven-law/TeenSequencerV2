@@ -10,7 +10,7 @@ extern File myFile;
 extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NO_VALUE 6789
 #define NO_NAME "NO_NAME"
-
+#define NO_NOTE 128
 #define NUM_PLUGINS 14
 #define NUM_PLAYMODES 11
 #define NUM_SCALES 23
@@ -245,6 +245,7 @@ extern const uint8_t chordVolumes[NUM_CHORD_VOLUMES][4];
 extern bool isTouched;
 
 extern int noteInfo[MAX_VOICES][4]; // noote, velo, start, length
+//playmodes
 struct MidiTrack
 {
     File file;
@@ -255,4 +256,90 @@ struct MidiTrack
 extern MidiTrack myMidi[NUM_TRACKS];
 float lfo_semitone_tri(float phase);
 float lfo_semitone_saw(float phase);
+// Hilfsstruktur für die Anzeige-Labels und Wertebereiche
+struct SeqModeParam {
+    const char* label;
+    int min;
+    int max;
+};
+
+const SeqModeParam seqModeParams[12][4][4] = {
+    // Step
+    {
+        { {"Oct -", 0, 11}, {"Oct +", 0, 11}, {"Vol -", 0, MIDI_CC_RANGE}, {"Vol +", 0, MIDI_CC_RANGE} },
+        { {"maxSteps", 0, NUM_STEPS}, {"Dejavu", 0, MIDI_CC_RANGE}, {"Rotate", 0, 32}, {"", 0, 0} },
+        { {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1}, {"", 0, 0}, {"", 0, 0} },
+        { {"", 0, 0}, {"", 0, 0}, {"", 0, 0}, {"", 0, 0} }
+    },
+    // Random
+    {
+        { {"Oct -", 0, 11}, {"Oct +", 0, 11}, {"Vol -", 0, MIDI_CC_RANGE}, {"Vol +", 0, MIDI_CC_RANGE} },
+        { {"maxSteps", 0, NUM_STEPS}, {"Dejavu", 0, MIDI_CC_RANGE}, {"Rotate", 0, 32}, {"", 0, 0} },
+        { {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1}, {"", 0, 0}, {"", 0, 0} },
+        { {"", 0, 0}, {"", 0, 0}, {"", 0, 0}, {"", 0, 0} }
+    },
+    // Dropseq
+    {
+        { {"Drop", 0, NO_NOTE}, {"Rst @", 0, NO_NOTE}, {"Oct -", 0, NO_NOTE}, {"Oct +", 0, NO_NOTE} },
+        { {"C", 0, NO_NOTE}, {"C#", 0, NO_NOTE}, {"D", 0, NO_NOTE}, {"D#", 0, NO_NOTE} },
+        { {"E", 0, NO_NOTE}, {"F", 0, NO_NOTE}, {"F#", 0, NO_NOTE}, {"G", 0, NO_NOTE} },
+        { {"G#", 0, NO_NOTE}, {"A", 0, NO_NOTE}, {"A#", 0, NO_NOTE}, {"B", 0, NO_NOTE} }
+    },
+    // BitRd
+    {
+        { {"C", 0, 255}, {"C#", 0, 255}, {"D", 0, 255}, {"D#", 0, 255} },
+        { {"E", 0, 255}, {"F", 0, 255}, {"F#", 0, 255}, {"G", 0, 255} },
+        { {"G#", 0, 255}, {"A", 0, 255}, {"A#", 0, 255}, {"B", 0, 255} },
+        { {"Vol -", 0, MIDI_CC_RANGE}, {"Vol +", 0, MIDI_CC_RANGE}, {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1} }
+    },
+    // PotS
+    {
+        { {"1", 0, NO_NOTE}, {"2", 0, NO_NOTE}, {"3", 0, NO_NOTE}, {"4", 0, NO_NOTE} },
+        { {"5", 0, NO_NOTE}, {"6", 0, NO_NOTE}, {"7", 0, NO_NOTE}, {"8", 0, NO_NOTE} },
+        { {"9", 0, NO_NOTE}, {"10", 0, NO_NOTE}, {"11", 0, NO_NOTE}, {"12", 0, NO_NOTE} },
+        { {"13", 0, NO_NOTE}, {"14", 0, NO_NOTE}, {"15", 0, NO_NOTE}, {"16", 0, NO_NOTE} }
+    },
+    // Beats
+    {
+        { {"1", 0, MIDI_CC_RANGE}, {"2", 0, MIDI_CC_RANGE}, {"3", 0, MIDI_CC_RANGE}, {"4", 0, MIDI_CC_RANGE} },
+        { {"5", 0, MIDI_CC_RANGE}, {"6", 0, MIDI_CC_RANGE}, {"7", 0, MIDI_CC_RANGE}, {"8", 0, MIDI_CC_RANGE} },
+        { {"9", 0, MIDI_CC_RANGE}, {"10", 0, MIDI_CC_RANGE}, {"11", 0, MIDI_CC_RANGE}, {"12", 0, MIDI_CC_RANGE} },
+        { {"Vol -", 0, MIDI_CC_RANGE}, {"Vol +", 0, MIDI_CC_RANGE}, {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1} }
+    },
+    // EuClid
+    {
+        { {"1", 0, MIDI_CC_RANGE+1}, {"2", 0, MIDI_CC_RANGE+1}, {"3", 0, MIDI_CC_RANGE+1}, {"4", 0, MIDI_CC_RANGE+1} },
+        { {"5", 0, MIDI_CC_RANGE+1}, {"6", 0, MIDI_CC_RANGE+1}, {"7", 0, MIDI_CC_RANGE+1}, {"8", 0, MIDI_CC_RANGE+1} },
+        { {"9", 0, MIDI_CC_RANGE+1}, {"10", 0, MIDI_CC_RANGE+1}, {"11", 0, MIDI_CC_RANGE+1}, {"12", 0, MIDI_CC_RANGE+1} },
+        { {"Vol -", 0, MIDI_CC_RANGE+1}, {"Vol +", 0, MIDI_CC_RANGE+1}, {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1} }
+    },
+    // Rclid
+    {
+        { {"Steps", 0, MIDI_CC_RANGE}, {"Offset", 0, MIDI_CC_RANGE}, {"DejaVu", 0, MIDI_CC_RANGE}, {"rotate", 0, MIDI_CC_RANGE} },
+        { {"Oct -", 0, MIDI_CC_RANGE}, {"Oct +", 0, MIDI_CC_RANGE}, {"Velo -", 0, MIDI_CC_RANGE}, {"Velo +", 0, MIDI_CC_RANGE} },
+        { {"FX -", 0, MIDI_CC_RANGE}, {"FX +", 0, MIDI_CC_RANGE}, {"", 0, 0}, {"", 0, 0} },
+        { {"", 0, 0}, {"", 0, 0}, {"", 0, 0}, {"", 0, 0} }
+    },
+    // Midi
+    {
+        { {"File", 0, 127}, {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1}, {"CMult", 1, MIDI_CC_RANGE} },
+        { {"StartBar", 0, 255}, {"loopBars", 1, 255}, {"", 0, 0}, {"", 0, 0} },
+        { {"", 0, 0}, {"", 0, 0}, {"", 0, 0}, {"", 0, 0} },
+        { {"", 0, 0}, {"", 0, 0}, {"", 0, 0}, {"", 0, 0} }
+    },
+    // LFO
+    {
+        { {"Degree", 0, MIDI_CC_RANGE}, {"Depth", 0, MIDI_CC_RANGE}, {"Vol -", 0, MIDI_CC_RANGE}, {"Vol +", 0, MIDI_CC_RANGE} },
+        { {"maxSteps", 0, NUM_STEPS}, {"Dejavu", 0, MIDI_CC_RANGE}, {"Rotate", 0, 32}, {"", 0, 0} },
+        { {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1}, {"Type", 0, 8}, {"", 0, 0} },
+        { {"", 0, 0}, {"", 0, 0}, {"", 0, 0}, {"", 0, 0} }
+    },
+    // Psy
+    {
+        { {"Style", 0, MIDI_CC_RANGE}, {"RootN", 0, MIDI_CC_RANGE}, {"Vol -", 0, MIDI_CC_RANGE}, {"Vol +", 0, MIDI_CC_RANGE} },
+        { {"AccNot1", 0, MIDI_CC_RANGE}, {"AccPos1", 0, NUM_STEPS}, {"AccNot2", 0, MIDI_CC_RANGE}, {"AccPos2", 0, NUM_STEPS} },
+        { {"StepFX -", 0, MIDI_CC_RANGE+1}, {"StepFX +", 0, MIDI_CC_RANGE+1}, {"", 0, 0}, {"", 0, 0} },
+        { {"", 0, 0}, {"", 0, 0}, {"", 0, 0}, {"", 0, 0} }
+    }
+};
 #endif

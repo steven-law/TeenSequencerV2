@@ -74,6 +74,56 @@ uint8_t Track::transpose_to_scale(uint8_t noteToChange)
     // Fallback (theoretisch unnötig, wenn Skala mindestens 1 Note enthält)
     return noteName;
 }
+
+// Generische Parameter-Funktion
+void Track::set_seqmode_parameters(uint8_t mode)
+{
+   draw_seq_mode(mode);
+
+    if (lastPotRow == 3 && enc_button[3])
+    {
+        clear_active_clip();
+        enc_button[3] = false;
+        // Speichern in Clip, je nach Modus ggf. anpassen!
+        for (int s = 0; s < NUM_STEPS; s++)
+        {
+            int _note = seqModNoteMemory[s];
+            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
+        }
+    }
+
+    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+        for (int x = 0; x < 4; x++)
+        {
+            const SeqModeParam &param = seqModeParams[mode][lastPotRow][x];
+            if (strlen(param.label) > 0)
+                set_seq_mode_value(mode, x, lastPotRow, param.label, param.min, param.max);
+        }
+    }
+    else
+    {
+        set_presetNr();
+    }
+}
+// Generische Draw-Funktion
+void Track::draw_seq_mode(uint8_t mode)
+{
+    if (!change_plugin_row)
+        return;
+    change_plugin_row = false;
+    for (int y = 0; y < 4; y++)
+    {
+        for (int x = 0; x < 4; x++)
+        {
+            const SeqModeParam &param = seqModeParams[mode][y][x];
+            if (strlen(param.label) > 0)
+                drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], param.label);
+        }
+    }
+    draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
+    draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
+}
 void Track::play_seq_mode0(uint8_t cloock)
 {
     const uint8_t clipIndex = clip_to_play[external_clock_bar];
@@ -154,100 +204,6 @@ void Track::play_seq_mode1(uint8_t cloock)
         noteToPlay[0] = NO_NOTE;
     }
 }
-void Track::set_seq_mode1_parameters()
-{ // random
-    /*
-        0  octmin
-        1  octmax
-        2  volmin
-        3  volmax
-        4  maxsteps
-        5  dejaVu
-        6  rotate
-        7  save to clip
-        8  StepFX -
-        9  StepFX +
-          */
-    draw_seq_mode1();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        enc_button[3] = false;
-
-        for (int s = 0; s < seqMod_value[1][PMpresetNr][4]; s++)
-        {
-            int _note = seqModNoteMemory[s];
-            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-        }
-    }
-    if (lastPotRow == 1) // lock sequence immedietly
-    {
-        if (enc_button[3])
-        {
-            seqMod_value[1][PMpresetNr][5] = 127;
-            change_plugin_row = true;
-        }
-        if (enc_moved[2])
-            rotateIntArray(seqModNoteMemory, seqMod_value[1][PMpresetNr][4], encoded[2]);
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-
-            set_seq_mode_value(1, 0, 0, "Oct -", 0, 11);
-            set_seq_mode_value(1, 1, 0, "Oct +", 0, 11);
-            set_seq_mode_value(1, 2, 0, "Vol -", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(1, 3, 0, "Vol +", 0, MIDI_CC_RANGE);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(1, 0, 1, "maxSteps", 0, NUM_STEPS);
-            set_seq_mode_value(1, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(1, 2, 1, "Rotate", 0, 32);
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode_value(1, 0, 2, "StepFX -", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(1, 1, 2, "StepFX +", 0, MIDI_CC_RANGE + 1);
-        }
-        break;
-        case 3:
-        {
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
-}
-void Track::draw_seq_mode1()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-
-        drawPot(0, 0, seqMod_value[1][PMpresetNr][0], "Oct -");
-        drawPot(1, 0, seqMod_value[1][PMpresetNr][1], "Oct +");
-        drawPot(2, 0, seqMod_value[1][PMpresetNr][2], "Vol -");
-        drawPot(3, 0, seqMod_value[1][PMpresetNr][3], "Vol +");
-
-        drawPot(0, 1, seqMod_value[1][PMpresetNr][4], "maxSteps");
-        drawPot(1, 1, seqMod_value[1][PMpresetNr][5], "Dejavu");
-        drawPot(2, 1, seqMod_value[1][PMpresetNr][6], "Rotate");
-
-        drawPot(0, 2, seqMod_value[1][PMpresetNr][8], "StepFX -");
-        drawPot(1, 2, seqMod_value[1][PMpresetNr][9], "StepFX +");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-    }
-}
 // dropseq
 void Track::play_seq_mode2(uint8_t cloock)
 {
@@ -321,91 +277,6 @@ void Track::play_seq_mode2(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode2_parameters()
-{
-    draw_seq_mode2();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        enc_button[3] = false;
-
-        for (int s = 0; s < NUM_STEPS; s++)
-        {
-            int _note = seqModNoteMemory[s];
-            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-        }
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-            set_seq_mode_value(2, 0, 0, "Drop", 0, NO_NOTE);
-            set_seq_mode_value(2, 1, 0, "Rst @", 0, NO_NOTE);
-            set_seq_mode_value(2, 2, 0, "Oct -", 0, NO_NOTE);
-            set_seq_mode_value(2, 3, 0, "Oct +", 0, NO_NOTE);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(2, 0, 1, "C", 0, NO_NOTE);
-            set_seq_mode_value(2, 1, 1, "C#", 0, NO_NOTE);
-            set_seq_mode_value(2, 2, 1, "D", 0, NO_NOTE);
-            set_seq_mode_value(2, 3, 1, "D#", 0, NO_NOTE);
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode_value(2, 0, 2, "E", 0, NO_NOTE);
-            set_seq_mode_value(2, 1, 2, "F", 0, NO_NOTE);
-            set_seq_mode_value(2, 2, 2, "F#", 0, NO_NOTE);
-            set_seq_mode_value(2, 3, 2, "G", 0, NO_NOTE);
-        }
-        break;
-        case 3:
-        {
-            set_seq_mode_value(2, 0, 3, "G#", 0, NO_NOTE);
-            set_seq_mode_value(2, 1, 3, "A", 0, NO_NOTE);
-            set_seq_mode_value(2, 2, 3, "A#", 0, NO_NOTE);
-            set_seq_mode_value(2, 3, 3, "B", 0, NO_NOTE);
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
-}
-void Track::draw_seq_mode2()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        drawPot(0, 0, seqMod_value[2][PMpresetNr][0], "Drop");
-        drawPot(1, 0, seqMod_value[2][PMpresetNr][1], "Rst @");
-        drawPot(2, 0, seqMod_value[2][PMpresetNr][2], "Oct -");
-        drawPot(3, 0, seqMod_value[2][PMpresetNr][3], "Oct +");
-
-        drawPot(0, 1, seqMod_value[2][PMpresetNr][4], "C");
-        drawPot(1, 1, seqMod_value[2][PMpresetNr][5], "C#");
-        drawPot(2, 1, seqMod_value[2][PMpresetNr][6], "D");
-        drawPot(3, 1, seqMod_value[2][PMpresetNr][7], "D#");
-
-        drawPot(0, 2, seqMod_value[2][PMpresetNr][8], "E");
-        drawPot(1, 2, seqMod_value[2][PMpresetNr][9], "F");
-        drawPot(2, 2, seqMod_value[2][PMpresetNr][10], "F#");
-        drawPot(3, 2, seqMod_value[2][PMpresetNr][11], "G");
-
-        drawPot(0, 3, seqMod_value[2][PMpresetNr][12], "G#");
-        drawPot(1, 3, seqMod_value[2][PMpresetNr][13], "A");
-        drawPot(2, 3, seqMod_value[2][PMpresetNr][14], "A#");
-        drawPot(3, 3, seqMod_value[2][PMpresetNr][15], "B");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-    }
-}
 // bitread
 void Track::play_seq_mode3(uint8_t cloock)
 {
@@ -453,96 +324,6 @@ void Track::play_seq_mode3(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode3_parameters()
-{
-    draw_seq_mode3();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        enc_button[3] = false;
-        for (int v = 0; v < MAX_VOICES; v++)
-        {
-            for (int s = 0; s < 8; s++)
-            {
-                if (bitRead(seqMod_value[3][PMpresetNr][v], s))
-                {
-                    int _note = v + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-                    set_note_on_tick(s * 12, _note, parameter[SET_STEP_LENGTH]);
-                }
-            }
-        }
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-            set_seq_mode_value(3, 0, 0, noteNames[0], 0, 255);
-            set_seq_mode_value(3, 1, 0, noteNames[1], 0, 255);
-            set_seq_mode_value(3, 2, 0, noteNames[2], 0, 255);
-            set_seq_mode_value(3, 3, 0, noteNames[3], 0, 255);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(3, 0, 1, noteNames[4], 0, 255);
-            set_seq_mode_value(3, 1, 1, noteNames[5], 0, 255);
-            set_seq_mode_value(3, 2, 1, noteNames[6], 0, 255);
-            set_seq_mode_value(3, 3, 1, noteNames[7], 0, 255);
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode_value(3, 0, 2, noteNames[8], 0, 255);
-            set_seq_mode_value(3, 1, 2, noteNames[9], 0, 255);
-            set_seq_mode_value(3, 2, 2, noteNames[10], 0, 255);
-            set_seq_mode_value(3, 3, 2, noteNames[11], 0, 255);
-        }
-        break;
-        case 3:
-        {
-            set_seq_mode_value(3, 0, 3, "Vol -", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(3, 1, 3, "Vol +", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(3, 2, 3, "StepFX -", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(3, 3, 3, "StepFX +", 0, MIDI_CC_RANGE + 1);
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
-}
-void Track::draw_seq_mode3()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        drawPot(0, 0, seqMod_value[3][PMpresetNr][0], noteNames[0]);
-        drawPot(1, 0, seqMod_value[3][PMpresetNr][1], noteNames[1]);
-        drawPot(2, 0, seqMod_value[3][PMpresetNr][2], noteNames[2]);
-        drawPot(3, 0, seqMod_value[3][PMpresetNr][3], noteNames[3]);
-
-        drawPot(0, 1, seqMod_value[3][PMpresetNr][4], noteNames[4]);
-        drawPot(1, 1, seqMod_value[3][PMpresetNr][5], noteNames[5]);
-        drawPot(2, 1, seqMod_value[3][PMpresetNr][6], noteNames[6]);
-        drawPot(3, 1, seqMod_value[3][PMpresetNr][7], noteNames[7]);
-
-        drawPot(0, 2, seqMod_value[3][PMpresetNr][8], noteNames[8]);
-        drawPot(1, 2, seqMod_value[3][PMpresetNr][9], noteNames[9]);
-        drawPot(2, 2, seqMod_value[3][PMpresetNr][10], noteNames[10]);
-        drawPot(3, 2, seqMod_value[3][PMpresetNr][11], noteNames[11]);
-
-        drawPot(0, 3, seqMod_value[3][PMpresetNr][12], "Vol -");
-        drawPot(1, 3, seqMod_value[3][PMpresetNr][13], "Vol +");
-        drawPot(2, 3, seqMod_value[3][PMpresetNr][14], "StepFX -");
-        drawPot(3, 3, seqMod_value[3][PMpresetNr][15], "StepFX +");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-    }
-}
 // 16 step pot sequencer
 void Track::play_seq_mode4(uint8_t cloock)
 {
@@ -582,92 +363,6 @@ void Track::play_seq_mode4(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode4_parameters()
-{
-    draw_seq_mode4();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        enc_button[3] = false;
-
-        for (int s = 0; s < NUM_STEPS; s++)
-        {
-            int _note = (seqMod_value[4][PMpresetNr][s]);
-            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-        }
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-            set_seq_mode_value(4, 0, 0, "1", 0, NO_NOTE);
-            set_seq_mode_value(4, 1, 0, "2", 0, NO_NOTE);
-            set_seq_mode_value(4, 2, 0, "3", 0, NO_NOTE);
-            set_seq_mode_value(4, 3, 0, "4", 0, NO_NOTE);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(4, 0, 1, "5", 0, NO_NOTE);
-            set_seq_mode_value(4, 1, 1, "6", 0, NO_NOTE);
-            set_seq_mode_value(4, 2, 1, "7", 0, NO_NOTE);
-            set_seq_mode_value(4, 3, 1, "8", 0, NO_NOTE);
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode_value(4, 0, 2, "9", 0, NO_NOTE);
-            set_seq_mode_value(4, 1, 2, "10", 0, NO_NOTE);
-            set_seq_mode_value(4, 2, 2, "11", 0, NO_NOTE);
-            set_seq_mode_value(4, 3, 2, "12", 0, NO_NOTE);
-        }
-        break;
-        case 3:
-        {
-            set_seq_mode_value(4, 0, 3, "13", 0, NO_NOTE);
-            set_seq_mode_value(4, 1, 3, "14", 0, NO_NOTE);
-            set_seq_mode_value(4, 2, 3, "15", 0, NO_NOTE);
-            set_seq_mode_value(4, 3, 3, "16", 0, NO_NOTE);
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
-}
-void Track::draw_seq_mode4()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        drawPot(0, 0, seqMod_value[4][PMpresetNr][0], "1");
-        drawPot(1, 0, seqMod_value[4][PMpresetNr][1], "2");
-        drawPot(2, 0, seqMod_value[4][PMpresetNr][2], "3");
-        drawPot(3, 0, seqMod_value[4][PMpresetNr][3], "4");
-
-        drawPot(0, 1, seqMod_value[4][PMpresetNr][4], "5");
-        drawPot(1, 1, seqMod_value[4][PMpresetNr][5], "6");
-        drawPot(2, 1, seqMod_value[4][PMpresetNr][6], "7");
-        drawPot(3, 1, seqMod_value[4][PMpresetNr][7], "8");
-
-        drawPot(0, 2, seqMod_value[4][PMpresetNr][8], "9");
-        drawPot(1, 2, seqMod_value[4][PMpresetNr][9], "10");
-        drawPot(2, 2, seqMod_value[4][PMpresetNr][10], "11");
-        drawPot(3, 2, seqMod_value[4][PMpresetNr][11], "12");
-
-        drawPot(0, 3, seqMod_value[4][PMpresetNr][12], "13");
-        drawPot(1, 3, seqMod_value[4][PMpresetNr][13], "14");
-        drawPot(2, 3, seqMod_value[4][PMpresetNr][14], "15");
-        drawPot(3, 3, seqMod_value[4][PMpresetNr][15], "16");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-    }
-}
-
 // beatArray
 void Track::play_seq_mode5(uint8_t cloock)
 {
@@ -712,102 +407,6 @@ void Track::play_seq_mode5(uint8_t cloock)
         }
     }
 }
-void Track::set_seq_mode5_parameters()
-{
-    draw_seq_mode5();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        enc_button[3] = false;
-        clear_active_clip();
-        for (int v = 0; v < MAX_VOICES; v++)
-        {
-            for (int s = 0; s < NUM_STEPS; s++)
-            {
-                if (beatArray[seqMod_value[5][PMpresetNr][v]][s])
-                {
-                    int _note = v + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-                    set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-                    Serial.printf("pl5 copy to clip note: %d, step: %d, \n", _note, s);
-                }
-            }
-        }
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-            set_seq_mode_value(5, 0, 0, "1", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 1, 0, "2", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 2, 0, "3", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 3, 0, "4", 0, MIDI_CC_RANGE);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(5, 0, 1, "5", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 1, 1, "6", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 2, 1, "7", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 3, 1, "8", 0, MIDI_CC_RANGE);
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode_value(5, 0, 2, "9", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 1, 2, "10", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 2, 2, "11", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 3, 2, "12", 0, MIDI_CC_RANGE);
-        }
-        break;
-        case 3:
-        {
-            set_seq_mode_value(5, 0, 3, "Vol -", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 1, 3, "Vol +", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(5, 2, 3, "StepFX -", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(5, 3, 3, "StepFX +", 0, MIDI_CC_RANGE + 1);
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
-}
-void Track::draw_seq_mode5()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        drawPot(0, 0, seqMod_value[5][PMpresetNr][0], "1");
-        drawPot(1, 0, seqMod_value[5][PMpresetNr][1], "2");
-        drawPot(2, 0, seqMod_value[5][PMpresetNr][2], "3");
-        drawPot(3, 0, seqMod_value[5][PMpresetNr][3], "4");
-
-        drawPot(0, 1, seqMod_value[5][PMpresetNr][4], "5");
-        drawPot(1, 1, seqMod_value[5][PMpresetNr][5], "6");
-        drawPot(2, 1, seqMod_value[5][PMpresetNr][6], "7");
-        drawPot(3, 1, seqMod_value[5][PMpresetNr][7], "8");
-
-        drawPot(0, 2, seqMod_value[5][PMpresetNr][8], "9");
-        drawPot(1, 2, seqMod_value[5][PMpresetNr][9], "10");
-        drawPot(2, 2, seqMod_value[5][PMpresetNr][10], "11");
-        drawPot(3, 2, seqMod_value[5][PMpresetNr][11], "12");
-
-        drawPot(0, 3, seqMod_value[5][PMpresetNr][12], "Vol -");
-        drawPot(1, 3, seqMod_value[5][PMpresetNr][13], "Vol +");
-        drawPot(2, 3, seqMod_value[5][PMpresetNr][14], "StepFX -");
-        drawPot(3, 3, seqMod_value[5][PMpresetNr][15], "StepFX +");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 1.75, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 1.75, true, false);
-        //  drawPot(0, 3, seqMod_value[4][12], "13");
-        //   drawPot(1, 3, seqMod_value[4][13], "14");
-        //   drawPot(2, 3, seqMod_value[4][14], "15");
-        //   drawPot(3, 3, seqMod_value[4][15], "16");
-    }
-}
-
 // Euclid
 void Track::play_seq_mode6(uint8_t cloock)
 {
@@ -853,68 +452,6 @@ void Track::play_seq_mode6(uint8_t cloock)
             noteOffAt[i] = -1;
         }
     }
-}
-void Track::set_seq_mode6_parameters()
-{
-    draw_seq_mode6();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        enc_button[3] = false;
-        for (int v = 0; v < MAX_VOICES; v++)
-        {
-            clear_active_clip();
-            for (int s = 0; s < NUM_STEPS; s++)
-            {
-                if (beatArrayPM6[v][s])
-                {
-                    int _note = v + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-                    set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-                }
-            }
-        }
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-            set_seq_mode6_value(0, 0, "1");
-            set_seq_mode6_value(1, 0, "2");
-            set_seq_mode6_value(2, 0, "3");
-            set_seq_mode6_value(3, 0, "4");
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode6_value(0, 1, "5");
-            set_seq_mode6_value(1, 1, "6");
-            set_seq_mode6_value(2, 1, "7");
-            set_seq_mode6_value(3, 1, "8");
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode6_value(0, 2, "9");
-            set_seq_mode6_value(1, 2, "10");
-            set_seq_mode6_value(2, 2, "11");
-            set_seq_mode6_value(3, 2, "12");
-        }
-        break;
-        case 3:
-        {
-            set_seq_mode6_value(0, 3, "Vol -");
-            set_seq_mode6_value(1, 3, "Vol  +");
-            set_seq_mode6_value(2, 3, "StepFX -");
-            set_seq_mode6_value(3, 3, "StepFX +");
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
 }
 void Track::set_seq_mode6_value(uint8_t XPos, uint8_t YPos, const char *name)
 {
@@ -966,35 +503,6 @@ void Track::set_seq_mode6_value(uint8_t XPos, uint8_t YPos, const char *name)
         }
     }
 }
-void Track::draw_seq_mode6()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        drawPot(0, 0, seqMod_value[6][PMpresetNr][0], "1");
-        drawPot(1, 0, seqMod_value[6][PMpresetNr][1], "2");
-        drawPot(2, 0, seqMod_value[6][PMpresetNr][2], "3");
-        drawPot(3, 0, seqMod_value[6][PMpresetNr][3], "4");
-
-        drawPot(0, 1, seqMod_value[6][PMpresetNr][4], "5");
-        drawPot(1, 1, seqMod_value[6][PMpresetNr][5], "6");
-        drawPot(2, 1, seqMod_value[6][PMpresetNr][6], "7");
-        drawPot(3, 1, seqMod_value[6][PMpresetNr][7], "8");
-
-        drawPot(0, 2, seqMod_value[6][PMpresetNr][8], "9");
-        drawPot(1, 2, seqMod_value[6][PMpresetNr][9], "10");
-        drawPot(2, 2, seqMod_value[6][PMpresetNr][10], "11");
-        drawPot(3, 2, seqMod_value[6][PMpresetNr][11], "12");
-
-        drawPot(0, 3, seqMod_value[6][PMpresetNr][12], "Vol -");
-        drawPot(1, 3, seqMod_value[6][PMpresetNr][13], "Vol +");
-        drawPot(2, 3, seqMod_value[6][PMpresetNr][14], "StepFX -");
-        drawPot(3, 3, seqMod_value[6][PMpresetNr][15], "StepFX +");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 1.75, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 1.75, true, false);
-    }
-}
-
 // Rclid
 void Track::play_seq_mode7(uint8_t cloock)
 {
@@ -1055,59 +563,8 @@ void Track::play_seq_mode7(uint8_t cloock)
         noteOff(noteToPlay[0], 0, clip[clipIndex].midiChOut); // Send a Note (pitch 42, velo 127 on channel 1)
         // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
         noteToPlay[0] = NO_NOTE;
-        noteOffAt[0]=-1;
+        noteOffAt[0] = -1;
     }
-}
-void Track::set_seq_mode7_parameters()
-{
-    draw_seq_mode7();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        enc_button[3] = false;
-
-        for (int s = 0; s < NUM_STEPS; s++)
-        {
-            int _note = seqModNoteMemory[s];
-            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-        }
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-            set_seq_mode7_value(0, 0, "Steps");
-            set_seq_mode7_value(1, 0, "Offset");
-            set_seq_mode7_value(2, 0, "DejaVu");
-            set_seq_mode7_value(3, 0, "rotate");
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode7_value(0, 1, "Oct -");
-            set_seq_mode7_value(1, 1, "Oct +");
-            set_seq_mode7_value(2, 1, "Velo -");
-            set_seq_mode7_value(3, 1, "Velo +");
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode7_value(0, 2, "FX -");
-            set_seq_mode7_value(1, 2, "FX +");
-        }
-        break;
-        case 3:
-        {
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
 }
 void Track::set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name)
 {
@@ -1158,37 +615,6 @@ void Track::set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name)
         }
     }
 }
-void Track::draw_seq_mode7()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        drawPot(0, 0, seqMod_value[7][PMpresetNr][0], "Steps");
-        drawPot(1, 0, seqMod_value[7][PMpresetNr][1], "Offset");
-        drawPot(2, 0, seqMod_value[7][PMpresetNr][2], "DejaVu");
-        drawPot(3, 0, seqMod_value[7][PMpresetNr][3], "rotate");
-
-        drawPot(0, 1, seqMod_value[7][PMpresetNr][4], "Oct -");
-        drawPot(1, 1, seqMod_value[7][PMpresetNr][5], "Oct +");
-        drawPot(2, 1, seqMod_value[7][PMpresetNr][6], "Velo -");
-        drawPot(3, 1, seqMod_value[7][PMpresetNr][7], "Velo +");
-
-        drawPot(0, 2, seqMod_value[7][PMpresetNr][8], "FX -");
-        drawPot(1, 2, seqMod_value[7][PMpresetNr][9], "FX +");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 1.75, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 1.75, true, false);
-        // drawPot(0, 2, seqMod_value[7][8], "Velo -");
-        //  drawPot(1, 2, seqMod_value[7][9], "Velo +");
-        //  drawPot(2, 2, seqMod_value[7][10], "FX -");
-        //  drawPot(3, 2, seqMod_value[7][11], "FX +");
-
-        //  drawPot(0, 3, seqMod_value[4][12], "13");
-        //   drawPot(1, 3, seqMod_value[4][13], "14");
-        //   drawPot(2, 3, seqMod_value[4][14], "15");
-        //   drawPot(3, 3, seqMod_value[4][15], "16");
-    }
-}
-
 // MIDI
 void Track::play_seq_mode8(uint8_t cloock)
 {
@@ -1262,85 +688,6 @@ void Track::refresh_mode8()
         // Serial.printf("uClock bar:  %d, external bar:  %d\n", myClock.barTick, external_clock_bar);
     }
 }
-void Track::set_seq_mode8_parameters()
-{
-    draw_seq_mode8();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        int multiplier = seqMod_value[8][PMpresetNr][3]; // 40 for 960ppqn to 24ppqn conversion
-        enc_button[3] = false;
-        for (int s = 0; s < MAX_TICKS; s++)
-        {
-            int numVoices = fillNoteInfoAtTick(myMidi[my_Arranger_Y_axis - 1], (s + (seqMod_value[8][PMpresetNr][4] * MAX_TICKS)) * multiplier);
-            for (int v = 0; v < numVoices; v++)
-            {
-                int _note = noteInfo[v][0];
-                parameter[SET_VELO2SET] = noteInfo[v][1];
-                parameter[SET_STEP_FX] = random(seqMod_value[8][PMpresetNr][1], seqMod_value[8][PMpresetNr][2]);
-                int start = (noteInfo[v][2] / multiplier) - (seqMod_value[8][PMpresetNr][4] * MAX_TICKS);
-                int length = noteInfo[v][3] / multiplier;
-                Serial.printf("store PL8 note: %d, start: %d, length: %d, velo: %d\n", _note, start, length, parameter[SET_VELO2SET]);
-                if (start == s)
-                    set_note_on_tick(start, _note, length);
-            }
-        }
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-
-            select_file(0, 0, "File");
-            set_seq_mode_value(8, 1, 0, "StepFX -", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(8, 2, 0, "StepFX +", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(8, 3, 0, "CMult", 1, MIDI_CC_RANGE);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(8, 0, 1, "StartBar", 0, 255);
-            set_seq_mode_value(8, 1, 1, "loopBars", 1, 255);
-            // set_seq_mode_value(1, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
-            // set_seq_mode_value(1, 2, 1, "Rotate", 0, 32);
-        }
-        break;
-        case 2:
-        {
-        }
-        break;
-        case 3:
-        {
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        Serial.println("shift pressed");
-        set_presetNr();
-    }
-}
-void Track::draw_seq_mode8()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-
-        drawPot(0, 0, seqMod_value[8][PMpresetNr][0], "File");
-        drawPot(1, 0, seqMod_value[8][PMpresetNr][1], "StepFX -");
-        drawPot(2, 0, seqMod_value[8][PMpresetNr][2], "StepFX +");
-        drawPot(3, 0, seqMod_value[8][PMpresetNr][3], "CMult");
-        drawPot(0, 1, seqMod_value[8][PMpresetNr][4], "StartBar");
-        drawPot(1, 1, seqMod_value[8][PMpresetNr][5], "loopBars");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 1.75, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 1.75, true, false);
-    }
-}
 // LFO
 void Track::play_seq_mode9(uint8_t cloock)
 {
@@ -1403,91 +750,6 @@ void Track::play_seq_mode9(uint8_t cloock)
         noteToPlay[0] = NO_NOTE;
     }
 }
-void Track::set_seq_mode9_parameters()
-{
-    draw_seq_mode9();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        enc_button[3] = false;
-
-        for (int s = 0; s < seqMod_value[9][PMpresetNr][4]; s++)
-        {
-            int _note = seqModNoteMemory[s];
-            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-        }
-    }
-    if (lastPotRow == 1) // lock sequence immedietly
-    {
-        if (enc_button[3])
-        {
-            seqMod_value[9][PMpresetNr][5] = 127;
-            change_plugin_row = true;
-        }
-        if (enc_moved[2])
-            rotateIntArray(seqModNoteMemory, seqMod_value[9][PMpresetNr][4], encoded[2]);
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-
-            set_seq_mode_value(9, 0, 0, "Degree", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(9, 1, 0, "Depth", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(9, 2, 0, "Vol -", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(9, 3, 0, "Vol +", 0, MIDI_CC_RANGE);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(9, 0, 1, "maxSteps", 0, NUM_STEPS);
-            set_seq_mode_value(9, 1, 1, "Dejavu", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(9, 2, 1, "Rotate", 0, 32);
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode_value(9, 0, 2, "StepFX -", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(9, 1, 2, "StepFX +", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(9, 2, 2, "Type", 0, 8);
-        }
-        break;
-        case 3:
-        {
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
-}
-void Track::draw_seq_mode9()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-
-        drawPot(0, 0, seqMod_value[9][PMpresetNr][0], "Speed");
-        drawPot(1, 0, seqMod_value[9][PMpresetNr][1], "Depth");
-        drawPot(2, 0, seqMod_value[9][PMpresetNr][2], "Vol -");
-        drawPot(3, 0, seqMod_value[9][PMpresetNr][3], "Vol +");
-
-        drawPot(0, 1, seqMod_value[9][PMpresetNr][4], "maxSteps");
-        drawPot(1, 1, seqMod_value[9][PMpresetNr][5], "Dejavu");
-        drawPot(2, 1, seqMod_value[9][PMpresetNr][6], "Rotate");
-
-        drawPot(0, 2, seqMod_value[9][PMpresetNr][8], "StepFX -");
-        drawPot(1, 2, seqMod_value[9][PMpresetNr][9], "StepFX +");
-        drawPot(2, 2, seqMod_value[9][PMpresetNr][10], "Type");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-    }
-}
-
 // psy
 void Track::play_seq_mode10(uint8_t cloock)
 {
@@ -1596,91 +858,5 @@ void Track::play_seq_mode10(uint8_t cloock)
         noteOffAt[0] = -1;
         noteOff(noteToPlay[0], 0, clip[clipIndex].midiChOut);
         noteToPlay[0] = NO_NOTE;
-    }
-}
-void Track::set_seq_mode10_parameters()
-{
-    draw_seq_mode10();
-    if (lastPotRow == 3 && enc_button[3]) // save to clip
-    {
-        clear_active_clip();
-        enc_button[3] = false;
-
-        for (int s = 0; s < NUM_STEPS; s++)
-        {
-            int _note = seqModNoteMemory[s];
-            set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
-        }
-    }
-    if (lastPotRow == 1) // lock sequence immedietly
-    {
-        if (enc_button[3])
-        {
-            seqMod_value[10][PMpresetNr][5] = 127;
-            change_plugin_row = true;
-        }
-        if (enc_moved[2])
-            rotateIntArray(seqModNoteMemory, seqMod_value[10][PMpresetNr][4], encoded[2]);
-    }
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        switch (lastPotRow)
-        {
-        case 0:
-        {
-
-            set_seq_mode_value(10, 0, 0, "Style", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(10, 1, 0, "RootN", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(10, 2, 0, "Vol -", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(10, 3, 0, "Vol +", 0, MIDI_CC_RANGE);
-        }
-        break;
-        case 1:
-        {
-            set_seq_mode_value(10, 0, 1, "AccNot1", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(10, 1, 1, "AccPos1", 0, NUM_STEPS);
-            set_seq_mode_value(10, 2, 1, "AccNot2", 0, MIDI_CC_RANGE);
-            set_seq_mode_value(10, 3, 1, "AccPos2", 0, NUM_STEPS);
-        }
-        break;
-        case 2:
-        {
-            set_seq_mode_value(10, 0, 2, "StepFX -", 0, MIDI_CC_RANGE + 1);
-            set_seq_mode_value(10, 1, 2, "StepFX +", 0, MIDI_CC_RANGE + 1);
-            // set_seq_mode_value(10, 2, 2, "Style", 0, MIDI_CC_RANGE);
-        }
-        break;
-        case 3:
-        {
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-        set_presetNr();
-}
-void Track::draw_seq_mode10()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-
-        drawPot(0, 0, seqMod_value[10][PMpresetNr][0], "Style");
-        drawPot(1, 0, seqMod_value[10][PMpresetNr][1], "RootN");
-        drawPot(2, 0, seqMod_value[10][PMpresetNr][2], "Vol -");
-        drawPot(3, 0, seqMod_value[10][PMpresetNr][3], "Vol +");
-
-        drawPot(0, 1, seqMod_value[10][PMpresetNr][4], "AccNOt1");
-        drawPot(1, 1, seqMod_value[10][PMpresetNr][5] + 1, "AccPos1");
-        drawPot(2, 1, seqMod_value[10][PMpresetNr][6], "AccNot2");
-        drawPot(3, 1, seqMod_value[10][PMpresetNr][7] + 1, "AccPos2");
-
-        drawPot(0, 2, seqMod_value[10][PMpresetNr][8], "StepFX -");
-        drawPot(1, 2, seqMod_value[10][PMpresetNr][9], "StepFX +");
-        // drawPot(2, 2, seqMod_value[10][PMpresetNr][10], "Style");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }

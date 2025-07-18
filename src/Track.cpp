@@ -251,65 +251,12 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
 
 void Track::set_seq_mode_parameters(uint8_t row)
 {
-    switch (clip[parameter[SET_CLIP2_EDIT]].playMode)
-    {
-    case 1:
-        set_seq_mode1_parameters();
-        break;
-    case 2:
-        set_seq_mode2_parameters();
-        break;
-    case 3:
-        set_seq_mode3_parameters();
-        break;
-    case 4:
-        set_seq_mode4_parameters();
-        break;
-    case 5:
-        set_seq_mode5_parameters();
-        break;
-    case 6:
-        set_seq_mode6_parameters();
-        break;
-    case 7:
-        set_seq_mode7_parameters();
-        break;
-    case 8:
-        set_seq_mode8_parameters();
-        break;
-    case 9:
-        set_seq_mode9_parameters();
-        break;
-    case 10:
-        set_seq_mode10_parameters();
-        break;
-    default:
-        break;
-    }
+    set_seqmode_parameters(clip[parameter[SET_CLIP2_EDIT]].playMode);
 }
 void Track::draw_sequencer_modes(uint8_t mode)
 {
     change_plugin_row = true;
-    if (mode == 1)
-        draw_seq_mode1();
-    if (mode == 2)
-        draw_seq_mode2();
-    if (mode == 3)
-        draw_seq_mode3();
-    if (mode == 4)
-        draw_seq_mode4();
-    if (mode == 5)
-        draw_seq_mode5();
-    if (mode == 6)
-        draw_seq_mode6();
-    if (mode == 7)
-        draw_seq_mode7();
-    if (mode == 8)
-        draw_seq_mode8();
-    if (mode == 9)
-        draw_seq_mode9();
-    if (mode == 10)
-        draw_seq_mode10();
+    draw_seq_mode(clip[parameter[SET_CLIP2_EDIT]].playMode);
 }
 
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)

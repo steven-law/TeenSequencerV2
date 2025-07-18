@@ -88,7 +88,26 @@ public:
     {
         plugin_channel[trackID] = channel;
     }
-
+    void setFXGain(int FxNr, int pluginNr, float gain) // 0=dry, 1= FX1, 2= FX2, 3=FX3
+    {
+        switch (FxNr)
+        {
+        case 0:
+            fx_section.dry[pluginNr].gain(gain);
+            break;
+        case 1:
+            fx_1.pl[pluginNr].gain(gain);
+            break;
+        case 2:
+            fx_2.pl[pluginNr].gain(gain);
+            break;
+        case 3:
+            fx_3.pl[pluginNr].gain(gain);
+            break;
+        default:
+            break;
+        }
+    }
     // TeensyDAW: end automatically generated code
 };
 

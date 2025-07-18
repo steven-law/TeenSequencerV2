@@ -19,7 +19,7 @@
 #define NOTES_PER_OCTAVE 12
 #define MIDI_CC_RANGE 127
 
-#define NO_NOTE 128
+
 #define MAX_BARS 256
 // potrow 0
 #define ENCODER_STEP_FX 2
@@ -255,52 +255,30 @@ private:
     uint8_t get_random_Note_in_scale();
     uint8_t transpose_to_scale(uint8_t noteToChange);
     void rotateIntArray(uint8_t arr[], int maxSteps, int rotation);
-    void play_seq_mode0(uint8_t cloock);
 
+    void set_seqmode_parameters(uint8_t mode);
+    void draw_seq_mode(uint8_t mode);
+    void play_seq_mode0(uint8_t cloock);
     void play_seq_mode1(uint8_t cloock);
     void set_seq_mode1_parameters();
     void draw_seq_mode1();
-
     void play_seq_mode2(uint8_t cloock);
     void set_seq_mode2_parameters();
     void draw_seq_mode2();
-
     void play_seq_mode3(uint8_t cloock);
-    void set_seq_mode3_parameters();
-    void draw_seq_mode3();
-
     void play_seq_mode4(uint8_t cloock);
-    void set_seq_mode4_parameters();
-    void draw_seq_mode4();
-
     void play_seq_mode5(uint8_t cloock);
-    void set_seq_mode5_parameters();
-    void draw_seq_mode5();
-
     void play_seq_mode6(uint8_t cloock);
-    void set_seq_mode6_parameters();
     void set_seq_mode6_value(uint8_t XPos, uint8_t YPos, const char *name);
-    void draw_seq_mode6();
-
     void play_seq_mode7(uint8_t cloock);
-    void set_seq_mode7_parameters();
     void set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name);
-    void draw_seq_mode7();
-
     void play_seq_mode8(uint8_t cloock);
-    void set_seq_mode8_parameters();
-    void draw_seq_mode8();
     void select_file(uint8_t XPos, uint8_t YPos, const char *name);
     void refresh_mode8();
 
     void play_seq_mode9(uint8_t cloock);
-    void set_seq_mode9_parameters();
-    void draw_seq_mode9();
     int degree = 0;
-
     void play_seq_mode10(uint8_t cloock);
-    void set_seq_mode10_parameters();
-    void draw_seq_mode10();
 };
 
 extern Track *allTracks[8];

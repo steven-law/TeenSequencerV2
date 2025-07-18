@@ -83,7 +83,7 @@ public:
         endmixer.gain(2, 1);
         endmixer.gain(3, 1);
     }
-
+   
     void get_peak()
     {
         // Serial.printf("FX2: %f , FX3: %f \n", peak2.read(), peak3.read());
