@@ -25,7 +25,9 @@ void Track::save_track(uint8_t songNr)
     myTrackFile = SD.open(filename, FILE_WRITE);
     if (!myTrackFile)
         return;
+
     myTrackFile.write(trackColor[my_Arranger_Y_axis - 1]);
+
     for (int c = 0; c < MAX_CLIPS; c++)
     {
         myTrackFile.write(clip[c].seqLength);
@@ -138,10 +140,10 @@ void Track::load_track(uint8_t songNr)
         {
             CCchannel[p][t] = myTrackFile.read();
             CCvalue[p][t] = myTrackFile.read();
-            seqMod_value[1][p][t] = myTrackFile.read();
-            seqMod_value[2][p][t] = myTrackFile.read();
-            seqMod_value[3][p][t] = myTrackFile.read();
-            seqMod_value[4][p][t] = myTrackFile.read();
+            for (int m = 0; m < NUM_PLAYMODES; m++)
+            {
+                seqMod_value[m][p][t] = myTrackFile.read();
+            }
         }
     }
 
@@ -256,7 +258,8 @@ void Track::set_seq_mode_parameters(uint8_t row)
 void Track::draw_sequencer_modes(uint8_t mode)
 {
     change_plugin_row = true;
-    draw_seq_mode(clip[parameter[SET_CLIP2_EDIT]].playMode);
+    if (clip[parameter[SET_CLIP2_EDIT]].playMode > 0)
+        draw_seq_mode(clip[parameter[SET_CLIP2_EDIT]].playMode);
 }
 
 void Track::noteOn(uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -402,6 +405,7 @@ void Track::clear_arrangment()
             clip_to_play[i] = MAX_CLIPS - 1;
             noteOffset[i] = 0;
             barVelocity[i] = 0;
+            barProbabilty[i] = 128;
             play_presetNr_Playmode_ccChannel[i] = NUM_PRESETS;
             play_presetNr_Plugin_ccValue[bar_to_edit + i] = NUM_PRESETS;
         }

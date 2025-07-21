@@ -579,6 +579,8 @@ void midi_setup(uint8_t dly)
   usbMidi1.setHandleNoteOff(myNoteOff);
   usbMidi1.setHandleControlChange(myControlChange);
   usbMidi1.setHandleClock(myMIDIClock);
+  usbDeviceTimer.begin(usbDevice_handleInput, 250);
+  usbDeviceTimer.priority(80);
 
   usbMIDI.setHandleNoteOff(myNoteOff);
   usbMIDI.setHandleNoteOn(myNoteOn);
@@ -586,8 +588,7 @@ void midi_setup(uint8_t dly)
   usbMIDI.setHandleClock(myMIDIClock);
   usbMIDI.setHandleStart(onExternalStart);
   usbMIDI.setHandleStop(onExternalStop);
-  usbDeviceTimer.begin(usbDevice_handleInput, 250);
-  usbDeviceTimer.priority(80);
+
   delay(dly);
 }
 void midi_read()

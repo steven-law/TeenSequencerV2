@@ -260,11 +260,7 @@ private:
     void draw_seq_mode(uint8_t mode);
     void play_seq_mode0(uint8_t cloock);
     void play_seq_mode1(uint8_t cloock);
-    void set_seq_mode1_parameters();
-    void draw_seq_mode1();
     void play_seq_mode2(uint8_t cloock);
-    void set_seq_mode2_parameters();
-    void draw_seq_mode2();
     void play_seq_mode3(uint8_t cloock);
     void play_seq_mode4(uint8_t cloock);
     void play_seq_mode5(uint8_t cloock);
