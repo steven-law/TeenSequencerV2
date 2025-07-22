@@ -492,6 +492,7 @@ void input_behaviour()
   }
   case INPUT_FUNCTIONS_FOR_MIXER1:
   {
+    trellis_play_mixer();
     set_mixer();
     break;
   }
@@ -1017,6 +1018,7 @@ void trellis_play_mixer()
           // trellis.writeDisplay();
           // break;
         }
+
         trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, s, t, TRELLIS_BLACK);
         trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, allTracks[t]->mixGainPot / 8, t, trackColor[t]);
       }
@@ -1136,7 +1138,6 @@ void sendCCToActiveTracks(uint8_t cc, uint8_t val)
       sendControlChange(cc, val, ch);
   }
 }
-
 void updateFxVolume(uint8_t val, float gainVal, uint8_t cc, int fxNr)
 {
   for (int s = 0; s < NUM_TRACKS; s++)
@@ -1150,7 +1151,6 @@ void updateFxVolume(uint8_t val, float gainVal, uint8_t cc, int fxNr)
       sendControlChange(cc, val, ch);
   }
 }
-
 void printInfo(const char *label, int val, uint8_t cc)
 {
   set_infobox_background(750);

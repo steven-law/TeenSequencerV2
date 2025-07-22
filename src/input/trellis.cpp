@@ -1180,7 +1180,7 @@ void trellis_update()
     trellisReadPreviousMillis = trellisCurrentMillis;
     trellis_read();
     // trellis_recall_main_buffer(trellisScreen);
-    trellis_play_mixer();
+   // trellis_play_mixer();
     trellis_perform();
   }
 }

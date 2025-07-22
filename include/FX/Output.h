@@ -73,16 +73,16 @@ public:
         allPlugins[_channel]->noteOff(note, voice);
     }
 
-    void set_parameters(uint8_t trackID, uint8_t row)
+    void set_parameters(uint8_t pluginNr, uint8_t row)
     {
         // Serial.printf("set parameters track: %d, channel: %d\n", trackID, plugin_channel[trackID]);
-        allPlugins[trackID]->set_parameters(row);
+        allPlugins[pluginNr]->set_parameters(row);
     }
-    void draw_plugin(uint8_t trackID, uint8_t channel)
+    void draw_plugin(uint8_t pluginNr, uint8_t channel)
     {
-        Serial.printf("draw plugin track: %d, channel: %d\n", trackID, plugin_channel[trackID]);
+        Serial.printf("draw plugin track: %d, channel: %d\n", pluginNr, plugin_channel[pluginNr]);
         change_plugin_row = true;
-        allPlugins[trackID]->draw_plugin();
+        allPlugins[pluginNr]->draw_plugin();
     }
     void set_active_plugin_for_track(uint8_t trackID, uint8_t channel)
     {
