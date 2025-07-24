@@ -142,7 +142,7 @@ void tft_showTrackColors()
     tft.setTextSize(2);
     for (int otherTracks = 1; otherTracks <= 8; otherTracks++)
     {
-        tft.fillRect(1, TRACK_FRAME_H * otherTracks, STEP_FRAME_W-1, TRACK_FRAME_H, trackColor[otherTracks - 1]); // Xmin, Ymin, Xlength, Ylength, color
+        tft.fillRect(1, TRACK_FRAME_H * otherTracks, STEP_FRAME_W - 1, TRACK_FRAME_H, trackColor[otherTracks - 1]); // Xmin, Ymin, Xlength, Ylength, color
         tft.setCursor(4, TRACK_FRAME_H * otherTracks + 6);
         tft.print(otherTracks);
     }
@@ -192,7 +192,28 @@ void reset_infobox_background()
 
         clearWorkSpace();
         change_plugin_row = true;
+        updateTFTScreen = true;
     }
+}
+void draw_infobox(const char *info1, int8_t value1, const char *info2, int8_t value2)
+{
+    set_infobox_background(750);
+    Serial.printf(" %s%d \n", info1, value1);
+    tft.printf(" %s%d ", info1, value1);
+    if (info2 != NO_NAME)
+    {
+        set_infobox_next_line(1);
+        tft.printf(" %s%d ", info2, value2);
+    }
+    reset_infobox_background();
+
+}
+void draw_infobox_text(const char *info1, const char *value1)
+{
+    set_infobox_background(750);
+    Serial.printf(" %s%s \n", info1, value1);
+    tft.printf(" %s%s ", info1, value1);
+    reset_infobox_background();
 }
 void tft_show()
 {

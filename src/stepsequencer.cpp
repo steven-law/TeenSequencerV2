@@ -96,7 +96,7 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         case SET_CLIP2_EDIT:
         {
             draw_Notenames();
-            trellis_show_piano();
+            trellisOut.drawPiano();
             draw_notes_in_grid();
         }
         break;
@@ -120,7 +120,6 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
             }
 
             // draw_Notenames();
-            // trellis_show_piano();
             draw_notes_in_grid();
         }
         break;
@@ -138,7 +137,7 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
         {
             clip[parameter[SET_CLIP2_EDIT]].scale = parameter[index];
             draw_Notenames();
-            trellis_show_piano();
+            trellisOut.drawPiano();
         }
         break;
         case SET_SEQ_MODE:
@@ -362,7 +361,7 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
         if (clip.tick[i].voice[voiceIndex] != NO_NOTE && clip.tick[i].startTick[voiceIndex] < MAX_TICKS && clip.tick[i].velo[voiceIndex] != 0)
             Serial.printf("note= %d, start= %d, length= %d,  velo= %d\n", clip.tick[i].voice[voiceIndex], clip.tick[i].startTick[voiceIndex], clip.tick[i].noteLength[voiceIndex], clip.tick[i].velo[voiceIndex]);
     }
-    trellis_writeDisplay();
+    trellisOut.writeNow();
     Serial.println("Done rotating voice and associated parameters.");
 }
 

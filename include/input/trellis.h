@@ -6,7 +6,7 @@
 #include "ownLibs/Adafruit_Trellis.h"
 #include <Wire.h>
 #include "projectVariables.h"
-
+#include "output/TrellisLED.h"
 #include "ownLibs/myClock.h"
 #include "output/tft.h"
 
@@ -39,11 +39,11 @@ extern uint8_t bar2edit;
 TrellisCallback blink(keyEvent evt);
 uint16_t rgb24to565(uint32_t color24);
 void neotrellis_setup(int dly);
-void neotrellis_assign_start_buffer();
+
 void neotrellis_set_control_buffer(int _x, int _y, int _color);
 void neotrellis_recall_control_buffer();
 void neotrellis_update();
-
+void neotrellis_assign_start_buffer();
 void neotrellis_set_potRow();
 void neotrellis_start_clock();
 void neotrellis_stop_clock();
@@ -70,21 +70,19 @@ void neotrellis_set_mute();
 void neotrellis_set_solo();
 void neotrellis_set_fast_record();
 void neotrellis_set_piano();
-void trellis_show_piano();
+void trellis_play_piano();
 void trellis_set_arranger();
 void trellis_setStepsequencer();
 
-void trellis_setup(int dly);
-void trellis_read();
-void trellis_update();
-void trellis_writeDisplay();
 
-void trellis_set_main_buffer(int _page, int _x, int _y, int color);
-void trellis_assign_main_buffer(int _page, int _x, int _y, int color);
-void trellis_assign_start_buffer(uint8_t _lastPotRow);
-void trellis_clear_main_buffer(int _page);
+
+
 int trellis_get_main_buffer(int _page, int _x, int _y);
 void trellis_recall_main_buffer(int _page);
 
 void trellis_show_clockbar(uint8_t trackNr, uint8_t step);
+
+//input stuff
+void trellis_read();
+void trellis_update();
 #endif

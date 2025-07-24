@@ -93,6 +93,8 @@ void set_infobox_background(int _DisplayTime);
 void reset_infobox_background();
 void set_infobox_next_line(uint8_t _lineNumber); //_lineNumber must be bigger 0
 void show_active_page_info(const char *_pagename, uint8_t _pagenumber);
+void draw_infobox(const char *info1, int8_t value1, const char *info2,int8_t value2);
+void draw_infobox_text(const char *info1, const char * value1);
 void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY);
 void draw_potRow();
 void tft_show();

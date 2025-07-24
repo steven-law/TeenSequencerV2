@@ -18,6 +18,7 @@
 
 #include "output/tft.h"
 #include "output/dac.h"
+#include "output/TrellisLED.h"
 
 #include <ownLibs/myClock.h>
 #include "Track.h"
@@ -25,22 +26,10 @@
 #include <Plugins/plugin_List.h>
 #include <FX/fx_List.h>
 #include "FX/Output.h"
-/*
-Plugin_1 plugin_1("Strg", 1);
-Plugin_2 plugin_2("1OSC", 2);
-Plugin_3 plugin_3("2FM", 3);
-Plugin_4 plugin_4("mDrm", 4);
-Plugin_5 plugin_5("Drum", 5);
-Plugin_6 plugin_6("Adtv", 6);
-Plugin_7 plugin_7("Boom", 7);
-Plugin_8 plugin_8("dTune", 8);
-Plugin_9 plugin_9("rDrm", 9);
-Plugin_10 plugin_10("SF2", 9);
-Plugin_11 plugin_11("Ext", 9);*/
-// Midi import
+
+extern MyTrellis trellisOut; 
 
 PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13, &plugin_14};
-// PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13};
 FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
@@ -136,7 +125,7 @@ void setup()
   SD.begin(BUILTIN_SDCARD);
   tft_setup(100);
   encoder_setup(100);
-  trellis_setup(100);
+  trellisOut.setup(100);
   neotrellis_setup(100);
   touch_setup();
   dac_setup(100);
@@ -357,7 +346,7 @@ void loop()
       enc_moved[1] = false;
       enc_moved[2] = false;
       enc_moved[3] = false;
-      trellis_writeDisplay();
+      trellisOut.writeNow();
     }
 
     // if (loopEndTime - loopStartTime > 1000 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
@@ -848,17 +837,7 @@ void trellis_show_tft_mixer()
 {
   if (neotrellisPressed[TRELLIS_BUTTON_MIXER])
   {
-    if (trellisScreen != TRELLIS_SCREEN_SONGPAGE_SELECTION)
-    {
-      trellisScreen = TRELLIS_SCREEN_SONGPAGE_SELECTION;
-      trellis.clear();
-      for (int i = 0; i < 8; i++)
-      {
-        trellis.setLED(TrellisLED[i]);
-      }
-      trellis.setLED(TrellisLED[15]);
-      trellis.writeDisplay();
-    }
+    trellisOut.drawSelectMixerPage();
 
     if (trellisPressed[0])
     {
