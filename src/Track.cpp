@@ -317,7 +317,6 @@ void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
                 //  (internal_clock + recordStartTick[recordVoice] >= (MAX_TICKS - 1)) ? ((MAX_TICKS - 1) - recordStartTick[recordVoice]) : i;
 
                 Serial.printf("recorded notelength: %d\n", _length);
-                //  trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
             }
         set_note_on_tick(_start, Note, _length);
         // set_note_on_tick(clip[parameter[SET_CLIP2_EDIT]].tick[recordStartTick[recordVoice]].startTick[recordVoice], Note, clip[parameter[SET_CLIP2_EDIT]].tick[recordStartTick[recordVoice]].noteLength[recordVoice]);

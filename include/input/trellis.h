@@ -74,7 +74,9 @@ void trellis_play_piano();
 void trellis_set_arranger();
 void trellis_setStepsequencer();
 
-
+uint8_t getPressedKey();
+bool isPressed();
+void revertPressedKey();
 
 
 int trellis_get_main_buffer(int _page, int _x, int _y);

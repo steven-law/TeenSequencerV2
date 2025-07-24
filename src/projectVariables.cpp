@@ -34,7 +34,8 @@ uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 uint8_t performCC[TRELLIS_PADS_X_DIM];
 bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 bool trellisHeld[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
-bool oneTrellisIsPressed;
+uint8_t lastPressedKey;
+bool trellisIsPressed;
 bool neotrellisPressed[X_DIM * Y_DIM];
 const bool PROGMEM scales[NUM_SCALES][12]{
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Chromatic

@@ -21,7 +21,7 @@ public:
     }
     void setup(int dly);
     void clearMainGridNow();
-    void writeNow();
+    void writeDisplay();
     void setBrightness(uint8_t brigthness);
     void drawTrackGains();
     void drawTrackGain(uint8_t trackNr, uint8_t value); // value= 0-15

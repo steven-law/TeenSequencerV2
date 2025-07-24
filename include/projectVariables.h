@@ -54,7 +54,7 @@
 #define TRELLIS_SCREEN_CLIPLAUNCHER 15
 
 #define TRELLIS_SCREEN_ARRANGER_1 16
-#define TRELLIS_SONGMODE_PAGE_16 TRELLIS_SCREEN_ARRANGER_1 + 16
+#define TRELLIS_SCREEN_ARRANGER_16 TRELLIS_SCREEN_ARRANGER_1 + 16
 
 #define TRELLIS_SCREEN_SELECT_CLIP2EDIT 95
 #define TRELLIS_SCREEN_SELECT_MIXERPAGE 96
@@ -62,7 +62,7 @@
 #define TRELLIS_SCREEN_SAVE_LOAD 98
 
 #define TRELLIS_SCREEN_STARTUP 99
-#define TRELLIS_MAX_PAGES TRELLIS_SONGMODE_PAGE_16 + 1
+#define TRELLIS_MAX_PAGES TRELLIS_SCREEN_ARRANGER_16 + 1
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
 
 
@@ -262,10 +262,10 @@ extern uint8_t sgtlparameter[16];
 #define numKeys (NUMTRELLIS * 16)
 #define TRELLIS_SCREEN_SEQUENCER_CLIP_8 8
 
-#define TRELLIS_SONGMODE_PAGE_16 TRELLIS_SCREEN_ARRANGER_1 + 16
+
 
 #define TRELLIS_SCREEN_STARTUP 99
-#define TRELLIS_MAX_PAGES TRELLIS_SONGMODE_PAGE_16 + 1
+#define TRELLIS_MAX_PAGES TRELLIS_SCREEN_ARRANGER_16 + 1
 
 extern bool trellisShowClockPixel[TRELLIS_PADS_Y_DIM];
 extern int trellisTrackColor[9];
@@ -276,7 +276,8 @@ extern uint8_t performCC[TRELLIS_PADS_X_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern bool trellisHeld[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
-extern bool oneTrellisIsPressed;
+extern uint8_t lastPressedKey;
+extern bool trellisIsPressed;
 extern uint8_t FLASHMEM gateOutputPin[8];
 extern const bool PROGMEM scales[NUM_SCALES][12];
 extern const char FLASHMEM *scaleNames[NUM_SCALES];

@@ -114,7 +114,7 @@ void MyTrellis::drawLoadSavePage()
         trellis.setLED(TrellisLED[15 + TRELLIS_PADS_X_DIM]);
         trellis.setLED(TrellisLED[i + (3 * TRELLIS_PADS_X_DIM)]);
     }
-    trellis.writeDisplay();
+    writeDisplay();
 }
 void MyTrellis::drawPreviousScreen()
 {
@@ -124,15 +124,16 @@ void MyTrellis::drawPreviousScreen()
 void MyTrellis::clearMainGridNow()
 {
     trellis.clear();
-    trellis.writeDisplay();
+    writeDisplay();
 }
-void MyTrellis::writeNow()
+void MyTrellis::writeDisplay()
 {
     trellis.writeDisplay();
 }
-void MyTrellis::setBrightness(uint8_t brigthness){
+void MyTrellis::setBrightness(uint8_t brigthness)
+{
     trellis.setBrightness(brigthness);
-
+    writeDisplay();
 }
 void MyTrellis::drawSelectArrangerPage()
 {
@@ -145,7 +146,7 @@ void MyTrellis::drawSelectArrangerPage()
     {
         trellis.setLED(TrellisLED[i]);
     }
-    trellis.writeDisplay();
+    writeDisplay();
 }
 void MyTrellis::drawSelectMixerPage()
 {
@@ -160,8 +161,7 @@ void MyTrellis::drawSelectMixerPage()
         trellis.setLED(TrellisLED[i]);
     }
     trellis.setLED(TrellisLED[15]);
-    trellis.writeDisplay();
-    trellis.writeDisplay();
+    writeDisplay();
 }
 void MyTrellis::drawPiano()
 {
@@ -199,7 +199,7 @@ void MyTrellis::drawSelectClip2Edit()
     {
         trellis.setLED(TrellisLED[allTracks[y]->parameter[SET_CLIP2_EDIT] + (y * TRELLIS_PADS_X_DIM)]);
     }
-    trellis.writeDisplay();
+    writeDisplay();
 }
 
 MyTrellis trellisOut;

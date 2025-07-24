@@ -361,7 +361,7 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
         if (clip.tick[i].voice[voiceIndex] != NO_NOTE && clip.tick[i].startTick[voiceIndex] < MAX_TICKS && clip.tick[i].velo[voiceIndex] != 0)
             Serial.printf("note= %d, start= %d, length= %d,  velo= %d\n", clip.tick[i].voice[voiceIndex], clip.tick[i].startTick[voiceIndex], clip.tick[i].noteLength[voiceIndex], clip.tick[i].velo[voiceIndex]);
     }
-    trellisOut.writeNow();
+    trellisOut.writeDisplay();
     Serial.println("Done rotating voice and associated parameters.");
 }
 
@@ -432,7 +432,6 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
             }
             trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
 
-            // trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, TRELLIS_BLACK);
         }
         Serial.printf("note is erased: note: %d, startTick: %d, length: %d, velo: %d, stepFx: %d\n",
                       tickPtr[_startTick].voice[_voice],
