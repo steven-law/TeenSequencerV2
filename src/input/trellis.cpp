@@ -18,7 +18,7 @@ const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM]{0, 1, 2, 3, 16
                                                                   72, 73, 74, 75, 88, 89, 90, 91, 104, 105, 106, 107, 120, 121, 122, 123,
                                                                   76, 77, 78, 79, 92, 93, 94, 95, 108, 109, 110, 111, 124, 125, 126, 127};
 
-int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+
 uint32_t ticks[] = {0, 24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264};
 Adafruit_Trellis matrix0 = Adafruit_Trellis();
 Adafruit_Trellis matrix1 = Adafruit_Trellis();
@@ -437,8 +437,8 @@ void trellis_show_arranger() // trellisOut implemented
       startUpScreen();
       gridSongMode(arrangerpage);
       for (int y = 0; y < NUM_TRACKS; y++)
-        trellis_get_main_buffer(trellisScreen, arrangerpage, y);
-      trellis_recall_main_buffer(trellisScreen);
+        trellisOut.get_main_buffer(trellisScreen, arrangerpage, y);
+      trellisOut.recall_main_buffer(trellisScreen);
       trellisOut.writeDisplay();
     }
   }
@@ -487,7 +487,7 @@ void trellis_set_arranger()
 
             Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", t, bar, clipNr);
             trellis.clear();
-            trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+            trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
             trellisOut.writeDisplay();
             return;
           }
@@ -526,7 +526,7 @@ void trellis_set_arranger()
                   trellisPressed[nextKey] = false;
                   change_plugin_row = true;
                   Serial.printf("Tied Arranger track: %d, bar: %d, clip: %d\n", baseTrack + dt, baseBar + i, gridTouchY);
-                  trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+                  trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
                   return;
                 }
               }
@@ -547,7 +547,7 @@ void trellis_set_arranger()
             }
 
             Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 2\n", track, bar, gridTouchY);
-            trellis_recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+            trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
             return;
           }
         }
@@ -564,12 +564,12 @@ void draw_perform_page()
     for (int i = 0; i < NUM_STEPS; i++)
     {
       drawPot(i % 4, i / 4, performCC[i], "CC");
-      trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, i, 7, TRELLIS_BLACK);
+      trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, i, 7, TRELLIS_BLACK);
     }
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
   }
 }
 void neotrellis_perform_set_active()
@@ -581,19 +581,19 @@ void neotrellis_perform_set_active()
   {
     for (int y = 0; y < NUM_TRACKS; y++)
     {
-      trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, x, y, TRELLIS_BLACK);
+      trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, x, y, TRELLIS_BLACK);
       // trellis.clrLED(TrellisLED[x + (y * TRELLIS_PADS_X_DIM)]);
       // uint8_t _nr = x + (trellisPerformIndex[x] * TRELLIS_PADS_X_DIM);
       // if (trellisPressed[_nr]){
-      trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, x, trellisPerformIndex[x], TRELLIS_WHITE);
+      trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, x, trellisPerformIndex[x], TRELLIS_WHITE);
       // break;}
       //  trellis.setLED(TrellisLED[_nr]);
     }
   }
-  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
-  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
-  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
-  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
   for (int t = 0; t < NUM_TRACKS; t++)
   {
     if (neotrellisPressed[3 + ((t + 4) * X_DIM)])
@@ -718,8 +718,7 @@ void neo_trellis_select_trackClips()
         draw_notes_in_grid();
 
         neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
-        // trellis_get_main_buffer(trellisScreen, y, active_track);
-        trellis_recall_main_buffer(trellisScreen);
+        trellisOut.recall_main_buffer(trellisScreen);
         trellisOut.writeDisplay();
         break;
       }
@@ -745,8 +744,7 @@ void neo_trellis_select_trackClips()
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
           trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
-          // trellis_get_main_buffer(trellisScreen, x, active_track);
-          trellis_recall_main_buffer(trellisScreen);
+          trellisOut.recall_main_buffer(trellisScreen);
           trellisOut.writeDisplay();
           break;
         }
@@ -759,48 +757,44 @@ void trellis_setStepsequencer()
   uint8_t trellisNote = (gridTouchY > 0 && gridTouchY <= 12) ? (gridTouchY - 1) : 0;
   uint8_t track;
   uint8_t step;
-  if (trellisScreen < TRELLIS_SCREEN_SEQUENCER_CLIP_8)
+  if (trellisScreen >= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
+    return;
+    
+  for (int x = 0; x < NUM_STEPS; x++)
   {
-    if (!neotrellisPressed[TRELLIS_BUTTON_SAVELOAD])
+    for (int y = 0; y < NUM_TRACKS; y++)
     {
-
-      for (int x = 0; x < NUM_STEPS; x++)
+      uint8_t _nr = x + (y * TRELLIS_PADS_X_DIM);
+      if (trellisHeld[_nr])
       {
-        for (int y = 0; y < NUM_TRACKS; y++)
+        track = _nr / NUM_STEPS;
+        step = _nr % NUM_STEPS;
+        int keyTick = step * 6;
+
+        for (int i = 1; i < NUM_STEPS - step; i++)
         {
-          uint8_t _nr = x + (y * TRELLIS_PADS_X_DIM);
-          if (trellisHeld[_nr])
+          if (trellisPressed[_nr + i])
           {
-            track = _nr / NUM_STEPS;
-            step = _nr % NUM_STEPS;
-            int keyTick = step * 6;
-
-            for (int i = 1; i < NUM_STEPS - step; i++)
-            {
-              if (trellisPressed[_nr + i])
-              {
-                int _note = (trellisNote) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-
-                allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
-                trellisPressed[_nr + i] = false;
-                change_plugin_row = true;
-                //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
-              }
-            }
-          }
-          if (trellisPressed[_nr])
-          {
-            uint8_t track = _nr / NUM_STEPS;
-            uint8_t step = _nr % NUM_STEPS;
-            int keyTick = step * 6;
-            // Setze die Note auf dem aktuellen Step
             int _note = (trellisNote) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-            allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, allTracks[track]->parameter[SET_STEP_LENGTH]);
-            trellisPressed[_nr] = false;
+
+            allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, (i * TICKS_PER_STEP) + allTracks[track]->parameter[SET_STEP_LENGTH]);
+            trellisPressed[_nr + i] = false;
             change_plugin_row = true;
-            //  Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));
+            //  Serial.printf("Tied Step: %d, Tick: %d, Track: %d, Note: %d, length: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE), i * TICKS_PER_STEP);
           }
         }
+      }
+      if (trellisPressed[_nr])
+      {
+        uint8_t track = _nr / NUM_STEPS;
+        uint8_t step = _nr % NUM_STEPS;
+        int keyTick = step * 6;
+        // Setze die Note auf dem aktuellen Step
+        int _note = (trellisNote) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+        allTracks[track]->set_note_on_tick(keyTick + allTracks[track]->parameter[SET_SWING], _note, allTracks[track]->parameter[SET_STEP_LENGTH]);
+        trellisPressed[_nr] = false;
+        change_plugin_row = true;
+        //  Serial.printf("Step: %d, Tick: %d, Track: %d, Note: %d\n", step, keyTick, track, trellisNote + (allTracks[track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE));
       }
     }
   }
@@ -940,111 +934,16 @@ void trellis_update()
   {
     trellisReadPreviousMillis = trellisCurrentMillis;
     trellis_read();
-    // trellis_recall_main_buffer(trellisScreen);
     // trellis_play_mixer();
     trellis_perform();
   }
 }
 
-void trellis_set_main_buffer(int _page, int _x, int _y, int color)
-{
-  trellisMainGridBuffer[_page][_x][_y] = color;
-  if (trellisScreen == TRELLIS_SCREEN_SAVE_LOAD)
-    return;
-  int _nr = _x + (_y * TRELLIS_PADS_X_DIM);
-  trellis.setLED(TrellisLED[_nr]);
-  if (trellisMainGridBuffer[_page][_x][_y] == TRELLIS_BLACK)
-    trellis.clrLED(TrellisLED[_nr]);
-  // Serial.printf("set main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, _x, _y, color, TrellisLED[_nr]);
-}
-void trellis_recall_main_buffer(int _page)
-{
 
-  for (int i = 0; i < TRELLIS_PADS_X_DIM; i++)
-  {
-    for (int y = 0; y < TRELLIS_PADS_Y_DIM; y++)
-    {
-      // if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
-      {
-        int _nr = i + (y * TRELLIS_PADS_X_DIM);
 
-        if (trellisMainGridBuffer[_page][i][y] > 0)
-          trellis.setLED(TrellisLED[_nr]);
-        else
-          trellis.clrLED(TrellisLED[_nr]);
-        // Serial.printf("recall main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, i, y, trellisMainGridBuffer[_page][i][y], TrellisLED[_nr]);
-      }
-    }
-  }
-  Serial.println("load main buffer");
-}
-int trellis_get_main_buffer(int _page, int _x, int _y)
-{
-  // Serial.println("return main buffer");
-  return trellisMainGridBuffer[_page][_x][_y];
-}
 
-void trellis_show_clockbar(uint8_t trackNr, uint8_t step)
-{
-  if (myClock.isPlaying)
-  {
-    if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8 || trellisScreen >= TRELLIS_SCREEN_ARRANGER_1)
-    {
-      trellisShowClockPixel[trackNr] = false;
 
-      if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
-      {
-        uint8_t _nr = step + (trackNr * NUM_STEPS);
-        trellis.setLED(TrellisLED[_nr]);
-        if (step > 0)
-        {
-          if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], step - 1, trackNr) > 0)
-            trellis.setLED(TrellisLED[_nr - 1]);
-          else
-            trellis.clrLED(TrellisLED[_nr - 1]);
-        }
-        if (step == 0)
-        {
-          int trackSeqLength = allTracks[trackNr]->clip[allTracks[trackNr]->clip_to_play[allTracks[trackNr]->internal_clock_bar]].seqLength;
-          if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], (trackSeqLength / TICKS_PER_STEP) - 1, trackNr) > 0)
-            trellis.setLED(TrellisLED[((trackSeqLength / TICKS_PER_STEP) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
-          else
-            trellis.clrLED(TrellisLED[((trackSeqLength / TICKS_PER_STEP) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
-          // uint8_t oldNr = (trackSeqLength /  TICKS_PER_STEP) - 1;
-          // neotrellis.setPixelColor(oldNr, trackNr, trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], oldNr, trackNr));
-          //  Serial.println(oldNr);
-        }
-      }
-      else
-      {
-        // if (step % 16 == 0)
-        {
-          uint8_t _nr = (myClock.barTick % 16) + (trackNr * NUM_STEPS);
-          trellis.setLED(TrellisLED[_nr]);
-          // Serial.printf("clock bar trellisScreen = %d\n", trellisScreen);
-          if (myClock.barTick > 0)
-          {
-            if (trellis_get_main_buffer(trellisScreen, (myClock.barTick % 16) - 1, trackNr) > 0)
-              trellis.setLED(TrellisLED[_nr - 1]);
-            else
-              trellis.clrLED(TrellisLED[_nr - 1]);
-          }
-          // neotrellis.setPixelColor(myClock.barTick - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr));
-          if (myClock.barTick % 16 == 0)
-          {
-            if (trellis_get_main_buffer(trellisScreen, NUM_STEPS - 1, trackNr) > 0)
-              trellis.setLED(TrellisLED[(NUM_STEPS - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
-            else
-              trellis.clrLED(TrellisLED[(NUM_STEPS - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
-            //  neotrellis.setPixelColor(myClock.endOfLoop - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.endOfLoop - 1, trackNr));
-            // Serial.println(oldNr);
-          }
-        }
-      }
-      // neotrellis_show();
-    }
-  }
-}
+
 
 // trellis input stuff
 

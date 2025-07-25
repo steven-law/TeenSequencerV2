@@ -61,7 +61,7 @@ void Track::copy_clip()
             clip[nextClip].tick[s].velo[v] = clip[parameter[SET_CLIP2_EDIT]].tick[s].velo[v];
             clip[nextClip].tick[s].stepFX = clip[parameter[SET_CLIP2_EDIT]].tick[s].stepFX;
             if (clip[nextClip].tick[s].voice[v] < NO_NOTE)
-                trellis_set_main_buffer(nextClip, s / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1]);
+                trellisOut.set_main_buffer(nextClip, s / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1]);
         }
         Serial.printf("tick: %d, newStepFX: %d, oldStepFX: %d\n", s, clip[nextClip].tick[s].stepFX, clip[parameter[SET_CLIP2_EDIT]].tick[s].stepFX);
     }
@@ -302,7 +302,7 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
         veloTemp[i] = clip.tick[i].velo[voiceIndex];
         noteLengthTemp[i] = clip.tick[i].noteLength[voiceIndex];
         startTickTemp[i] = clip.tick[i].startTick[voiceIndex];
-        trellisTemp[i / TICKS_PER_STEP] = trellisMainGridBuffer[parameter[SET_CLIP2_EDIT]][i / TICKS_PER_STEP][my_Arranger_Y_axis - 1];
+        trellisTemp[i / TICKS_PER_STEP] = trellisOut.get_main_buffer(parameter[SET_CLIP2_EDIT], i / TICKS_PER_STEP, my_Arranger_Y_axis - 1);
         stepFXTemp[i] = clip.tick[i].stepFX;
     }
 
@@ -354,9 +354,7 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
         }
 
         if (i % TICKS_PER_STEP == 0)
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], i / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trelliscolorTemp);
-        //
-        // trellisMainGridBuffer[parameter[SET_CLIP2_EDIT]][i / TICKS_PER_STEP][my_Arranger_Y_axis - 1]=trellisTemp[i/TICKS_PER_STEP];
+            trellisOut.set_main_buffer(parameter[SET_CLIP2_EDIT], i / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trelliscolorTemp);
         clip.tick[i].stepFX = stepFXTemp[i];
         if (clip.tick[i].voice[voiceIndex] != NO_NOTE && clip.tick[i].startTick[voiceIndex] < MAX_TICKS && clip.tick[i].velo[voiceIndex] != 0)
             Serial.printf("note= %d, start= %d, length= %d,  velo= %d\n", clip.tick[i].voice[voiceIndex], clip.tick[i].startTick[voiceIndex], clip.tick[i].noteLength[voiceIndex], clip.tick[i].velo[voiceIndex]);
@@ -402,6 +400,7 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
     int existingStartTick = tickPtr[_startTick].startTick[_voice];
     int existingLength = tickPtr[existingStartTick].noteLength[_voice];
     int trellisColor = TRELLIS_BLACK;
+    Serial.printf("trelliscolor: %d\n", trellisColor);
     // Serial.println(isNewNote ? "true" : "false");
     // Serial.printf("existingNote = %d, newNote = %d\n", existingNote, note2set);
     // Prüfen, ob _startTick innerhalb einer bestehenden Note liegt
@@ -427,11 +426,11 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
                 if (get_note_parameter(tickPtr[_startTick].voice, v) < NO_NOTE)
                 {
                     trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
+                    Serial.printf("voice: %d, note: %d, trelliscolor: %d\n", v, get_note_parameter(tickPtr[_startTick].voice, v), trellisColor);
                     break;
                 }
             }
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
-
+            trellisOut.set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
         }
         Serial.printf("note is erased: note: %d, startTick: %d, length: %d, velo: %d, stepFx: %d\n",
                       tickPtr[_startTick].voice[_voice],
@@ -465,7 +464,7 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
             tickPtr[onTick].velo[_voice] = velocity;
             tickPtr[onTick].startTick[_voice] = _startTick;
             tickPtr[onTick].stepFX = stepFX;
-            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1]);
+            trellisOut.set_main_buffer(parameter[SET_CLIP2_EDIT], onTick / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1]);
             // Farbe fürs Display
         }
         Serial.printf("note is set to: note: %d, startTick: %d, length: %d, velo: %d, stepFx: %d\n",
@@ -493,7 +492,7 @@ void Track::clear_active_clip()
             this->clip[parameter[SET_CLIP2_EDIT]].tick[i].startTick[v] = MAX_TICKS;
             // draw_note_on_tick(n, i);
         }
-        trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
+        trellisOut.set_main_buffer(parameter[SET_CLIP2_EDIT], (i / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), TRELLIS_BLACK);
     }
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
         draw_notes_in_grid();

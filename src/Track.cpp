@@ -113,7 +113,7 @@ void Track::load_track(uint8_t songNr)
                 clip[c].tick[t].startTick[v] = myTrackFile.read();
                 if (clip[c].tick[t].voice[v] < NO_NOTE)
                 {
-                    trellis_set_main_buffer(c, (t / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
+                    trellisOut.set_main_buffer(c, (t / TICKS_PER_STEP), (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1]);
                 }
             }
         }
@@ -130,7 +130,7 @@ void Track::load_track(uint8_t songNr)
         if (clip_to_play[i] <= NUM_USER_CLIPS)
         {
             // Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
-            trellis_set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
+            trellisOut.set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
         }
     }
     for (int t = 0; t < NUM_PARAMETERS; t++)

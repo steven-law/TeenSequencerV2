@@ -19,23 +19,17 @@ public:
     MyTrellis()
     {
     }
+
+    int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
     void setup(int dly);
     void clearMainGridNow();
     void writeDisplay();
     void setBrightness(uint8_t brigthness);
-    void drawTrackGains();
-    void drawTrackGain(uint8_t trackNr, uint8_t value); // value= 0-15
-
-    void drawSelectClip2Edit( );
-    void drawSteps();
-    void drawTrackStep(uint8_t trackNr, uint8_t stepNr, uint8_t _clipNr);
-
-    void drawArranger(uint8_t _arrangerpage);
-    void drawTrackArranger(uint8_t trackNr, uint8_t bar, uint8_t clipNr);
-
-    void drawPerformer();
-    void drawClipLauncher();
-
+    void set_main_buffer(int _page, int _x, int _y, int color);
+    void recall_main_buffer(int _page);
+    int get_main_buffer(int _page, int _x, int _y);
+    void show_clockbar(uint8_t trackNr, uint8_t step);
+    void drawSelectClip2Edit();
     void drawLoadSavePage();
     void drawSelectMixerPage();
     void drawSelectArrangerPage();

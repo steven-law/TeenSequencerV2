@@ -480,8 +480,8 @@ void draw_arrangment_lines(uint8_t _track, uint8_t _page) // b= active page
 {
     for (int i = 0; i < 16; i++)
     {
-        draw_arrangment_line(_track, i + (BARS_PER_PAGE * (_page - SONGMODE_PAGE_1)));
-        // Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b - SONGMODE_PAGE_1)));
+        draw_arrangment_line(_track, i + (BARS_PER_PAGE * (_page)));
+        // Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b )));
     }
 }
 void draw_arranger_parameters()
@@ -583,7 +583,7 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
     }
 
     // Trellis LED Buffer aktualisieren
-    trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), track->my_Arranger_Y_axis - 1, _trelliscolor);
+    trellisOut.set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), track->my_Arranger_Y_axis - 1, _trelliscolor);
 }
 
 void draw_arrangerLine_value(uint8_t _trackNr, uint8_t _bar, int value, int y_offset)
@@ -943,12 +943,12 @@ void draw_clip_launcher()
             if (allTracks[t]->clip_to_play[bar2edit] == c)
             {
                 draw_value_box(5, c * 2 + 2, t + 2, 0, 3, NO_VALUE, dname, trackColor[t], 2, true, true);
-                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, trellisTrackColor[t]);
+                trellisOut.set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, trellisTrackColor[t]);
             }
             else
             {
                 draw_value_box(5, c * 2 + 2, t + 2, 0, 3, NO_VALUE, dname, ILI9341_DARKGREY, 2, false, false);
-                trellis_set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, TRELLIS_BLACK);
+                trellisOut.set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, TRELLIS_BLACK);
             }
         }
     }

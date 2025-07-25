@@ -52,7 +52,7 @@ extern uint8_t active_track;
 void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
 void sendControlChange(uint8_t control, uint8_t value, uint8_t channel);
-void trellis_set_main_buffer(int _page, int _x, int _y, int color);
+
 void neotrellis_show();
 // extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;
 void save_plugin(uint8_t _songNr, uint8_t _pluginNr);

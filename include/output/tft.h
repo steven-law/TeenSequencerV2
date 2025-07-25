@@ -52,25 +52,7 @@
 
 #define OCTAVE_CHANGE_TEXT 3
 
-// See https://www.w3schools.com/colors/colors_picker.asp
-#define TRELLIS_RED 0xFF0000
-#define TRELLIS_ORANGE 0xB34700
-#define TRELLIS_YELLOW 0xFFFF00
-#define TRELLIS_OLIVE 0x66DD00
-#define TRELLIS_GREEN 0x008000
-#define TRELLIS_AQUA 0x00FF66
-#define TRELLIS_TEAL 0x00BFFF
-#define TRELLIS_BLUE 0x0080FF
-#define TRELLIS_NAVY 0x000080
-#define TRELLIS_MAROON 0x800000
-#define TRELLIS_PURPLE 0x800080
-#define TRELLIS_PINK 0xFF66B3
-#define TRELLIS_WHITE 0xFFFFFF
-#define TRELLIS_BLACK 0x000000
-// #define TRELLIS_LIGHTBLUE #ADD8E6
 
-#define TRELLIS_1 0x000066
-#define TRELLIS_2 579
 
 // extern ILI9341_t3n tft;
 extern Adafruit_ST7796S_kbv tft;

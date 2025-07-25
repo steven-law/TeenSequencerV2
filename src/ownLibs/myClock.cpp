@@ -58,7 +58,7 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     for (int i = 0; i < NUM_TRACKS; i++)
     {
         trellisShowClockPixel[i] = true;
-        trellis_show_clockbar(i, allTracks[i]->internal_clock / TICKS_PER_STEP);
+        trellisOut.show_clockbar(i, allTracks[i]->internal_clock / TICKS_PER_STEP);
     }
 }
 
