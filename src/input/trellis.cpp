@@ -18,7 +18,6 @@ const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM]{0, 1, 2, 3, 16
                                                                   72, 73, 74, 75, 88, 89, 90, 91, 104, 105, 106, 107, 120, 121, 122, 123,
                                                                   76, 77, 78, 79, 92, 93, 94, 95, 108, 109, 110, 111, 124, 125, 126, 127};
 
-
 uint32_t ticks[] = {0, 24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264};
 Adafruit_Trellis matrix0 = Adafruit_Trellis();
 Adafruit_Trellis matrix1 = Adafruit_Trellis();
@@ -230,17 +229,17 @@ void neotrellis_update()
   neotrellis_start_clock();
   neotrellis_stop_clock();
   neotrellis_set_potRow();
-  trellis_show_tft_mixer();
-  neo_trellis_select_trackClips();
   neo_trellis_save_load();
-  neotrellis_perform_set_active();
-  neotrellis_show_tft_seqMode();
-  neotrellis_show_tft_plugin();
-  neotrellis_set_piano();
+  neo_trellis_set_brightness();
   neotrellis_set_mute();
   neotrellis_set_solo();
   neotrellis_set_fast_record();
-  neo_trellis_set_brightness();
+  neo_trellis_select_trackClips();
+  neo_trellis_select_mixer();
+
+  neotrellis_show_seqMode();
+  neotrellis_show_plugin();
+  neotrellis_show_piano();
 }
 // 1st row
 void neotrellis_set_potRow()
@@ -346,7 +345,6 @@ void neotrellis_stop_clock()
     neotrellisPressed[TRELLIS_STOP_CLOCK] = false;
   }
 }
-
 // 2nd row
 void neotrellis_SetCursor(uint8_t maxY)
 {
@@ -373,9 +371,8 @@ void neotrellis_SetCursor(uint8_t maxY)
     neotrellisPressed[TRELLIS_BUTTON_DOWN] = false;
   }
 }
-
 // 3rd row
-void neotrellis_set_piano() // trellisOut implemented
+void neotrellis_show_piano() // trellisOut implemented
 {
   if (neotrellisPressed[TRELLIS_BUTTON_PIANO])
   {
@@ -394,8 +391,7 @@ void neotrellis_set_piano() // trellisOut implemented
     }
   }
 }
-
-void neotrellis_show_tft_seqMode()
+void neotrellis_show_seqMode()
 {
   if (neotrellisPressed[TRELLIS_BUTTON_SEQMODE])
   {
@@ -418,7 +414,6 @@ void neotrellis_show_tft_seqMode()
     }
   }
 }
-
 // 4th row
 void trellis_show_arranger() // trellisOut implemented
 {
@@ -443,7 +438,6 @@ void trellis_show_arranger() // trellisOut implemented
     }
   }
 }
-
 void trellis_set_arranger()
 {
   if (trellisScreen < TRELLIS_SCREEN_ARRANGER_1 || trellisScreen >= TRELLIS_SCREEN_ARRANGER_16)
@@ -457,7 +451,7 @@ void trellis_set_arranger()
 
     if (neotrellisPressed[trackButton])
     {
-
+      Serial.printf("track = %d\n", t);
       trellis.clear();
       for (int x = 0; x < TRELLIS_PADS_X_DIM; x++)
       {
@@ -467,31 +461,28 @@ void trellis_set_arranger()
       }
       trellisOut.writeDisplay();
 
-      for (int x = 0; x < TRELLIS_PADS_X_DIM; x++)
+      if (isPressed())
       {
-        for (int y = 0; y < TRELLIS_PADS_Y_DIM; y++)
+        uint8_t key = getPressedKey();
+        uint8_t x = key % TRELLIS_PADS_X_DIM;
+        uint8_t y = key / TRELLIS_PADS_X_DIM;
+
+        uint8_t bar = x + arrangerpage * 16;
+        uint8_t clipNr = y;
+        trellisPressed[key] = false;
+        neotrellisPressed[trackButton] = false;
+        change_plugin_row = true;
+
+        for (int i = 0; i < allTracks[t]->clip[clipNr].clockDivision; i++)
         {
-          uint8_t key = x + y * TRELLIS_PADS_X_DIM;
-          if (trellisPressed[key])
-          {
-            uint8_t bar = x + arrangerpage * 16;
-            uint8_t clipNr = y;
-            trellisPressed[key] = false;
-            neotrellisPressed[trackButton] = false;
-            change_plugin_row = true;
-
-            for (int i = 0; i < allTracks[t]->clip[clipNr].clockDivision; i++)
-            {
-              allTracks[t]->set_clip_to_play_trellis(bar + i, clipNr);
-            }
-
-            Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", t, bar, clipNr);
-            trellis.clear();
-            trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
-            trellisOut.writeDisplay();
-            return;
-          }
+          allTracks[t]->set_clip_to_play_trellis(bar + i, clipNr);
         }
+
+        Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", t, bar, clipNr);
+        trellis.clear();
+        trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+        trellisOut.writeDisplay();
+        return;
       }
     }
     else
@@ -533,7 +524,7 @@ void trellis_set_arranger()
             }
           }
 
-          if (trellisPressed[key])
+          else if (trellisPressed[key])
           {
             uint8_t bar = x + arrangerpage * 16;
             uint8_t track = y;
@@ -671,7 +662,7 @@ void set_perform_page(uint8_t row)
     break;
   }
 }
-void neotrellis_show_tft_plugin()
+void neotrellis_show_plugin()
 {
   if (neotrellisPressed[TRELLIS_BUTTON_PLUGIN])
   {
@@ -759,7 +750,7 @@ void trellis_setStepsequencer()
   uint8_t step;
   if (trellisScreen >= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
     return;
-    
+
   for (int x = 0; x < NUM_STEPS; x++)
   {
     for (int y = 0; y < NUM_TRACKS; y++)
@@ -938,12 +929,6 @@ void trellis_update()
     trellis_perform();
   }
 }
-
-
-
-
-
-
 
 // trellis input stuff
 

@@ -62,6 +62,8 @@ void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel);
 
 void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
 void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
+void myUSBNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
+void myUSBNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
 void myControlChange(uint8_t channel, uint8_t control, uint8_t value);
 void myMIDIClock();
 void usbDevice_handleInput();
@@ -572,8 +574,8 @@ void midi_setup(uint8_t dly)
   usbDeviceTimer.begin(usbDevice_handleInput, 250);
   usbDeviceTimer.priority(80);
 
-  usbMIDI.setHandleNoteOff(myNoteOff);
   usbMIDI.setHandleNoteOn(myNoteOn);
+  usbMIDI.setHandleNoteOff(myNoteOff);
   usbMIDI.setHandleControlChange(myControlChange);
   usbMIDI.setHandleClock(myMIDIClock);
   usbMIDI.setHandleStart(onExternalStart);
@@ -712,6 +714,7 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
     sendNoteOn(channel - 1, note, velocity, channel);
   Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 }
+
 void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   if (channel < 9 && !allTracks[channel - 1]->muted)
@@ -757,6 +760,19 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
   if (channel >= 9)
     sendControlChange(control, value, channel);
 }
+void myUSBNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
+{
+  int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  if (trackChannel < 48 && trackChannel > NUM_MIDI_OUTPUTS)
+    myNoteOn(channel, note, velocity);
+}
+void myUSBNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
+{
+  int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  if (trackChannel < 48 && trackChannel > NUM_MIDI_OUTPUTS)
+    myNoteOff(channel, note, velocity);
+}
+
 void myMIDIClock()
 {
   uClock.clockMe();
@@ -833,7 +849,7 @@ void play_plugin_on_DAC(uint8_t _track, uint8_t _pluginNr)
 }
 
 // some trellis
-void trellis_show_tft_mixer()
+void neo_trellis_select_mixer()
 {
   if (neotrellisPressed[TRELLIS_BUTTON_MIXER])
   {
@@ -1078,161 +1094,156 @@ void trellis_perform()
 {
   if (trellisScreen != TRELLIS_SCREEN_PERFORM)
     return;
-
-  for (int t = 0; t < NUM_TRACKS; t++)
+  neotrellis_perform_set_active();
+  if (isPressed())
   {
-    for (int i = 0; i < NUM_STEPS; i++)
+    int key = getPressedKey();
+    trellisPressed[key] = false;
+    int t = key / TRELLIS_PADS_X_DIM;
+    int col = key % TRELLIS_PADS_X_DIM;
+    int row = key / TRELLIS_PADS_X_DIM;
+    int value = 127 - (t * 16);
+    trellisPerformIndex[col] = row;
+
+    switch (col)
     {
-      int _nr = i + (t * TRELLIS_PADS_X_DIM);
-      if (!trellisPressed[_nr])
-        continue;
+    case 0:
+      for (int s = 0; s < NUM_TRACKS; s++)
+        if (allTracks[s]->performIsActive)
+          allTracks[s]->mixGainPot = value;
+      printInfo("Master Vol", value, performCC[0]);
+      break;
 
-      trellisPressed[_nr] = false;
-      int col = _nr % TRELLIS_PADS_X_DIM;
-      int row = _nr / TRELLIS_PADS_X_DIM;
-      int value = 127 - (t * 16);
-      trellisPerformIndex[col] = row;
+    case 1:
+      updateFxVolume(value, row / 8.0f, performCC[1], 0);
+      printInfo("Dry Vol", value, performCC[1]);
+      break;
 
-      switch (col)
+    case 2:
+      updateFxVolume(value, row / 8.0f, performCC[2], 1);
+      printInfo("FX1 Vol", value, performCC[2]);
+      break;
+
+    case 3:
+      updateFxVolume(value, row / 8.0f, performCC[3], 2);
+      printInfo("FX2 Vol", value, performCC[3]);
+      break;
+
+    case 4:
+      updateFxVolume(value, row / 8.0f, performCC[4], 3);
+      printInfo("FX3 Vol", value, performCC[4]);
+      break;
+
+    case 5:
+      fx_1.potentiometer[fx_1.presetNr][0] = value;
+      fx_1.freeverb.roomsize(map(row, 0, 8, 0.0, 1.0));
+      sendCCToActiveTracks(performCC[5], value);
+      printInfo("FX1 Roomsize", value, performCC[5]);
+      break;
+
+    case 6:
+      fx_1.potentiometer[fx_1.presetNr][1] = value;
+      fx_1.freeverb.damping(map(row, 0, 8, 0.0, 1.0));
+      sendCCToActiveTracks(performCC[6], value);
+      printInfo("FX1 Damping", value, performCC[6]);
+      break;
+
+    case 7:
+      fx_2.potentiometer[fx_2.presetNr][0] = value;
+      fx_2.bitcrusher.bits(map(row, 0, 8, 16, 0));
+      sendCCToActiveTracks(performCC[7], value);
+      printInfo("FX2 BitDepth", map(row, 0, 8, 16, 0), performCC[7]);
+      break;
+
+    case 8:
+    {
+      int _rate[] = {44100, 22050, 11025, 5512, 2756, 1378, 1022, 689};
+      fx_2.potentiometer[fx_2.presetNr][1] = value;
+      fx_2.bitcrusher.sampleRate(_rate[row]);
+      sendCCToActiveTracks(performCC[8], value);
+      printInfo("FX2 SmplRate", _rate[row], performCC[8]);
+      break;
+    }
+
+    case 9:
+      fx_3.potentiometer[fx_3.presetNr][0] = value;
+      fx_3.delay.delay(0, 500 / (row + 1));
+      sendCCToActiveTracks(performCC[9], value);
+      printInfo("FX3 DlyTime", 500 / (row + 1), performCC[9]);
+      break;
+
+    case 10:
+      fx_3.potentiometer[fx_3.presetNr][1] = value;
+      fx_3.delayMixer.gain(1, row / 8.0f);
+      sendCCToActiveTracks(performCC[10], value);
+      printInfo("FX3 Feedback", value, performCC[10]);
+      break;
+
+    case 11:
+    {
+      int freq = note_frequency[row * 16] * tuning;
+      MasterOut.finalFilter.frequency(freq);
+      sendCCToActiveTracks(performCC[11], value);
+      printInfo("Fltr Freq", freq, performCC[11]);
+      break;
+    }
+
+    case 12:
+      MasterOut.finalFilter.resonance(row * 18);
+      sendCCToActiveTracks(performCC[12], value);
+      printInfo("Fltr Reso", row * 18, performCC[12]);
+      break;
+
+    case 13:
+    {
+      float _div[] = {1, 1.3333f, 1.6f, 2, 2.6666f, 4, 8, 16};
+      for (int s = 0; s < NUM_TRACKS; s++)
       {
-      case 0:
-        for (int s = 0; s < NUM_TRACKS; s++)
-          if (allTracks[s]->performIsActive)
-            allTracks[s]->mixGainPot = value;
-        printInfo("Master Vol", value, performCC[0]);
-        break;
-
-      case 1:
-        updateFxVolume(value, row / 8.0f, performCC[1], 0);
-        printInfo("Dry Vol", value, performCC[1]);
-        break;
-
-      case 2:
-        updateFxVolume(value, row / 8.0f, performCC[2], 1);
-        printInfo("FX1 Vol", value, performCC[2]);
-        break;
-
-      case 3:
-        updateFxVolume(value, row / 8.0f, performCC[3], 2);
-        printInfo("FX2 Vol", value, performCC[3]);
-        break;
-
-      case 4:
-        updateFxVolume(value, row / 8.0f, performCC[4], 3);
-        printInfo("FX3 Vol", value, performCC[4]);
-        break;
-
-      case 5:
-        fx_1.potentiometer[fx_1.presetNr][0] = value;
-        fx_1.freeverb.roomsize(map(row, 0, 8, 0.0, 1.0));
-        sendCCToActiveTracks(performCC[5], value);
-        printInfo("FX1 Roomsize", value, performCC[5]);
-        break;
-
-      case 6:
-        fx_1.potentiometer[fx_1.presetNr][1] = value;
-        fx_1.freeverb.damping(map(row, 0, 8, 0.0, 1.0));
-        sendCCToActiveTracks(performCC[6], value);
-        printInfo("FX1 Damping", value, performCC[6]);
-        break;
-
-      case 7:
-        fx_2.potentiometer[fx_2.presetNr][0] = value;
-        fx_2.bitcrusher.bits(map(row, 0, 8, 16, 0));
-        sendCCToActiveTracks(performCC[7], value);
-        printInfo("FX2 BitDepth", map(row, 0, 8, 16, 0), performCC[7]);
-        break;
-
-      case 8:
-      {
-        int _rate[] = {44100, 22050, 11025, 5512, 2756, 1378, 1022, 689};
-        fx_2.potentiometer[fx_2.presetNr][1] = value;
-        fx_2.bitcrusher.sampleRate(_rate[row]);
-        sendCCToActiveTracks(performCC[8], value);
-        printInfo("FX2 SmplRate", _rate[row], performCC[8]);
-        break;
-      }
-
-      case 9:
-        fx_3.potentiometer[fx_3.presetNr][0] = value;
-        fx_3.delay.delay(0, 500 / (row + 1));
-        sendCCToActiveTracks(performCC[9], value);
-        printInfo("FX3 DlyTime", 500 / (row + 1), performCC[9]);
-        break;
-
-      case 10:
-        fx_3.potentiometer[fx_3.presetNr][1] = value;
-        fx_3.delayMixer.gain(1, row / 8.0f);
-        sendCCToActiveTracks(performCC[10], value);
-        printInfo("FX3 Feedback", value, performCC[10]);
-        break;
-
-      case 11:
-      {
-        int freq = note_frequency[row * 16] * tuning;
-        MasterOut.finalFilter.frequency(freq);
-        sendCCToActiveTracks(performCC[11], value);
-        printInfo("Fltr Freq", freq, performCC[11]);
-        break;
-      }
-
-      case 12:
-        MasterOut.finalFilter.resonance(row * 18);
-        sendCCToActiveTracks(performCC[12], value);
-        printInfo("Fltr Reso", row * 18, performCC[12]);
-        break;
-
-      case 13:
-      {
-        float _div[] = {1, 1.3333f, 1.6f, 2, 2.6666f, 4, 8, 16};
-        for (int s = 0; s < NUM_TRACKS; s++)
+        if (!allTracks[s]->performIsActive)
+          continue;
+        allTracks[s]->performSeqLengthDiv = _div[row];
+        if (row == 0)
         {
-          if (!allTracks[s]->performIsActive)
-            continue;
-          allTracks[s]->performSeqLengthDiv = _div[row];
-          if (row == 0)
-          {
-            allTracks[s]->internal_clock = 0;
-            allTracks[s]->internal_clock_bar = myClock.barTick;
-            allTracks[s]->external_clock_bar = myClock.barTick;
-          }
+          allTracks[s]->internal_clock = 0;
+          allTracks[s]->internal_clock_bar = myClock.barTick;
+          allTracks[s]->external_clock_bar = myClock.barTick;
         }
-        sendCCToActiveTracks(performCC[13], value);
-        printInfo("Clip Length", (int)(MAX_TICKS / _div[row]), performCC[13]);
-        break;
       }
+      sendCCToActiveTracks(performCC[13], value);
+      printInfo("Clip Length", (int)(MAX_TICKS / _div[row]), performCC[13]);
+      break;
+    }
 
-      case 14:
+    case 14:
+    {
+      uint8_t _div[] = {0, 1, 2, 3, 4, 6, 8, 16};
+      for (int s = 0; s < NUM_TRACKS; s++)
       {
-        uint8_t _div[] = {0, 1, 2, 3, 4, 6, 8, 16};
-        for (int s = 0; s < NUM_TRACKS; s++)
+        if (!allTracks[s]->performIsActive)
+          continue;
+        allTracks[s]->performClockDivision = _div[row];
+        if (row == 0)
         {
-          if (!allTracks[s]->performIsActive)
-            continue;
-          allTracks[s]->performClockDivision = _div[row];
-          if (row == 0)
-          {
-            allTracks[s]->internal_clock = 0;
-            allTracks[s]->internal_clock_bar = myClock.barTick;
-            allTracks[s]->external_clock_bar = myClock.barTick;
-          }
+          allTracks[s]->internal_clock = 0;
+          allTracks[s]->internal_clock_bar = myClock.barTick;
+          allTracks[s]->external_clock_bar = myClock.barTick;
         }
-        sendCCToActiveTracks(performCC[14], value);
-        printInfo("Step Div", _div[row], performCC[14]);
-        break;
       }
+      sendCCToActiveTracks(performCC[14], value);
+      printInfo("Step Div", _div[row], performCC[14]);
+      break;
+    }
 
-      case 15:
-      {
-        int8_t _offset[] = {0, -12, -4, -2, 2, 4, 6, 12};
-        for (int s = 0; s < NUM_TRACKS; s++)
-          if (allTracks[s]->performIsActive)
-            allTracks[s]->performNoteOffset = _offset[row];
-        sendCCToActiveTracks(performCC[15], value);
-        printInfo("Note Transpose", _offset[row], performCC[15]);
-        break;
-      }
-      }
+    case 15:
+    {
+      int8_t _offset[] = {0, -12, -4, -2, 2, 4, 6, 12};
+      for (int s = 0; s < NUM_TRACKS; s++)
+        if (allTracks[s]->performIsActive)
+          allTracks[s]->performNoteOffset = _offset[row];
+      sendCCToActiveTracks(performCC[15], value);
+      printInfo("Note Transpose", _offset[row], performCC[15]);
+      break;
+    }
     }
   }
   set_perform_page(lastPotRow);

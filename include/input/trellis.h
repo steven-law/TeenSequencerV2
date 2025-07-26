@@ -56,9 +56,9 @@ void set_performCC(uint8_t XPos, uint8_t YPos, const char *name);
 
 void set_perform_page(uint8_t row);
 
-void neotrellis_show_tft_seqMode();
-void neotrellis_show_tft_plugin();
-void trellis_show_tft_mixer();
+void neotrellis_show_seqMode();
+void neotrellis_show_plugin();
+void neo_trellis_select_mixer();
 void trellis_play_clipLauncher();
 
 void neo_trellis_select_trackClips();
@@ -68,7 +68,7 @@ void neo_trellis_save_load();
 void neotrellis_set_mute();
 void neotrellis_set_solo();
 void neotrellis_set_fast_record();
-void neotrellis_set_piano();
+void neotrellis_show_piano();
 void trellis_play_piano();
 void trellis_set_arranger();
 void trellis_setStepsequencer();
