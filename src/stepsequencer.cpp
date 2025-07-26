@@ -423,10 +423,11 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
 
             for (int v = 0; v < MAX_VOICES; v++)
             {
-                if (get_note_parameter(tickPtr[_startTick].voice, v) < NO_NOTE)
+                if (get_note_parameter(tickPtr[tickToClear].voice, v) < NO_NOTE)
                 {
-                    trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
-                    Serial.printf("voice: %d, note: %d, trelliscolor: %d\n", v, get_note_parameter(tickPtr[_startTick].voice, v), trellisColor);
+                    trellisColor = TRELLIS_WHITE;
+                   // trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
+                    Serial.printf("voice: %d, note: %d, trelliscolor: %d\n", v, get_note_parameter(tickPtr[tickToClear].voice, v), trellisColor);
                     break;
                 }
             }
