@@ -63,7 +63,7 @@ void trellis_play_clipLauncher();
 
 void neo_trellis_select_trackClips();
 void neo_trellis_set_brightness();
-void neo_trellis_save_load();
+void neotrellis_save_load();
 
 void neotrellis_set_mute();
 void neotrellis_set_solo();
@@ -76,7 +76,8 @@ void trellis_setStepsequencer();
 uint8_t getPressedKey();
 bool isPressed();
 void revertPressedKey();
-
+void trellis_save_load();
+void draw_perform_page();
 //input stuff
 void trellis_read();
 void trellis_update();

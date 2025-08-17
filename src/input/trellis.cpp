@@ -229,7 +229,7 @@ void neotrellis_update()
   neotrellis_start_clock();
   neotrellis_stop_clock();
   neotrellis_set_potRow();
-  neo_trellis_save_load();
+  neotrellis_save_load();
   neo_trellis_set_brightness();
   neotrellis_set_mute();
   neotrellis_set_solo();
@@ -255,61 +255,14 @@ void neotrellis_set_potRow()
     // Serial.printf("potrwo=%d\n", lastPotRow);
   }
 }
-void neo_trellis_save_load() // trellisOut implemented
+void neotrellis_save_load() // trellisOut implemented
 {
-  if (activeScreen != INPUT_FUNCTIONS_FOR_SEQUENCER)
-    return;
+
   if (neotrellisPressed[TRELLIS_BUTTON_SAVELOAD])
   {
-
+    trellisOut.setActiveScreen(TRELLIS_SCREEN_SAVE_LOAD);
     trellisOut.drawLoadSavePage();
-    for (int i = 0; i < MAX_SONGS; i++)
-    {
-      // Save song
-      if (trellisPressed[i])
-      {
-
-        uint8_t songNr = i;
-        draw_infobox_text("Saving song: ", songNames[songNr]);
-        for (int t = 0; t < 8; t++)
-          allTracks[t]->save_track(songNr);
-        myClock.save_clock(songNr);
-        trellisOut.drawPreviousScreen();
-        trellisPressed[i] = false;
-        neotrellisPressed[TRELLIS_BUTTON_SAVELOAD] = false;
-        break;
-      }
-
-      // Load song
-      if (trellisPressed[i + TRELLIS_PADS_X_DIM] || trellisPressed[15 + TRELLIS_PADS_X_DIM])
-      {
-
-        uint8_t songNr = trellisPressed[15 + TRELLIS_PADS_X_DIM] ? 15 : i;
-        draw_infobox_text("Loading song: ", songNames[songNr]);
-        for (int t = 0; t < 8; t++)
-          allTracks[t]->load_track(songNr);
-        myClock.load_clock(songNr);
-        neotrellis_setup(0);
-        trellisOut.drawPreviousScreen();
-        trellisPressed[i] = false;
-        neotrellisPressed[TRELLIS_BUTTON_SAVELOAD] = false;
-        break;
-      }
-
-      // Export to MIDI
-      if (trellisPressed[i + (3 * TRELLIS_PADS_X_DIM)])
-      {
-
-        uint8_t songNr = i;
-        draw_infobox_text("Saving song to MIDI: ", songNames[songNr]);
-        for (int t = 0; t < 8; t++)
-          export_midi_track(allTracks[t], songNr);
-        trellisOut.drawPreviousScreen();
-        trellisPressed[i] = false;
-        neotrellisPressed[TRELLIS_BUTTON_SAVELOAD] = false;
-        break;
-      }
-    }
+    neotrellisPressed[TRELLIS_BUTTON_SAVELOAD] = false;
   }
 }
 void neotrellis_start_clock()
@@ -385,6 +338,7 @@ void neotrellis_show_piano() // trellisOut implemented
         neotrellis_set_control_buffer(2, 2, trellisTrackColor[trellisPianoTrack]);
         neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
         neotrellisPressed[TRELLIS_BUTTON_PIANO] = false;
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_PIANO);
         trellisOut.drawPiano();
         break;
       }
@@ -427,20 +381,20 @@ void trellis_show_arranger() // trellisOut implemented
       arrangerpage = getPressedKey();
       revertPressedKey();
       neotrellisPressed[TRELLIS_BUTTON_ARRANGER] = false;
-      trellisScreen = arrangerpage + TRELLIS_SCREEN_ARRANGER_1;
+      trellisOut.setActiveScreen(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
       activeScreen = INPUT_FUNCTIONS_FOR_ARRANGER;
       startUpScreen();
       gridSongMode(arrangerpage);
       for (int y = 0; y < NUM_TRACKS; y++)
-        trellisOut.get_main_buffer(trellisScreen, arrangerpage, y);
-      trellisOut.recall_main_buffer(trellisScreen);
+        trellisOut.get_main_buffer(trellisOut.getActiveScreen(), arrangerpage, y);
+      trellisOut.recall_main_buffer(trellisOut.getActiveScreen());
       trellisOut.writeDisplay();
     }
   }
 }
 void trellis_set_arranger()
 {
-  if (trellisScreen < TRELLIS_SCREEN_ARRANGER_1 || trellisScreen >= TRELLIS_SCREEN_ARRANGER_16)
+  if (trellisOut.getActiveScreen() < TRELLIS_SCREEN_ARRANGER_1 || trellisOut.getActiveScreen() >= TRELLIS_SCREEN_ARRANGER_16)
   {
     return;
   }
@@ -565,7 +519,7 @@ void draw_perform_page()
 }
 void neotrellis_perform_set_active()
 {
-  if (trellisScreen != TRELLIS_SCREEN_PERFORM)
+  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PERFORM)
     return;
 
   for (int x = 0; x < NUM_STEPS; x++)
@@ -662,6 +616,7 @@ void set_perform_page(uint8_t row)
     break;
   }
 }
+
 void neotrellis_show_plugin()
 {
   if (neotrellisPressed[TRELLIS_BUTTON_PLUGIN])
@@ -702,14 +657,14 @@ void neo_trellis_select_trackClips()
         // updateTFTScreen = true;
         change_plugin_row = true;
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
-        trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
+        trellisOut.setActiveScreen(allTracks[active_track]->parameter[SET_CLIP2_EDIT]);
         // for (int i = 0; i < NUM_PARAMETERS; i++)
         drawStepSequencerStatic();
         draw_stepSequencer_parameters();
         draw_notes_in_grid();
 
         neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
-        trellisOut.recall_main_buffer(trellisScreen);
+        trellisOut.recall_main_buffer(trellisOut.getActiveScreen());
         trellisOut.writeDisplay();
         break;
       }
@@ -734,8 +689,8 @@ void neo_trellis_select_trackClips()
           draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
-          trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
-          trellisOut.recall_main_buffer(trellisScreen);
+          trellisOut.setActiveScreen(allTracks[active_track]->parameter[SET_CLIP2_EDIT]);
+          trellisOut.recall_main_buffer(trellisOut.getActiveScreen());
           trellisOut.writeDisplay();
           break;
         }
@@ -748,7 +703,7 @@ void trellis_setStepsequencer()
   uint8_t trellisNote = (gridTouchY > 0 && gridTouchY <= 12) ? (gridTouchY - 1) : 0;
   uint8_t track;
   uint8_t step;
-  if (trellisScreen >= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
+  if (trellisOut.getActiveScreen() >= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
     return;
 
   for (int x = 0; x < NUM_STEPS; x++)
@@ -916,8 +871,11 @@ void neotrellis_set_fast_record()
   }
 }
 
+
+
 void trellis_update()
 {
+  trellis_save_load();
   trellis_play_piano();
   trellis_show_arranger();
   unsigned long trellisCurrentMillis = millis();
@@ -976,7 +934,7 @@ void trellis_read()
 void trellis_play_piano()
 {
 
-  if (trellisScreen != TRELLIS_SCREEN_PIANO)
+  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PIANO)
     return;
 
   auto track = allTracks[trellisPianoTrack];
@@ -1016,7 +974,7 @@ void trellis_play_piano()
 }
 void trellis_play_clipLauncher()
 {
-  if (trellisScreen != INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
+  if (trellisOut.getActiveScreen() != INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
     return;
 
   if (enc_moved[0])
@@ -1045,6 +1003,45 @@ void trellis_play_clipLauncher()
         break;
       }
     }
+  }
+}
+void trellis_save_load()
+{
+  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_SAVE_LOAD)
+    return;
+  if (isPressed())
+  {
+    // Save song
+    if (getPressedKey() < MAX_SONGS)
+    {
+      uint8_t songNr = getPressedKey();
+      draw_infobox_text("Saving song: ", songNames[songNr]);
+      for (int t = 0; t < 8; t++)
+        allTracks[t]->save_track(songNr);
+      myClock.save_clock(songNr);
+    }
+
+    // Load song
+    else if ((getPressedKey() >= NUM_STEPS && getPressedKey() < NUM_STEPS + MAX_SONGS) || getPressedKey() == 31)
+    {
+      uint8_t songNr = getPressedKey() - NUM_STEPS;
+      draw_infobox_text("Loading song: ", songNames[songNr]);
+      for (int t = 0; t < 8; t++)
+        allTracks[t]->load_track(songNr);
+      myClock.load_clock(songNr);
+      neotrellis_setup(0);
+    }
+
+    // Export to MIDI
+    else if ((getPressedKey() >= 3 * NUM_STEPS && getPressedKey() < 3 * NUM_STEPS + MAX_SONGS))
+    {
+      uint8_t songNr = getPressedKey() - 3 * NUM_STEPS;
+      draw_infobox_text("Saving song to MIDI: ", songNames[songNr]);
+      for (int t = 0; t < 8; t++)
+        export_midi_track(allTracks[t], songNr);
+    }
+    trellisOut.drawPreviousScreen();
+    revertPressedKey();
   }
 }
 

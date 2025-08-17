@@ -15,6 +15,7 @@ extern const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 class MyTrellis
 {
 public:
+    uint8_t trellisScreen;
     uint8_t oldTrellisScreen = 0;
     MyTrellis()
     {
@@ -29,6 +30,8 @@ public:
     void recall_main_buffer(int _page);
     int get_main_buffer(int _page, int _x, int _y);
     void show_clockbar(uint8_t trackNr, uint8_t step);
+    void setActiveScreen(uint8_t screenNr);
+    uint8_t getActiveScreen();
     void drawSelectClip2Edit();
     void drawLoadSavePage();
     void drawSelectMixerPage();

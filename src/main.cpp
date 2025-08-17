@@ -449,7 +449,7 @@ void input_behaviour()
 
       trellisTrackColor[tempTrack] = trellisTrackColor[tempTrack] + encoded[3];
       trackColor[tempTrack] = rgb24to565(trellisTrackColor[tempTrack]);
-      trellisScreen = arrangerpage;
+      trellisOut.setActiveScreen(arrangerpage);
       tft_showTrackColors();
       neotrellis_set_control_buffer(3, tempTrack + 4, trellisTrackColor[tempTrack]);
       updateTFTScreen = true;
@@ -854,131 +854,88 @@ void neo_trellis_select_mixer()
   if (neotrellisPressed[TRELLIS_BUTTON_MIXER])
   {
     trellisOut.drawSelectMixerPage();
-
-    if (trellisPressed[0])
-    {
-      trellisOut.clearMainGridNow();
-      trellisPressed[0] = false;
-      trellisScreen = TRELLIS_SCREEN_MIXER1;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_MIXER1;
-      clearWorkSpace();
-      draw_mixer();
-      show_active_page_info("Mixer", 0);
-    }
-    if (trellisPressed[1])
-    {
-      trellisOut.clearMainGridNow();
-      show_trellisFX_mixerPage();
-      trellisPressed[1] = false;
-      trellisScreen = TRELLIS_SCREEN_MIXER;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_MIXER2;
-      clearWorkSpace();
-      draw_mixer_FX_page1();
-      show_active_page_info("FX Vol", 1);
-      // trellisOut.recall_main_buffer(TRELLIS_SCREEN_MIXER);
-    }
-    if (trellisPressed[2])
-    {
-      trellisOut.clearMainGridNow();
-      show_trellisFX_mixerPage();
-      trellisPressed[2] = false;
-      trellisScreen = TRELLIS_SCREEN_MIXER;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_MIXER3;
-      clearWorkSpace();
-      draw_mixer_FX_page2();
-      show_active_page_info("FX Vol", 2);
-      // trellisOut.recall_main_buffer(TRELLIS_SCREEN_MIXER);
-    }
-    if (trellisPressed[3])
+    if (isPressed())
     {
 
       trellisOut.clearMainGridNow();
-      show_trellisFX_mixerPage();
-      trellisPressed[3] = false;
-      trellisScreen = TRELLIS_SCREEN_MIXER;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_FX1;
       clearWorkSpace();
-      fx_1.draw_plugin();
-      show_active_page_info("FX Ctrl", 1);
+      if (getPressedKey() == 0)
+      {
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_MIXER1);
+        activeScreen = INPUT_FUNCTIONS_FOR_MIXER1;
+        draw_mixer();
+        show_active_page_info("Mixer", 0);
+      }
+      if (getPressedKey() == 1)
+      {
+        show_trellisFX_mixerPage();
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_MIXER);
+        activeScreen = INPUT_FUNCTIONS_FOR_MIXER2;
+        draw_mixer_FX_page1();
+        show_active_page_info("FX Vol", 1);
+      }
+      if (getPressedKey() == 2)
+      {
+        show_trellisFX_mixerPage();
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_MIXER);
+        activeScreen = INPUT_FUNCTIONS_FOR_MIXER3;
+        draw_mixer_FX_page2();
+        show_active_page_info("FX Vol", 2);
+      }
+      if (getPressedKey() == 3)
+      {
+        show_trellisFX_mixerPage();
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_MIXER);
+        activeScreen = INPUT_FUNCTIONS_FOR_FX1;
+        fx_1.draw_plugin();
+        show_active_page_info("FX Ctrl", 1);
+      }
+      if (getPressedKey() == 4)
+      {
+        show_trellisFX_mixerPage();
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_MIXER);
+        activeScreen = INPUT_FUNCTIONS_FOR_FX2;
+        fx_2.draw_plugin();
+        show_active_page_info("FX Ctrl", 2);
+      }
+      if (getPressedKey() == 5)
+      {
+        show_trellisFX_mixerPage();
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_MIXER);
+        activeScreen = INPUT_FUNCTIONS_FOR_FX3;
+        fx_3.draw_plugin();
+        show_active_page_info("FX Ctrl", 3);
+      }
+      if (getPressedKey() == 6)
+      {
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_PERFORM);
+        activeScreen = INPUT_FUNCTIONS_FOR_PERFORM;
 
-      // trellisOut.recall_main_buffer(TRELLIS_SCREEN_MIXER);
-    }
-    if (trellisPressed[4])
-    {
-      trellisOut.clearMainGridNow();
-      show_trellisFX_mixerPage();
-      trellisPressed[4] = false;
-      trellisScreen = TRELLIS_SCREEN_MIXER;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
+        set_perform_page(lastPotRow);
+        show_active_page_info("Perform", 0);
+      }
+      if (getPressedKey() == 7)
+      {
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_CLIPLAUNCHER);
+        activeScreen = INPUT_FUNCTIONS_FOR_CLIPLAUNCHER;
+        draw_clip_launcher();
+        show_active_page_info("Launch", 0);
+      }
+      if (getPressedKey() == 15)
+      {
+        activeScreen = INPUT_FUNCTIONS_FOR_SGTL;
+        draw_sgtlControls();
+        show_active_page_info("SGTL", 0);
+      }
       change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_FX2;
-      clearWorkSpace();
-      fx_2.draw_plugin();
-      show_active_page_info("FX Ctrl", 2);
-
-      // trellisOut.recall_main_buffer(TRELLIS_SCREEN_MIXER);
-    }
-    if (trellisPressed[5])
-    {
-      trellisOut.clearMainGridNow();
-      show_trellisFX_mixerPage();
-      trellisPressed[5] = false;
-      trellisScreen = TRELLIS_SCREEN_MIXER;
       neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_FX3;
-      clearWorkSpace();
-      fx_3.draw_plugin();
-      show_active_page_info("FX Ctrl", 3);
-    }
-    if (trellisPressed[6])
-    {
-      trellisOut.clearMainGridNow();
-      trellisPressed[6] = false;
-      trellisScreen = TRELLIS_SCREEN_PERFORM;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_PERFORM;
-      clearWorkSpace();
-      set_perform_page(lastPotRow);
-      show_active_page_info("Perform", 0);
-    }
-    if (trellisPressed[7])
-    {
-      trellisOut.clearMainGridNow();
-      trellisPressed[7] = false;
-      trellisScreen = TRELLIS_SCREEN_CLIPLAUNCHER;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      // change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_CLIPLAUNCHER;
-      clearWorkSpace();
-      draw_clip_launcher();
-      show_active_page_info("Launch", 0);
-    }
-    if (trellisPressed[15])
-    {
-      trellisOut.clearMainGridNow();
-      trellisPressed[15] = false;
-      neotrellisPressed[TRELLIS_BUTTON_MIXER] = false;
-      change_plugin_row = true;
-      activeScreen = INPUT_FUNCTIONS_FOR_SGTL;
-      clearWorkSpace();
-      draw_sgtlControls();
-      show_active_page_info("SGTL", 0);
+      revertPressedKey();
     }
   }
 }
 void trellis_play_mixer()
 {
-  if (trellisScreen == TRELLIS_SCREEN_MIXER1)
+  if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER1)
   {
     uint8_t _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
     if (isPressed())
@@ -998,7 +955,7 @@ void trellis_play_mixer()
       draw_infobox("Track: ", t, "Main Vol =  ", _gain[s]);
     }
   }
-  if (trellisScreen == TRELLIS_SCREEN_MIXER)
+  if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER)
   {
     float _gain[4] = {0, 0.30, 0.60, 1};
 
@@ -1092,7 +1049,7 @@ void printInfo(const char *label, int val, uint8_t cc)
 // Hauptfunktion für Perform-Modus
 void trellis_perform()
 {
-  if (trellisScreen != TRELLIS_SCREEN_PERFORM)
+  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PERFORM)
     return;
   neotrellis_perform_set_active();
   if (isPressed())

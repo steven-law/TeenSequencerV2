@@ -48,12 +48,11 @@ void MyTrellis::trellis_assign_start_buffer(uint8_t _lastPotRow)
 void MyTrellis::drawLoadSavePage()
 {
 
-  if (trellisScreen == TRELLIS_SCREEN_SAVE_LOAD)
+  if (trellisScreen != TRELLIS_SCREEN_SAVE_LOAD)
     return;
   Serial.println(trellisScreen);
   clearMainGridNow();
-  oldTrellisScreen = trellisScreen;
-  trellisScreen = TRELLIS_SCREEN_SAVE_LOAD;
+
   for (int i = 0; i < MAX_SONGS; i++)
   {
     trellis.setLED(TrellisLED[i]);
@@ -61,12 +60,14 @@ void MyTrellis::drawLoadSavePage()
     trellis.setLED(TrellisLED[15 + TRELLIS_PADS_X_DIM]);
     trellis.setLED(TrellisLED[i + (3 * TRELLIS_PADS_X_DIM)]);
   }
-  writeDisplay();
+  // writeDisplay();
 }
 void MyTrellis::drawPreviousScreen()
 {
   clearMainGridNow();
   trellisScreen = oldTrellisScreen;
+  recall_main_buffer(trellisScreen);
+  writeDisplay();
 }
 void MyTrellis::clearMainGridNow()
 {
@@ -110,7 +111,7 @@ void MyTrellis::recall_main_buffer(int _page)
 }
 int MyTrellis::get_main_buffer(int _page, int _x, int _y)
 {
-  //Serial.printf("get main buffer page: %d\n", _page);
+  // Serial.printf("get main buffer page: %d\n", _page);
   return trellisMainGridBuffer[_page][_x][_y];
 }
 void MyTrellis::show_clockbar(uint8_t trackNr, uint8_t step)
@@ -207,7 +208,7 @@ void MyTrellis::drawPiano()
 {
   if (trellisScreen != TRELLIS_SCREEN_PIANO)
     return;
-  trellisScreen = TRELLIS_SCREEN_PIANO;
+
   for (int x = 0; x < NOTES_PER_OCTAVE; x++)
   {
     for (int y = 0; y < NUM_TRACKS; y++)
@@ -240,6 +241,15 @@ void MyTrellis::drawSelectClip2Edit()
     trellis.setLED(TrellisLED[allTracks[y]->parameter[SET_CLIP2_EDIT] + (y * TRELLIS_PADS_X_DIM)]);
   }
   writeDisplay();
+}
+void MyTrellis::setActiveScreen(uint8_t screenNr)
+{
+  oldTrellisScreen = trellisScreen;
+  trellisScreen = screenNr;
+}
+uint8_t MyTrellis::getActiveScreen()
+{
+  return trellisScreen;
 }
 
 MyTrellis trellisOut;

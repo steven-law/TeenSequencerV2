@@ -9,7 +9,6 @@ int gridTouchY;
 uint8_t lastPotRow;
 bool change_row;
 uint8_t activeScreen;
-uint8_t trellisScreen;
 uint8_t active_track;
 uint8_t arrangerpage;
 bool change_plugin_row;
