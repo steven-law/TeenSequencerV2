@@ -208,7 +208,7 @@ void MyTrellis::drawPiano()
 {
   if (trellisScreen != TRELLIS_SCREEN_PIANO)
     return;
-
+  clearMainGridNow();
   for (int x = 0; x < NOTES_PER_OCTAVE; x++)
   {
     for (int y = 0; y < NUM_TRACKS; y++)
@@ -229,6 +229,19 @@ void MyTrellis::drawPiano()
     }
   }
 }
+void MyTrellis::drawPerformPotrow(uint8_t prow)
+{
+  for (int i = 0; i < NUM_STEPS; i++)
+  {
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, i, 7, TRELLIS_BLACK);
+  }
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4, 7, TRELLIS_BLUE);
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 1, 7, TRELLIS_RED);
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 2, 7, TRELLIS_GREEN);
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 3, 7, TRELLIS_WHITE);
+  trellisOut.writeDisplay();
+}
+
 void MyTrellis::drawSelectClip2Edit()
 {
   if (trellisScreen == TRELLIS_SCREEN_SELECT_CLIP2EDIT)

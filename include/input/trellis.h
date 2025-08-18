@@ -37,6 +37,7 @@ extern uint8_t bar2edit;
 
 TrellisCallback blink(keyEvent evt);
 uint16_t rgb24to565(uint32_t color24);
+uint32_t rgb565to24(uint16_t color565);
 void neotrellis_setup(int dly);
 
 void neotrellis_set_control_buffer(int _x, int _y, int _color);
@@ -62,6 +63,7 @@ void neo_trellis_select_mixer();
 void trellis_play_clipLauncher();
 
 void neo_trellis_select_trackClips();
+void handleClipOrTrackSelection(int track, int clip = -1);
 void neo_trellis_set_brightness();
 void neotrellis_save_load();
 

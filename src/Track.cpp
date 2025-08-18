@@ -26,8 +26,8 @@ void Track::save_track(uint8_t songNr)
     if (!myTrackFile)
         return;
 
-    myTrackFile.write(trackColor[my_Arranger_Y_axis - 1]);
-
+    uint16_t color = trackColor[my_Arranger_Y_axis - 1];
+    myTrackFile.write((uint8_t *)&color, sizeof(color));
     for (int c = 0; c < MAX_CLIPS; c++)
     {
         myTrackFile.write(clip[c].seqLength);
@@ -94,7 +94,10 @@ void Track::load_track(uint8_t songNr)
     myTrackFile = SD.open(filename, FILE_READ);
     if (!myTrackFile)
         return;
-    trackColor[my_Arranger_Y_axis - 1] = myTrackFile.read();
+    uint16_t color;
+    myTrackFile.read((uint8_t *)&color, sizeof(color));
+    trackColor[my_Arranger_Y_axis - 1] = color;
+    trellisTrackColor[my_Arranger_Y_axis - 1] = rgb565to24(color);
     for (int c = 0; c < MAX_CLIPS; c++)
     {
         clip[c].seqLength = myTrackFile.read();
@@ -145,13 +148,20 @@ void Track::load_track(uint8_t songNr)
                 seqMod_value[m][p][t] = myTrackFile.read();
             }
         }
+        trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER1, t, my_Arranger_Y_axis - 1, TRELLIS_BLACK);
+        trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, t, my_Arranger_Y_axis - 1, TRELLIS_BLACK);
     }
 
     mixGainPot = myTrackFile.read();
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER1, mixGainPot / 8, my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1]);
     mixDryPot = myTrackFile.read();
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, mixGainPot / 42, my_Arranger_Y_axis - 1, TRELLIS_PINK);
     mixFX1Pot = myTrackFile.read();
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, (mixGainPot / 42) + 4, my_Arranger_Y_axis - 1, TRELLIS_OLIVE);
     mixFX2Pot = myTrackFile.read();
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, (mixGainPot / 42) + 8, my_Arranger_Y_axis - 1, TRELLIS_AQUA);
     mixFX3Pot = myTrackFile.read();
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, (mixGainPot / 42) + 12, my_Arranger_Y_axis - 1, TRELLIS_ORANGE);
     performNoteOffset = (int8_t)(myTrackFile.read()) - 64;
     myTrackFile.close();
     Serial.printf("loaded track: %d\n", my_Arranger_Y_axis - 1);
