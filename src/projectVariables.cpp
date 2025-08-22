@@ -29,9 +29,9 @@ uint8_t FLASHMEM gateOutputPin[8]{22, 40, 38, 37, 36, 35, 34, 33};
 
 bool trellisShowClockPixel[TRELLIS_PADS_Y_DIM];
 int trackColor[9]{rgb24to565(TRELLIS_RED), rgb24to565(TRELLIS_PURPLE), rgb24to565(TRELLIS_OLIVE), rgb24to565(TRELLIS_YELLOW), rgb24to565(TRELLIS_BLUE), rgb24to565(9365295), rgb24to565(TRELLIS_AQUA), rgb24to565(TRELLIS_GREEN), rgb24to565(900909)};
+const uint8_t eigthTo127[8]{0, 18, 37, 55, 73, 92, 110, 128};
 uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 uint8_t performCC[TRELLIS_PADS_X_DIM];
-bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 bool trellisHeld[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 uint8_t lastPressedKey;
 bool trellisIsPressed;

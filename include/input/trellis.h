@@ -16,7 +16,6 @@ void trellis_show_tft_mixer();
 void trellis_play_mixer();
 void trellis_perform();
 
-
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 
 extern uint8_t trellisPianoTrack;
@@ -31,7 +30,6 @@ extern const unsigned long neotrellisReadInterval; // interval at which to blink
 extern const long trellisRestartInterval;          // interval at which to blink (milliseconds)
 extern unsigned long trellisRestartPreviousMillis; // will store last time LED was updated
 extern unsigned long trellisReadPreviousMillis;    // will store last time LED was updated
-extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern uint8_t bar2edit;
 
@@ -71,7 +69,7 @@ void neotrellis_set_mute();
 void neotrellis_set_solo();
 void neotrellis_set_fast_record();
 void neotrellis_show_piano();
-void trellis_play_piano();
+
 void trellis_set_arranger();
 void trellis_setStepsequencer();
 
@@ -79,8 +77,13 @@ uint8_t getPressedKey();
 bool isPressed();
 void revertPressedKey();
 void trellis_save_load();
+void trellis_play_piano();
+void trellis_play_playmode();
+void trellis_play_plugins();
 void draw_perform_page();
-//input stuff
+// input stuff
 void trellis_read();
 void trellis_update();
+uint8_t getPluginValue(uint8_t pot);
+
 #endif

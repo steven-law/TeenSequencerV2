@@ -61,34 +61,34 @@ void Plugin_4::set_parameters(uint8_t row)
     {
         if (row == 0)
         {
-            set_waveform(0, 0, "Bk K");
-            set_waveform(1, 0, "Bk C");
-            set_waveform(2, 0, "Bk H");
-            set_waveform(3, 0, "Bk S");
+            set_waveform(0, 0);
+            set_waveform(1, 0);
+            set_waveform(2, 0);
+            set_waveform(3, 0);
         }
 
         if (row == 1)
         {
-            set_waveform(0, 1, "Bk P");
-            set_waveform(1, 1, "Bk F");
-            set_waveform(2, 1, "Bk X");
-            set_waveform(3, 1, "Bk *");
+            set_waveform(0, 1);
+            set_waveform(1, 1);
+            set_waveform(2, 1);
+            set_waveform(3, 1);
         }
 
         if (row == 2)
         {
-            set_mixer_gain(0, 2, "Vol");
-            set_mixer_gain(1, 2, "Vol");
-            set_mixer_gain(2, 2, "Vol");
-            set_mixer_gain(3, 2, "Vol");
+            set_mixer_gain(0, 2);
+            set_mixer_gain(1, 2);
+            set_mixer_gain(2, 2);
+            set_mixer_gain(3, 2);
         }
 
         if (row == 3)
         {
-            set_mixer_gain(0, 3, "Vol");
-            set_mixer_gain(1, 3, "Vol");
-            set_mixer_gain(2, 3, "Vol");
-            set_mixer_gain(3, 3, "Vol");
+            set_mixer_gain(0, 3);
+            set_mixer_gain(1, 3);
+            set_mixer_gain(2, 3);
+            set_mixer_gain(3, 3);
         }
     }
     if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -96,46 +96,18 @@ void Plugin_4::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
-void Plugin_4::draw_plugin()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
 
-        drawPot(0, 0, potentiometer[presetNr][0], "Bk K");
-        drawPot(1, 0, potentiometer[presetNr][1], "Bk C");
-        drawPot(2, 0, potentiometer[presetNr][2], "Bk H");
-        drawPot(3, 0, potentiometer[presetNr][3], "Bk S");
-
-        drawPot(0, 1, potentiometer[presetNr][4], "Bk P");
-        drawPot(1, 1, potentiometer[presetNr][5], "Bk F");
-        drawPot(2, 1, potentiometer[presetNr][6], "Bk X");
-        drawPot(3, 1, potentiometer[presetNr][7], "Bk *");
-
-        drawPot(0, 2, potentiometer[presetNr][8], "Vol");
-        drawPot(1, 2, potentiometer[presetNr][9], "Vol");
-        drawPot(2, 2, potentiometer[presetNr][10], "Vol");
-        drawPot(3, 2, potentiometer[presetNr][11], "Vol");
-
-        drawPot(0, 3, potentiometer[presetNr][12], "Vol");
-        drawPot(1, 3, potentiometer[presetNr][13], "Vol");
-        drawPot(2, 3, potentiometer[presetNr][14], "Vol");
-        drawPot(3, 3, potentiometer[presetNr][15], "Vol");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-    }
-}
 void Plugin_4::set_gain(uint8_t gain)
 {
     float velo = ((gain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
 }
-void Plugin_4::set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_4::set_mixer_gain(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        assign_mixer_gain(get_Potentiometer(XPos, YPos, name), n);
+        assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
     }
 }
 void Plugin_4::assign_mixer_gain(uint8_t value, uint8_t channel)
@@ -151,12 +123,12 @@ void Plugin_4::change_preset()
         assign_waveform(potentiometer[presetNr][i], i);
     }
 }
-void Plugin_4::set_waveform(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_4::set_waveform(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        assign_waveform(get_Potentiometer(XPos, YPos, name), n);
+        assign_waveform(get_Potentiometer(XPos, YPos), n);
         enc_moved[XPos] = false;
     }
 }

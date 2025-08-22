@@ -89,26 +89,26 @@ void Plugin_11::set_parameters(uint8_t row)
         if (row == 0)
         {
 
-            set_PWMdc_amplitude(0, 0, "PW");
-            set_voice_amplitude(1, 0, "Volume");
-            set_LFO2VCO_frequency(2, 0, "PWM-Freq");
-            set_LFO2VCO_amplitude(3, 0, "PWM-Lvl");
+            set_PWMdc_amplitude(0, 0);
+            set_voice_amplitude(1, 0);
+            set_LFO2VCO_frequency(2, 0);
+            set_LFO2VCO_amplitude(3, 0);
         }
 
         if (row == 1)
         {
-            set_DC_amplitude(0, 1, "Env-Lvl");
-            set_LFO_waveform(1, 1, "LFO W~F");
-            set_LFO_frequency(2, 1, "LFO-Freq");
-            set_LFO_amplitude(3, 1, "LFO-Lvl");
+            set_DC_amplitude(0, 1);
+            set_LFO_waveform(1, 1);
+            set_LFO_frequency(2, 1);
+            set_LFO_amplitude(3, 1);
         }
 
         if (row == 2)
         {
-            set_filter_frequency(0, 2, "Filt-Frq");
-            set_filter_resonance(1, 2, "Resonance", 0, 5.00);
-            set_filter_sweep(2, 2, "Sweep");
-            set_filter_type(3, 2, filterName[potentiometer[presetNr][11]]);
+            set_filter_frequency(0, 2);
+            set_filter_resonance(1, 2, 0, 5.00);
+            set_filter_sweep(2, 2);
+            set_filter_type(3, 2);
         }
 
         if (row == 3)
@@ -123,33 +123,6 @@ void Plugin_11::set_parameters(uint8_t row)
     if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         set_presetNr();
-    }
-}
-void Plugin_11::draw_plugin()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        // Serial.println("drawing plugin 2");
-        drawPot(0, 0, potentiometer[presetNr][0], "PW");
-        drawPot(1, 0, potentiometer[presetNr][1], "Volume");
-        drawPot(2, 0, potentiometer[presetNr][2], "PWM-Freq");
-        drawPot(3, 0, potentiometer[presetNr][3], "PWM-Lvl");
-
-        drawPot(0, 1, potentiometer[presetNr][4], "Env-Lvl");
-        drawPot(1, 1, potentiometer[presetNr][5], "LFO W~F");
-        drawPot(2, 1, potentiometer[presetNr][6], "LFO-Freq");
-        drawPot(3, 1, potentiometer[presetNr][7], "LFO-Lvl");
-
-        drawPot(0, 2, potentiometer[presetNr][8], "Filt-Frq");
-        drawPot(1, 2, potentiometer[presetNr][9], "Resonance");
-        drawPot(2, 2, potentiometer[presetNr][10], "Sweep");
-        drawPot(3, 2, potentiometer[presetNr][11], filterName[potentiometer[presetNr][11]]);
-
-        drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
-                     potentiometer[presetNr][14], potentiometer[presetNr][15]);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
     }
 }
 void Plugin_11::set_gain(uint8_t gain)
@@ -179,11 +152,11 @@ void Plugin_11::change_preset()
     assign_envelope_release(potentiometer[presetNr][15], 2000);
 }
 
-void Plugin_11::set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_voice_amplitude(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_voice_amplitude(get_Potentiometer(XPos, YPos, name));
+        assign_voice_amplitude(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_voice_amplitude(uint8_t value)
@@ -193,11 +166,11 @@ void Plugin_11::assign_voice_amplitude(uint8_t value)
     waveform.amplitude(ampl);
 }
 
-void Plugin_11::set_LFO_waveform(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_LFO_waveform(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_LFO_waveform(get_Potentiometer(XPos, YPos, name));
+        assign_LFO_waveform(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_LFO_waveform(uint8_t value)
@@ -207,11 +180,11 @@ void Plugin_11::assign_LFO_waveform(uint8_t value)
     LFO.begin(walveform);
     Lfo2Vco.begin(walveform);
 }
-void Plugin_11::set_LFO_frequency(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_LFO_frequency(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_LFO_frequency(get_Potentiometer(XPos, YPos, name));
+        assign_LFO_frequency(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_LFO_frequency(uint8_t value)
@@ -220,11 +193,11 @@ void Plugin_11::assign_LFO_frequency(uint8_t value)
 
     LFO.frequency(value + 1);
 }
-void Plugin_11::set_LFO_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_LFO_amplitude(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_LFO_amplitude(get_Potentiometer(XPos, YPos, name));
+        assign_LFO_amplitude(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_LFO_amplitude(uint8_t value)
@@ -233,11 +206,11 @@ void Plugin_11::assign_LFO_amplitude(uint8_t value)
 
     LFO.amplitude(ampl);
 }
-void Plugin_11::set_PWMdc_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_PWMdc_amplitude(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_DC_amplitude(get_Potentiometer(XPos, YPos, name));
+        assign_DC_amplitude(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_PWMdc_amplitude(uint8_t value)
@@ -247,11 +220,11 @@ void Plugin_11::assign_PWMdc_amplitude(uint8_t value)
     PWMdc.amplitude(ampl);
 }
 
-void Plugin_11::set_DC_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_DC_amplitude(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_DC_amplitude(get_Potentiometer(XPos, YPos, name));
+        assign_DC_amplitude(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_DC_amplitude(uint8_t value)
@@ -261,11 +234,11 @@ void Plugin_11::assign_DC_amplitude(uint8_t value)
     dc.amplitude(ampl);
 }
 
-void Plugin_11::set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_LFO2VCO_amplitude(get_Potentiometer(XPos, YPos, name));
+        assign_LFO2VCO_amplitude(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_LFO2VCO_amplitude(uint8_t value)
@@ -274,11 +247,11 @@ void Plugin_11::assign_LFO2VCO_amplitude(uint8_t value)
     Lfo2Vco.amplitude(ampl);
     // Serial.printf("pl2 lfo2vco gain: %f\n", ampl);
 }
-void Plugin_11::set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_LFO2VCO_frequency(get_Potentiometer(XPos, YPos, name));
+        assign_LFO2VCO_frequency(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_LFO2VCO_frequency(uint8_t value)
@@ -288,11 +261,11 @@ void Plugin_11::assign_LFO2VCO_frequency(uint8_t value)
     Lfo2Vco.frequency(value + 1);
 }
 
-void Plugin_11::set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_filter_frequency(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_filter_frequency(get_Potentiometer(XPos, YPos, name));
+        assign_filter_frequency(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_filter_frequency(uint8_t value)
@@ -304,11 +277,11 @@ void Plugin_11::assign_filter_frequency(uint8_t value)
     // ladder[i].frequency(frequency);
 }
 
-void Plugin_11::set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max)
+void Plugin_11::set_filter_resonance(uint8_t XPos, uint8_t YPos, float min, float max)
 {
     if (enc_moved[XPos])
     {
-        assign_filter_resonance(get_Potentiometer(XPos, YPos, name));
+        assign_filter_resonance(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_filter_resonance(uint8_t value)
@@ -319,11 +292,11 @@ void Plugin_11::assign_filter_resonance(uint8_t value)
     filter.resonance(reso);
     // ladder[i].resonance(reso);
 }
-void Plugin_11::set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_filter_sweep(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_filter_sweep(get_Potentiometer(XPos, YPos, name));
+        assign_filter_sweep(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_11::assign_filter_sweep(uint8_t value)
@@ -333,11 +306,11 @@ void Plugin_11::assign_filter_sweep(uint8_t value)
     filter.octaveControl(swp);
     // ladder[i].octaveControl(swp);
 }
-void Plugin_11::set_filter_type(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_11::set_filter_type(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        selectFilterType(constrain(get_Potentiometer(XPos, YPos, name), 0, 3));
+        selectFilterType(constrain(get_Potentiometer(XPos, YPos), 0, 3));
     }
 }
 void Plugin_11::selectFilterType(uint8_t mixerchannel)

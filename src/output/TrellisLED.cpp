@@ -142,7 +142,7 @@ void MyTrellis::show_clockbar(uint8_t trackNr, uint8_t step)
             trellis.clrLED(TrellisLED[((trackSeqLength / TICKS_PER_STEP) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
         }
       }
-      else
+      else if (trellisScreen >= TRELLIS_SCREEN_ARRANGER_1 && trellisScreen < TRELLIS_SCREEN_ARRANGER_16)
       {
         // if (step % 16 == 0)
         {
@@ -233,15 +233,33 @@ void MyTrellis::drawPerformPotrow(uint8_t prow)
 {
   for (int i = 0; i < NUM_STEPS; i++)
   {
-    trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, i, 7, TRELLIS_BLACK);
+    set_main_buffer(TRELLIS_SCREEN_PERFORM, i, 7, TRELLIS_BLACK);
   }
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4, 7, TRELLIS_BLUE);
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 1, 7, TRELLIS_RED);
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 2, 7, TRELLIS_GREEN);
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 3, 7, TRELLIS_WHITE);
-  trellisOut.writeDisplay();
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4, 7, TRELLIS_BLUE);
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 1, 7, TRELLIS_RED);
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 2, 7, TRELLIS_GREEN);
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 3, 7, TRELLIS_WHITE);
+  writeDisplay();
 }
+void MyTrellis::drawPerform(uint8_t prow)
+{
+  if (getActiveScreen() != TRELLIS_SCREEN_PERFORM)
+    return;
 
+  for (int x = 0; x < NUM_STEPS; x++)
+  {
+    for (int y = 0; y < NUM_TRACKS; y++)
+    {
+      set_main_buffer(TRELLIS_SCREEN_PERFORM, x, y, TRELLIS_BLACK);
+    }
+    set_main_buffer(TRELLIS_SCREEN_PERFORM, x, trellisPerformIndex[x], TRELLIS_WHITE);
+  }
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4, 7, TRELLIS_BLUE);
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 1, 7, TRELLIS_RED);
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 2, 7, TRELLIS_GREEN);
+  set_main_buffer(TRELLIS_SCREEN_PERFORM, prow * 4 + 3, 7, TRELLIS_WHITE);
+  writeDisplay();
+}
 void MyTrellis::drawSelectClip2Edit()
 {
   if (trellisScreen == TRELLIS_SCREEN_SELECT_CLIP2EDIT)
@@ -263,6 +281,49 @@ void MyTrellis::setActiveScreen(uint8_t screenNr)
 uint8_t MyTrellis::getActiveScreen()
 {
   return trellisScreen;
+}
+void MyTrellis::drawPlaymode()
+{
+
+  for (int i = 0; i < NUM_ENCODERS; i++)
+  {
+    int pot = i + (lastPotRow * NUM_ENCODERS);
+    int oldValuePos = allTracks[active_track]->get_seqModValue(pot) / 4.13f;
+
+    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (pot * 2)) % NUM_TRACKS;
+    for (int t = 0; t < NUM_TRACKS; t++)
+    {
+      trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, i, t, TRELLIS_BLACK);
+    }
+    Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", oldValueXPos, oldValueYPos, oldValuePos, pot);
+
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, oldValueXPos, oldValueYPos, encoder_colour[i]);
+  }
+  writeDisplay();
+}
+
+void MyTrellis::drawPlugin()
+{
+  int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  if (trackChannel <= NUM_MIDI_OUTPUTS)
+    return;
+    int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+  for (int i = 0; i < NUM_ENCODERS; i++)
+  {
+    int pot = i + (lastPotRow * NUM_ENCODERS);
+    int oldValuePos = getPluginValue(pot) / 4.13f;
+    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (pot * 2)) % NUM_TRACKS;
+    for (int t = 0; t < NUM_TRACKS; t++)
+    {
+      trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, i, t, TRELLIS_BLACK);
+    }
+    Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", oldValueXPos, oldValueYPos, oldValuePos, pot);
+
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[i]);
+  }
+  writeDisplay();
 }
 
 MyTrellis trellisOut;

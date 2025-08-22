@@ -85,6 +85,7 @@ public:
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
+        this->setParameterNames("W~Form", "Vol", "LFO-Freq", "LFO-Lvl", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Frq", "Resonance", "Sweep", "LPF", "0", "0", "0", "0");
     }
     virtual ~Plugin_2() = default;
 
@@ -93,38 +94,34 @@ public:
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
 
     virtual void set_parameters(uint8_t row) override;
-    virtual void draw_plugin() override;
     virtual void change_preset() override;
-virtual void set_gain(uint8_t gain) override;
-    void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
-    void assign_voice_waveform(uint8_t value); // make virtual in baseclass but override
-    void set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    virtual void set_gain(uint8_t gain) override;
+    void set_voice_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
+    void assign_voice_waveform(uint8_t value);           // make virtual in baseclass but override
+    void set_voice_amplitude(uint8_t XPos, uint8_t YPos);
     void assign_voice_amplitude(uint8_t value);
 
-    void set_LFO_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
-    void assign_LFO_waveform(uint8_t value); // make virtual in baseclass but override
-    void set_LFO_frequency(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_LFO_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
+    void assign_LFO_waveform(uint8_t value);           // make virtual in baseclass but override
+    void set_LFO_frequency(uint8_t XPos, uint8_t YPos);
     void assign_LFO_frequency(uint8_t value); // make virtual in baseclass but override
 
-
-    void set_LFO_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_LFO_amplitude(uint8_t XPos, uint8_t YPos);
     void assign_LFO_amplitude(uint8_t value);
 
-    void set_DC_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_DC_amplitude(uint8_t XPos, uint8_t YPos);
     void assign_DC_amplitude(uint8_t value);
 
-    void set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos);
     void assign_LFO2VCO_amplitude(uint8_t value);
-    void set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos);
     void assign_LFO2VCO_frequency(uint8_t value); // make virtual in baseclass but override
 
-    void set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
-    void set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_filter_type(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_filter_frequency(uint8_t XPos, uint8_t YPos);
+    void set_filter_resonance(uint8_t XPos, uint8_t YPos, float min, float max);
+    void set_filter_sweep(uint8_t XPos, uint8_t YPos);
+    void set_filter_type(uint8_t XPos, uint8_t YPos);
     void selectFilterType(uint8_t mixerchannel);
-
-   
 
     void assign_filter_frequency(uint8_t value);
     void assign_filter_resonance(uint8_t value);
@@ -135,12 +132,6 @@ virtual void set_gain(uint8_t gain) override;
     void assign_envelope_decay(uint8_t value, int max);
     void assign_envelope_sustain(uint8_t value);
     void assign_envelope_release(uint8_t value, int max);
-
-     void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max);
-
 };
 
 #endif // PLUGIN_2_H

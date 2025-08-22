@@ -65,7 +65,7 @@ void Plugin_3::setup()
 void Plugin_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     Serial.println("2FM-NoteOn");
-     float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     float carrier_frequency = note_frequency[notePlayed] * tuning;
     float modulator_frequency = carrier_frequency * modulator_ratio;
@@ -86,32 +86,27 @@ void Plugin_3::set_parameters(uint8_t row)
     {
         if (row == 0)
         {
-            set_mod_waveform(0, 0, "mW~Form");
-            set_mod_ratio(1, 0, "mRatio");
-            set_mod_amplitude(2, 0, "mVolume");
-            set_car_waveform(3, 0, "cW~Form");
+            set_mod_waveform(0, 0);
+            set_mod_ratio(1, 0);
+            set_mod_amplitude(2, 0);
+            set_car_waveform(3, 0);
         }
 
         if (row == 1)
         {
-            set_envelope_mattack(0, 1, "mAttack", 0, 1000);
-            set_envelope_mdecay(1, 1, "mDecay", 0, 500);
-            set_envelope_msustain(2, 1, "mSustain");
-            set_envelope_mrelease(3, 1, "mRelease", 0, 2000);
+            set_envelope_mattack(0, 1, 0, 1000);
+            set_envelope_mdecay(1, 1, 0, 500);
+            set_envelope_msustain(2, 1);
+            set_envelope_mrelease(3, 1, 0, 2000);
         }
 
         if (row == 2)
         {
-            set_envelope_ADSR(2, 1000, 500, 2000);
-
-            // set_envelope_attack(0, 2, "Attack", 0, 1000);
-            // set_envelope_decay(1, 2, "Decay", 0, 500);
-            // set_envelope_sustain(2, 2, "Sustain");
-            // set_envelope_release(3, 2, "Release", 0, 2000);
         }
 
         if (row == 3)
         {
+            set_envelope_ADSR(3, 1000, 500, 2000);
         }
     }
     if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -119,36 +114,7 @@ void Plugin_3::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
-void Plugin_3::draw_plugin()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
 
-        drawPot(0, 0, potentiometer[presetNr][0], "mW~Form");
-        drawPot(1, 0, potentiometer[presetNr][1], "mRatio");
-        drawPot(2, 0, potentiometer[presetNr][2], "mVolume");
-        drawPot(3, 0, potentiometer[presetNr][3], "cW~Form");
-
-        // drawPot(0, 2, potentiometer[8], "Filt-Frq");
-        // drawPot(1, 2, potentiometer[9], "Resonance");
-        // drawPot(2, 2, potentiometer[10], "Sweep");
-        // drawPot(3, 2, potentiometer[10], "Type");
-        drawPot(0, 1, potentiometer[presetNr][4], "mAttack");
-        drawPot(1, 1, potentiometer[presetNr][5], "mDecay");
-        drawPot(2, 1, potentiometer[presetNr][6], "mSustain");
-        drawPot(3, 1, potentiometer[presetNr][7], "mRelease");
-
-        // drawPot(0, 2, potentiometer[presetNr][8], "Attack");
-        //  drawPot(1, 2, potentiometer[presetNr][9], "Decay");
-        //  drawPot(2, 2, potentiometer[presetNr][10], "Sustain");
-        //  drawPot(3, 2, potentiometer[presetNr][11], "Release");
-        drawEnvelope(2, potentiometer[presetNr][12], potentiometer[presetNr][13],
-                     potentiometer[presetNr][14], potentiometer[presetNr][15]);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-    }
-}
 void Plugin_3::change_preset()
 {
     assign_mod_waveform(potentiometer[presetNr][0]);
@@ -168,17 +134,17 @@ void Plugin_3::change_preset()
 }
 void Plugin_3::set_gain(uint8_t gain)
 {
-    MixerGain= gain;
+    MixerGain = gain;
 }
 void Plugin_3::get_peak()
 {
     // Serial.printf("Pl3: %f  ", peak.read());
 }
-void Plugin_3::set_mod_waveform(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_3::set_mod_waveform(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_mod_waveform(get_Potentiometer(XPos, YPos, name));
+        assign_mod_waveform(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_3::assign_mod_waveform(uint8_t value)
@@ -186,11 +152,11 @@ void Plugin_3::assign_mod_waveform(uint8_t value)
     int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
     modulator.begin(walveform);
 }
-void Plugin_3::set_mod_amplitude(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_3::set_mod_amplitude(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_mod_amplitude(get_Potentiometer(XPos, YPos, name));
+        assign_mod_amplitude(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_3::assign_mod_amplitude(uint8_t value)
@@ -198,11 +164,11 @@ void Plugin_3::assign_mod_amplitude(uint8_t value)
     float ampl = (float)(value / MIDI_CC_RANGE_FLOAT);
     modulator.amplitude(ampl);
 }
-void Plugin_3::set_mod_ratio(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_3::set_mod_ratio(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_mod_ratio(get_Potentiometer(XPos, YPos, name));
+        assign_mod_ratio(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_3::assign_mod_ratio(uint8_t value)
@@ -211,11 +177,11 @@ void Plugin_3::assign_mod_ratio(uint8_t value)
     modulator_ratio = ratios[rationem];
 }
 
-void Plugin_3::set_car_waveform(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_3::set_car_waveform(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_car_waveform(get_Potentiometer(XPos, YPos, name));
+        assign_car_waveform(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_3::assign_car_waveform(uint8_t value)
@@ -223,49 +189,12 @@ void Plugin_3::assign_car_waveform(uint8_t value)
     int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
     carrier.begin(walveform);
 }
-/*
-void Plugin_3::set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int attack = map(get_Potentiometer(XPos, YPos, name), 0, MIDI_CC_RANGE, min, max);
 
-        outEnv.attack(attack);
-    }
-}
-void Plugin_3::set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_mattack(uint8_t XPos, uint8_t YPos, int min, int max)
 {
     if (enc_moved[XPos])
     {
-        int decay = map(get_Potentiometer(XPos, YPos, name), 0, MIDI_CC_RANGE, min, max);
-
-        outEnv.decay(decay);
-    }
-}
-void Plugin_3::set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = (float)(get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT);
-
-        outEnv.sustain(sustain);
-    }
-}
-void Plugin_3::set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int release = map(get_Potentiometer(XPos, YPos, name), 0, MIDI_CC_RANGE, min, max);
-
-        outEnv.release(release);
-    }
-}
-*/
-void Plugin_3::set_envelope_mattack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        assign_envelope_mattack(get_Potentiometer(XPos, YPos, name), max);
+        assign_envelope_mattack(get_Potentiometer(XPos, YPos), max);
     }
 }
 void Plugin_3::assign_envelope_mattack(uint8_t value, int max)
@@ -273,11 +202,11 @@ void Plugin_3::assign_envelope_mattack(uint8_t value, int max)
     int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
     modEnv.attack(attack);
 }
-void Plugin_3::set_envelope_mdecay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_mdecay(uint8_t XPos, uint8_t YPos, int min, int max)
 {
     if (enc_moved[XPos])
     {
-        assign_envelope_mdecay(get_Potentiometer(XPos, YPos, name), max);
+        assign_envelope_mdecay(get_Potentiometer(XPos, YPos), max);
     }
 }
 void Plugin_3::assign_envelope_mdecay(uint8_t value, int max)
@@ -285,11 +214,11 @@ void Plugin_3::assign_envelope_mdecay(uint8_t value, int max)
     int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
     modEnv.decay(decay);
 }
-void Plugin_3::set_envelope_msustain(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_3::set_envelope_msustain(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
-        assign_envelope_msustain(get_Potentiometer(XPos, YPos, name));
+        assign_envelope_msustain(get_Potentiometer(XPos, YPos));
     }
 }
 void Plugin_3::assign_envelope_msustain(uint8_t value)
@@ -297,11 +226,11 @@ void Plugin_3::assign_envelope_msustain(uint8_t value)
     float sustain = (float)(value / MIDI_CC_RANGE_FLOAT);
     modEnv.sustain(sustain);
 }
-void Plugin_3::set_envelope_mrelease(uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
+void Plugin_3::set_envelope_mrelease(uint8_t XPos, uint8_t YPos, int min, int max)
 {
     if (enc_moved[XPos])
     {
-        assign_envelope_mrelease(get_Potentiometer(XPos, YPos, name), max);
+        assign_envelope_mrelease(get_Potentiometer(XPos, YPos), max);
     }
 }
 void Plugin_3::assign_envelope_mrelease(uint8_t value, int max)

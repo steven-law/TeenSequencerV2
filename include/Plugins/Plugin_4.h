@@ -72,18 +72,19 @@ public:
             patchCord[pci++] = new AudioConnection(playMem[i], 0, AEnv[i], 0);
             patchCord[pci++] = new AudioConnection(AEnv[i], 0, mixer, i);
         }
+        setParameterNames("Bk K","Bk C","Bk H","Bk S","Bk P","Bk F","Bk X","Bk *","Vol","Vol","Vol","Vol","Vol","Vol","Vol","Vol");
     }
     virtual ~Plugin_4() = default;
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void set_parameters(uint8_t row) override;
-    virtual void draw_plugin() override;
+
     virtual void change_preset() override;
     virtual void set_gain(uint8_t gain) override;
-    void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_mixer_gain(uint8_t XPos, uint8_t YPos);
     void assign_mixer_gain(uint8_t value, uint8_t channel);
-    void set_waveform(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_waveform(uint8_t XPos, uint8_t YPos);
     void assign_waveform(uint8_t value, uint8_t channel);
 };
 

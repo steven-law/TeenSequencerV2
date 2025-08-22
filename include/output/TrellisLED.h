@@ -40,6 +40,9 @@ public:
     void trellis_assign_start_buffer(uint8_t _lastPotRow);
     void drawPiano();
     void drawPerformPotrow(uint8_t prow);
+    void drawPerform(uint8_t prow);
+    void drawPlaymode();
+    void drawPlugin();
 };
 
 extern MyTrellis trellisOut;

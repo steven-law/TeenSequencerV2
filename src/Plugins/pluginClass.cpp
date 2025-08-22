@@ -17,10 +17,36 @@ void PluginControll::setup() {}
 void PluginControll::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void PluginControll::noteOff(uint8_t notePlayed, uint8_t voice) {}
 void PluginControll::set_parameters(uint8_t row) {}
-void PluginControll::draw_plugin() {}
 void PluginControll::change_preset() {}
 void PluginControll::set_gain(uint8_t gain) {}
 
+void PluginControll::setParameterNames(char *para1, char *para2, const char *para3, const char *para4,
+                                       const char *para5, const char *para6, const char *para7, const char *para8,
+                                       const char *para9, const char *para10, const char *para11, const char *para12,
+                                       const char *para13, const char *para14, const char *para15, const char *para16)
+{
+    parameterNames[0] = *para1;
+    parameterNames[1] = *para2;
+    parameterNames[2] = *para3;
+    parameterNames[3] = *para4;
+    parameterNames[4] = *para5;
+    parameterNames[5] = *para6;
+    parameterNames[6] = *para7;
+    parameterNames[7] = *para8;
+    parameterNames[8] = *para9;
+    parameterNames[9] = *para10;
+    parameterNames[10] = *para11;
+    parameterNames[11] = *para12;
+    parameterNames[12] = *para13;
+    parameterNames[13] = *para14;
+    parameterNames[14] = *para15;
+    parameterNames[15] = *para16;
+}
+void PluginControll::setFXParameterNames(const char *para1, const char *para2)
+{
+    parameterNames[0] = *para1;
+    parameterNames[1] = *para2;
+}
 void PluginControll::set_presetNr()
 {
     if (enc_moved[PRESET_ENCODER])
@@ -30,13 +56,21 @@ void PluginControll::set_presetNr()
         draw_plugin();
     }
 }
-uint8_t PluginControll::get_Potentiometer(uint8_t XPos, uint8_t YPos, const char *name)
+uint8_t PluginControll::get_Potentiometer(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
     potentiometer[presetNr][n] = constrain(potentiometer[presetNr][n] + encoded[XPos], 0, MIDI_CC_RANGE);
-    drawPot(XPos, YPos, potentiometer[presetNr][n], name);
+    if (parameterNames[n] != *"0")
+        drawPot(XPos, YPos, potentiometer[presetNr][n], &parameterNames[n]);
     // Serial.println(potentiometer[presetNr][n]);
     return potentiometer[presetNr][n];
+}
+void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
+{
+    int Xpos = pot % NUM_ENCODERS;
+    int Ypos = pot / NUM_ENCODERS;
+    potentiometer[presetNr][pot] = value;
+    drawPot(Xpos, Ypos, potentiometer[presetNr][pot], name);
 }
 
 void PluginControll::save_plugin(uint8_t _songNr)
@@ -118,4 +152,29 @@ void PluginControll::load_plugin(uint8_t _songNr)
     }
     change_preset();
     Serial.println("plugin loading Done:");
+}
+void PluginControll::draw_plugin()
+{
+    if (change_plugin_row)
+    {
+        change_plugin_row = false;
+        for (int i = 0; i < NUM_PARAMETERS; i++)
+        {
+            if (parameterNames[i] != *"0")
+            {
+                int xPos = i % NUM_ENCODERS;
+                int yPos = i / NUM_ENCODERS;
+                drawPot(xPos, yPos, potentiometer[presetNr][0], &parameterNames[0]);
+                Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
+            }
+        }
+
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Preset", ILI9341_BLUE, 2, false, false);
+        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
+        if (myID == 2 || myID == 3 || myID == 6 || myID == 8 || myID == 9 || myID == 10 || myID == 11 || myID == 12 || myID == 13 || myID == 14)
+        {
+            drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
+                         potentiometer[presetNr][14], potentiometer[presetNr][15]);
+        }
+    }
 }

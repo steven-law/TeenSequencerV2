@@ -25,7 +25,7 @@ public:
     AudioAmplifier pl[NUM_PLUGINS];
     AudioMixer16 FX_mixer;
     AudioEffectFreeverb freeverb;
-    
+
     AudioConnection *patchCord[NUM_PLUGINS * 2 + 1]; // total patchCordCount:46 including array typed ones.
 
     FX_1(const char *Name, uint8_t ID) : PluginControll(Name, ID)
@@ -48,7 +48,7 @@ public:
         patchCord[pci++] = new AudioConnection(plugin_14.MixGain, 0, pl[13], 0);
         for (int i = 0; i < NUM_PLUGINS; i++)
         {
-            
+
             patchCord[pci++] = new AudioConnection(pl[i], 0, FX_mixer, i);
         }
 
@@ -61,10 +61,9 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void set_parameters(uint8_t row) override;
-    virtual void draw_plugin() override;
     virtual void change_preset() override;
-virtual void set_gain(uint8_t gain) override;
-    void set_RV_roomsize(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_RC_damping(uint8_t XPos, uint8_t YPos, const char *name);
+    virtual void set_gain(uint8_t gain) override;
+    void set_RV_roomsize(uint8_t XPos, uint8_t YPos);
+    void set_RC_damping(uint8_t XPos, uint8_t YPos);
 };
 #endif // FX_1_H

@@ -45,6 +45,7 @@
 // #define TRELLIS_LIGHTBLUE #ADD8E6
 
 #define TRELLIS_1 0x000066
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_8 8
 
 #define TRELLIS_SCREEN_PIANO 10
 #define TRELLIS_SCREEN_MIXER 12
@@ -54,13 +55,15 @@
 
 #define TRELLIS_SCREEN_ARRANGER_1 16
 #define TRELLIS_SCREEN_ARRANGER_16 TRELLIS_SCREEN_ARRANGER_1 + 16
+#define TRELLIS_SCREEN_PLAYMODE TRELLIS_SCREEN_ARRANGER_16 +8
+#define TRELLIS_SCREEN_PLUGIN TRELLIS_SCREEN_PLAYMODE +1
 
 #define TRELLIS_SCREEN_SELECT_CLIP2EDIT 95
 #define TRELLIS_SCREEN_SELECT_MIXERPAGE 96
 #define TRELLIS_SCREEN_SELECT_ARRANGERPAGE 97
 #define TRELLIS_SCREEN_SAVE_LOAD 98
 #define TRELLIS_SCREEN_STARTUP 99
-#define TRELLIS_MAX_PAGES TRELLIS_SCREEN_ARRANGER_16 + 1
+#define TRELLIS_MAX_PAGES TRELLIS_SCREEN_PLUGIN + 1
 
 
 extern File myFile;
@@ -75,6 +78,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define NUM_CHORDS 34
 #define NUM_CHORD_VOLUMES 81
 #define NUM_FX 3
+#define NUM_PARAMETERS 16
 
 #define NUM_TRACKS 8
 #define NUM_STEPS 16
@@ -205,17 +209,15 @@ extern uint8_t sgtlparameter[16];
 // #define TRELLIS_LIGHTBLUE #ADD8E6
 
 #define numKeys (NUMTRELLIS * 16)
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_8 8
 
 
 extern bool trellisShowClockPixel[TRELLIS_PADS_Y_DIM];
 extern int trellisTrackColor[9];
 extern int trackColor[9];
-
+extern const uint8_t eigthTo127[8];
 extern uint8_t trellisPerformIndex[TRELLIS_PADS_X_DIM];
 extern uint8_t performCC[TRELLIS_PADS_X_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
-extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern bool trellisHeld[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern uint8_t lastPressedKey;
 extern bool trellisIsPressed;

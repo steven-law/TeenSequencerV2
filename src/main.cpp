@@ -74,8 +74,16 @@ void play_plugin_on_DAC(uint8_t _track, uint8_t _pluginNr);
 
 // some trellis
 void trellis_show_tft_mixer();
-void trellis_play_mixer();
 void trellis_perform();
+void neotrellis_show_plugin();
+void trellis_play_plugins();
+uint8_t getPluginValue(uint8_t pot);
+uint8_t getPluginValue(uint8_t pot)
+{
+  int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+  return allPlugins[pluginChannel]->get_Potentiometer(pot, lastPotRow);
+}
 
 void sendCCToActiveTracks(uint8_t cc, uint8_t val);
 void printInfo(const char *label, int val, uint8_t cc);
@@ -464,7 +472,8 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
     neotrellis_SetCursor(14);
-    trellis_setStepsequencer();
+    trellis_play_playmode();
+    // trellis_setStepsequencer();
     allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
 
     break;
@@ -477,8 +486,9 @@ void input_behaviour()
       allTracks[active_track]->set_MIDI_CC(lastPotRow);
     else if (trackChannel > NUM_MIDI_OUTPUTS)
       MasterOut.set_parameters(trackChannel - 49, lastPotRow);
+    trellis_play_plugins();
     neotrellis_SetCursor(14);
-    trellis_setStepsequencer();
+    // trellis_setStepsequencer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER1:
@@ -489,39 +499,39 @@ void input_behaviour()
   }
   case INPUT_FUNCTIONS_FOR_MIXER2:
   {
-    trellis_play_mixer();
     set_mixer_FX_page1();
-
+    trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER3:
   {
-    trellis_play_mixer();
     set_mixer_FX_page2();
+    trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_FX1:
   {
-    trellis_play_mixer();
     fx_1.set_parameters(lastPotRow);
+    trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_FX2:
   {
-    trellis_play_mixer();
     fx_2.set_parameters(lastPotRow);
+    trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_FX3:
   {
-    trellis_play_mixer();
     fx_3.set_parameters(lastPotRow);
+    trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_PERFORM:
   {
-    trellis_perform();
     neotrellis_perform_set_active();
+    trellis_perform();
+
     break;
   }
   case INPUT_FUNCTIONS_FOR_CLIPLAUNCHER:
@@ -962,6 +972,7 @@ void trellis_play_mixer()
       Serial.printf("trellis play mixer track: %d, gain: %d, trackchannel: %d\n", t, _gain[s], trackChannel);
       draw_infobox("Track: ", t, "Main Vol =  ", _gain[s]);
       revertPressedKey();
+      trellisOut.writeDisplay();
     }
   }
   if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER)
@@ -1018,6 +1029,7 @@ void trellis_play_mixer()
         // change_plugin_row=true;
       }
       revertPressedKey();
+      trellisOut.writeDisplay();
     }
   }
 }
@@ -1070,9 +1082,9 @@ void trellis_perform()
     int t = key / TRELLIS_PADS_X_DIM;
     int col = key % TRELLIS_PADS_X_DIM;
     int row = key / TRELLIS_PADS_X_DIM;
-    int value = 127 - (t * 16);
+    int value = eigthTo127[t];
     trellisPerformIndex[col] = row;
-
+    trellisOut.drawPerform(lastPotRow);
     switch (col)
     {
     case 0:
@@ -1216,6 +1228,61 @@ void trellis_perform()
   }
 
   set_perform_page(lastPotRow);
+}
+void trellis_play_plugins()
+{
+  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PLUGIN)
+    return;
+  int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  if (trackChannel <= NUM_MIDI_OUTPUTS)
+    return;
+  if (isPressed())
+  {
+    int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
+
+    int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+
+    int oldValuePos = allPlugins[pluginChannel]->get_Potentiometer(pot % NUM_ENCODERS, lastPotRow) / 4.13f;
+    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (pot * 2)) % NUM_TRACKS;
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, TRELLIS_BLACK);
+
+    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.13f;
+    int valueXPos = getPressedKey() % NUM_STEPS;
+    int valueYPos = getPressedKey() / NUM_STEPS;
+
+    allPlugins[pluginChannel]->set_Potentiometer(pot, value);
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, valueXPos, valueYPos, encoder_colour[pot]);
+    trellisOut.writeDisplay();
+    revertPressedKey();
+  }
+}
+void neotrellis_show_plugin()
+{
+  if (neotrellisPressed[TRELLIS_BUTTON_PLUGIN])
+  {
+    for (int i = 0; i < NUM_TRACKS; i++)
+    {
+      if (neotrellisPressed[3 + ((i + 4) * X_DIM)])
+      {
+        neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
+        active_track = i;
+        clearWorkSpace();
+        show_active_page_info("Track", i + 1);
+
+        int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+        if (trackChannel <= NUM_MIDI_OUTPUTS)
+          draw_MIDI_CC_screen();
+        else
+          allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->draw_plugin();
+        activeScreen = INPUT_FUNCTIONS_FOR_PLUGIN;
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_PLUGIN);
+        trellisOut.drawPlugin();
+        neotrellis_set_control_buffer(2, 3, trellisTrackColor[active_track]);
+        break;
+      }
+    }
+  }
 }
 
 // Mixer

@@ -4,7 +4,7 @@
 #include <Plugins/pluginClass.h>
 #include <SerialFlash.h>
 #include "TeensyVariablePlayback.h"
-//#include "flashloader.h"
+// #include "flashloader.h"
 ////#include "hardware/tftClass.h"
 // class tftClass;
 //  TeensyDAW: begin automatically generated code
@@ -39,13 +39,13 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void  set_input_level(uint8_t _value);
+void set_input_level(uint8_t _value);
 class Plugin_14 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
-  AudioInputI2S audioInput;
-  AudioAmplifier inputGain;
+    AudioInputI2S audioInput;
+    AudioAmplifier inputGain;
     AudioAnalyzePeak peak1;  // xy=278,108
     AudioRecordQueue queue1; // xy=281,63
     AudioPlaySdResmp playMem;
@@ -65,7 +65,7 @@ public:
     char *_playFilename;
     char *_recFilename;
     bool audio_rec_now;
-    bool startrecording=false;
+    bool startrecording = false;
     // constructor (this is called when class-object is created)
     Plugin_14(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
@@ -87,7 +87,7 @@ public:
         patchCord[pci++] = new AudioConnection(inputGain, 0, queue1, 0);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-
+        setParameterNames("Rec W~F", "Rec Vol", "Play W~F", "Play Vol", "0", "0", "0", "0", "Filter-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         //  patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }
@@ -98,16 +98,16 @@ public:
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
 
     virtual void set_parameters(uint8_t row) override;
-    virtual void draw_plugin() override;
+
     virtual void change_preset() override;
-virtual void set_gain(uint8_t gain) override;
-    void set_rec_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
+    virtual void set_gain(uint8_t gain) override;
+    void set_rec_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
     void assign_rec_waveform(uint8_t value);
-    void set_rec_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_rec_amplitude(uint8_t XPos, uint8_t YPos);
     void assign_rec_amplitude(uint8_t value);
-    void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
+    void set_voice_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
     void assign_voice_waveform(uint8_t value);                             // make virtual in baseclass but override
-    void set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_voice_amplitude(uint8_t XPos, uint8_t YPos);
     void assign_voice_amplitude(uint8_t value);
     void draw_actual_waveform(uint8_t YPos);
     // draw waveforms
@@ -116,17 +116,13 @@ virtual void set_gain(uint8_t gain) override;
     void redraw_customWaveform(int8_t YPos);
     void smooth_customWaveform(uint8_t YPos);
     void show_peak();
-    void set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
-    void set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_filter_type(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_filter_frequency(uint8_t XPos, uint8_t YPos);
+    void set_filter_resonance(uint8_t XPos, uint8_t YPos, float min, float max);
+    void set_filter_sweep(uint8_t XPos, uint8_t YPos);
+    void set_filter_type(uint8_t XPos, uint8_t YPos);
     void selectFilterType(uint8_t mixerchannel);
 
     void set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
-    void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max);
 
     void assign_filter_frequency(uint8_t value);
     void assign_filter_resonance(uint8_t value);
@@ -138,7 +134,7 @@ virtual void set_gain(uint8_t gain) override;
     void assign_envelope_release(uint8_t value, int max);
     void recorder_Page1_Dynamic();
     void startRecording();
-void stopRecording();
+    void stopRecording();
     void continueRecording();
 };
 #endif // PLUGIN_10_H

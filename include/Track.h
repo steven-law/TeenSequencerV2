@@ -37,7 +37,6 @@
 #define ENCODER_PROBABILITY 0
 #define ENCODER_HUMANIZE 1
 
-#define NUM_PARAMETERS 16
 
 extern File myFile;
 // Encoder Pins
@@ -67,6 +66,7 @@ public:
     File myTrackFile;
     uint8_t my_Arranger_Y_axis;
     int16_t parameter[16]{0, 0, 128, 99, MAX_TICKS, 1, 3, 5, 0, 0, 0, 0, 0, 0, 129, 0};
+
     // Stepsequencer
     struct tick_t
     {
@@ -222,6 +222,8 @@ public:
     void draw_sequencer_modes(uint8_t mode);
     void play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end);
     void set_seq_mode_parameters(uint8_t row);
+    void set_seqModValue(uint8_t param,uint8_t value);//value 0-127
+    uint8_t get_seqModValue(uint8_t param);//value 0-127
     // midi CC
     void set_MIDI_CC(uint8_t row);
 
@@ -236,7 +238,7 @@ private:
 
     bool note_is_on[MAX_VOICES] = {false, false, true, true, true, true, true, true, true, true, true, true};
     uint8_t seqMod_value[NUM_PLAYMODES][NUM_PRESETS][16];
-    uint8_t seqModNoteMemory[NUM_STEPS];
+    uint8_t seqModNoteMemory[MAX_VOICES][NUM_STEPS];
     uint8_t SeqMod6Value2[16];
     uint8_t PMpresetNr = 0;
     uint8_t maxVal;
@@ -265,11 +267,11 @@ private:
     void play_seq_mode4(uint8_t cloock);
     void play_seq_mode5(uint8_t cloock);
     void play_seq_mode6(uint8_t cloock);
-    void set_seq_mode6_value(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_seq_mode6_value(uint8_t XPos, uint8_t YPos);
     void play_seq_mode7(uint8_t cloock);
-    void set_seq_mode7_value(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_seq_mode7_value(uint8_t XPos, uint8_t YPos);
     void play_seq_mode8(uint8_t cloock);
-    void select_file(uint8_t XPos, uint8_t YPos, const char *name);
+    void select_file(uint8_t XPos, uint8_t YPos);
     void refresh_mode8();
 
     void play_seq_mode9(uint8_t cloock);

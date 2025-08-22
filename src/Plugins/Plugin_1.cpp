@@ -30,8 +30,8 @@ void Plugin_1::setup()
 void Plugin_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
-    
-    mixer.gain(voice, (velocity*(potentiometer[presetNr][voice]/MIDI_CC_RANGE_FLOAT)));
+
+    mixer.gain(voice, (velocity * (potentiometer[presetNr][voice] / MIDI_CC_RANGE_FLOAT)));
     string[voice].noteOn(frequency, velocity);
     // Serial.printf("ON voice: %d, freq: %f \n", voice, frequency);
 }
@@ -48,27 +48,27 @@ void Plugin_1::set_parameters(uint8_t row)
         if (row == 0)
         {
 
-            set_mixer_gain(0, 0, "Vol");
-            set_mixer_gain(1, 0, "Vol");
-            set_mixer_gain(2, 0, "Vol");
-            set_mixer_gain(3, 0, "Vol");
+            set_mixer_gain(0, 0);
+            set_mixer_gain(1, 0);
+            set_mixer_gain(2, 0);
+            set_mixer_gain(3, 0);
         }
 
         if (row == 1)
         {
 
-            set_mixer_gain(0, 1, "Vol");
-            set_mixer_gain(1, 1, "Vol");
-            set_mixer_gain(2, 1, "Vol");
-            set_mixer_gain(3, 1, "Vol");
+            set_mixer_gain(0, 1);
+            set_mixer_gain(1, 1);
+            set_mixer_gain(2, 1);
+            set_mixer_gain(3, 1);
         }
 
         if (row == 2)
         {
-            set_mixer_gain(0, 2, "Vol");
-            set_mixer_gain(1, 2, "Vol");
-            set_mixer_gain(2, 2, "Vol");
-            set_mixer_gain(3, 2, "Vol");
+            set_mixer_gain(0, 2);
+            set_mixer_gain(1, 2);
+            set_mixer_gain(2, 2);
+            set_mixer_gain(3, 2);
         }
 
         if (row == 3)
@@ -80,32 +80,7 @@ void Plugin_1::set_parameters(uint8_t row)
         set_presetNr();
     }
 }
-void Plugin_1::draw_plugin()
-{
-    if (change_plugin_row)
-    {
-        change_plugin_row = false;
-        // Serial.println("drawing plugin 1");
-        drawPot(0, 0, potentiometer[presetNr][0], "Vol");
-        drawPot(1, 0, potentiometer[presetNr][1], "Vol");
-        drawPot(2, 0, potentiometer[presetNr][2], "Vol");
-        drawPot(3, 0, potentiometer[presetNr][3], "Vol");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Vol");
-        drawPot(1, 1, potentiometer[presetNr][5], "Vol");
-        drawPot(2, 1, potentiometer[presetNr][6], "Vol");
-        drawPot(3, 1, potentiometer[presetNr][7], "Vol");
-
-        drawPot(0, 2, potentiometer[presetNr][8], "Vol");
-        drawPot(1, 2, potentiometer[presetNr][9], "Vol");
-        drawPot(2, 2, potentiometer[presetNr][10], "Vol");
-        drawPot(3, 2, potentiometer[presetNr][11], "Vol");
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
-        draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-
-        // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
-    }
-}
 void Plugin_1::change_preset()
 {
     for (int i = 0; i < MAX_VOICES; i++)
@@ -115,14 +90,14 @@ void Plugin_1::change_preset()
 }
 void Plugin_1::set_gain(uint8_t gain)
 {
-    MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
+    MixGain.gain(gain / MIDI_CC_RANGE_FLOAT);
 }
-void Plugin_1::set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name)
+void Plugin_1::set_mixer_gain(uint8_t XPos, uint8_t YPos)
 {
     if (enc_moved[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        assign_mixer_gain(get_Potentiometer(XPos, YPos, name), n);
+        assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
     }
 }
 void Plugin_1::assign_mixer_gain(uint8_t value, uint8_t channel)

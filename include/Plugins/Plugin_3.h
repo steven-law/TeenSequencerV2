@@ -72,6 +72,7 @@ public:
         patchCord[pci++] = new AudioConnection(outEnv, 0, MixGain, 0);
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         //  patchCord[pci++] = new AudioConnection(MixGain, 0, dacOut, 0);
+        setParameterNames("mW~Form", "mRatio", "mVolume", "cW~Form", "mAttack", "mDecay", "mSustain", "mRelease", "0", "0", "0", "0", "0", "0", "0", "0");
     }
     virtual ~Plugin_3() = default;
 
@@ -79,33 +80,29 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void set_parameters(uint8_t row) override;
-    virtual void draw_plugin() override;
+
     virtual void change_preset() override;
-virtual void set_gain(uint8_t gain) override;
+    virtual void set_gain(uint8_t gain) override;
     void get_peak();
-    void set_mod_waveform(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_mod_waveform(uint8_t XPos, uint8_t YPos);
     void assign_mod_waveform(uint8_t value);
 
-    void set_mod_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_mod_amplitude(uint8_t XPos, uint8_t YPos);
     void assign_mod_amplitude(uint8_t value);
-    void set_mod_ratio(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_mod_ratio(uint8_t XPos, uint8_t YPos);
     void assign_mod_ratio(uint8_t value);
-    void set_car_waveform(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_car_waveform(uint8_t XPos, uint8_t YPos);
     void assign_car_waveform(uint8_t value);
 
-    // void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
-    // void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
-    // void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
-    // void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
-
-    void set_envelope_mattack(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
-void assign_envelope_mattack(uint8_t value,int max);
-void assign_envelope_mdecay(uint8_t value,int max);
-void assign_envelope_msustain(uint8_t value);
-void assign_envelope_mrelease(uint8_t value,int max);
-    void set_envelope_mdecay(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
-    void set_envelope_msustain(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_envelope_mrelease(uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+ 
+    void set_envelope_mattack(uint8_t XPos, uint8_t YPos, int min, int max);
+    void assign_envelope_mattack(uint8_t value, int max);
+    void assign_envelope_mdecay(uint8_t value, int max);
+    void assign_envelope_msustain(uint8_t value);
+    void assign_envelope_mrelease(uint8_t value, int max);
+    void set_envelope_mdecay(uint8_t XPos, uint8_t YPos, int min, int max);
+    void set_envelope_msustain(uint8_t XPos, uint8_t YPos);
+    void set_envelope_mrelease(uint8_t XPos, uint8_t YPos, int min, int max);
 
     void set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
     void assign_envelope_attack(uint8_t value, int max);

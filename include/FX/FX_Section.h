@@ -15,10 +15,7 @@
 class FX_Section
 {
 public:
-    //   uint8_t FX2_Potentiomer[2];
     uint8_t FX3_Potentiomer[2];
-    // AudioAnalyzePeak peak3;
-    // AudioAnalyzePeak peak2;
     AudioAmplifier dry[NUM_PLUGINS];
     AudioMixer16 dry_mixer;
     // AudioMixer12 FX3_mixer;
@@ -83,7 +80,7 @@ public:
         endmixer.gain(2, 1);
         endmixer.gain(3, 1);
     }
-   
+
     void get_peak()
     {
         // Serial.printf("FX2: %f , FX3: %f \n", peak2.read(), peak3.read());

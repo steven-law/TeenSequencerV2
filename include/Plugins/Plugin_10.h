@@ -12,11 +12,11 @@
 #include <Plugins/AudioSamples/AudioSamples.h>
 #include "ownLibs/filter_ladderlite.h"
 ////#include "hardware/tftClass.h"
-//class tftClass;
-// TeensyDAW: begin automatically generated code
-// Name: 1Osc
-// Description: Soundfont Synthesizer
-// Voices: 1
+// class tftClass;
+//  TeensyDAW: begin automatically generated code
+//  Name: 1Osc
+//  Description: Soundfont Synthesizer
+//  Voices: 1
 
 // VCO
 // Pot 1: Waveform
@@ -56,7 +56,7 @@ public:
     AudioEffectEnvelope Aenv;
     // AudioMixer12 mixer;
     AudioAmplifier MixGain;
-    //AudioAmplifier SongVol;
+    // AudioAmplifier SongVol;
     AudioConnection *patchCord[8]; // total patchCordCount:98 including array typed ones.
 
     // constructor (this is called when class-object is created)
@@ -75,34 +75,33 @@ public:
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-
-        //patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
-      //  patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
+        setParameterNames("W~Form", "Volume", "0", "0", "0", "0", "0", "0", "Filt-Freq", "Resonance", "Sweep", "LPF", "0", "0", "0", "0");
+        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        //  patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }
     virtual ~Plugin_10() = default;
 
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
-
     virtual void set_parameters(uint8_t row) override;
-    virtual void draw_plugin() override;
     virtual void change_preset() override;
-virtual void set_gain(uint8_t gain) override;
-    void set_voice_waveform(uint8_t XPos, uint8_t YPos, const char *name); // make virtual in baseclass
-    void set_voice_amplitude(uint8_t XPos, uint8_t YPos, const char *name);
+    virtual void set_gain(uint8_t gain) override;
 
-    void set_filter_frequency(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_filter_resonance(uint8_t XPos, uint8_t YPos, const char *name, float min, float max);
-    void set_filter_sweep(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_filter_type(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_voice_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
+    void set_voice_amplitude(uint8_t XPos, uint8_t YPos);
+
+    void set_filter_frequency(uint8_t XPos, uint8_t YPos);
+    void set_filter_resonance(uint8_t XPos, uint8_t YPos, float min, float max);
+    void set_filter_sweep(uint8_t XPos, uint8_t YPos);
+    void set_filter_type(uint8_t XPos, uint8_t YPos);
     void selectFilterType(uint8_t mixerchannel);
 
     void set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
-    void set_envelope_attack(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_decay(uint8_t XPos, uint8_t YPos, const char *name, int max);
-    void set_envelope_sustain(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_envelope_release(uint8_t XPos, uint8_t YPos, const char *name, int max);
+    void set_envelope_attack(uint8_t XPos, uint8_t YPos, int max);
+    void set_envelope_decay(uint8_t XPos, uint8_t YPos, int max);
+    void set_envelope_sustain(uint8_t XPos, uint8_t YPos);
+    void set_envelope_release(uint8_t XPos, uint8_t YPos, int max);
 
     void assign_voice_waveform(uint8_t value); // make virtual in baseclass but override
     void assign_voice_amplitude(uint8_t value);

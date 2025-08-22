@@ -1,6 +1,8 @@
 #include "input/trellis.h"
+
 void export_midi_track(Track *track, int songNr, uint16_t ppqn = 24);
 uint8_t trellisPianoTrack;
+bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
 int trellisControllBuffer[X_DIM][Y_DIM];
 const long trellisReadInterval = 30;             // interval at which to blink (milliseconds)
@@ -249,7 +251,6 @@ void neotrellis_update()
   neotrellis_set_fast_record();
   neo_trellis_select_trackClips();
   neo_trellis_select_mixer();
-
   neotrellis_show_seqMode();
   neotrellis_show_plugin();
   neotrellis_show_piano();
@@ -263,9 +264,11 @@ void neotrellis_set_potRow()
     change_plugin_row = true;
     change_row = true;
     lastPotRow = (lastPotRow + 1) % 4;
-    // trellisOut.trelllisScreen = 0;
-    // neotrellisPressed[TRELLIS_POTROW] = false;
-    // Serial.printf("potrwo=%d\n", lastPotRow);
+    if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLAYMODE)
+    {
+      trellisOut.clearMainGridNow();
+      trellisOut.drawPlaymode();
+    }
   }
 }
 void neotrellis_save_load() // trellisOut implemented
@@ -369,11 +372,13 @@ void neotrellis_show_seqMode()
         neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
         active_track = i;
         clearWorkSpace();
-
         show_active_page_info("Track", active_track + 1);
+
         int trackPlaymode = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].playMode;
         allTracks[active_track]->draw_sequencer_modes(trackPlaymode);
         activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
+        trellisOut.setActiveScreen(TRELLIS_SCREEN_PLAYMODE);
+        trellisOut.drawPlaymode();
         neotrellis_set_control_buffer(3, 2, trellisTrackColor[active_track]);
         // Serial.println("SeqMode selected");
         break;
@@ -436,7 +441,7 @@ void trellis_set_arranger()
 
         uint8_t bar = x + arrangerpage * 16;
         uint8_t clipNr = y;
-        trellisPressed[key] = false;
+        revertPressedKey();
         neotrellisPressed[trackButton] = false;
         change_plugin_row = true;
 
@@ -531,18 +536,6 @@ void neotrellis_perform_set_active()
   if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PERFORM)
     return;
 
-  for (int x = 0; x < NUM_STEPS; x++)
-  {
-    for (int y = 0; y < NUM_TRACKS; y++)
-    {
-      trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, x, y, TRELLIS_BLACK);
-    }
-    trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, x, trellisPerformIndex[x], TRELLIS_WHITE);
-  }
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
   for (int t = 0; t < NUM_TRACKS; t++)
   {
     if (neotrellisPressed[3 + ((t + 4) * X_DIM)])
@@ -620,27 +613,7 @@ void set_perform_page(uint8_t row)
   }
 }
 
-void neotrellis_show_plugin()
-{
-  if (neotrellisPressed[TRELLIS_BUTTON_PLUGIN])
-  {
-    for (int i = 0; i < NUM_TRACKS; i++)
-    {
-      if (neotrellisPressed[3 + ((i + 4) * X_DIM)])
-      {
-        neotrellisPressed[3 + ((i + 4) * X_DIM)] = false;
-        active_track = i;
-        clearWorkSpace();
-        show_active_page_info("Track", i + 1);
-        change_plugin_row = true;
-        // allTracks[active_track]->draw_MIDI_CC_screen();
-        activeScreen = INPUT_FUNCTIONS_FOR_PLUGIN;
-        neotrellis_set_control_buffer(2, 3, trellisTrackColor[active_track]);
-        break;
-      }
-    }
-  }
-}
+
 void neo_trellis_select_trackClips()
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SEQUENCER])
@@ -825,6 +798,8 @@ void handleClipOrTrackSelection(int track, int clip)
 // trellis input stuff
 void trellis_update()
 {
+  // trellis_perform();
+  // trellis_play_mixer();
   trellis_save_load();
   trellis_play_piano();
   trellis_show_arranger();
@@ -833,8 +808,6 @@ void trellis_update()
   {
     trellisReadPreviousMillis = trellisCurrentMillis;
     trellis_read();
-    // trellis_play_mixer();
-    
   }
 }
 
@@ -990,6 +963,30 @@ void trellis_save_load()
         export_midi_track(allTracks[t], songNr);
     }
     trellisOut.drawPreviousScreen();
+    revertPressedKey();
+  }
+}
+void trellis_play_playmode()
+{
+  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PLAYMODE)
+    return;
+  if (isPressed())
+  {
+    int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
+
+    int oldValuePos = allTracks[active_track]->get_seqModValue(pot) / 4.13f;
+    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (pot * 2)) % NUM_TRACKS;
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, oldValueXPos, oldValueYPos, TRELLIS_BLACK);
+    trellisOut.writeDisplay();
+    Serial.printf("drawPot x= %d, y= %d, parameter = %d\n", oldValueXPos, oldValueYPos, oldValuePos);
+
+    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.13f;
+    int valueXPos = getPressedKey() % NUM_STEPS;
+    int valueYPos = getPressedKey() / NUM_STEPS;
+    allTracks[active_track]->set_seqModValue(pot, value);
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, valueXPos, valueYPos, encoder_colour[pot]);
+    trellisOut.writeDisplay();
     revertPressedKey();
   }
 }

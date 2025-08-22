@@ -78,6 +78,7 @@ public:
         patchCord[pci++] = new AudioConnection(amp, 0, MixGain, 0);
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
+        setParameterNames("Sweep","Noise","Q-Drive","Decay","Thrshld","Attack","Release","Hysteresis","Ratio","Knewdth","AmakUpG","makUpG","0","0","0","Gain");
     }
     virtual ~Plugin_7() = default;
 
@@ -85,24 +86,24 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void set_parameters(uint8_t row) override;
-    virtual void draw_plugin() override;
+
     virtual void change_preset() override;
     virtual void set_gain(uint8_t gain) override;
-    void set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_fmdrum_decay(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_fmdrum_noise(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_fmdrum_overdrive(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos);
+    void set_fmdrum_decay(uint8_t XPos, uint8_t YPos);
+    void set_fmdrum_noise(uint8_t XPos, uint8_t YPos);
+    void set_fmdrum_overdrive(uint8_t XPos, uint8_t YPos);
 
-    void set_dynamics_threshold(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_dynamics_attack(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_dynamics_release(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_dynamics_hysterisis(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_dynamics_threshold(uint8_t XPos, uint8_t YPos);
+    void set_dynamics_attack(uint8_t XPos, uint8_t YPos);
+    void set_dynamics_release(uint8_t XPos, uint8_t YPos);
+    void set_dynamics_hysterisis(uint8_t XPos, uint8_t YPos);
 
-    void set_dynamics_ratio(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_dynamics_kneeWidth(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_dynamics_makeupGain(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_dynamics_autoMakeupGain(uint8_t XPos, uint8_t YPos, const char *name);
-    void set_amp_gain(uint8_t XPos, uint8_t YPos, const char *name);
+    void set_dynamics_ratio(uint8_t XPos, uint8_t YPos);
+    void set_dynamics_kneeWidth(uint8_t XPos, uint8_t YPos);
+    void set_dynamics_makeupGain(uint8_t XPos, uint8_t YPos);
+    void set_dynamics_autoMakeupGain(uint8_t XPos, uint8_t YPos);
+    void set_amp_gain(uint8_t XPos, uint8_t YPos);
 };
 #endif // PLUGIN_3_H
 
