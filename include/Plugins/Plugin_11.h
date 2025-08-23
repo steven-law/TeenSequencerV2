@@ -87,7 +87,6 @@ public:
 
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
-        setParameterNames("PW","Volume","PWM-Freq","PWM-Lvl","Env-Lvl","LFO W~F","LFO-Freq","LFO-Lvl","Filter-Freq","Resonance","Sweep","Type","0","0","0","0");
     }
     virtual ~Plugin_11() = default;
 

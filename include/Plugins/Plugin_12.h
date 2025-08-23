@@ -79,7 +79,6 @@ public:
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        setParameterNames("Bank", "File", "Volume", "0", "0", "0", "0", "0", "Filter-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
     }
     virtual ~Plugin_12() = default;
 

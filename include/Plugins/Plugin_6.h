@@ -78,7 +78,6 @@ public:
         // patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(filter, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        setParameterNames("W~F 1", "W~F 2", "W~F 3", "W~F 4", "Chord", "Volumes", "0", "0", "Filt-Freq", "Resonance", "Sweep", "0", "0", "0", "0", "0");
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }

@@ -39,10 +39,11 @@ void Plugin_5::setup()
     tomM.pitchMod(0.7);
     tomH.secondMix(0);
     tomH.pitchMod(0.7);
+    setParameterNames("Freq", "Sweep", "O-Drive", "Decay", "Freq", "Sweep", "Noise", "Decay", "Freq", "Reso", "Attack", "Decay", "TomL", "TomM", "TomH", "Decay");
 }
 void Plugin_5::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     if (voice == 0)
         fm_drum.noteOn();
@@ -117,7 +118,7 @@ void Plugin_5::set_parameters(uint8_t row)
 void Plugin_5::change_preset() {}
 void Plugin_5::set_gain(uint8_t gain)
 {
-    MixerGain=gain;
+    MixerGain = gain;
 }
 void Plugin_5::set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, int min, int max)
 {

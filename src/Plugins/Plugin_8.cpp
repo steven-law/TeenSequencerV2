@@ -53,11 +53,11 @@ void Plugin_8::setup()
 
     MixGain.gain(1);
     // SongVol.gain(1);
-    Serial.println("pl8 setup done");
+    setParameterNames("W~Form", "Detune", "Volume 1", "0", "W~Form", "Detune", "Volume 2", "0", "Filt-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
 }
 void Plugin_8::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     waveform.frequency((note_frequency[notePlayed] + detune1) * tuning);
     waveform1.frequency((note_frequency[notePlayed] + detune2) * tuning);
@@ -130,7 +130,7 @@ void Plugin_8::change_preset()
 }
 void Plugin_8::set_gain(uint8_t gain)
 {
-    MixerGain=gain;
+    MixerGain = gain;
 }
 void Plugin_8::set_voice_waveform(uint8_t XPos, uint8_t YPos)
 {

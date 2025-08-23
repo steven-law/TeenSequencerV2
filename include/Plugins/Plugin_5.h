@@ -81,7 +81,6 @@ public:
         patchCord[pci++] = new AudioConnection(tomM, 0, mixer, 4);
         patchCord[pci++] = new AudioConnection(tomH, 0, mixer, 5);
         patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        setParameterNames("Freq","Sweep","O-Drive","Decay","Freq","Sweep","Noise","Decay","Freq","Reso","Attack","Decay","TomL","TomM","TomH","Decay");
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }

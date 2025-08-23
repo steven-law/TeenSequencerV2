@@ -72,7 +72,6 @@ public:
             patchCord[pci++] = new AudioConnection(playMem[i], 0, AEnv[i], 0);
             patchCord[pci++] = new AudioConnection(AEnv[i], 0, mixer, i);
         }
-        setParameterNames("Bk K","Bk C","Bk H","Bk S","Bk P","Bk F","Bk X","Bk *","Vol","Vol","Vol","Vol","Vol","Vol","Vol","Vol");
     }
     virtual ~Plugin_4() = default;
     virtual void setup() override;

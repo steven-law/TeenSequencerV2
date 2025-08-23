@@ -66,10 +66,12 @@ void Plugin_11::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
+    setParameterNames("PW", "Volume", "PWM-Freq", "PWM-Lvl", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filter-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
 }
 void Plugin_11::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 
-{float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
+{
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     float frequency = note_frequency[notePlayed] * tuning;
     waveform.frequency(frequency);
@@ -127,7 +129,7 @@ void Plugin_11::set_parameters(uint8_t row)
 }
 void Plugin_11::set_gain(uint8_t gain)
 {
-    MixerGain=gain;
+    MixerGain = gain;
 }
 void Plugin_11::change_preset()
 {
@@ -388,4 +390,4 @@ void Plugin_11::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
     }
 }
 
-Plugin_11 plugin_11("PWM", 9);
+Plugin_11 plugin_11("PWM", 11);

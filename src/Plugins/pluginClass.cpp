@@ -20,32 +20,61 @@ void PluginControll::set_parameters(uint8_t row) {}
 void PluginControll::change_preset() {}
 void PluginControll::set_gain(uint8_t gain) {}
 
-void PluginControll::setParameterNames(char *para1, char *para2, const char *para3, const char *para4,
+void PluginControll::setParameterNames(const char *para1, const char *para2, const char *para3, const char *para4,
                                        const char *para5, const char *para6, const char *para7, const char *para8,
                                        const char *para9, const char *para10, const char *para11, const char *para12,
                                        const char *para13, const char *para14, const char *para15, const char *para16)
 {
-    parameterNames[0] = *para1;
-    parameterNames[1] = *para2;
-    parameterNames[2] = *para3;
-    parameterNames[3] = *para4;
-    parameterNames[4] = *para5;
-    parameterNames[5] = *para6;
-    parameterNames[6] = *para7;
-    parameterNames[7] = *para8;
-    parameterNames[8] = *para9;
-    parameterNames[9] = *para10;
-    parameterNames[10] = *para11;
-    parameterNames[11] = *para12;
-    parameterNames[12] = *para13;
-    parameterNames[13] = *para14;
-    parameterNames[14] = *para15;
-    parameterNames[15] = *para16;
+    parameterNames[0] = para1;
+    parameterNames[1] = para2;
+    parameterNames[2] = para3;
+    parameterNames[3] = para4;
+    parameterNames[4] = para5;
+    parameterNames[5] = para6;
+    parameterNames[6] = para7;
+    parameterNames[7] = para8;
+    parameterNames[8] = para9;
+    parameterNames[9] = para10;
+    parameterNames[10] = para11;
+    parameterNames[11] = para12;
+    parameterNames[12] = para13;
+    parameterNames[13] = para14;
+    parameterNames[14] = para15;
+    parameterNames[15] = para16;
+    Serial.printf("my ID: %d\n", myID);
+    // for (int i = 0; i < NUM_PARAMETERS; i++)
+    // {
+    //     Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
+    // }
+    Serial.printf("Setup Pl %d Done\n", myID);
+    Serial.println();
+    Serial.println();
 }
 void PluginControll::setFXParameterNames(const char *para1, const char *para2)
 {
-    parameterNames[0] = *para1;
-    parameterNames[1] = *para2;
+    parameterNames[0] = para1;
+    parameterNames[1] = para2;
+    parameterNames[2] = "0";
+    parameterNames[3] = "0";
+    parameterNames[4] = "0";
+    parameterNames[5] = "0";
+    parameterNames[6] = "0";
+    parameterNames[7] = "0";
+    parameterNames[8] = "0";
+    parameterNames[9] = "0";
+    parameterNames[10] = "0";
+    parameterNames[11] = "0";
+    parameterNames[12] = "0";
+    parameterNames[13] = "0";
+    parameterNames[14] = "0";
+    parameterNames[15] = "0";
+    // Serial.printf("my ID: %d\n", myID);
+    // for (int i = 0; i < 2; i++)
+    //{
+    //     Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
+    // }
+    Serial.println();
+    Serial.println();
 }
 void PluginControll::set_presetNr()
 {
@@ -59,9 +88,10 @@ void PluginControll::set_presetNr()
 uint8_t PluginControll::get_Potentiometer(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
-    potentiometer[presetNr][n] = constrain(potentiometer[presetNr][n] + encoded[XPos], 0, MIDI_CC_RANGE);
-    if (parameterNames[n] != *"0")
-        drawPot(XPos, YPos, potentiometer[presetNr][n], &parameterNames[n]);
+    set_Potentiometer(n, constrain(potentiometer[presetNr][n] + encoded[XPos], 0, MIDI_CC_RANGE));
+
+    // if (parameterNames[n] != "0")
+    //   drawPot(XPos, YPos, potentiometer[presetNr][n], parameterNames[n]);
     // Serial.println(potentiometer[presetNr][n]);
     return potentiometer[presetNr][n];
 }
@@ -70,7 +100,23 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
     int Xpos = pot % NUM_ENCODERS;
     int Ypos = pot / NUM_ENCODERS;
     potentiometer[presetNr][pot] = value;
-    drawPot(Xpos, Ypos, potentiometer[presetNr][pot], name);
+    if (parameterNames[pot] != "0")
+    {
+        for (int r = 0; r < 2; r++)
+        {
+            for (int c = 0; c < NUM_STEPS; c++)
+            {
+                trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (Xpos * 2), TRELLIS_BLACK);
+            }
+        }
+        trellisOut.writeDisplay();
+        int oldValuePos = potentiometer[presetNr][pot] / 4.12f;
+        int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+        int oldValueYPos = ((oldValuePos / NUM_STEPS) + (Xpos * 2)) % NUM_TRACKS;
+        trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[Xpos]);
+        trellisOut.writeDisplay();
+        drawPot(Xpos, Ypos, potentiometer[presetNr][pot], parameterNames[pot]);
+    }
 }
 
 void PluginControll::save_plugin(uint8_t _songNr)
@@ -160,12 +206,12 @@ void PluginControll::draw_plugin()
         change_plugin_row = false;
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {
-            if (parameterNames[i] != *"0")
+            if (parameterNames[i] != "0")
             {
                 int xPos = i % NUM_ENCODERS;
                 int yPos = i / NUM_ENCODERS;
-                drawPot(xPos, yPos, potentiometer[presetNr][0], &parameterNames[0]);
-                Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
+                drawPot(xPos, yPos, potentiometer[presetNr][i], parameterNames[i]);
+                // Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
             }
         }
 

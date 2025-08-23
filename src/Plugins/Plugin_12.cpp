@@ -65,13 +65,15 @@ void Plugin_12::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
+    setParameterNames("Bank", "File", "Volume", "0", "0", "0", "0", "0", "Filter-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
+
     // SongVol.gain(1);
 }
 void Plugin_12::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
     // float frequency = note_frequency[notePlayed] * tuning;
     //  waveform.frequency(frequency);
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     waveform.setPlaybackRate(note_frequency[notePlayed]);
     waveform.playRaw(_filename, 1);
@@ -126,7 +128,7 @@ void Plugin_12::set_parameters(uint8_t row)
 }
 void Plugin_12::set_gain(uint8_t gain)
 {
-    MixerGain=gain;
+    MixerGain = gain;
 }
 void Plugin_12::change_preset()
 {
@@ -320,4 +322,4 @@ void Plugin_12::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
     }
 }
 
-Plugin_12 plugin_12("REC", 11);
+Plugin_12 plugin_12("REC", 12);

@@ -55,7 +55,7 @@ void Plugin_7::setup()
     dynamics.makeupGain(6.0f);
     MixGain.gain(1);
     // SongVol.gain(1);
-    Serial.println("pl7 setup done");
+    setParameterNames("Sweep", "Noise", "Q-Drive", "Decay", "Thrshld", "Attack", "Release", "Hysteresis", "Ratio", "Knewdth", "AmakUpG", "makUpG", "0", "0", "0", "Gain");
 }
 void Plugin_7::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {

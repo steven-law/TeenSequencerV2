@@ -34,6 +34,8 @@ void Plugin_4::setup()
         potentiometer[presetNr][i] = 10;
         potentiometer[presetNr][i + 8] = 127;
     }
+    setParameterNames("Bk K", "Bk C", "Bk H", "Bk S", "Bk P", "Bk F", "Bk X", "Bk *", "Vol", "Vol", "Vol", "Vol", "Vol", "Vol", "Vol", "Vol");
+
     // change_preset();
     // SongVol.gain(1);
 }

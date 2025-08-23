@@ -60,7 +60,6 @@ public:
         {
             patchCord[pci++] = new AudioConnection(string[i], 0, mixer, i);
         }
-        setParameterNames("Vol1", "Vol2", "Vol3", "Vol4", "Vol5", "Vol6", "Vol7", "Vol8", "Vol9", "Vol10", "Vol11", "Vol12", "0", "0", "0", "0");
     }
     virtual ~Plugin_1() = default;
 

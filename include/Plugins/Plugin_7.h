@@ -78,7 +78,6 @@ public:
         patchCord[pci++] = new AudioConnection(amp, 0, MixGain, 0);
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
-        setParameterNames("Sweep","Noise","Q-Drive","Decay","Thrshld","Attack","Release","Hysteresis","Ratio","Knewdth","AmakUpG","makUpG","0","0","0","Gain");
     }
     virtual ~Plugin_7() = default;
 

@@ -85,7 +85,6 @@ public:
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        this->setParameterNames("W~Form", "Vol", "LFO-Freq", "LFO-Lvl", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Frq", "Resonance", "Sweep", "LPF", "0", "0", "0", "0");
     }
     virtual ~Plugin_2() = default;
 

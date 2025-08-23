@@ -73,6 +73,7 @@ void Plugin_2::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
+    this->setParameterNames("W~Form", "Vol", "LFO-Freq", "LFO-Lvl", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Frq", "Resonance", "Sweep", "LPF", "0", "0", "0", "0");
 
     // change_preset();
     // SongVol.gain(1);
@@ -398,6 +399,5 @@ void Plugin_2::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
 }
-
 
 Plugin_2 plugin_2("1OSC", 2);

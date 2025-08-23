@@ -72,7 +72,6 @@ public:
         patchCord[pci++] = new AudioConnection(outEnv, 0, MixGain, 0);
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         //  patchCord[pci++] = new AudioConnection(MixGain, 0, dacOut, 0);
-        setParameterNames("mW~Form", "mRatio", "mVolume", "cW~Form", "mAttack", "mDecay", "mSustain", "mRelease", "0", "0", "0", "0", "0", "0", "0", "0");
     }
     virtual ~Plugin_3() = default;
 

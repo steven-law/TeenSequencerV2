@@ -312,18 +312,18 @@ void MyTrellis::drawPlugin()
   for (int i = 0; i < NUM_ENCODERS; i++)
   {
     int pot = i + (lastPotRow * NUM_ENCODERS);
-    int oldValuePos = getPluginValue(pot) / 4.13f;
+    int oldValuePos = getPluginValue(i) / 4.13f;
     int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
     int oldValueYPos = ((oldValuePos / NUM_STEPS) + (pot * 2)) % NUM_TRACKS;
     for (int t = 0; t < NUM_TRACKS; t++)
     {
       trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, i, t, TRELLIS_BLACK);
     }
-    Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", oldValueXPos, oldValueYPos, oldValuePos, pot);
+   // Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", oldValueXPos, oldValueYPos, oldValuePos, pot);
 
     trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[i]);
   }
-  writeDisplay();
+ // writeDisplay();
 }
 
 MyTrellis trellisOut;

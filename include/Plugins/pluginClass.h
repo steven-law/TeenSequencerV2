@@ -31,7 +31,7 @@ class PluginControll
 public:
     uint8_t myID;
     uint8_t potentiometer[NUM_PLUGIN_PRESETS][16];
-    char parameterNames[NUM_PARAMETERS];
+    const char *parameterNames[NUM_PARAMETERS];
     uint8_t presetNr = 0;
     uint8_t MixerGain = 1;
     // AudioAnalyzePeak dacOut;
@@ -61,7 +61,7 @@ public:
     virtual void change_preset() = 0;
     virtual void set_gain(uint8_t gain) = 0;
 
-    virtual void setParameterNames( char *para1,  char *para2, const char *para3, const char *para4,
+    virtual void setParameterNames(const char *para1, const char *para2, const char *para3, const char *para4,
                                    const char *para5, const char *para6, const char *para7, const char *para8,
                                    const char *para9, const char *para10, const char *para11, const char *para12,
                                    const char *para13, const char *para14, const char *para15, const char *para16);

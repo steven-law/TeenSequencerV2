@@ -269,6 +269,11 @@ void neotrellis_set_potRow()
       trellisOut.clearMainGridNow();
       trellisOut.drawPlaymode();
     }
+    if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLUGIN)
+    {
+      trellisOut.clearMainGridNow();
+      trellisOut.drawPlugin();
+    }
   }
 }
 void neotrellis_save_load() // trellisOut implemented
@@ -612,7 +617,6 @@ void set_perform_page(uint8_t row)
     break;
   }
 }
-
 
 void neo_trellis_select_trackClips()
 {
@@ -973,20 +977,8 @@ void trellis_play_playmode()
   if (isPressed())
   {
     int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
-
-    int oldValuePos = allTracks[active_track]->get_seqModValue(pot) / 4.13f;
-    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
-    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (pot * 2)) % NUM_TRACKS;
-    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, oldValueXPos, oldValueYPos, TRELLIS_BLACK);
-    trellisOut.writeDisplay();
-    Serial.printf("drawPot x= %d, y= %d, parameter = %d\n", oldValueXPos, oldValueYPos, oldValuePos);
-
     int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.13f;
-    int valueXPos = getPressedKey() % NUM_STEPS;
-    int valueYPos = getPressedKey() / NUM_STEPS;
     allTracks[active_track]->set_seqModValue(pot, value);
-    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, valueXPos, valueYPos, encoder_colour[pot]);
-    trellisOut.writeDisplay();
     revertPressedKey();
   }
 }

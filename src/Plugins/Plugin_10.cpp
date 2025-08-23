@@ -63,10 +63,13 @@ void Plugin_10::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
+    setParameterNames("W~Form", "Volume", "0", "0", "0", "0", "0", "0", "Filt-Freq", "Resonance", "Sweep", "LPF", "0", "0", "0", "0");
+
     // SongVol.gain(1);
 }
 void Plugin_10::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
-{float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+{
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     float frequency = note_frequency[notePlayed] * tuning;
     Serial.printf("pl10: notePlayed= %d\n", notePlayed);
@@ -134,7 +137,7 @@ void Plugin_10::change_preset()
 }
 void Plugin_10::set_gain(uint8_t gain)
 {
-    MixerGain=gain;
+    MixerGain = gain;
 }
 
 void Plugin_10::set_voice_waveform(uint8_t XPos, uint8_t YPos)
@@ -413,4 +416,4 @@ void Plugin_10::set_envelope_release(uint8_t XPos, uint8_t YPos, int max)
     }
 }
 
-Plugin_10 plugin_10("SF2", 9);
+Plugin_10 plugin_10("SF2", 10);

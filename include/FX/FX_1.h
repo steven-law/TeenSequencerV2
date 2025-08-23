@@ -53,6 +53,7 @@ public:
         }
 
         patchCord[pci++] = new AudioConnection(FX_mixer, 0, freeverb, 0);
+        
     }
 
     virtual ~FX_1() = default;

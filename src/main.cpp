@@ -30,9 +30,9 @@
 extern MyTrellis trellisOut;
 
 PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13, &plugin_14};
-FX_1 fx_1("Rev", 1);
-FX_2 fx_2("Bit", 2);
-FX_3 fx_3("Nix", 3);
+FX_1 fx_1("Rev", 21);
+FX_2 fx_2("Bit", 22);
+FX_3 fx_3("Nix", 23);
 Output MasterOut(3);
 MyClock myClock(1);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
@@ -82,7 +82,9 @@ uint8_t getPluginValue(uint8_t pot)
 {
   int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
   int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
-  return allPlugins[pluginChannel]->get_Potentiometer(pot, lastPotRow);
+  int pluginValue = allPlugins[pluginChannel]->get_Potentiometer(pot, lastPotRow);
+  Serial.printf("pluginValue =  %d, pluginPot: %d, pluginchannel= %d\n", pluginValue, pot, pluginChannel);
+  return pluginValue;
 }
 
 void sendCCToActiveTracks(uint8_t cc, uint8_t val);
@@ -488,7 +490,6 @@ void input_behaviour()
       MasterOut.set_parameters(trackChannel - 49, lastPotRow);
     trellis_play_plugins();
     neotrellis_SetCursor(14);
-    // trellis_setStepsequencer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER1:
@@ -1239,21 +1240,9 @@ void trellis_play_plugins()
   if (isPressed())
   {
     int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
-
     int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
-
-    int oldValuePos = allPlugins[pluginChannel]->get_Potentiometer(pot % NUM_ENCODERS, lastPotRow) / 4.13f;
-    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
-    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (pot * 2)) % NUM_TRACKS;
-    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, TRELLIS_BLACK);
-
-    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.13f;
-    int valueXPos = getPressedKey() % NUM_STEPS;
-    int valueYPos = getPressedKey() / NUM_STEPS;
-
+    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.12f;
     allPlugins[pluginChannel]->set_Potentiometer(pot, value);
-    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, valueXPos, valueYPos, encoder_colour[pot]);
-    trellisOut.writeDisplay();
     revertPressedKey();
   }
 }

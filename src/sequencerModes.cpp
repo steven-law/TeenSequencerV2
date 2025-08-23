@@ -7,12 +7,27 @@ void Track::set_seqModValue(uint8_t param, uint8_t value)
 {
     uint8_t mode = clip[parameter[SET_CLIP2_EDIT]].playMode;
     uint8_t presetNr = play_presetNr_Playmode_ccChannel[external_clock_bar];
-    seqMod_value[mode][presetNr][param] = value;
+    seqMod_value[mode][PMpresetNr][param] = value;
     int x = param % NUM_ENCODERS;
     int y = param / NUM_ENCODERS;
     const SeqModeParam &paramname = seqModeParams[mode][y][x];
     if (strlen(paramname.label) > 0)
+    {
+        for (int r = 0; r < 2; r++)
+        {
+            for (int c = 0; c < NUM_STEPS; c++)
+            {
+                trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, c, r + (x * 2), TRELLIS_BLACK);
+            }
+        }
+        trellisOut.writeDisplay();
+        int oldValuePos = seqMod_value[mode][PMpresetNr][param] / 4.12f;
+        int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+        int oldValueYPos = ((oldValuePos / NUM_STEPS) + (x * 2)) % NUM_TRACKS;
+        trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, oldValueXPos, oldValueYPos, encoder_colour[x]);
+        trellisOut.writeDisplay();
         drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], paramname.label);
+    }
 }
 uint8_t Track::get_seqModValue(uint8_t param)
 {
@@ -35,9 +50,8 @@ void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, co
     if (enc_moved[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        seqMod_value[modeindex][PMpresetNr][n] = constrain(seqMod_value[modeindex][PMpresetNr][n] + encoded[XPos], min, max); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
-        drawPot(XPos, YPos, seqMod_value[modeindex][PMpresetNr][n], name);
-    }
+        set_seqModValue(n, constrain(seqMod_value[modeindex][PMpresetNr][n] + encoded[XPos], min, max)); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
+        }
 }
 void Track::rotateIntArray(uint8_t arr[], int maxSteps, int rotation)
 {

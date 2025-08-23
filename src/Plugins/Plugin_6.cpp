@@ -107,7 +107,7 @@ void Plugin_6::setup()
     potentiometer[presetNr][14] = 0;
     potentiometer[presetNr][15] = 10;
 
-    Serial.println("pl6 setup done");
+    setParameterNames("W~F 1", "W~F 2", "W~F 3", "W~F 4", "Chord", "Volumes", "0", "0", "Filt-Freq", "Resonance", "Sweep", "0", "0", "0", "0", "0");
 }
 void Plugin_6::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {

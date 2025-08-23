@@ -62,6 +62,7 @@ void Plugin_14::setup()
     // SongVol.gain(1);
     _playFilename = "0.RAW";
     _recFilename = "0.RAW";
+    setParameterNames("Rec W~F", "Rec Vol", "Play W~F", "Play Vol", "0", "0", "0", "0", "Filter-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
 }
 
 void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)

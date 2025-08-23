@@ -81,7 +81,6 @@ public:
         patchCord[pci++] = new AudioConnection(ladder, 0, fMixer, 3);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        setParameterNames("W~Form", "W~Form2", "Detune", "VCO Mix", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
         // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }

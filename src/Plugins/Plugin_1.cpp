@@ -24,6 +24,8 @@ void Plugin_1::setup()
         potentiometer[presetNr][i] = 80;
     }
     MixGain.gain(1);
+    setParameterNames("Vol1", "Vol2", "Vol3", "Vol4", "Vol5", "Vol6", "Vol7", "Vol8", "Vol9", "Vol10", "Vol11", "Vol12", "0", "0", "0", "0");
+
     // change_preset();
     // SongVol.gain(1);
 }

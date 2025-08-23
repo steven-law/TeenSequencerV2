@@ -63,11 +63,13 @@ void Plugin_13::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
+    setParameterNames("W~Form", "Volume", "0", "0", "0", "0", "0", "0", "Filter-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
+
     // SongVol.gain(1);
 }
 void Plugin_13::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     float frequency = note_frequency[notePlayed] * tuning;
     Serial.printf("pl13: notePlayed= %d\n", notePlayed);
@@ -121,7 +123,7 @@ void Plugin_13::set_parameters(uint8_t row)
 }
 void Plugin_13::set_gain(uint8_t gain)
 {
-    MixerGain=gain;
+    MixerGain = gain;
 }
 void Plugin_13::change_preset()
 {
@@ -265,7 +267,7 @@ void Plugin_13::redraw_customWaveform(int8_t YPos)
 }
 void Plugin_13::assign_voice_waveform(uint8_t value)
 {
-    //uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 27);
+    // uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 27);
 }
 
 void Plugin_13::set_voice_amplitude(uint8_t XPos, uint8_t YPos)
@@ -410,4 +412,4 @@ void Plugin_13::set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
     }
 }
 
-Plugin_13 plugin_13("Draw", 12);
+Plugin_13 plugin_13("Draw", 13);

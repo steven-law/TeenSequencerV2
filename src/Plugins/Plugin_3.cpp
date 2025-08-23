@@ -58,9 +58,10 @@ void Plugin_3::setup()
     potentiometer[presetNr][9] = 0;
     potentiometer[presetNr][10] = 127;
     potentiometer[presetNr][11] = 20;
+    setParameterNames("mW~Form", "mRatio", "mVolume", "cW~Form", "mAttack", "mDecay", "mSustain", "mRelease", "0", "0", "0", "0", "0", "0", "0", "0");
 
     // SongVol.gain(1);
-    Serial.println("Setup Pl3 Done");
+    
 }
 void Plugin_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {

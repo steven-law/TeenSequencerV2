@@ -75,11 +75,11 @@ void Plugin_9::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
-    Serial.println("pl8 setup done");
+    setParameterNames("W~Form", "W~Form2", "Detune", "VCO Mix", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
 }
 void Plugin_9::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT)) ;
+    float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
     waveform.frequency((note_frequency[notePlayed] * tuning));
     waveform1.frequency((note_frequency[notePlayed] * tuning) + detune2);
@@ -95,7 +95,7 @@ void Plugin_9::noteOff(uint8_t notePlayed, uint8_t voice)
 }
 void Plugin_9::set_gain(uint8_t gain)
 {
-    MixerGain=gain;
+    MixerGain = gain;
 }
 void Plugin_9::set_parameters(uint8_t row)
 {
