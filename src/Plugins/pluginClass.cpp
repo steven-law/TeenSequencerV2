@@ -89,17 +89,16 @@ uint8_t PluginControll::get_Potentiometer(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
     set_Potentiometer(n, constrain(potentiometer[presetNr][n] + encoded[XPos], 0, MIDI_CC_RANGE));
-
-    // if (parameterNames[n] != "0")
-    //   drawPot(XPos, YPos, potentiometer[presetNr][n], parameterNames[n]);
-    // Serial.println(potentiometer[presetNr][n]);
     return potentiometer[presetNr][n];
 }
 void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 {
+    if (activeScreen != INPUT_FUNCTIONS_FOR_PLUGIN)
+        return;
     int Xpos = pot % NUM_ENCODERS;
     int Ypos = pot / NUM_ENCODERS;
     potentiometer[presetNr][pot] = value;
+
     if (parameterNames[pot] != "0")
     {
         for (int r = 0; r < 2; r++)
@@ -115,6 +114,7 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
         int oldValueYPos = ((oldValuePos / NUM_STEPS) + (Xpos * 2)) % NUM_TRACKS;
         trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[Xpos]);
         trellisOut.writeDisplay();
+
         drawPot(Xpos, Ypos, potentiometer[presetNr][pot], parameterNames[pot]);
     }
 }

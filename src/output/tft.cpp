@@ -206,7 +206,6 @@ void draw_infobox(const char *info1, int8_t value1, const char *info2, int8_t va
         tft.printf(" %s%d ", info2, value2);
     }
     reset_infobox_background();
-
 }
 void draw_infobox_text(const char *info1, const char *value1)
 {
@@ -833,7 +832,10 @@ void draw_MIDI_CC_screen()
 }
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos)
 {
+    if (activeScreen != INPUT_FUNCTIONS_FOR_SEQUENCER)
+        return;
     int n = XPos + (YPos * NUM_ENCODERS);
+
     drawPot(XPos, YPos, allTracks[active_track]->CCvalue[allTracks[active_track]->edit_presetNr_ccValue][n], CCnames[allTracks[active_track]->CCchannel[allTracks[active_track]->edit_presetNr_ccChannel][n]]);
 }
 

@@ -14,7 +14,7 @@ void Track::set_stepSequencer_parameters()
         set_stepSequencer_parameter_value(0, 0, "Tick", 0, 160);
         set_stepSequencer_parameter_value(1, 0, "Note", 0, 14);
         if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[14]], 0, 129); // yPos=3 to get parameter 14
+            set_stepSequencer_parameter_value(ENCODER_STEP_FX, 3, CCnames[parameter[14]], 0, 161); // yPos=3 to get parameter 14
         else if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
             set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[parameter[14]], 0, 128); // yPos=0 to get parameter 2
         set_stepSequencer_parameter_value(3, 0, "Velo", 0, 127);
@@ -195,7 +195,7 @@ void Track::set_CCchannel(uint8_t XPos, uint8_t YPos)
     int n = XPos + (YPos * NUM_ENCODERS);
     if (enc_moved[XPos])
     {
-        CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + encoded[XPos], 1, 129);
+        CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + encoded[XPos], 1, 161);
         draw_MIDI_CC(XPos, YPos);
         // enc_moved[XPos] = false;
     }
@@ -207,7 +207,7 @@ void Track::set_CCvalue(uint8_t XPos, uint8_t YPos)
     {
         CCvalue[edit_presetNr_ccValue][n] = constrain(CCvalue[edit_presetNr_ccValue][n] + encoded[XPos], 0, 127);
         draw_MIDI_CC(XPos, YPos);
-        sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], clip[parameter[SET_CLIP2_EDIT]].midiChOut);
+        sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], clip[parameter[SET_CLIP2_EDIT]].midiChOut, my_Arranger_Y_axis-1);
         // enc_moved[XPos] = false;
     }
 }

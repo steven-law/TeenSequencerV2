@@ -267,6 +267,8 @@ void Track::set_seq_mode_parameters(uint8_t row)
 }
 void Track::draw_sequencer_modes(uint8_t mode)
 {
+    if (activeScreen != INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
+        return;
     change_plugin_row = true;
     if (clip[parameter[SET_CLIP2_EDIT]].playMode > 0)
         draw_seq_mode(clip[parameter[SET_CLIP2_EDIT]].playMode);
@@ -399,7 +401,7 @@ void Track::change_presets() // change presets, happens when the next bar starts
             int trackChannel = clip[clip_to_play[internal_clock_bar]].midiChOut;
             Serial.print("cc:");
             Serial.println(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i]);
-            sendControlChange(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_Plugin_ccValue[internal_clock_bar]][i], trackChannel);
+            sendControlChange(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_Plugin_ccValue[internal_clock_bar]][i], trackChannel, my_Arranger_Y_axis - 1);
             Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
         }
     }

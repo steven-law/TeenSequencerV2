@@ -58,7 +58,7 @@ void onExternalStop();
 
 void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel);
-void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel);
+void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel, uint8_t fromTrack = 255);
 
 void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
 void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
@@ -694,7 +694,7 @@ void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), Note % 12);
   // Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
 }
-void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
+void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel, uint8_t fromTrack = 255)
 {
   if (value < 128 && control < 128)
   {
@@ -715,6 +715,20 @@ void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel)
       usbMIDI.sendProgramChange(value, Channel - 16);
     if (Channel > 32 && Channel <= 48)
       usbMidi1.sendProgramChange(value, Channel - 32);
+  }
+  if (value < 128 && control > 131 && control < 147 && fromTrack < NUM_TRACKS)
+  {
+    Serial.printf("send Plugin Parameter:  Channel: %d, Control: %d, value: %d from Track: %d\n", Channel, control, value, fromTrack);
+    int pluginChannel = allTracks[fromTrack]->clip[allTracks[fromTrack]->external_clock_bar].midiChOut - (NUM_MIDI_OUTPUTS + 1);
+    allPlugins[pluginChannel]->set_Potentiometer(control - 131, value);
+  }
+  if (value < 128 && control >= 147 && fromTrack < NUM_TRACKS)
+  {
+    Serial.printf("send Seq Parameter:  Channel: %d, Control: %d, value: %d from Track: %d\n", Channel, control, value, fromTrack);
+    int pluginChannel = allTracks[fromTrack]->clip[allTracks[fromTrack]->external_clock_bar].midiChOut - (NUM_MIDI_OUTPUTS + 1);
+    allTracks[fromTrack]->set_seqModValue(control - 148, value);
+
+    allPlugins[pluginChannel]->set_Potentiometer(control - 131, value);
   }
 }
 
@@ -775,7 +789,7 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
     }
   }
   if (channel >= 9)
-    sendControlChange(control, value, channel);
+    sendControlChange(control, value, channel, channel - 1);
 }
 void myUSBNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
@@ -1043,7 +1057,7 @@ void sendCCToActiveTracks(uint8_t cc, uint8_t val)
       continue;
     uint8_t ch = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->internal_clock_bar]].midiChOut;
     if (ch <= NUM_MIDI_OUTPUTS)
-      sendControlChange(cc, val, ch);
+      sendControlChange(cc, val, ch, s);
   }
 }
 void updateFxVolume(uint8_t val, float gainVal, uint8_t cc, int fxNr)
@@ -1056,7 +1070,7 @@ void updateFxVolume(uint8_t val, float gainVal, uint8_t cc, int fxNr)
     if (ch > NUM_MIDI_OUTPUTS)
       MasterOut.setFXGain(fxNr, ch - (NUM_MIDI_OUTPUTS + 1), gainVal);
     else
-      sendControlChange(cc, val, ch);
+      sendControlChange(cc, val, ch, s);
   }
 }
 void printInfo(const char *label, int val, uint8_t cc)

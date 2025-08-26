@@ -238,7 +238,7 @@ void Plugin_6::assign_voice_amplitude(uint8_t voice, uint8_t value)
 {
     for (int i = 0; i < PL6_VOICES; i++)
     {
-        float ampl = chordVolumes[value][voice] / MIDI_CC_RANGE_FLOAT;
+        float ampl = chordVolumes[value][voice] * 16;
         waveform[i].amplitude(ampl);
     }
 }
