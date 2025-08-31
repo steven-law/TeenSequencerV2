@@ -70,244 +70,87 @@ void Plugin_5::noteOff(uint8_t notePlayed, uint8_t voice)
         hhFilterEnv.noteOff();
     }
 }
-
-void Plugin_5::set_parameters(uint8_t row)
+void Plugin_5::assign_parameter(uint8_t pot)
 {
-    draw_plugin();
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    switch (pot)
     {
-        if (row == 0)
-        {
-            set_fmdrum_frequency(0, 0, 10, 300);
-            set_fmdrum_pitchMod(1, 0);
-            set_fmdrum_overdrive(2, 0);
-            set_fmdrum_decay(3, 0);
-        }
-
-        if (row == 1)
-        {
-            set_fmsnare_frequency(0, 1, 10, 300);
-            set_fmsnare_pitchMod(1, 1);
-            set_fmsnare_noise(2, 1);
-            set_fmsnare_decay(3, 1);
-        }
-
-        if (row == 2)
-        {
-            set_hhfilter_frequency(0, 2, 1000, 8000);
-            set_hhfilter_resonance(1, 2, 0, 5.00);
-            set_hhEnv_attack(2, 2, 0, 50);
-            // set_hhEnv_decay(3, 2, "Decay", 0, 50);
-            set_hhEnv_release(3, 2, 0, 2000);
-        }
-
-        if (row == 3)
-        {
-            set_tomL_frequency(0, 3);
-            set_tomM_frequency(1, 3);
-            set_tomH_frequency(2, 3);
-            set_toms_decay(3, 3, 0, 2000);
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        set_presetNr();
-    }
-}
-
-void Plugin_5::change_preset() {}
-void Plugin_5::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
-}
-void Plugin_5::set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int freq = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+    case 0:
+       { int freq = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 10, 300);
+        fm_drum.frequency(freq);
+       } break;
+    case 1:
+      {  float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        fm_drum.fm(sustain);
+      }  break;
+    case 2:
+       { float sustain = (float)(get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT);
+        fm_drum.overdrive(sustain);
+       } break;
+    case 3:
+       { float sustain = (float)(get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT);
+        fm_drum.decay(sustain);
+       } break;
+    case 4:
+       { int freq = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 10, 300);
         fm_snare.frequency(freq);
-    }
-}
-void Plugin_5::set_fmsnare_pitchMod(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
+       } break;
+    case 5:
+       { float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
         fm_snare.fm(sustain);
-    }
-}
-void Plugin_5::set_fmsnare_decay(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
-        fm_snare.decay(sustain);
-    }
-}
-void Plugin_5::set_fmsnare_noise(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
+       } break;
+    case 6:
+       { float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
         fm_snare.noise(sustain);
         fm_snare.overdrive(sustain);
-    }
-}
-void Plugin_5::set_fmsnare_overdrive(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
-        fm_snare.overdrive(sustain);
-    }
-}
-
-void Plugin_5::set_fmdrum_frequency(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        // int n = XPos + (YPos * NUM_ENCODERS);
-        // potentiometer[presetNr][n] = getEncodervalue(XPos, YPos, name, potentiometer[presetNr][n]);
-
-        int freq = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
-        fm_drum.frequency(freq);
-    }
-}
-void Plugin_5::set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
-        fm_drum.fm(sustain);
-    }
-}
-void Plugin_5::set_fmdrum_decay(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = (float)(get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT);
-        fm_drum.decay(sustain);
-    }
-}
-void Plugin_5::set_fmdrum_noise(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = (float)(get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT);
-        fm_drum.noise(sustain);
-    }
-}
-void Plugin_5::set_fmdrum_overdrive(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = (float)(get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT);
-        fm_drum.overdrive(sustain);
-    }
-}
-
-void Plugin_5::set_hhfilter_frequency(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int frequency = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+       } break;
+    case 7:
+       { float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        fm_snare.decay(sustain);
+       } break;
+    case 8:
+       { int frequency = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 1000, 8000);
         filter.frequency(frequency);
-    }
-}
-void Plugin_5::set_hhfilter_resonance(uint8_t XPos, uint8_t YPos, float min, float max)
-{
-    if (enc_moved[XPos])
-    {
-        float reso = (float)(get_Potentiometer(XPos, YPos) / (MIDI_CC_RANGE_FLOAT / max)) + min;
-        for (int i = 0; i < MAX_VOICES; i++)
-        {
-            filter.resonance(reso);
-        }
-    }
-}
-void Plugin_5::set_hhfilter_sweep(uint8_t XPos, uint8_t YPos, float min, float max)
-{
-    if (enc_moved[XPos])
-    {
-        float swp = get_Potentiometer(XPos, YPos) / (MIDI_CC_RANGE_FLOAT / max) + min;
-        for (int i = 0; i < MAX_VOICES; i++)
-        {
-            filter.octaveControl(swp);
-        }
-    }
-}
-
-void Plugin_5::set_hhEnv_attack(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int attack = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+       } break;
+    case 9:
+       { float reso = (float)(get_Potentiometer(pot) / (MIDI_CC_RANGE_FLOAT / MAX_RESONANCE));
+        filter.resonance(reso);
+       } break;
+    case 10:
+       { int attack = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 50);
         hhEnv.attack(attack);
-    }
-}
-void Plugin_5::set_hhEnv_decay(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int decay = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
-        hhEnv.decay(decay);
-        hhFilterEnv.decay(decay);
-    }
-}
-void Plugin_5::set_hhEnv_sustain(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = (float)(get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT);
-        hhEnv.sustain(sustain);
-        hhFilterEnv.sustain(sustain);
-    }
-}
-void Plugin_5::set_hhEnv_release(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int release = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+       } break;
+    case 11:
+       { int release = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
         hhEnv.release(release);
         hhFilterEnv.release(release);
         hhEnv.decay(release / 4);
         hhFilterEnv.decay(release / 4);
-    }
-}
-
-void Plugin_5::set_tomL_frequency(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int freq = note_frequency[get_Potentiometer(XPos, YPos)] * tuning;
+      }  break;
+    case 12:
+       { int freq = note_frequency[get_Potentiometer(pot)] * tuning;
         tomL.frequency(freq);
-    }
-}
-void Plugin_5::set_tomM_frequency(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int freq = note_frequency[get_Potentiometer(XPos, YPos)] * tuning;
+       } break;
+    case 13:
+      {  int freq = note_frequency[get_Potentiometer(pot)] * tuning;
         tomM.frequency(freq);
-    }
-}
-void Plugin_5::set_tomH_frequency(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int freq = note_frequency[get_Potentiometer(XPos, YPos)] * tuning;
+      }  break;
+    case 14:
+       { int freq = note_frequency[get_Potentiometer(pot)] * tuning;
         tomH.frequency(freq);
-    }
-}
-void Plugin_5::set_toms_decay(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int decay = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+      }  break;
+    case 15:
+      {  int decay = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
         tomL.length(decay);
         tomM.length(decay);
         tomH.length(decay);
+      }  break;
+    default:
+        break;
     }
+}
+void Plugin_5::set_gain(uint8_t gain)
+{
+    MixerGain = gain;
 }
 
 Plugin_5 plugin_5("Drum", 5);

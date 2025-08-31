@@ -57,11 +57,8 @@ public:
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
-    virtual void set_parameters(uint8_t row) override;
-
-    virtual void change_preset() override;
+    virtual void assign_parameter(uint8_t pot) override;
     virtual void set_gain(uint8_t gain) override;
-    void set_BC_bits(uint8_t XPos, uint8_t YPos);
-    void set_BC_smplRate(uint8_t XPos, uint8_t YPos);
+
 };
 #endif // FX_2_H

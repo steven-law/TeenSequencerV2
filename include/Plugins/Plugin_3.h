@@ -78,36 +78,10 @@ public:
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
-    virtual void set_parameters(uint8_t row) override;
-
-    virtual void change_preset() override;
+    virtual void assign_parameter(uint8_t pot) override;
     virtual void set_gain(uint8_t gain) override;
-    void get_peak();
-    void set_mod_waveform(uint8_t XPos, uint8_t YPos);
-    void assign_mod_waveform(uint8_t value);
 
-    void set_mod_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_mod_amplitude(uint8_t value);
-    void set_mod_ratio(uint8_t XPos, uint8_t YPos);
-    void assign_mod_ratio(uint8_t value);
-    void set_car_waveform(uint8_t XPos, uint8_t YPos);
-    void assign_car_waveform(uint8_t value);
 
- 
-    void set_envelope_mattack(uint8_t XPos, uint8_t YPos, int min, int max);
-    void assign_envelope_mattack(uint8_t value, int max);
-    void assign_envelope_mdecay(uint8_t value, int max);
-    void assign_envelope_msustain(uint8_t value);
-    void assign_envelope_mrelease(uint8_t value, int max);
-    void set_envelope_mdecay(uint8_t XPos, uint8_t YPos, int min, int max);
-    void set_envelope_msustain(uint8_t XPos, uint8_t YPos);
-    void set_envelope_mrelease(uint8_t XPos, uint8_t YPos, int min, int max);
-
-    void set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
-    void assign_envelope_attack(uint8_t value, int max);
-    void assign_envelope_decay(uint8_t value, int max);
-    void assign_envelope_sustain(uint8_t value);
-    void assign_envelope_release(uint8_t value, int max);
 };
 
 #endif                    // PLUGIN_3_H

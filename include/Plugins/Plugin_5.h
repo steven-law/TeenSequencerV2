@@ -89,34 +89,9 @@ public:
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
-    virtual void set_parameters(uint8_t row) override;
-    virtual void change_preset() override;
+    virtual void assign_parameter(uint8_t pot) override;
     virtual void set_gain(uint8_t gain) override;
-    void set_fmsnare_frequency(uint8_t XPos, uint8_t YPos, int min, int max);
-    void set_fmsnare_pitchMod(uint8_t XPos, uint8_t YPos);
-    void set_fmsnare_decay(uint8_t XPos, uint8_t YPos);
-    void set_fmsnare_noise(uint8_t XPos, uint8_t YPos);
-    void set_fmsnare_overdrive(uint8_t XPos, uint8_t YPos);
 
-    void set_fmdrum_frequency(uint8_t XPos, uint8_t YPos, int min, int max);
-    void set_fmdrum_pitchMod(uint8_t XPos, uint8_t YPos);
-    void set_fmdrum_decay(uint8_t XPos, uint8_t YPos);
-    void set_fmdrum_noise(uint8_t XPos, uint8_t YPos);
-    void set_fmdrum_overdrive(uint8_t XPos, uint8_t YPos);
-
-    void set_hhfilter_frequency(uint8_t XPos, uint8_t YPos, int min, int max);
-    void set_hhfilter_resonance(uint8_t XPos, uint8_t YPos, float min, float max);
-    void set_hhfilter_sweep(uint8_t XPos, uint8_t YPos, float min, float max);
-
-    void set_hhEnv_attack(uint8_t XPos, uint8_t YPos, int min, int max);
-    void set_hhEnv_decay(uint8_t XPos, uint8_t YPos, int min, int max);
-    void set_hhEnv_sustain(uint8_t XPos, uint8_t YPos);
-    void set_hhEnv_release(uint8_t XPos, uint8_t YPos, int min, int max);
-
-    void set_tomL_frequency(uint8_t XPos, uint8_t YPos);
-    void set_tomM_frequency(uint8_t XPos, uint8_t YPos);
-    void set_tomH_frequency(uint8_t XPos, uint8_t YPos);
-    void set_toms_decay(uint8_t XPos, uint8_t YPos, int min, int max);
 };
 #endif // PLUGIN_5_H
 

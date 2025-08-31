@@ -94,45 +94,10 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
 
-    virtual void set_parameters(uint8_t row) override;
+    virtual void assign_parameter(uint8_t pot) override;
     
-    virtual void change_preset() override;
     virtual void set_gain(uint8_t gain) override;
-    void set_voice_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_voice_amplitude(uint8_t value);
-    void set_LFO2VCO_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_LFO2VCO_amplitude(uint8_t value);
-    void set_LFO2VCO_frequency(uint8_t XPos, uint8_t YPos);
-    void assign_LFO2VCO_frequency(uint8_t value); // make virtual in baseclass but override
-    void set_PWMdc_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_PWMdc_amplitude(uint8_t value);
-
-    void set_DC_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_DC_amplitude(uint8_t value);
-
-    void set_filter_frequency(uint8_t XPos, uint8_t YPos);
-    void set_filter_resonance(uint8_t XPos, uint8_t YPos, float min, float max);
-    void set_filter_sweep(uint8_t XPos, uint8_t YPos);
-    void set_filter_type(uint8_t XPos, uint8_t YPos);
-    void selectFilterType(uint8_t mixerchannel);
-
-    void set_LFO_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
-    void assign_LFO_waveform(uint8_t value);                             // make virtual in baseclass but override
-    void set_LFO_frequency(uint8_t XPos, uint8_t YPos);
-    void assign_LFO_frequency(uint8_t value); // make virtual in baseclass but override
-
-    void set_LFO_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_LFO_amplitude(uint8_t value);
-
-    void assign_filter_frequency(uint8_t value);
-    void assign_filter_resonance(uint8_t value);
-    void assign_filter_sweep(uint8_t value);
-
-    void set_envelope_ADSR(uint8_t YPos, int maxA, int maxD, int maxR);
-    void assign_envelope_attack(uint8_t value, int max);
-    void assign_envelope_decay(uint8_t value, int max);
-    void assign_envelope_sustain(uint8_t value);
-    void assign_envelope_release(uint8_t value, int max);
+   
 };
 #endif // PLUGIN_11_H
 

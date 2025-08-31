@@ -76,7 +76,7 @@ public:
     void set_parameters(uint8_t pluginNr, uint8_t row)
     {
         // Serial.printf("set parameters track: %d, channel: %d\n", trackID, plugin_channel[trackID]);
-        allPlugins[pluginNr]->set_parameters(row);
+        allPlugins[pluginNr]->PluginParameters(row);
     }
     void draw_plugin(uint8_t pluginNr, uint8_t channel)
     {

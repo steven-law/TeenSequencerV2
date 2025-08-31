@@ -56,91 +56,28 @@ void Plugin_4::noteOff(uint8_t notePlayed, uint8_t voice)
     AEnv[voice].noteOff();
     // Serial.printf("pl4 Note Off voice: %d\n", voice);
 }
-void Plugin_4::set_parameters(uint8_t row)
+
+void Plugin_4::assign_parameter(uint8_t pot)
 {
-    draw_plugin();
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+
+    if (pot < 8)
     {
-        if (row == 0)
-        {
-            set_waveform(0, 0);
-            set_waveform(1, 0);
-            set_waveform(2, 0);
-            set_waveform(3, 0);
-        }
-
-        if (row == 1)
-        {
-            set_waveform(0, 1);
-            set_waveform(1, 1);
-            set_waveform(2, 1);
-            set_waveform(3, 1);
-        }
-
-        if (row == 2)
-        {
-            set_mixer_gain(0, 2);
-            set_mixer_gain(1, 2);
-            set_mixer_gain(2, 2);
-            set_mixer_gain(3, 2);
-        }
-
-        if (row == 3)
-        {
-            set_mixer_gain(0, 3);
-            set_mixer_gain(1, 3);
-            set_mixer_gain(2, 3);
-            set_mixer_gain(3, 3);
-        }
+        sprintf(_fileName[pot], "%s%d.raw", bankNames[pot], get_Potentiometer(pot));
+        newdigate::flashloader loader;
+        sample[pot] = loader.loadSample(_fileName[pot]);
     }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    else
     {
-        set_presetNr();
+        float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        mixer.gain(pot - 8, sustain);
     }
 }
-
 void Plugin_4::set_gain(uint8_t gain)
 {
     float velo = ((gain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(velo);
 }
-void Plugin_4::set_mixer_gain(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int n = XPos + (YPos * NUM_ENCODERS);
-        assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
-    }
-}
-void Plugin_4::assign_mixer_gain(uint8_t value, uint8_t channel)
-{
-    float sustain = value / MIDI_CC_RANGE_FLOAT;
-    mixer.gain(channel - 8, sustain);
-}
-void Plugin_4::change_preset()
-{
-    for (int i = 0; i < PL4_VOICES; i++)
-    {
-        assign_mixer_gain(potentiometer[presetNr][i + 8], i);
-        assign_waveform(potentiometer[presetNr][i], i);
-    }
-}
-void Plugin_4::set_waveform(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int n = XPos + (YPos * NUM_ENCODERS);
-        assign_waveform(get_Potentiometer(XPos, YPos), n);
-        enc_moved[XPos] = false;
-    }
-}
-void Plugin_4::assign_waveform(uint8_t value, uint8_t channel)
-{
 
-    sprintf(_fileName[channel], "%s%d.raw", bankNames[channel], value);
-    newdigate::flashloader loader;
-    sample[channel] = loader.loadSample(_fileName[channel]);
-}
 Plugin_4 plugin_4("mDrm", 4);
 
 // TeensyDAW: end automatically generated code

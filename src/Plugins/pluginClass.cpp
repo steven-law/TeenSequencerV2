@@ -16,8 +16,6 @@ const char *filterName[4]{"LPF", "BPF", "HPF", "LPF2"};
 void PluginControll::setup() {}
 void PluginControll::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void PluginControll::noteOff(uint8_t notePlayed, uint8_t voice) {}
-void PluginControll::set_parameters(uint8_t row) {}
-void PluginControll::change_preset() {}
 void PluginControll::set_gain(uint8_t gain) {}
 
 void PluginControll::setParameterNames(const char *para1, const char *para2, const char *para3, const char *para4,
@@ -85,37 +83,102 @@ void PluginControll::set_presetNr()
         draw_plugin();
     }
 }
-uint8_t PluginControll::get_Potentiometer(uint8_t XPos, uint8_t YPos)
+void PluginControll::change_preset()
 {
-    int n = XPos + (YPos * NUM_ENCODERS);
-    set_Potentiometer(n, constrain(potentiometer[presetNr][n] + encoded[XPos], 0, MIDI_CC_RANGE));
-    return potentiometer[presetNr][n];
+    for (int i = 0; i < MAX_VOICES; i++)
+    {
+        assign_parameter(i);
+    }
+}
+void PluginControll::PluginParameters(uint8_t row)
+{
+    draw_plugin();
+
+    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+        if (row == 0)
+        {
+
+            set_Encoder_parameter(0);
+            set_Encoder_parameter(1);
+            set_Encoder_parameter(2);
+            set_Encoder_parameter(3);
+        }
+
+        if (row == 1)
+        {
+
+            set_Encoder_parameter(4);
+            set_Encoder_parameter(5);
+            set_Encoder_parameter(6);
+            set_Encoder_parameter(7);
+        }
+
+        if (row == 2)
+        {
+            set_Encoder_parameter(8);
+            set_Encoder_parameter(9);
+            set_Encoder_parameter(10);
+            set_Encoder_parameter(11);
+        }
+
+        if (row == 3)
+        {
+            set_Encoder_parameter(12);
+            set_Encoder_parameter(13);
+            set_Encoder_parameter(14);
+            set_Encoder_parameter(15);
+        }
+    }
+    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    {
+        set_presetNr();
+    }
+}
+
+uint8_t PluginControll::get_Potentiometer(uint8_t pot)
+{
+    return potentiometer[presetNr][pot];
 }
 void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 {
+    potentiometer[presetNr][pot] = value;
     if (activeScreen != INPUT_FUNCTIONS_FOR_PLUGIN)
         return;
     int Xpos = pot % NUM_ENCODERS;
     int Ypos = pot / NUM_ENCODERS;
-    potentiometer[presetNr][pot] = value;
 
-    if (parameterNames[pot] != "0")
+    assign_parameter(pot);
+    for (int r = 0; r < 2; r++)
     {
-        for (int r = 0; r < 2; r++)
+        for (int c = 0; c < NUM_STEPS; c++)
         {
-            for (int c = 0; c < NUM_STEPS; c++)
-            {
-                trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (Xpos * 2), TRELLIS_BLACK);
-            }
+            trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (Xpos * 2), TRELLIS_BLACK);
         }
-        trellisOut.writeDisplay();
-        int oldValuePos = potentiometer[presetNr][pot] / 4.12f;
-        int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
-        int oldValueYPos = ((oldValuePos / NUM_STEPS) + (Xpos * 2)) % NUM_TRACKS;
-        trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[Xpos]);
-        trellisOut.writeDisplay();
+    }
+    trellisOut.writeDisplay();
+    int oldValuePos = value / 4.12f;
+    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (Xpos * 2)) % NUM_TRACKS;
+    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[Xpos]);
+    trellisOut.writeDisplay();
+    Serial.printf("parameter: %s, value: %d\n", parameterNames[pot], value);
+    if (strcmp(parameterNames[pot], "0") != 0 && strcmp(parameterNames[pot], "1") != 0)
+    {
+        drawPot(Xpos, Ypos, value, parameterNames[pot]);
+    }
+    if (strcmp(parameterNames[pot], "1") == 0)
+        drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
+                     potentiometer[presetNr][14], potentiometer[presetNr][15]);
+}
+void PluginControll::set_Encoder_parameter(uint8_t pot)
+{
+    uint8_t XPos = pot % NUM_ENCODERS;
+    if (enc_moved[XPos])
+    {
+        set_Potentiometer(pot, constrain(potentiometer[presetNr][pot] + encoded[XPos], 0, MIDI_CC_RANGE));
 
-        drawPot(Xpos, Ypos, potentiometer[presetNr][pot], parameterNames[pot]);
+        // assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
     }
 }
 
@@ -206,7 +269,7 @@ void PluginControll::draw_plugin()
         change_plugin_row = false;
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {
-            if (parameterNames[i] != "0")
+            if (strcmp(parameterNames[i], "0") != 0 && strcmp(parameterNames[i], "1") != 0)
             {
                 int xPos = i % NUM_ENCODERS;
                 int yPos = i / NUM_ENCODERS;

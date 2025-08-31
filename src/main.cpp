@@ -82,7 +82,7 @@ uint8_t getPluginValue(uint8_t pot)
 {
   int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
   int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
-  int pluginValue = allPlugins[pluginChannel]->get_Potentiometer(pot, lastPotRow);
+  int pluginValue = allPlugins[pluginChannel]->get_Potentiometer(pot);
   Serial.printf("pluginValue =  %d, pluginPot: %d, pluginchannel= %d\n", pluginValue, pot, pluginChannel);
   return pluginValue;
 }
@@ -512,19 +512,19 @@ void input_behaviour()
   }
   case INPUT_FUNCTIONS_FOR_FX1:
   {
-    fx_1.set_parameters(lastPotRow);
+    fx_1.PluginParameters(lastPotRow);
     trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_FX2:
   {
-    fx_2.set_parameters(lastPotRow);
+    fx_2.PluginParameters(lastPotRow);
     trellis_play_mixer();
     break;
   }
   case INPUT_FUNCTIONS_FOR_FX3:
   {
-    fx_3.set_parameters(lastPotRow);
+    fx_3.PluginParameters(lastPotRow);
     trellis_play_mixer();
     break;
   }

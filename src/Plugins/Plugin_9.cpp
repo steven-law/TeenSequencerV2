@@ -75,7 +75,7 @@ void Plugin_9::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
-    setParameterNames("W~Form", "W~Form2", "Detune", "VCO Mix", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Freq", "Resonance", "Sweep", "Type", "0", "0", "0", "0");
+    setParameterNames("W~Form", "W~Form2", "Detune", "VCO Mix", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Freq", "Resonance", "Sweep", "Type", "1", "1", "1", "1");
 }
 void Plugin_9::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -93,394 +93,111 @@ void Plugin_9::noteOff(uint8_t notePlayed, uint8_t voice)
     Fenv.noteOff();
     Aenv.noteOff();
 }
-void Plugin_9::set_gain(uint8_t gain)
+void Plugin_9::assign_parameter(uint8_t pot)
 {
-    MixerGain = gain;
-}
-void Plugin_9::set_parameters(uint8_t row)
-{
-    draw_plugin();
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    switch (pot)
     {
-        if (row == 0)
-        {
-            set_voice_waveform(0, 0);
-            set_voice1_waveform(1, 0);
-            set_voice1_detune(2, 0);
-            set_voice_amplitude(3, 0);
-        }
-
-        if (row == 1)
-        {
-            set_DC_amplitude(0, 1);
-            set_LFO_waveform(1, 1);
-            set_LFO_frequency(2, 1);
-            set_LFO_amplitude(3, 1);
-        }
-
-        if (row == 2)
-        {
-            set_filter_frequency(0, 2);
-            set_filter_resonance(1, 2, 0.00, MAX_RESONANCE);
-            set_filter_sweep(2, 2, 0.00, MAX_FILTERSWEEP);
-            set_filter_type(3, 2);
-        }
-
-        if (row == 3)
-        {
-            set_envelope1_ADSR(3, 1000, 500, 2000);
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
+    case 0:
     {
-        set_presetNr();
-    }
-}
-void Plugin_9::change_preset()
-{
-    assign_voice1_waveform(potentiometer[presetNr][0]);
-    assign_voice2_waveform(potentiometer[presetNr][1]);
-
-    detune2 = (float)((note_frequency[potentiometer[presetNr][2]] * 4.40));
-    assign_voice1_amplitude(potentiometer[presetNr][3]);
-
-    //   detune2 = (float)((note_frequency[potentiometer[presetNr][2]] * 4.40));
-    // assign_voice2_amplitude(potentiometer[presetNr][6]);
-
-    assign_DC_amplitude(potentiometer[presetNr][4]);
-    assign_LFO_waveform(potentiometer[presetNr][5]);
-    assign_LFO_frequency(potentiometer[presetNr][6]);
-    assign_LFO_amplitude(potentiometer[presetNr][7]);
-
-    assign_filter_frequency(potentiometer[presetNr][8]);
-    assign_filter_resonance(potentiometer[presetNr][9]);
-    assign_filter_sweep(potentiometer[presetNr][10]);
-    selectFilterType(potentiometer[presetNr][11]);
-
-    assign_envelope1_attack(potentiometer[presetNr][12], 1000);
-    assign_envelope1_decay(potentiometer[presetNr][13], 500);
-    assign_envelope1_sustain(potentiometer[presetNr][14]);
-    assign_envelope1_release(potentiometer[presetNr][15], 2000);
-}
-
-void Plugin_9::set_voice_waveform(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int walveform = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, 0, 12);
+        int walveform = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 12);
 
         waveform.begin(walveform);
     }
-}
-void Plugin_9::set_voice_amplitude(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
+    break;
+    case 1:
     {
-        float ampl = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
+        int walveform = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 12);
+        waveform1.begin(walveform);
+    }
+    break;
+    case 2:
+    {
+        detune2 = (float)((note_frequency[get_Potentiometer(pot)] * 4.40));
+    }
+    break;
+    case 3:
+    {
+        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
 
         waveform.amplitude(1.00 - ampl);
         waveform1.amplitude(ampl);
     }
-}
-void Plugin_9::set_voice_detune(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
+    break;
+    case 4:
     {
-        int8_t value = get_Potentiometer(XPos, YPos);
-        detune1 = (float)((note_frequency[value] * 4.40));
-        if (value == 0)
-            detune1 = 0;
-    }
-}
-void Plugin_9::set_voice1_waveform(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int walveform = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, 0, 12);
-        waveform1.begin(walveform);
-    }
-}
-void Plugin_9::set_voice1_amplitude(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float ampl = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
-        waveform1.amplitude(ampl);
-    }
-}
-void Plugin_9::set_voice1_detune(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        detune2 = (float)((note_frequency[get_Potentiometer(XPos, YPos)] * 4.40));
-    }
-}
+        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
 
-void Plugin_9::set_LFO_waveform(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        assign_LFO_waveform(get_Potentiometer(XPos, YPos));
+        dc.amplitude(ampl);
     }
-}
-void Plugin_9::assign_LFO_waveform(uint8_t value)
-{
-    uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-
-    LFO.begin(walveform);
-}
-void Plugin_9::set_LFO_frequency(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
+    break;
+    case 5:
     {
-        assign_LFO_frequency(get_Potentiometer(XPos, YPos));
+        uint8_t walveform = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 12);
+
+        LFO.begin(walveform);
     }
-}
-void Plugin_9::assign_LFO_frequency(uint8_t value)
-{
-    // float ampl = map(value, 0, MIDI_CC_RANGE_FLOAT, 0.10, 100.00);
-
-    LFO.frequency(value + 1);
-}
-void Plugin_9::set_LFO_amplitude(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
+    break;
+    case 6:
+        LFO.frequency(get_Potentiometer(pot) + 1);
+        break;
+    case 7:
     {
-        assign_LFO_amplitude(get_Potentiometer(XPos, YPos));
+        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+
+        fEnvMixer.gain(1, ampl);
     }
-}
-void Plugin_9::assign_LFO_amplitude(uint8_t value)
-{
-    float ampl = value / MIDI_CC_RANGE_FLOAT;
-
-    fEnvMixer.gain(1, ampl);
-}
-void Plugin_9::set_DC_amplitude(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
+    break;
+    case 8:
     {
-        assign_DC_amplitude(get_Potentiometer(XPos, YPos));
-    }
-}
-void Plugin_9::assign_DC_amplitude(uint8_t value)
-{
-    float ampl = value / MIDI_CC_RANGE_FLOAT;
-
-    dc.amplitude(ampl);
-}
-
-void Plugin_9::set_filter_frequency(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int frequency = note_frequency[get_Potentiometer(XPos, YPos)] * tuning;
+        int frequency = note_frequency[get_Potentiometer(pot)] * tuning;
         filter.frequency(frequency);
     }
-}
-void Plugin_9::set_filter_resonance(uint8_t XPos, uint8_t YPos, float min, float max)
-{
-    if (enc_moved[XPos])
-    {
-        float reso = get_Potentiometer(XPos, YPos) / (MIDI_CC_RANGE_FLOAT / max) + min;
-
+    break;
+    case 9:
+     {   float reso = get_Potentiometer(pot) / 25.40;
         filter.resonance(reso);
-    }
-}
-void Plugin_9::set_filter_sweep(uint8_t XPos, uint8_t YPos, float min, float max)
-{
-    if (enc_moved[XPos])
-    {
-        float swp = get_Potentiometer(XPos, YPos) / (MIDI_CC_RANGE_FLOAT / max) + min;
-
+     }   break;
+    case 10:
+      {  float swp = get_Potentiometer(pot) / 18.14;
         filter.octaveControl(swp);
-    }
-}
-void Plugin_9::set_filter_type(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        selectFilterType(map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, 0, 2));
-    }
-}
-void Plugin_9::selectFilterType(uint8_t mixerchannel)
-{
-
-    fMixer.gain(0, 0);
-    fMixer.gain(1, 0);
-    fMixer.gain(2, 0);
-    fMixer.gain(mixerchannel, 1);
-}
-
-void Plugin_9::set_envelope_attack(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int attack = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+      }  break;
+    case 11:
+      {  fMixer.gain(0, 0);
+        fMixer.gain(1, 0);
+        fMixer.gain(2, 0);
+        fMixer.gain(3, 0);
+        fMixer.gain(get_Potentiometer(pot), 1);
+      }  break;
+    case 12:
+      {  int attack = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 1000);
 
         Fenv.attack(attack);
         Aenv.attack(attack);
-    }
-}
-void Plugin_9::set_envelope_decay(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int decay = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+      }  break;
+    case 13:
+      {  int decay = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 500);
 
         Fenv.decay(decay);
         Aenv.decay(decay);
-    }
-}
-void Plugin_9::set_envelope_sustain(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float sustain = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
+      }  break;
+    case 14:
+      {  float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
 
-        Fenv.sustain(sustain);
-        Aenv.sustain(sustain);
-    }
-}
-void Plugin_9::set_envelope_release(uint8_t XPos, uint8_t YPos, int min, int max)
-{
-    if (enc_moved[XPos])
-    {
-        int release = map(get_Potentiometer(XPos, YPos), 0, MIDI_CC_RANGE, min, max);
+        Fenv.sustain(ampl);
+        Aenv.sustain(ampl);
+      }  break;
+    case 15:
+      {  int release = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
 
         Fenv.release(release);
         Aenv.release(release);
+      }  break;
+    default:
+        break;
     }
 }
-
-void Plugin_9::assign_voice1_waveform(uint8_t value)
+void Plugin_9::set_gain(uint8_t gain)
 {
-    int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-
-    waveform.begin(walveform);
+    MixerGain = gain;
 }
-void Plugin_9::assign_voice1_amplitude(uint8_t value)
-{
-    float ampl = value / MIDI_CC_RANGE_FLOAT;
-
-    waveform.amplitude(ampl);
-}
-
-void Plugin_9::assign_voice2_waveform(uint8_t value)
-{
-    int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-
-    waveform1.begin(walveform);
-}
-void Plugin_9::assign_voice2_amplitude(uint8_t value)
-{
-    float ampl = value / MIDI_CC_RANGE_FLOAT;
-
-    waveform1.amplitude(ampl);
-}
-void Plugin_9::set_voice2_detune(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        detune2 = (float)((note_frequency[get_Potentiometer(XPos, YPos)] * 0.01));
-    }
-}
-
-void Plugin_9::assign_filter_frequency(uint8_t value)
-{
-
-    int frequency = note_frequency[value] * tuning;
-
-    filter.frequency(frequency);
-    ladder.frequency(frequency);
-}
-void Plugin_9::assign_filter_resonance(uint8_t value)
-{
-
-    float reso = value / 25.40;
-
-    filter.resonance(reso);
-    ladder.resonance(reso);
-}
-void Plugin_9::assign_filter_sweep(uint8_t value)
-{
-    float swp = value / 18.14;
-
-    filter.octaveControl(swp);
-    ladder.octaveControl(swp);
-}
-void Plugin_9::assign_filter_type(uint8_t mixerchannel)
-{
-
-    fMixer.gain(0, 0);
-    fMixer.gain(1, 0);
-    fMixer.gain(2, 0);
-    fMixer.gain(3, 0);
-    fMixer.gain(mixerchannel, 1);
-}
-
-void Plugin_9::assign_envelope1_attack(uint8_t value, int max)
-{
-    int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
-
-    Fenv.attack(attack);
-    Aenv.attack(attack);
-}
-void Plugin_9::assign_envelope1_decay(uint8_t value, int max)
-{
-    int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
-
-    Fenv.decay(decay);
-    Aenv.decay(decay);
-}
-void Plugin_9::assign_envelope1_sustain(uint8_t value)
-{
-    float ampl = value / MIDI_CC_RANGE_FLOAT;
-
-    Fenv.sustain(ampl);
-    Aenv.sustain(ampl);
-}
-void Plugin_9::assign_envelope1_release(uint8_t value, int max)
-{
-    int release = map(value, 0, MIDI_CC_RANGE, 0, max);
-
-    Fenv.release(release);
-    Aenv.release(release);
-}
-void Plugin_9::set_envelope1_ADSR(uint8_t YPos, int maxA, int maxD, int maxR)
-{
-
-    if (enc_moved[0])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][0 + rowIx] = constrain(potentiometer[presetNr][0 + rowIx] + encoded[0], 0, MIDI_CC_RANGE);
-        assign_envelope1_attack(potentiometer[presetNr][0 + rowIx], maxA);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-    if (enc_moved[1])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][1 + rowIx] = constrain(potentiometer[presetNr][1 + rowIx] + encoded[1], 0, MIDI_CC_RANGE);
-        assign_envelope1_decay(potentiometer[presetNr][1 + rowIx], maxD);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-    if (enc_moved[2])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][2 + rowIx] = constrain(potentiometer[presetNr][2 + rowIx] + encoded[2], 0, MIDI_CC_RANGE);
-        assign_envelope1_sustain(potentiometer[presetNr][2 + rowIx]);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-    if (enc_moved[3])
-    {
-        uint8_t rowIx = YPos * 4;
-        potentiometer[presetNr][3 + rowIx] = constrain(potentiometer[presetNr][3 + rowIx] + encoded[3], 0, MIDI_CC_RANGE);
-        assign_envelope1_release(potentiometer[presetNr][3 + rowIx], maxR);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
-                     potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
-    }
-}
-
 Plugin_9 plugin_9("Nord", 9);

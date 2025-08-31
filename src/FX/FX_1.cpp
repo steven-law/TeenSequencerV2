@@ -20,13 +20,24 @@ void FX_1::setup()
 }
 void FX_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void FX_1::noteOff(uint8_t notePlayed, uint8_t voice) {}
-void FX_1::set_parameters(uint8_t row)
+void FX_1::assign_parameter(uint8_t pot)
 {
-    draw_plugin();
-    if (row == 0)
+    switch (pot)
     {
-        set_RV_roomsize(0, 0);
-        set_RC_damping(1, 0);
+    case 0:
+ {
+        float size = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        freeverb.roomsize(size);
+    }
+        break;
+    case 1:
+{
+        float damp = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        freeverb.damping(damp);
+    }
+        break;
+    default:
+        break;
     }
 }
 void FX_1::set_gain(uint8_t gain)
@@ -34,26 +45,3 @@ void FX_1::set_gain(uint8_t gain)
     // MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
 }
 
-void FX_1::set_RV_roomsize(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float size = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
-        freeverb.roomsize(size);
-    }
-}
-void FX_1::set_RC_damping(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float damp = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
-        freeverb.damping(damp);
-    }
-}
-void FX_1::change_preset()
-{
-    float size = potentiometer[presetNr][0] / MIDI_CC_RANGE_FLOAT;
-    freeverb.roomsize(size);
-    float damp = potentiometer[presetNr][1] / MIDI_CC_RANGE_FLOAT;
-    freeverb.damping(damp);
-}

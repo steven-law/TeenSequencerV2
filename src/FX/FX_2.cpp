@@ -20,36 +20,25 @@ void FX_2::setup()
 }
 void FX_2::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void FX_2::noteOff(uint8_t notePlayed, uint8_t voice) {}
-void FX_2::set_parameters(uint8_t row)
+void FX_2::assign_parameter(uint8_t pot)
 {
-    draw_plugin();
-    if (row == 0)
+       switch (pot)
     {
-        set_BC_bits(0, 0);
-        set_BC_smplRate(1, 0);
+    case 0:
+ {
+         bitcrusher.bits(map(get_Potentiometer(pot), 0, 127, 1, 16));
+    }
+        break;
+    case 1:
+{
+        bitcrusher.sampleRate(map(get_Potentiometer(pot), 0, 127, 1, 44100));
+    }
+        break;
+    default:
+        break;
     }
 }
-
 void FX_2::set_gain(uint8_t gain)
 {
     // MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
-}
-void FX_2::set_BC_bits(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        bitcrusher.bits(map(get_Potentiometer(XPos, YPos), 0, 127, 1, 16));
-    }
-}
-void FX_2::set_BC_smplRate(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        bitcrusher.sampleRate(map(get_Potentiometer(XPos, YPos), 0, 127, 1, 44100));
-    }
-}
-void FX_2::change_preset()
-{
-    bitcrusher.bits(map(potentiometer[presetNr][0], 0, 127, 1, 16));
-    bitcrusher.sampleRate(map(potentiometer[presetNr][1], 0, 127, 1, 44100));
 }

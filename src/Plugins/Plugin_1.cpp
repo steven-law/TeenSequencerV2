@@ -42,70 +42,16 @@ void Plugin_1::noteOff(uint8_t notePlayed, uint8_t voice)
     string[voice].noteOff(0);
     // Serial.printf("OFF voice: %d,  \n", voice);
 }
-void Plugin_1::set_parameters(uint8_t row)
+
+void Plugin_1::assign_parameter(uint8_t pot)
 {
-    draw_plugin();
-    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        if (row == 0)
-        {
-
-            set_mixer_gain(0, 0);
-            set_mixer_gain(1, 0);
-            set_mixer_gain(2, 0);
-            set_mixer_gain(3, 0);
-        }
-
-        if (row == 1)
-        {
-
-            set_mixer_gain(0, 1);
-            set_mixer_gain(1, 1);
-            set_mixer_gain(2, 1);
-            set_mixer_gain(3, 1);
-        }
-
-        if (row == 2)
-        {
-            set_mixer_gain(0, 2);
-            set_mixer_gain(1, 2);
-            set_mixer_gain(2, 2);
-            set_mixer_gain(3, 2);
-        }
-
-        if (row == 3)
-        {
-        }
-    }
-    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
-    {
-        set_presetNr();
-    }
-}
-
-void Plugin_1::change_preset()
-{
-    for (int i = 0; i < MAX_VOICES; i++)
-    {
-        assign_mixer_gain(potentiometer[presetNr][i], i);
-    }
+    float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+    mixer.gain(pot, sustain);
 }
 void Plugin_1::set_gain(uint8_t gain)
 {
     MixGain.gain(gain / MIDI_CC_RANGE_FLOAT);
 }
-void Plugin_1::set_mixer_gain(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int n = XPos + (YPos * NUM_ENCODERS);
-        assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
-    }
-}
-void Plugin_1::assign_mixer_gain(uint8_t value, uint8_t channel)
-{
-    float sustain = value / MIDI_CC_RANGE_FLOAT;
-    mixer.gain(channel, sustain);
-}
+
 Plugin_1 plugin_1("Strg", 1);
 // TeensyDAW: end automatically generated code

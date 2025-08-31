@@ -19,40 +19,27 @@ void FX_3::setup()
 }
 void FX_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void FX_3::noteOff(uint8_t notePlayed, uint8_t voice) {}
-void FX_3::set_parameters(uint8_t row)
+void FX_3::assign_parameter(uint8_t pot)
 {
-    draw_plugin();
-    if (row == 0)
+    switch (pot)
     {
-        set_DL_time(0, 0);
-        set_DL_feedback(1, 0);
+    case 0:
+    {
+        int time = map(get_Potentiometer(pot), 0, 127, 3, 500);
+        delay.delay(0, time);
+    }
+    break;
+    case 1:
+    {
+        float gain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        delayMixer.gain(1, gain);
+    }
+    break;
+    default:
+        break;
     }
 }
-
 void FX_3::set_gain(uint8_t gain)
 {
     // MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
-}
-void FX_3::set_DL_time(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        int time = map(get_Potentiometer(XPos, YPos), 0, 127, 3, 500);
-        delay.delay(0, time);
-    }
-}
-void FX_3::set_DL_feedback(uint8_t XPos, uint8_t YPos)
-{
-    if (enc_moved[XPos])
-    {
-        float gain = get_Potentiometer(XPos, YPos) / MIDI_CC_RANGE_FLOAT;
-        delayMixer.gain(1, gain);
-    }
-}
-void FX_3::change_preset()
-{
-    int time = map(potentiometer[presetNr][0], 0, 127, 3, 500);
-    delay.delay(0, time);
-    float gain = potentiometer[presetNr][1] / MIDI_CC_RANGE_FLOAT;
-    delayMixer.gain(1, gain);
 }
