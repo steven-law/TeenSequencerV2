@@ -10,7 +10,7 @@ extern const char *filterName[4];
 
 void Plugin_14::setup()
 {
-
+    IhaveADSR = true;
     dc.amplitude(1);
 
     playMem.begin();
@@ -47,6 +47,7 @@ void Plugin_14::setup()
 
     MixGain.gain(0, 1);
     MixGain.gain(1, 1);
+
     potentiometer[presetNr][0] = 0;
     potentiometer[presetNr][1] = 0;
     potentiometer[presetNr][2] = 0;
@@ -70,6 +71,7 @@ void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
     float velo = (velocity * (MixerGain / MIDI_CC_RANGE_FLOAT));
     MixGain.gain(0, velo);
     MixGain.gain(1, velo);
+
     Serial.printf("pl14: notePlayed= %d\n", notePlayed);
     playMem.setPlaybackRate(note_frequency[notePlayed]);
     //  playMem.playRaw(_playFilename, 1);
@@ -108,32 +110,32 @@ void Plugin_14::assign_parameter(uint8_t pot)
     switch (pot)
     {
     case 0:
-{
+    {
 
-    sprintf(_recFilename, "%d.raw", get_Potentiometer(pot));
-    // newdigate::flashloader loader;
-    // sample = loader.loadSample(_recFileName);
-}
-        break;
+        sprintf(_recFilename, "%d.raw", get_Potentiometer(pot));
+        // newdigate::flashloader loader;
+        // sample = loader.loadSample(_recFileName);
+    }
+    break;
     case 1:
-{
-    float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
-    inputGain.gain(ampl);
-}
-        break;
+    {
+        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        inputGain.gain(ampl);
+    }
+    break;
     case 2:
-{
-    sprintf(_playFilename, "%d.raw", get_Potentiometer(pot));
-}
-        break;
+    {
+        sprintf(_playFilename, "%d.raw", get_Potentiometer(pot));
+    }
+    break;
     case 3:
-{
-    float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
-    fMixer.gain(0, ampl);
-    fMixer.gain(1, ampl);
-    fMixer.gain(2, ampl);
-}
-        break;
+    {
+        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        fMixer.gain(0, ampl);
+        fMixer.gain(1, ampl);
+        fMixer.gain(2, ampl);
+    }
+    break;
     case 4:
 
         break;
@@ -146,7 +148,7 @@ void Plugin_14::assign_parameter(uint8_t pot)
     case 7:
 
         break;
-  case 8:
+    case 8:
     {
         int frequency = note_frequency[get_Potentiometer(pot)] * tuning;
         filter.frequency(frequency);
@@ -205,12 +207,6 @@ void Plugin_14::assign_parameter(uint8_t pot)
         break;
     }
 }
-void Plugin_14::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
-}
-
-
 
 void Plugin_14::show_peak()
 {

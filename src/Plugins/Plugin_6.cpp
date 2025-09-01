@@ -54,7 +54,7 @@ extern int gridTouchY;
 
 void Plugin_6::setup()
 {
-
+    IhaveADSR = true;
     dc.amplitude(1);
     for (int i = 0; i < PL6_VOICES; i++)
     {
@@ -229,10 +229,6 @@ void Plugin_6::assign_parameter(uint8_t pot)
     default:
         break;
     }
-}
-void Plugin_6::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
 }
 
 Plugin_6 plugin_6("Adtv", 6);

@@ -13,6 +13,7 @@ extern bool change_plugin_row;
 
 void Plugin_11::setup()
 {
+    IhaveADSR = true;
     dc.amplitude(1);
 
     // waveform.begin(WAVEFORM_SINE);
@@ -194,10 +195,6 @@ void Plugin_11::assign_parameter(uint8_t pot)
     default:
         break;
     }
-}
-void Plugin_11::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
 }
 
 Plugin_11 plugin_11("PWM", 11);

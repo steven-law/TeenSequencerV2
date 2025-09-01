@@ -18,7 +18,7 @@ extern const char *filterName[4];
 
 void Plugin_13::setup()
 {
-
+    IhaveADSR = true;
     dc.amplitude(1);
 
     waveform.begin(WAVEFORM_ARBITRARY);
@@ -181,10 +181,6 @@ void Plugin_13::assign_parameter(uint8_t pot)
         break;
     }
 }
-void Plugin_13::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
-}
 
 void Plugin_13::draw_voice_waveform(uint8_t XPos, uint8_t YPos)
 {
@@ -298,6 +294,5 @@ void Plugin_13::redraw_customWaveform(int8_t YPos)
         // startY=endY;
     }
 }
-
 
 Plugin_13 plugin_13("Draw", 13);

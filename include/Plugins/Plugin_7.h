@@ -60,24 +60,21 @@ public:
     AudioSynthFMDrum fm_drum;
     AudioEffectDynamics dynamics;
     AudioAmplifier amp;
-    AudioAmplifier MixGain;
+
+
     // AudioAmplifier SongVol;
-    AudioConnection *patchCord[3]; // total patchCordCount:2 including array typed ones.
+    AudioConnection *patchCord[4]; // total patchCordCount:2 including array typed ones.
 
     // constructor (this is called when class-object is created)
     Plugin_7(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
-        // patchCord[pci++] = new AudioConnection(fm_drum, 0, dynamics, 0);
-        // patchCord[pci++] = new AudioConnection(dynamics, 0, MixGain, 0);
-        // //patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
-
         patchCord[pci++] = new AudioConnection(fm_drum, 0, dynamics, 0);
         patchCord[pci++] = new AudioConnection(dynamics, 0, amp, 0);
         patchCord[pci++] = new AudioConnection(amp, 0, MixGain, 0);
-        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
-        // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
+         patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
+
     }
     virtual ~Plugin_7() = default;
 
@@ -85,8 +82,6 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void assign_parameter(uint8_t pot) override;
-
-    virtual void set_gain(uint8_t gain) override;
 
 };
 #endif // PLUGIN_3_H

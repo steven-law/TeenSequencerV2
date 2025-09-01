@@ -48,15 +48,11 @@ public:
     // AudioPlaySerialflashRaw  playMem[MAX_VOICES];
 
     AudioPlayArrayResmp playMem[PL4_VOICES];
-    // AudioPlayMemory playMem[MAX_VOICES];
     newdigate::audiosample *sample[PL4_VOICES];
-   // newdigate::flashloader loader;
     AudioEffectEnvelope AEnv[PL4_VOICES];
     AudioMixer12 mixer;
 
-    AudioAmplifier MixGain;
-    // AudioAmplifier SongVol;
-    AudioConnection *patchCord[PL4_VOICES*2 + 1]; // total patchCordCount:14 including array typed ones.
+    AudioConnection *patchCord[PL4_VOICES * 2 + 2]; // total patchCordCount:14 including array typed ones.
     char _fileName[PL4_VOICES][20];
 
     // constructor (this is called when class-object is created)
@@ -65,7 +61,7 @@ public:
         int pci = 0; // used only for adding new patchcords
 
         patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
         for (int i = 0; i < PL4_VOICES; i++)
         {
@@ -78,12 +74,6 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void assign_parameter(uint8_t pot) override;
-
-    virtual void set_gain(uint8_t gain) override;
-    void set_mixer_gain(uint8_t XPos, uint8_t YPos);
-    void assign_mixer_gain(uint8_t value, uint8_t channel);
-    void set_waveform(uint8_t XPos, uint8_t YPos);
-    void assign_waveform(uint8_t value, uint8_t channel);
 };
 
 #endif // PLUGIN_3_H

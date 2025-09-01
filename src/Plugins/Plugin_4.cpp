@@ -17,7 +17,7 @@ extern int tuning;
 
 void Plugin_4::setup()
 {
-
+    IamPoly = true;
     for (int i = 0; i < PL4_VOICES; i++)
     {
         playMem[i].begin();
@@ -71,11 +71,6 @@ void Plugin_4::assign_parameter(uint8_t pot)
         float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
         mixer.gain(pot - 8, sustain);
     }
-}
-void Plugin_4::set_gain(uint8_t gain)
-{
-    float velo = ((gain / MIDI_CC_RANGE_FLOAT));
-    MixGain.gain(velo);
 }
 
 Plugin_4 plugin_4("mDrm", 4);

@@ -18,7 +18,7 @@ extern const char *filterName[4];
 
 void Plugin_10::setup()
 {
-
+IhaveADSR = true;
     dc.amplitude(1);
 
     waveform.setInstrument(Flute_100kuint8_t);
@@ -162,11 +162,6 @@ case 8:
     default:
         break;
     }
-}
-
-void Plugin_10::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
 }
 
 void Plugin_10::assign_voice_waveform(uint8_t value)

@@ -24,8 +24,12 @@ void Track::set_seqModValue(uint8_t param, uint8_t value)
             }
         }
         trellisOut.writeDisplay();
-        int oldValuePos = seqMod_value[mode][PMpresetNr][param] / 4.12f;
-        int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+        int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);
+        // int oldValuePos = value /4.12f;;
+
+        int oldValueXPos = (oldValuePos % NUM_STEPS);
+        // int oldValueXPos = (oldValuePos % NUM_STEPS)+1;
+
         int oldValueYPos = ((oldValuePos / NUM_STEPS) + (x * 2)) % NUM_TRACKS;
         trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, oldValueXPos, oldValueYPos, encoder_colour[x]);
         trellisOut.writeDisplay();

@@ -18,6 +18,7 @@ extern int tuning;
 
 void Plugin_1::setup()
 {
+    IamPoly = true;
     for (int i = 0; i < MAX_VOICES; i++)
     {
         mixer.gain(i, 1);
@@ -42,16 +43,12 @@ void Plugin_1::noteOff(uint8_t notePlayed, uint8_t voice)
     string[voice].noteOff(0);
     // Serial.printf("OFF voice: %d,  \n", voice);
 }
-
 void Plugin_1::assign_parameter(uint8_t pot)
 {
     float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
     mixer.gain(pot, sustain);
 }
-void Plugin_1::set_gain(uint8_t gain)
-{
-    MixGain.gain(gain / MIDI_CC_RANGE_FLOAT);
-}
+
 
 Plugin_1 plugin_1("Strg", 1);
 // TeensyDAW: end automatically generated code

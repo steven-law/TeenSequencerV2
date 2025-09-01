@@ -977,7 +977,7 @@ void trellis_play_playmode()
   if (isPressed())
   {
     int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
-    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.13f;
+    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.12f;
     allTracks[active_track]->set_seqModValue(pot, value);
     revertPressedKey();
   }

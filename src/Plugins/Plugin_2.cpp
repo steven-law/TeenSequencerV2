@@ -19,7 +19,7 @@ extern const char *filterName[4];
 
 void Plugin_2::setup()
 {
-
+    IhaveADSR = true;
     dc.amplitude(1);
 
     waveform.begin(WAVEFORM_SINE);
@@ -186,10 +186,6 @@ void Plugin_2::assign_parameter(uint8_t pot)
     default:
         break;
     }
-}
-void Plugin_2::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
 }
 
 Plugin_2 plugin_2("1OSC", 2);

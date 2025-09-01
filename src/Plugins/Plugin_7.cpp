@@ -169,10 +169,6 @@ void Plugin_7::assign_parameter(uint8_t pot)
         break;
     }
 }
-void Plugin_7::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
-}
 
 
 

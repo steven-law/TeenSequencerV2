@@ -38,7 +38,3 @@ void FX_2::assign_parameter(uint8_t pot)
         break;
     }
 }
-void FX_2::set_gain(uint8_t gain)
-{
-    // MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
-}

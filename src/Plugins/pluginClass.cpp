@@ -16,7 +16,6 @@ const char *filterName[4]{"LPF", "BPF", "HPF", "LPF2"};
 void PluginControll::setup() {}
 void PluginControll::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void PluginControll::noteOff(uint8_t notePlayed, uint8_t voice) {}
-void PluginControll::set_gain(uint8_t gain) {}
 
 void PluginControll::setParameterNames(const char *para1, const char *para2, const char *para3, const char *para4,
                                        const char *para5, const char *para6, const char *para7, const char *para8,
@@ -157,8 +156,11 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
         }
     }
     trellisOut.writeDisplay();
-    int oldValuePos = value / 4.12f;
-    int oldValueXPos = (oldValuePos % NUM_STEPS) + 1;
+
+    // int oldValuePos = value / 4.12f;
+    int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);
+
+    int oldValueXPos = (oldValuePos % NUM_STEPS);
     int oldValueYPos = ((oldValuePos / NUM_STEPS) + (Xpos * 2)) % NUM_TRACKS;
     trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[Xpos]);
     trellisOut.writeDisplay();
@@ -280,10 +282,25 @@ void PluginControll::draw_plugin()
 
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Preset", ILI9341_BLUE, 2, false, false);
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-        if (myID == 2 || myID == 3 || myID == 6 || myID == 8 || myID == 9 || myID == 10 || myID == 11 || myID == 12 || myID == 13 || myID == 14)
+        if (IhaveADSR)
         {
             drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
                          potentiometer[presetNr][14], potentiometer[presetNr][15]);
         }
     }
+}
+void PluginControll::set_gain(uint8_t gain)
+{
+    MixerGain = gain;
+    if (IamPoly)
+        MixGain.gain(gain / MIDI_CC_RANGE_FLOAT);
+}
+void PluginControll::set_FilterFreq(uint8_t value)
+{
+    performFilter.frequency(note_frequency[value]);
+}
+void PluginControll::set_FilterReso(uint8_t value)
+{
+    float reso = (float)map(value, 0, MIDI_CC_RANGE, 0, 5.00f);
+    performFilter.resonance(value / 25.4);
 }

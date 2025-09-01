@@ -17,7 +17,7 @@ extern int tuning;
 
 void Plugin_8::setup()
 {
-
+IhaveADSR = true;
     dc.amplitude(1);
 
     waveform.begin(WAVEFORM_SINE);
@@ -171,10 +171,6 @@ void Plugin_8::assign_parameter(uint8_t pot)
     default:
         break;
     }
-}
-void Plugin_8::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
 }
 
 

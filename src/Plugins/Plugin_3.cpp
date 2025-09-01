@@ -18,7 +18,7 @@ extern int tuning;
 
 void Plugin_3::setup()
 {
-
+    IhaveADSR = true;
     modulator.begin(WAVEFORM_SINE);
     modulator.frequency(440);
     modulator.amplitude(1);
@@ -173,10 +173,6 @@ void Plugin_3::assign_parameter(uint8_t pot)
     default:
         break;
     }
-}
-void Plugin_3::set_gain(uint8_t gain)
-{
-    MixerGain = gain;
 }
 
 Plugin_3 plugin_3("2FM", 3);

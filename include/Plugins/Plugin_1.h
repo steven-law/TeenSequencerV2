@@ -43,17 +43,14 @@ class Plugin_1 : public PluginControll
 public:
     AudioSynthKarplusStrong string[MAX_VOICES];
     AudioMixer12 mixer;
-    AudioAmplifier MixGain;
-    // AudioAmplifier SongVol;
-    AudioConnection *patchCord[MAX_VOICES + 1]; // total patchCordCount:14 including array typed ones.
-
+    AudioConnection *patchCord[MAX_VOICES + 2]; // total patchCordCount:14 including array typed ones.
     // constructor (this is called when class-object is created)
     Plugin_1(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
         patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
 
         for (int i = 0; i < MAX_VOICES; i++)
@@ -67,9 +64,6 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void assign_parameter(uint8_t pot) override;
-
-    virtual void set_gain(uint8_t gain) override;
-
 
 };
 

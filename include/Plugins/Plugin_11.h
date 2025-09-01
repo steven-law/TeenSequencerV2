@@ -54,10 +54,9 @@ public:
     AudioFilterStateVariable filter;
     AudioMixer4 fMixer;
     AudioEffectEnvelope Aenv;
-    // AudioAmplifier NoteGain;
-    AudioAmplifier MixGain;
-    // AudioAmplifier SongVol;
-    AudioConnection *patchCord[13]; // total patchCordCount:98 including array typed ones.
+
+
+    AudioConnection *patchCord[14]; // total patchCordCount:98 including array typed ones.
 
     // constructor (this is called when class-object is created)
     Plugin_11(const char *Name, uint8_t ID) : PluginControll(Name, ID)
@@ -80,24 +79,15 @@ public:
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
 
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        // patchCord[pci++] = new AudioConnection(audioInput, 0, NoteGain, 0);
-        //    patchCord[pci++] = new AudioConnection(NoteGain, 0, MixGain, 0);
-
-        // patchCord[pci++] = new AudioConnection(input, 0, MixGain, 0);
-
-        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
-        // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
+        patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
     }
     virtual ~Plugin_11() = default;
 
     virtual void setup() override;
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
-
     virtual void assign_parameter(uint8_t pot) override;
-    
-    virtual void set_gain(uint8_t gain) override;
-   
+
 };
 #endif // PLUGIN_11_H
 

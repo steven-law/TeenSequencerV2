@@ -56,8 +56,9 @@ public:
     AudioEffectEnvelope Aenv;
     // AudioMixer12 mixer;
     AudioMixer4 MixGain;
-    // AudioAmplifier SongVol;
-    AudioConnection *patchCord[12]; // total patchCordCount:98 including array typed ones.
+
+
+    AudioConnection *patchCord[13]; // total patchCordCount:98 including array typed ones.
     // draw waveforms
     int16_t pl14_customWaveform[GRID_LENGTH_HOR];
     int8_t pl14_oldCustomWaveformValue = 0;
@@ -87,7 +88,8 @@ public:
         patchCord[pci++] = new AudioConnection(inputGain, 0, queue1, 0);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        // patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+
+        patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
         //  patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
     }
     virtual ~Plugin_14() = default;
@@ -96,15 +98,9 @@ public:
     virtual void noteOn(uint8_t notePlayed, float velocity, uint8_t voice) override;
     virtual void noteOff(uint8_t notePlayed, uint8_t voice) override;
     virtual void assign_parameter(uint8_t pot) override;
-    virtual void set_gain(uint8_t gain) override;
-    void set_rec_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
-    void assign_rec_waveform(uint8_t value);
-    void set_rec_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_rec_amplitude(uint8_t value);
-    void set_voice_waveform(uint8_t XPos, uint8_t YPos); // make virtual in baseclass
-    void assign_voice_waveform(uint8_t value);                             // make virtual in baseclass but override
-    void set_voice_amplitude(uint8_t XPos, uint8_t YPos);
-    void assign_voice_amplitude(uint8_t value);
+
+
+    void assign_voice_waveform(uint8_t value); // make virtual in baseclass but override
     void draw_actual_waveform(uint8_t YPos);
     // draw waveforms
     void clearcustomWaveform(uint8_t YPos);
@@ -113,8 +109,6 @@ public:
     void smooth_customWaveform(uint8_t YPos);
     void show_peak();
 
-    
-    void recorder_Page1_Dynamic();
     void startRecording();
     void stopRecording();
     void continueRecording();

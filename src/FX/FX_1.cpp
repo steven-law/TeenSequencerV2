@@ -25,23 +25,18 @@ void FX_1::assign_parameter(uint8_t pot)
     switch (pot)
     {
     case 0:
- {
+    {
         float size = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
         freeverb.roomsize(size);
     }
-        break;
+    break;
     case 1:
-{
+    {
         float damp = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
         freeverb.damping(damp);
     }
-        break;
+    break;
     default:
         break;
     }
 }
-void FX_1::set_gain(uint8_t gain)
-{
-    // MixGain.gain(gain/ MIDI_CC_RANGE_FLOAT);
-}
-
