@@ -28,6 +28,7 @@ void Plugin_4::setup()
         AEnv[i].release(100);
         mixer.gain(i, 1);
     }
+
     MixGain.gain(1);
     for (int i = 0; i < PL4_VOICES; i++)
     {

@@ -60,8 +60,8 @@ public:
     {
         int pci = 0; // used only for adding new patchcords
 
-        patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
+        patchCord[pci++] = new AudioConnection(mixer, 0, this->MixGain, 0);
+        patchCord[pci++] = new AudioConnection(this->MixGain, 0, this->performFilter, 0);
         // patchCord[pci++] = new AudioConnection(SongVol, 0, dacOut, 0);
         for (int i = 0; i < PL4_VOICES; i++)
         {

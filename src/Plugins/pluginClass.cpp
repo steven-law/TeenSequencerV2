@@ -297,10 +297,13 @@ void PluginControll::set_gain(uint8_t gain)
 }
 void PluginControll::set_FilterFreq(uint8_t value)
 {
-    performFilter.frequency(note_frequency[value]);
+    Serial.printf("set plugin %d to freq %f\n", myID, note_frequency[value]);
+    performFilter.frequency(note_frequency[value]*tuning);
 }
 void PluginControll::set_FilterReso(uint8_t value)
 {
-    float reso = (float)map(value, 0, MIDI_CC_RANGE, 0, 5.00f);
-    performFilter.resonance(value / 25.4);
+   // float reso = (float)map(value, 0, MIDI_CC_RANGE, 0, 5.00f);
+    float reso = value / 25.4;
+    Serial.printf("set plugin %d to reso %f\n", myID, reso);
+    performFilter.resonance(reso);
 }

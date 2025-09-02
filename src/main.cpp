@@ -179,8 +179,8 @@ void setup()
     fx_2.pl[i].gain(0);
     fx_3.pl[i].gain(0);
   }
-  //MasterOut.finalFilter.frequency(5500);
-  //MasterOut.finalFilter.resonance(0);
+  // MasterOut.finalFilter.frequency(5500);
+  // MasterOut.finalFilter.resonance(0);
   MasterOut.sgtl5000.dacVolume(.5);
   Serial.println("Audio & MIDI Setup done");
 
@@ -1081,7 +1081,7 @@ void performPluginFreq(uint8_t val, uint8_t cc)
     if (!allTracks[s]->performIsActive)
       continue;
     uint8_t ch = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->external_clock_bar]].midiChOut;
-    if (ch > NUM_MIDI_OUTPUTS)
+    if (ch > NUM_MIDI_OUTPUTS && val < NO_NOTE)
       MasterOut.performFrequency(ch - (NUM_MIDI_OUTPUTS + 1), val);
     else
       sendControlChange(cc, val, ch, s);
@@ -1094,7 +1094,7 @@ void performpluginReso(uint8_t val, uint8_t cc)
     if (!allTracks[s]->performIsActive)
       continue;
     uint8_t ch = allTracks[s]->clip[allTracks[s]->clip_to_play[allTracks[s]->external_clock_bar]].midiChOut;
-    if (ch > NUM_MIDI_OUTPUTS)
+    if (ch > NUM_MIDI_OUTPUTS && val < NO_NOTE)
       MasterOut.performResonance(ch - (NUM_MIDI_OUTPUTS + 1), val);
     else
       sendControlChange(cc, val, ch, s);
@@ -1205,14 +1205,14 @@ void trellis_perform()
     {
       int freq = note_frequency[value] * tuning;
       performPluginFreq(value, performCC[11]);
-      sendCCToActiveTracks(performCC[11], value);
+      // sendCCToActiveTracks(performCC[11], value);
       printInfo("Fltr Freq", freq, performCC[11]);
       break;
     }
 
     case 12:
       performpluginReso(value, performCC[11]);
-      sendCCToActiveTracks(performCC[12], value);
+      // sendCCToActiveTracks(performCC[12], value);
       printInfo("Fltr Reso", row * 18, performCC[12]);
       break;
 

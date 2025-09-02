@@ -29,7 +29,7 @@ class Output
 public:
     uint8_t plugin_channel[NUM_TRACKS]; // this stores the track number that is related to the plugin number f.e plguin_channel[Plugin_0]= Track number 2
     FX_Section fx_section;
-    //AudioFilterStateVariable finalFilter;
+    // AudioFilterStateVariable finalFilter;
     AudioOutputI2S i2s;
     AudioControlSGTL5000 sgtl5000;
     AudioConnection *patchCord[2]; // total patchCordCount:2 including array typed ones.
@@ -39,9 +39,9 @@ public:
     {
         int pci = 0; // used only for adding new patchcords
 
-        //patchCord[pci++] = new AudioConnection(fx_section.endmixer, 0, finalFilter, 0);
-        //patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 0);
-        //patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 1);
+        // patchCord[pci++] = new AudioConnection(fx_section.endmixer, 0, finalFilter, 0);
+        // patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 0);
+        // patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 1);
         patchCord[pci++] = new AudioConnection(fx_section.endmixer, 0, i2s, 0);
         patchCord[pci++] = new AudioConnection(fx_section.endmixer, 0, i2s, 1);
     }
@@ -64,7 +64,7 @@ public:
     }
     void noteOn(uint8_t note, uint8_t velo, uint8_t _channel, uint8_t voice)
     {
-        Serial.printf("recieve NoteON channel:%d, velocity: %d\n", _channel, velo);
+        // Serial.printf("recieve NoteON channel:%d, velocity: %d\n", _channel, velo);
 
         allPlugins[_channel]->noteOn(note, velo / MIDI_CC_RANGE_FLOAT, voice);
     }
@@ -77,7 +77,7 @@ public:
     {
         allPlugins[pluginNr]->set_FilterFreq(value);
     }
-     void performResonance(uint8_t pluginNr, uint8_t value)
+    void performResonance(uint8_t pluginNr, uint8_t value)
     {
         allPlugins[pluginNr]->set_FilterReso(value);
     }
