@@ -983,7 +983,7 @@ void trellis_play_playmode()
   }
    if (tsTouched)
   {
-    int pot = parameterTouchY + (lastPotRow * NUM_ENCODERS);
+    int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
     int value = parameterTouchY;
     allTracks[active_track]->set_seqModValue(pot, value);
   }

@@ -41,7 +41,7 @@ void touch_update()
             {
                 tsTouched = true;
                 parameterTouchX = constrain(map(p.x, TS_MINX + 200, TS_MAXX - 600, 0, 3), 0, 3);
-                parameterTouchY = constrain(map(p.y, TS_MINY + 150, TS_MAXY - 150, 0, 127), 0, 127);
+                parameterTouchY = constrain(map(p.y, TS_MINY + 150, TS_MAXY - 150, 127, 0), 0, 127);
                 Serial.printf("parameterTouchX: %d, Y: %d\n", parameterTouchX, parameterTouchY);
             }
             else if (pX >= SEQ_GRID_RIGHT)
