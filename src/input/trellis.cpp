@@ -981,6 +981,12 @@ void trellis_play_playmode()
     allTracks[active_track]->set_seqModValue(pot, value);
     revertPressedKey();
   }
+   if (tsTouched)
+  {
+    int pot = parameterTouchY + (lastPotRow * NUM_ENCODERS);
+    int value = parameterTouchY;
+    allTracks[active_track]->set_seqModValue(pot, value);
+  }
 }
 
 uint8_t getPressedKey()

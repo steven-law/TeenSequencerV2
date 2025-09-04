@@ -159,6 +159,8 @@ extern const char FLASHMEM *songNames[16];
 extern char _trackname[20];
 extern int pixelTouchX;
 extern int gridTouchY;
+extern int parameterTouchX;
+extern int parameterTouchY;
 extern uint8_t lastPotRow;
 extern bool change_row;
 extern uint8_t activeScreen;

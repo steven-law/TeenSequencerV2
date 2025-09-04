@@ -304,23 +304,26 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     int yPos = (YPos + 1) * 3;
 
     circlePos[XPos] = dvalue / 63.5;
+    tft.fillCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16 + 7, ILI9341_DARKGREY);
 
     // Zeichnen der Namenbox
     draw_value_box(YPos, xPos, yPos + 1, 6, 3, NO_VALUE, dname, color, 2, false, false);
 
     // Zeichnen des Rechtecks
-    tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
+    // tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
 
     // Wert anzeigen
     // tft.setFont(&FreeSans9pt7b);
+
+    // Kreis zeichnen (alte und neue Position)
+    // for (int i = -4; i <= 4; i++)
+    //{
+    //  tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16 + i, ILI9341_DARKGREY);
+    //}
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 13, (yPos * STEP_FRAME_H) - 3);
     tft.print(dvalue);
-
-    // Kreis zeichnen (alte und neue Position)
-    tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos_old[XPos]) + 2.25),
-                   STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos_old[XPos]) + 2.25), 4, ILI9341_DARKGREY);
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25),
                    STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);

@@ -43,6 +43,7 @@ public:
     void drawPerform(uint8_t prow);
     void drawPlaymode();
     void drawPlugin();
+    void drawPotentiometerValue(uint8_t xpos, uint8_t value);
 };
 
 extern MyTrellis trellisOut;

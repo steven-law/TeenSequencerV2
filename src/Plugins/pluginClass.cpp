@@ -91,7 +91,7 @@ void PluginControll::change_preset()
 }
 void PluginControll::PluginParameters(uint8_t row)
 {
-    draw_plugin();
+    //draw_plugin();
 
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
@@ -142,28 +142,13 @@ uint8_t PluginControll::get_Potentiometer(uint8_t pot)
 void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 {
     potentiometer[presetNr][pot] = value;
-    if (activeScreen != INPUT_FUNCTIONS_FOR_PLUGIN)
+    if (!(activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN || activeScreen == INPUT_FUNCTIONS_FOR_FX1 || activeScreen == INPUT_FUNCTIONS_FOR_FX2 || activeScreen == INPUT_FUNCTIONS_FOR_FX3))
         return;
     int Xpos = pot % NUM_ENCODERS;
     int Ypos = pot / NUM_ENCODERS;
 
     assign_parameter(pot);
-    for (int r = 0; r < 2; r++)
-    {
-        for (int c = 0; c < NUM_STEPS; c++)
-        {
-            trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (Xpos * 2), TRELLIS_BLACK);
-        }
-    }
-    trellisOut.writeDisplay();
-
-    // int oldValuePos = value / 4.12f;
-    int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);
-
-    int oldValueXPos = (oldValuePos % NUM_STEPS);
-    int oldValueYPos = ((oldValuePos / NUM_STEPS) + (Xpos * 2)) % NUM_TRACKS;
-    trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[Xpos]);
-    trellisOut.writeDisplay();
+    trellisOut.drawPotentiometerValue(Xpos, value);
     Serial.printf("parameter: %s, value: %d\n", parameterNames[pot], value);
     if (strcmp(parameterNames[pot], "0") != 0 && strcmp(parameterNames[pot], "1") != 0)
     {
@@ -298,11 +283,11 @@ void PluginControll::set_gain(uint8_t gain)
 void PluginControll::set_FilterFreq(uint8_t value)
 {
     Serial.printf("set plugin %d to freq %f\n", myID, note_frequency[value]);
-    performFilter.frequency(note_frequency[value]*tuning);
+    performFilter.frequency(note_frequency[value] * tuning);
 }
 void PluginControll::set_FilterReso(uint8_t value)
 {
-   // float reso = (float)map(value, 0, MIDI_CC_RANGE, 0, 5.00f);
+    // float reso = (float)map(value, 0, MIDI_CC_RANGE, 0, 5.00f);
     float reso = value / 25.4;
     Serial.printf("set plugin %d to reso %f\n", myID, reso);
     performFilter.resonance(reso);

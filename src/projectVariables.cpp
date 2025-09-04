@@ -6,6 +6,8 @@ uint16_t rgb24to565(uint32_t color24);
 const int FlashChipSelect = 6; // digital pin for flash chip CS pin
 int pixelTouchX;
 int gridTouchY;
+int parameterTouchX;
+int parameterTouchY;
 uint8_t lastPotRow;
 bool change_row;
 uint8_t activeScreen;

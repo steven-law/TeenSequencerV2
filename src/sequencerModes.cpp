@@ -16,24 +16,7 @@ void Track::set_seqModValue(uint8_t param, uint8_t value)
 
     if (strlen(paramname.label) > 0)
     {
-        for (int r = 0; r < 2; r++)
-        {
-            for (int c = 0; c < NUM_STEPS; c++)
-            {
-                trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, c, r + (x * 2), TRELLIS_BLACK);
-            }
-        }
-        trellisOut.writeDisplay();
-        int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);
-        // int oldValuePos = value /4.12f;;
-
-        int oldValueXPos = (oldValuePos % NUM_STEPS);
-        // int oldValueXPos = (oldValuePos % NUM_STEPS)+1;
-
-        int oldValueYPos = ((oldValuePos / NUM_STEPS) + (x * 2)) % NUM_TRACKS;
-        trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, oldValueXPos, oldValueYPos, encoder_colour[x]);
-        trellisOut.writeDisplay();
-
+        trellisOut.drawPotentiometerValue(x, value);
         drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], paramname.label);
     }
 }

@@ -308,7 +308,6 @@ void MyTrellis::drawPlugin()
   int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
   if (trackChannel <= NUM_MIDI_OUTPUTS)
     return;
-    int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
   for (int i = 0; i < NUM_ENCODERS; i++)
   {
     int pot = i + (lastPotRow * NUM_ENCODERS);
@@ -319,11 +318,30 @@ void MyTrellis::drawPlugin()
     {
       trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, i, t, TRELLIS_BLACK);
     }
-   // Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", oldValueXPos, oldValueYPos, oldValuePos, pot);
+    // Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", oldValueXPos, oldValueYPos, oldValuePos, pot);
 
     trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[i]);
   }
- // writeDisplay();
+  // writeDisplay();
+}
+void MyTrellis::drawPotentiometerValue(uint8_t xpos, uint8_t value)
+{
+  for (int r = 0; r < 2; r++)
+  {
+    for (int c = 0; c < NUM_STEPS; c++)
+    {
+      trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (xpos * 2), TRELLIS_BLACK);
+    }
+  }
+  trellisOut.writeDisplay();
+
+  // int oldValuePos = value / 4.12f;
+  int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);
+
+  int oldValueXPos = (oldValuePos % NUM_STEPS);
+  int oldValueYPos = ((oldValuePos / NUM_STEPS) + (xpos * 2)) % NUM_TRACKS;
+  trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[xpos]);
+  trellisOut.writeDisplay();
 }
 
 MyTrellis trellisOut;

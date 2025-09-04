@@ -89,7 +89,6 @@ public:
     void draw_plugin(uint8_t pluginNr, uint8_t channel)
     {
         Serial.printf("draw plugin track: %d, channel: %d\n", pluginNr, plugin_channel[pluginNr]);
-        change_plugin_row = true;
         allPlugins[pluginNr]->draw_plugin();
     }
     void set_active_plugin_for_track(uint8_t trackID, uint8_t channel)

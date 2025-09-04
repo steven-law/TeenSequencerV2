@@ -486,8 +486,10 @@ void input_behaviour()
     int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
     if (trackChannel <= NUM_MIDI_OUTPUTS)
       allTracks[active_track]->set_MIDI_CC(lastPotRow);
-    else if (trackChannel > NUM_MIDI_OUTPUTS)
+    else if (trackChannel > NUM_MIDI_OUTPUTS){
+      MasterOut.draw_plugin(trackChannel - 49, lastPotRow);
       MasterOut.set_parameters(trackChannel - 49, lastPotRow);
+    }
     trellis_play_plugins();
     neotrellis_SetCursor(14);
     break;
@@ -1127,6 +1129,7 @@ void trellis_perform()
     int value = eigthTo127[t];
     trellisPerformIndex[col] = row;
     trellisOut.drawPerform(lastPotRow);
+
     switch (col)
     {
     case 0:
@@ -1285,6 +1288,13 @@ void trellis_play_plugins()
     int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.12f;
     allPlugins[pluginChannel]->set_Potentiometer(pot, value);
     revertPressedKey();
+  }
+  if (tsTouched)
+  {
+    int pot = parameterTouchX  + (lastPotRow * NUM_ENCODERS);
+    int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+    int value = parameterTouchY;
+    allPlugins[pluginChannel]->set_Potentiometer(pot, value);
   }
 }
 void neotrellis_show_plugin()

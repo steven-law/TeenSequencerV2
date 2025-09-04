@@ -52,6 +52,7 @@ public:
                 potentiometer[p][i] = 1;
             }
         }
+        MixGain.gain(1);
     }
     virtual ~PluginControll() = default;
     virtual const char *get_Name() { return name; }
