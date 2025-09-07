@@ -71,10 +71,10 @@ void MyClock::onClockStop() // The callback function wich will be called when cl
 
 void MyClock::set_tempo(uint8_t _encoder)
 {
-    if (enc_moved[_encoder])
+    if (inputs.enc_moved[_encoder])
     {
         change_plugin_row = true;
-        tempo = constrain(tempo + encoded[_encoder], 50, 255);
+        tempo = constrain(tempo + inputs.encoded[_encoder], 50, 255);
         uClock.setTempo(tempo);
         draw_value_box(3, POSITION_BPM_BUTTON, 0, 4, 4, tempo, NO_NAME, ILI9341_WHITE, 2, true, false);
     }
@@ -82,10 +82,10 @@ void MyClock::set_tempo(uint8_t _encoder)
 void MyClock::set_syncToExtern(uint8_t _encoder)
 {
 
-    if (enc_moved[_encoder])
+    if (inputs.enc_moved[_encoder])
     {
         change_plugin_row = true;
-        syncToExtern = constrain(syncToExtern + encoded[_encoder], 0, 1);
+        syncToExtern = constrain(syncToExtern + inputs.encoded[_encoder], 0, 1);
     }
 }
 void MyClock::set_start()
@@ -126,10 +126,12 @@ void MyClock::draw_clock_option(uint8_t x, uint8_t v)
 
 void MyClock::set_start_of_loop(uint8_t n)
 {
-    if (enc_moved[n])
+    if (inputs.enc_moved[n])
     {
         change_plugin_row = true;
-        startOfLoop = constrain(startOfLoop + encoded[n], 0, 254);
+
+        startOfLoop = inputs.getValueFromEncoder(n, startOfLoop, 254);
+        // startOfLoop = constrain(startOfLoop + inputs.encoded[n], 0, 254);
         draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 
         // enc_moved[n] = false;
@@ -138,10 +140,11 @@ void MyClock::set_start_of_loop(uint8_t n)
 
 void MyClock::set_end_of_loop(uint8_t n)
 {
-    if (enc_moved[n])
+    if (inputs.enc_moved[n])
     {
         change_plugin_row = true;
-        endOfLoop = constrain(endOfLoop + encoded[n], 1, 255);
+        endOfLoop = inputs.getValueFromEncoder(n, endOfLoop, 254);
+        // endOfLoop = constrain(endOfLoop + inputs.encoded[n], 1, 255);
 
         draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 

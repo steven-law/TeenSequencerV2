@@ -11,10 +11,7 @@
 #include <SerialFlash.h>
 #include "projectVariables.h"
 
-#include "input/encoder.h"
-#include "input/trellis.h"
-#include "input/mouse.h"
-#include "input/touch.h"
+#include "input/InputClass.h"
 
 #include "output/tft.h"
 #include "output/dac.h"
@@ -28,6 +25,7 @@
 #include "FX/Output.h"
 
 extern MyTrellis trellisOut;
+extern InputClass inputs;
 
 PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11, &plugin_12, &plugin_13, &plugin_14};
 FX_1 fx_1("Rev", 21);
@@ -83,7 +81,7 @@ uint8_t getPluginValue(uint8_t pot)
   int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
   int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
   int pluginValue = allPlugins[pluginChannel]->get_Potentiometer(pot);
-  Serial.printf("pluginValue =  %d, pluginPot: %d, pluginchannel= %d\n", pluginValue, pot, pluginChannel);
+
   return pluginValue;
 }
 
@@ -136,10 +134,10 @@ void setup()
   Wire1.setClock(100000);
   SD.begin(BUILTIN_SDCARD);
   tft_setup(100);
-  encoder_setup(100);
+  inputs.setup();
   trellisOut.setup(100);
   neotrellis_setup(100);
-  touch_setup();
+
   dac_setup(100);
   Serial.println("neotrellis Setup done");
   delay(1500);
@@ -248,6 +246,7 @@ void loop()
 {
   if (!getArrangerFromPC)
   {
+
     unsigned long loopStartTime = millis();
     unsigned long trellisRestartMillis = millis();
 
@@ -263,12 +262,11 @@ void loop()
     neotrellis_set_control_buffer(3, 1, TRELLIS_BLACK);
     neotrellis.setPixelColor(3, 1, TRELLIS_BLACK);
     neotrellis_show();
-    readEncoders();
-    trellis_update();
+    // trellis_update();
     neotrellis_update();
 
     midi_read();
-    touch_update();
+    inputs.update();
     input_behaviour();
     draw_potRow();
 
@@ -338,12 +336,12 @@ void loop()
       // Serial.println(loopEndTime - loopStartTime);
       if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
       {
-        mouse(2, 14);
+        inputs.mouse_SetCursor(2, 14);
         moveCursor(pixelTouchX, gridTouchY, 1, TRACK_FRAME_H);
       }
-      else
+      else if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
       {
-        mouse(2, 14);
+        inputs.mouse_SetCursor(2, 14);
         moveCursor(pixelTouchX, gridTouchY, 1, STEP_FRAME_H);
       }
     }
@@ -354,10 +352,10 @@ void loop()
 
       //  Serial.printf("active encoder page: %d\n", activeScreen);
       updateTFTScreen = false;
-      enc_moved[0] = false;
-      enc_moved[1] = false;
-      enc_moved[2] = false;
-      enc_moved[3] = false;
+      inputs.enc_moved[0] = false;
+      inputs.enc_moved[2] = false;
+      inputs.enc_moved[3] = false;
+      inputs.enc_moved[1] = false;
       trellisOut.writeDisplay();
     }
 
@@ -381,7 +379,7 @@ void input_behaviour()
   {
   case INPUT_FUNCTIONS_FOR_SEQUENCER:
   {
-    trellis_setStepsequencer();
+    trellis_setStepsToSequencer();
     neotrellis_SetCursor(14);
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && !neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
@@ -398,9 +396,9 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_BUTTON_SHIFT] = false;
     }
 
-    if (tsTouched)
+    if (inputs.tsTouched)
     {
-      tsTouched = false;
+      inputs.tsTouched = false;
       // allTracks[active_track]->parameter[SET_STEP_LENGTH] = 1;
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
       if (tempTick % allTracks[active_track]->parameter[SET_STEP_LENGTH] == 0)
@@ -451,13 +449,14 @@ void input_behaviour()
       myClock.set_start_of_loop(2); // Encoder: 2
       myClock.set_end_of_loop(3);   // Encoder: 3
     }
-    if (pixelTouchX == 0 && enc_moved[3] == true)
+    if (pixelTouchX == 0 && inputs.enc_moved[3] == true)
     {
       int tempTrack = (gridTouchY)-1;
-      Serial.printf("encmoved: %s, track: %d\n", enc_moved[3] ? "true" : "false", tempTrack);
-      enc_moved[3] = false;
+      Serial.printf("encmoved: %s, track: %d\n", inputs.enc_moved[3] ? "true" : "false", tempTrack);
+      inputs.enc_moved[3] = false;
 
-      trellisTrackColor[tempTrack] = trellisTrackColor[tempTrack] + encoded[3];
+      trellisTrackColor[tempTrack] = trellisTrackColor[tempTrack] + inputs.encoded[3];
+      trellisTrackColor[tempTrack] = trellisTrackColor[tempTrack] + inputs.encoded[3];
       trackColor[tempTrack] = rgb24to565(trellisTrackColor[tempTrack]);
       trellisOut.setActiveScreen(arrangerpage);
       tft_showTrackColors();
@@ -486,12 +485,13 @@ void input_behaviour()
     int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
     if (trackChannel <= NUM_MIDI_OUTPUTS)
       allTracks[active_track]->set_MIDI_CC(lastPotRow);
-    else if (trackChannel > NUM_MIDI_OUTPUTS){
+    else if (trackChannel > NUM_MIDI_OUTPUTS)
+    {
       MasterOut.draw_plugin(trackChannel - 49, lastPotRow);
       MasterOut.set_parameters(trackChannel - 49, lastPotRow);
     }
-    trellis_play_plugins();
-    neotrellis_SetCursor(14);
+
+    // neotrellis_SetCursor(14);
     break;
   }
   case INPUT_FUNCTIONS_FOR_MIXER1:
@@ -970,28 +970,27 @@ void neo_trellis_select_mixer()
 }
 void trellis_play_mixer()
 {
-  if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER1)
-  {
-
-    uint8_t _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
-    if (isPressed())
-    {
-      int t = getPressedKey() / NUM_STEPS;
-      int s = getPressedKey() % NUM_STEPS;
-      int trackChannel = allTracks[t]->clip[allTracks[t]->clip_to_play[allTracks[t]->internal_clock_bar]].midiChOut;
-
-      allTracks[t]->mixGainPot = _gain[s];
-      if (trackChannel > NUM_MIDI_OUTPUTS)
-        allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->set_gain(_gain[s]);
-      for (int i = 0; i < NUM_STEPS; i++)
-        trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER1, i, t, TRELLIS_BLACK);
-      trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER1, allTracks[t]->mixGainPot / 8, t, trackColor[t]);
-      Serial.printf("trellis play mixer track: %d, gain: %d, trackchannel: %d\n", t, _gain[s], trackChannel);
-      draw_infobox("Track: ", t, "Main Vol =  ", _gain[s]);
-      revertPressedKey();
-      trellisOut.writeDisplay();
-    }
-  }
+  //  if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER1)
+  //  {
+  //
+  //    uint8_t _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
+  //    if (isPressed())
+  //    {
+  //      int t = getPressedKey() / NUM_STEPS;
+  //      int s = getPressedKey() % NUM_STEPS;
+  //      int trackChannel = allTracks[t]->clip[allTracks[t]->clip_to_play[allTracks[t]->internal_clock_bar]].midiChOut;
+  //
+  //      allTracks[t]->mixGainPot = _gain[s];
+  //      if (trackChannel > NUM_MIDI_OUTPUTS)
+  //        allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->set_gain(_gain[s]);
+  //
+  //      trellisOut.drawMixerValue(t, allTracks[t]->mixGainPot);
+  //      Serial.printf("trellis play mixer track: %d, gain: %d, trackchannel: %d\n", t, _gain[s], trackChannel);
+  //      int YPos = t < NUM_ENCODERS ? 0 : 2;
+  //      drawPot(t % NUM_ENCODERS, YPos, allTracks[t]->mixGainPot, "Tr ");
+  //      revertPressedKey();
+  //    }
+  //  }
   if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER)
   {
     float _gain[4] = {0, 0.30, 0.60, 1};
@@ -1276,26 +1275,27 @@ void trellis_perform()
 }
 void trellis_play_plugins()
 {
-  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PLUGIN)
-    return;
-  int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
-  if (trackChannel <= NUM_MIDI_OUTPUTS)
-    return;
-  if (isPressed())
-  {
-    int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
-    int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
-    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.12f;
-    allPlugins[pluginChannel]->set_Potentiometer(pot, value);
-    revertPressedKey();
-  }
-  if (tsTouched)
-  {
-    int pot = parameterTouchX  + (lastPotRow * NUM_ENCODERS);
-    int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
-    int value = parameterTouchY;
-    allPlugins[pluginChannel]->set_Potentiometer(pot, value);
-  }
+  /* if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PLUGIN)
+     return;
+   int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+   if (trackChannel <= NUM_MIDI_OUTPUTS)
+     return;
+
+   if (isPressed())
+   {
+     int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
+     int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+     int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.12f;
+     allPlugins[pluginChannel]->set_Potentiometer(pot, value);
+    // revertPressedKey();
+   }
+   if (inputs.tsTouched)
+   {
+     int pot = inputs.parameterTouchX + (lastPotRow * NUM_ENCODERS);
+     int pluginChannel = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+     int value = inputs.parameterTouchY[inputs.parameterTouchX];
+     allPlugins[pluginChannel]->set_Potentiometer(pot, value);
+   }*/
 }
 void neotrellis_show_plugin()
 {
@@ -1329,6 +1329,7 @@ void neotrellis_show_plugin()
 void set_mixer()
 {
   draw_mixer();
+
   switch (lastPotRow)
   {
   case 0:
@@ -1341,10 +1342,11 @@ void set_mixer()
   break;
   case 1:
   {
-    set_mixer_gain(0, 0, "Tr D", 0);
-    set_mixer_gain(1, 0, "Tr 2", 1);
-    set_mixer_gain(2, 0, "Tr 3", 2);
-    set_mixer_gain(3, 0, "Tr 4", 3);
+
+    // set_mixer_gain(0, 1, "Tr D", 0);
+    // set_mixer_gain(1, 1, "Tr 2", 1);
+    // set_mixer_gain(2, 1, "Tr 3", 2);
+    // set_mixer_gain(3, 1, "Tr 4", 3);
   }
   break;
   case 2:
@@ -1357,10 +1359,10 @@ void set_mixer()
   break;
   case 3:
   {
-    set_mixer_gain(0, 2, "Tr 5", 4);
-    set_mixer_gain(1, 2, "Tr 6", 5);
-    set_mixer_gain(2, 2, "Tr 7", 6);
-    set_mixer_gain(3, 2, "Tr 8", 7);
+    // set_mixer_gain(0, 3, "Tr 5", 4);
+    // set_mixer_gain(1, 3, "Tr 6", 5);
+    // set_mixer_gain(2, 3, "Tr 7", 6);
+    // set_mixer_gain(3, 3, "Tr 8", 7);
   }
   break;
   default:
@@ -1369,16 +1371,47 @@ void set_mixer()
 }
 void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
-
-  if (enc_moved[XPos])
+  int n = XPos + (YPos * NUM_ENCODERS);
+  uint8_t _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
+  if (inputs.enc_moved[XPos])
   {
+    // allTracks[trackn]->mixGainPot = inputs.getValueFromInput(n, allTracks[trackn]->mixGainPot, MIDI_CC_RANGE);
     int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-    allTracks[trackn]->mixGainPot = constrain(allTracks[trackn]->mixGainPot + encoded[XPos], 0, MIDI_CC_RANGE);
+    allTracks[trackn]->mixGainPot = constrain(allTracks[trackn]->mixGainPot + inputs.encoded[XPos], 0, MIDI_CC_RANGE);
     allTracks[trackn]->mixGain = (float)(allTracks[trackn]->mixGainPot / MIDI_CC_RANGE_FLOAT);
-    Serial.printf("set mixgainpot: %d for track %d, trackCH: %d\n", allTracks[trackn]->mixGainPot, trackn, trackChannel);
     if (trackChannel > NUM_MIDI_OUTPUTS)
       allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->set_gain(allTracks[trackn]->mixGainPot);
+    trellisOut.drawMixerValue(trackn, allTracks[trackn]->mixGainPot);
+
     drawPot(XPos, YPos, allTracks[trackn]->mixGainPot, name);
+  }
+  else if (inputs.active[XPos])
+  {
+    // allTracks[trackn]->mixGainPot = inputs.getValueFromInput(n, allTracks[trackn]->mixGainPot, MIDI_CC_RANGE);
+    int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
+    allTracks[trackn]->mixGainPot = inputs.parameterTouchY[inputs.parameterTouchX];
+    allTracks[trackn]->mixGain = (float)(allTracks[trackn]->mixGainPot / MIDI_CC_RANGE_FLOAT);
+    if (trackChannel > NUM_MIDI_OUTPUTS)
+      allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->set_gain(allTracks[trackn]->mixGainPot);
+    trellisOut.drawMixerValue(trackn, allTracks[trackn]->mixGainPot);
+
+    drawPot(XPos, YPos, allTracks[trackn]->mixGainPot, name);
+  }
+else  if (isPressed())
+  {
+    int t = getPressedKey() / NUM_STEPS;
+    int s = getPressedKey() % NUM_STEPS;
+    int trackChannel = allTracks[t]->clip[allTracks[t]->clip_to_play[allTracks[t]->internal_clock_bar]].midiChOut;
+
+    allTracks[t]->mixGainPot = _gain[s];
+    if (trackChannel > NUM_MIDI_OUTPUTS)
+      allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->set_gain(_gain[s]);
+
+    trellisOut.drawMixerValue(t, allTracks[t]->mixGainPot);
+    Serial.printf("trellis play mixer track: %d, gain: %d, trackchannel: %d\n", t, _gain[s], trackChannel);
+    int YPos = t < NUM_ENCODERS ? 0 : 2;
+    drawPot(t % NUM_ENCODERS, YPos, allTracks[t]->mixGainPot, "Tr ");
+    revertPressedKey();
   }
 }
 
@@ -1459,10 +1492,10 @@ void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
-    if (enc_moved[XPos])
+    if (inputs.enc_moved[XPos])
     {
       int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-      allTracks[trackn]->mixDryPot = constrain(allTracks[trackn]->mixDryPot + encoded[XPos], 0, MIDI_CC_RANGE);
+      allTracks[trackn]->mixDryPot = constrain(allTracks[trackn]->mixDryPot + inputs.encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixDry = (float)(allTracks[trackn]->mixDryPot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
@@ -1477,10 +1510,10 @@ void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
-    if (enc_moved[XPos])
+    if (inputs.enc_moved[XPos])
     {
       int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-      allTracks[trackn]->mixFX1Pot = constrain(allTracks[trackn]->mixFX1Pot + encoded[XPos], 0, MIDI_CC_RANGE);
+      allTracks[trackn]->mixFX1Pot = constrain(allTracks[trackn]->mixFX1Pot + inputs.encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixFX1 = (float)(allTracks[trackn]->mixFX1Pot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
@@ -1496,10 +1529,10 @@ void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
-    if (enc_moved[XPos])
+    if (inputs.enc_moved[XPos])
     {
       int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-      allTracks[trackn]->mixFX2Pot = constrain(allTracks[trackn]->mixFX2Pot + encoded[XPos], 0, MIDI_CC_RANGE);
+      allTracks[trackn]->mixFX2Pot = constrain(allTracks[trackn]->mixFX2Pot + inputs.encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixFX2 = (float)(allTracks[trackn]->mixFX2Pot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
@@ -1515,10 +1548,10 @@ void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
 
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
-    if (enc_moved[XPos])
+    if (inputs.enc_moved[XPos])
     {
       int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-      allTracks[trackn]->mixFX3Pot = constrain(allTracks[trackn]->mixFX3Pot + encoded[XPos], 0, MIDI_CC_RANGE);
+      allTracks[trackn]->mixFX3Pot = constrain(allTracks[trackn]->mixFX3Pot + inputs.encoded[XPos], 0, MIDI_CC_RANGE);
       allTracks[trackn]->mixFX3 = (float)(allTracks[trackn]->mixFX3Pot / MIDI_CC_RANGE_FLOAT);
       for (int i = 0; i < NUM_PLUGINS; i++)
       {
@@ -1619,9 +1652,9 @@ void draw_sgtlControls()
 void set_sgtlcontrol(uint8_t _xPos, uint8_t _yPos, const char *name)
 {
   int index = _xPos + (NUM_ENCODERS * _yPos);
-  if (enc_moved[_xPos])
+  if (inputs.enc_moved[_xPos])
   {
-    enc_moved[_xPos] = false;
+    inputs.enc_moved[_xPos] = false;
     if (index <= 5)
     {
       static uint8_t maxGain;
@@ -1735,8 +1768,9 @@ uint8_t get_sgtl_potentiometer(uint8_t index, uint8_t min, uint8_t max, const ch
   uint8_t _xPos = index % NUM_ENCODERS;
   uint8_t _yPos = index / NUM_ENCODERS;
 
-  sgtlparameter[index] = constrain(sgtlparameter[index] + encoded[_xPos], min, max);
+  sgtlparameter[index] = constrain(sgtlparameter[index] + inputs.encoded[_xPos], min, max);
   // Serial.printf("sgtl parameter: %d, value: %d\n", index, sgtlparameter[index]);
+  trellisOut.drawPotentiometerValue(_xPos, sgtlparameter[index]);
   drawPot(_xPos, _yPos, sgtlparameter[index], name);
   return sgtlparameter[index];
 }

@@ -341,17 +341,17 @@ void Track::set_arranger_parameters()
     switch (lastPotRow)
     {
     case 0:
-        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        inputs.encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
         set_bar_parameter(2, pixelTouchX, clip_to_play, 0, NUM_USER_CLIPS + 1, "Clip");
         set_bar_parameter(3, pixelTouchX, noteOffset, -99, 99, "Trns");
         break;
     case 1:
-        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        inputs.encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
         set_bar_parameter(2, pixelTouchX, barProbabilty, 0, 127, "Prob");
         set_bar_parameter(3, pixelTouchX, barVelocity, 0, 127, "Velo");
         break;
     case 2:
-        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        inputs.encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
         set_bar_parameter(2, pixelTouchX, play_presetNr_Playmode_ccChannel, 0, NUM_PRESETS, "PM/ccC");
         set_bar_parameter(3, pixelTouchX, play_presetNr_Plugin_ccValue, 0, NUM_PRESETS, "Pl/ccV");
         break;
@@ -376,13 +376,13 @@ void Track::set_bar_parameter(uint8_t _encoder, int b, int *parameterArray, int 
     if (gridTouchY == my_Arranger_Y_axis)
     {
         uint8_t when = (((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage));
-        if (enc_moved[_encoder])
+        if (inputs.enc_moved[_encoder])
         {
-            int _when = constrain(parameterArray[when] + encoded[_encoder], minValue, maxValue);
+            int _when = constrain(parameterArray[when] + inputs.encoded[_encoder], minValue, maxValue);
             parameterArray[when] = _when;
             for (int i = 0; i < clip[clip_to_play[_when]].clockDivision; i++)
             {
-                if (enc_moved[2] && lastPotRow == 0)
+                if (inputs.enc_moved[2] && lastPotRow == 0)
                     clip_to_play[when + i] = _when;
                 draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }

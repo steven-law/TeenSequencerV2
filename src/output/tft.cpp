@@ -309,17 +309,6 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     // Zeichnen der Namenbox
     draw_value_box(YPos, xPos, yPos + 1, 6, 3, NO_VALUE, dname, color, 2, false, false);
 
-    // Zeichnen des Rechtecks
-    // tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
-
-    // Wert anzeigen
-    // tft.setFont(&FreeSans9pt7b);
-
-    // Kreis zeichnen (alte und neue Position)
-    // for (int i = -4; i <= 4; i++)
-    //{
-    //  tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16 + i, ILI9341_DARKGREY);
-    //}
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 13, (yPos * STEP_FRAME_H) - 3);
@@ -327,7 +316,7 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25),
                    STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
-
+ 
     // Speichern der alten Werte
     circlePos_old[XPos] = circlePos[XPos];
 }
@@ -848,6 +837,7 @@ void draw_mixer()
     if (change_plugin_row)
     {
         change_plugin_row = false;
+        
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
@@ -873,6 +863,7 @@ void draw_mixer()
         drawPot(3, 2, allTracks[7]->mixGainPot, "Tr 8");
         draw_value_box(lastPotRow, 15, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[7]->muted);
         draw_value_box(lastPotRow, 16, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[7]->soloed);
+    
     }
 }
 void draw_mixer_FX_page1()

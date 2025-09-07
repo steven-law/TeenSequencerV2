@@ -7,7 +7,6 @@
 #include "output/tft.h"
 #include "Track.h"
 #include "ownLibs/Adafruit_Trellis.h"
-// #include "input/trellis.h"
 extern Adafruit_TrellisSet trellis;
 extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 extern const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
@@ -44,6 +43,7 @@ public:
     void drawPlaymode();
     void drawPlugin();
     void drawPotentiometerValue(uint8_t xpos, uint8_t value);
+    void drawMixerValue(uint8_t track, uint8_t value);
 };
 
 extern MyTrellis trellisOut;

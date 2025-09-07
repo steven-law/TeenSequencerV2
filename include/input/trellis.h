@@ -9,7 +9,7 @@
 #include "output/TrellisLED.h"
 #include "ownLibs/myClock.h"
 #include "output/tft.h"
-
+#include "input/InputClass.h"
 #include "Track.h"
 extern Adafruit_TrellisSet trellis;
 void trellis_show_tft_mixer();
@@ -71,11 +71,12 @@ void neotrellis_set_fast_record();
 void neotrellis_show_piano();
 
 void trellis_set_arranger();
-void trellis_setStepsequencer();
+void trellis_setStepsToSequencer();
 
 uint8_t getPressedKey();
 bool isPressed();
 void revertPressedKey();
+
 void trellis_save_load();
 void trellis_play_piano();
 void trellis_play_playmode();

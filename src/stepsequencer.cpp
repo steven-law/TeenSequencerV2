@@ -10,7 +10,7 @@ void Track::set_stepSequencer_parameters()
     {
     case 0:
 
-        encoder_SetCursor(parameter[SET_STEP_LENGTH] * 3, 14); // Encoder: 0+1
+        inputs.encoder_SetCursor(parameter[SET_STEP_LENGTH] * 3, 14); // Encoder: 0+1
         set_stepSequencer_parameter_value(0, 0, "Tick", 0, 160);
         set_stepSequencer_parameter_value(1, 0, "Note", 0, 14);
         if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -31,7 +31,7 @@ void Track::set_stepSequencer_parameters()
         set_stepSequencer_parameter_value(ENCODER_SEQ_MODE, 2, "sMod", 0, NUM_PLAYMODES - 1);
         set_stepSequencer_parameter_value(ENCODER_SCALE, 2, "scal", 0, NUM_SCALES - 1);
         set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh", 0, MAX_OUTPUTS);
-        if (neotrellisPressed[TRELLIS_BUTTON_SHIFT] && enc_moved[ENCODER_CLIP2_EDIT])
+        if (neotrellisPressed[TRELLIS_BUTTON_SHIFT] && inputs.enc_moved[ENCODER_CLIP2_EDIT])
         {
             copy_clip();
         }
@@ -49,7 +49,7 @@ void Track::set_stepSequencer_parameters()
 }
 void Track::copy_clip()
 {
-    uint8_t nextClip = parameter[SET_CLIP2_EDIT] + encoded[ENCODER_CLIP2_EDIT];
+    uint8_t nextClip = parameter[SET_CLIP2_EDIT] + inputs.encoded[ENCODER_CLIP2_EDIT];
     for (int s = 0; s < MAX_TICKS; s++)
     {
         for (int v = 0; v < MAX_VOICES; v++)
@@ -84,11 +84,11 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
 {
     if (!(gridTouchY > 0 && gridTouchY <= 13 && pixelTouchX >= SEQ_GRID_LEFT))
         return;
-    if (enc_moved[XPos])
+    if (inputs.enc_moved[XPos])
     {
         uint8_t index = XPos + (YPos * NUM_ENCODERS);
         // enc_moved[XPos] = false;
-        parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
+        parameter[index] = constrain(parameter[index] + inputs.encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s\n", index, parameter[index], name);
         switch (index)
         {
@@ -108,11 +108,11 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
                 {
                     for (int v = 0; v < MAX_VOICES; v++)
                     {
-                        rotateVoiceInClip(clip[parameter[SET_CLIP2_EDIT]], v, encoded[ENCODER_HUMANIZE], clip[parameter[SET_CLIP2_EDIT]].seqLength);
+                        rotateVoiceInClip(clip[parameter[SET_CLIP2_EDIT]], v, inputs.encoded[ENCODER_HUMANIZE], clip[parameter[SET_CLIP2_EDIT]].seqLength);
                     }
                 }
                 else
-                    rotateVoiceInClip(clip[parameter[SET_CLIP2_EDIT]], voice_to_edit, encoded[ENCODER_HUMANIZE], clip[parameter[SET_CLIP2_EDIT]].seqLength);
+                    rotateVoiceInClip(clip[parameter[SET_CLIP2_EDIT]], voice_to_edit, inputs.encoded[ENCODER_HUMANIZE], clip[parameter[SET_CLIP2_EDIT]].seqLength);
             }
             else
             {
@@ -193,9 +193,10 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
 void Track::set_CCchannel(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
-    if (enc_moved[XPos])
+
+    if (inputs.enc_moved[XPos])
     {
-        CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + encoded[XPos], 1, 161);
+        CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + inputs.encoded[XPos], 1, 161);
         draw_MIDI_CC(XPos, YPos);
         // enc_moved[XPos] = false;
     }
@@ -203,11 +204,11 @@ void Track::set_CCchannel(uint8_t XPos, uint8_t YPos)
 void Track::set_CCvalue(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
-    if (enc_moved[XPos])
+    if (inputs.enc_moved[XPos])
     {
-        CCvalue[edit_presetNr_ccValue][n] = constrain(CCvalue[edit_presetNr_ccValue][n] + encoded[XPos], 0, 127);
+        CCvalue[edit_presetNr_ccValue][n] = constrain(CCvalue[edit_presetNr_ccValue][n] + inputs.encoded[XPos], 0, 127);
         draw_MIDI_CC(XPos, YPos);
-        sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], clip[parameter[SET_CLIP2_EDIT]].midiChOut, my_Arranger_Y_axis-1);
+        sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], clip[parameter[SET_CLIP2_EDIT]].midiChOut, my_Arranger_Y_axis - 1);
         // enc_moved[XPos] = false;
     }
 }
@@ -365,9 +366,10 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
 
 void Track::set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label, uint8_t position)
 {
-    if (enc_moved[n])
+    if (inputs.active[n%NUM_ENCODERS])
     {
-        presetVar = constrain(presetVar + encoded[n], 0, NUM_PRESETS - 1);
+        presetVar = inputs.getValueFromEncoder(n, presetVar, NUM_PRESETS - 1);
+        // presetVar = constrain(presetVar + inputs.encoded[n], 0, NUM_PRESETS - 1);
         change_plugin_row = true;
         draw_MIDI_CC_screen();
         draw_edit_presetNr_CC(label, presetVar, position);
@@ -426,7 +428,7 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
                 if (get_note_parameter(tickPtr[tickToClear].voice, v) < NO_NOTE)
                 {
                     trellisColor = TRELLIS_WHITE;
-                   // trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
+                    // trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
                     Serial.printf("voice: %d, note: %d, trelliscolor: %d\n", v, get_note_parameter(tickPtr[tickToClear].voice, v), trellisColor);
                     break;
                 }

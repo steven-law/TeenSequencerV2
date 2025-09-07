@@ -8,7 +8,6 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
-#include "projectVariables.h"
 
 #include <Plugins/pluginClass.h>
 ////#include "hardware/tftClass.h"
@@ -33,8 +32,8 @@
 // Pot 11: Vol11
 // Pot 12: Vol12
 
-extern bool enc_moved[4];
-extern int encoded[4];
+
+
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;

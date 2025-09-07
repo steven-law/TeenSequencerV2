@@ -7,14 +7,13 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
-#include "projectVariables.h"
 #include <Plugins/pluginClass.h>
 #include <Plugins/plugin_List.h>
 
 #include "ownLibs/mixers.h"
 
-extern bool enc_moved[4];
-extern int encoded[4];
+
+
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;

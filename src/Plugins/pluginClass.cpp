@@ -5,8 +5,6 @@
 ////#include "hardware/tftClass.h"
 // class tftClass;
 
-extern bool enc_moved[4];
-extern int encoded[4];
 extern bool change_plugin_row;
 // void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 //  plugins
@@ -73,11 +71,12 @@ void PluginControll::setFXParameterNames(const char *para1, const char *para2)
     Serial.println();
     Serial.println();
 }
+
 void PluginControll::set_presetNr()
 {
-    if (enc_moved[PRESET_ENCODER])
+    if (inputs.enc_moved[PRESET_ENCODER])
     {
-        presetNr = constrain(presetNr + encoded[PRESET_ENCODER], 0, NUM_PLUGIN_PRESETS - 1);
+        presetNr = constrain(presetNr + inputs.encoded[PRESET_ENCODER], 0, NUM_PLUGIN_PRESETS - 1);
         change_plugin_row = true;
         draw_plugin();
     }
@@ -91,7 +90,7 @@ void PluginControll::change_preset()
 }
 void PluginControll::PluginParameters(uint8_t row)
 {
-    //draw_plugin();
+    // draw_plugin();
 
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
@@ -137,6 +136,7 @@ void PluginControll::PluginParameters(uint8_t row)
 
 uint8_t PluginControll::get_Potentiometer(uint8_t pot)
 {
+    Serial.printf("get_Potentiometer for Plugin: %d %s, Parameter: %s, Value =  %d, PotNr: %d\n", myID, name, parameterNames[pot], potentiometer[presetNr][pot], pot);
     return potentiometer[presetNr][pot];
 }
 void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
@@ -149,7 +149,8 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 
     assign_parameter(pot);
     trellisOut.drawPotentiometerValue(Xpos, value);
-    Serial.printf("parameter: %s, value: %d\n", parameterNames[pot], value);
+    Serial.printf("set_Potentiometer for Plugin: %d %s, Parameter: %s, Value =  %d, PotNr: %d\n", myID, name, parameterNames[pot], potentiometer[presetNr][pot], pot);
+
     if (strcmp(parameterNames[pot], "0") != 0 && strcmp(parameterNames[pot], "1") != 0)
     {
         drawPot(Xpos, Ypos, value, parameterNames[pot]);
@@ -161,9 +162,10 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 void PluginControll::set_Encoder_parameter(uint8_t pot)
 {
     uint8_t XPos = pot % NUM_ENCODERS;
-    if (enc_moved[XPos])
+    if (inputs.active[XPos])
     {
-        set_Potentiometer(pot, constrain(potentiometer[presetNr][pot] + encoded[XPos], 0, MIDI_CC_RANGE));
+        set_Potentiometer(pot, inputs.getValueFromInput(pot, potentiometer[presetNr][pot], MIDI_CC_RANGE));
+        // set_Potentiometer(pot, constrain(potentiometer[presetNr][pot] + inputs.encoded[XPos], 0, MIDI_CC_RANGE));
 
         // assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
     }
@@ -253,6 +255,7 @@ void PluginControll::draw_plugin()
 {
     if (change_plugin_row)
     {
+        Serial.printf("draw plugin: %d %s\n", myID, name);
         change_plugin_row = false;
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {

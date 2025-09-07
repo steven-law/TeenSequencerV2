@@ -159,8 +159,7 @@ extern const char FLASHMEM *songNames[16];
 extern char _trackname[20];
 extern int pixelTouchX;
 extern int gridTouchY;
-extern int parameterTouchX;
-extern int parameterTouchY;
+
 extern uint8_t lastPotRow;
 extern bool change_row;
 extern uint8_t activeScreen;
@@ -245,8 +244,6 @@ extern const uint8_t chordVolumes[NUM_CHORD_VOLUMES][4];
 #define POSITION_END_LOOP_BUTTON 18
 #define TRELLIS_BUTTON_ENTER 8
 
-// touch
-extern bool isTouched;
 
 extern int noteInfo[MAX_VOICES][4]; // noote, velo, start, length
 //playmodes

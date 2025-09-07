@@ -6,9 +6,8 @@
 #include <MIDI.h>
 #include <SD.h>
 #include "projectVariables.h"
-
+#include "input/InputClass.h"
 #include "output/tft.h"
-#include "input/trellis.h"
 
 //
 // #include "Plugins/plugin_List.h"
@@ -40,8 +39,8 @@
 
 extern File myFile;
 // Encoder Pins
-extern bool enc_moved[4];
-extern int encoded[4];
+
+
 // extern int encoder_colour[4];
 extern bool change_plugin_row;
 extern uint8_t activeScreen;

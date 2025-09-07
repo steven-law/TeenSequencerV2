@@ -18,8 +18,8 @@ extern bool change_plugin_row;
 extern float *note_frequency;
 
 // Encoder Pins
-extern bool enc_moved[4];
-extern int encoded[4];
+
+
 // tftClass drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 uint8_t getEncodervalue(uint8_t XPos, uint8_t YPos, const char *name, uint8_t oldValue);
 
@@ -88,7 +88,7 @@ public:
     }
     void draw_plugin(uint8_t pluginNr, uint8_t channel)
     {
-        Serial.printf("draw plugin track: %d, channel: %d\n", pluginNr, plugin_channel[pluginNr]);
+        
         allPlugins[pluginNr]->draw_plugin();
     }
     void set_active_plugin_for_track(uint8_t trackID, uint8_t channel)

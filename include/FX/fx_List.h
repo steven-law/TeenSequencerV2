@@ -3,7 +3,6 @@
 
 
 #include <Arduino.h>
-#include "projectVariables.h"
 #include <Plugins/pluginClass.h>
 #include <Plugins/plugin_List.h>
 

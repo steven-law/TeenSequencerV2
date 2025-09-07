@@ -330,18 +330,33 @@ void MyTrellis::drawPotentiometerValue(uint8_t xpos, uint8_t value)
   {
     for (int c = 0; c < NUM_STEPS; c++)
     {
-      trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (xpos * 2), TRELLIS_BLACK);
+      set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (xpos * 2), TRELLIS_BLACK);
     }
   }
-  trellisOut.writeDisplay();
+  writeDisplay();
 
   // int oldValuePos = value / 4.12f;
   int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);
 
   int oldValueXPos = (oldValuePos % NUM_STEPS);
   int oldValueYPos = ((oldValuePos / NUM_STEPS) + (xpos * 2)) % NUM_TRACKS;
-  trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[xpos]);
-  trellisOut.writeDisplay();
+  set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[xpos]);
+  writeDisplay();
+}
+void MyTrellis::drawMixerValue(uint8_t track, uint8_t value)
+{
+
+  for (int c = 0; c < NUM_STEPS; c++)
+  {
+    set_main_buffer(TRELLIS_SCREEN_MIXER1, c, track, TRELLIS_BLACK);
+  }
+  writeDisplay();
+
+  int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 15);
+  int oldValueXPos = (oldValuePos % NUM_STEPS);
+
+  set_main_buffer(TRELLIS_SCREEN_MIXER1, oldValueXPos, track, trackColor[track]);
+  writeDisplay();
 }
 
 MyTrellis trellisOut;

@@ -4,7 +4,7 @@
 #define PLUGIN_LIST_H
 
 #include <Arduino.h>
-#include "projectVariables.h"
+//#include "projectVariables.h"
 #include <Plugins/Plugin_1.h>
 #include <Plugins/Plugin_2.h>
 #include <Plugins/Plugin_3.h>

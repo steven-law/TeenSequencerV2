@@ -5,7 +5,6 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
-#include "projectVariables.h"
 
 #include <Plugins/Plugin_11.h>
 
