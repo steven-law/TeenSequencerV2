@@ -26,7 +26,7 @@ public:
     void writeDisplay();
     void setBrightness(uint8_t brigthness);
     void set_main_buffer(int _page, int _x, int _y, int color);
-    void recall_main_buffer(int _page);
+    void recall_main_buffer();
     int get_main_buffer(int _page, int _x, int _y);
     void show_clockbar(uint8_t trackNr, uint8_t step);
     void setActiveScreen(uint8_t screenNr);

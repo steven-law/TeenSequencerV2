@@ -66,8 +66,7 @@ void MyTrellis::drawPreviousScreen()
 {
   clearMainGridNow();
   trellisScreen = oldTrellisScreen;
-  recall_main_buffer(trellisScreen);
-  writeDisplay();
+  recall_main_buffer();
 }
 void MyTrellis::clearMainGridNow()
 {
@@ -91,7 +90,7 @@ void MyTrellis::set_main_buffer(int _page, int _x, int _y, int color)
   // Serial.printf("set main buffer page: %d, x: %d, y: %d, color: %d, trellisNr: %d\n", _page, _x, _y, color, TrellisLED[_nr]);
 }
 
-void MyTrellis::recall_main_buffer(int _page)
+void MyTrellis::recall_main_buffer()
 {
   // Serial.printf("recall main buffer page: %d\n", _page);
   for (int i = 0; i < TRELLIS_PADS_X_DIM; i++)
@@ -100,7 +99,7 @@ void MyTrellis::recall_main_buffer(int _page)
     {
       {
         int _nr = i + (y * TRELLIS_PADS_X_DIM);
-        if (trellisMainGridBuffer[_page][i][y] > 0)
+        if (trellisMainGridBuffer[trellisScreen][i][y] > 0)
           trellis.setLED(TrellisLED[_nr]);
         else
           trellis.clrLED(TrellisLED[_nr]);
@@ -108,6 +107,7 @@ void MyTrellis::recall_main_buffer(int _page)
       }
     }
   }
+  trellis.writeDisplay();
 }
 int MyTrellis::get_main_buffer(int _page, int _x, int _y)
 {
@@ -330,7 +330,7 @@ void MyTrellis::drawPotentiometerValue(uint8_t xpos, uint8_t value)
   {
     for (int c = 0; c < NUM_STEPS; c++)
     {
-      set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (xpos * 2), TRELLIS_BLACK);
+      set_main_buffer(trellisScreen, c, r + (xpos * 2), TRELLIS_BLACK);
     }
   }
   writeDisplay();
@@ -340,7 +340,7 @@ void MyTrellis::drawPotentiometerValue(uint8_t xpos, uint8_t value)
 
   int oldValueXPos = (oldValuePos % NUM_STEPS);
   int oldValueYPos = ((oldValuePos / NUM_STEPS) + (xpos * 2)) % NUM_TRACKS;
-  set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[xpos]);
+  set_main_buffer(trellisScreen, oldValueXPos, oldValueYPos, encoder_colour[xpos]);
   writeDisplay();
 }
 void MyTrellis::drawMixerValue(uint8_t track, uint8_t value)

@@ -55,7 +55,9 @@ private:
     /* data */
 public:
     bool active[NUM_ENCODERS] = {false, false, false, false};
+    bool activeMixer[NUM_ENCODERS * 2] = {false, false, false, false, false, false, false, false};
     int parameterTouchX;
+    bool isTouchedX[NUM_ENCODERS] = {false, false, false, false};
     int parameterTouchY[NUM_ENCODERS];
     uint8_t getValueFromInput(uint8_t pot, uint8_t oldValue, uint8_t max);
     uint8_t getValueFromEncoder(uint8_t pot, uint8_t oldValue, uint8_t max);

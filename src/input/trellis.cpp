@@ -51,10 +51,13 @@ TrellisCallback blink(keyEvent evt)
     neotrellisPressed[evt.bit.NUM] = true;
     updateTFTScreen = true;
     change_plugin_row = true;
+    
   }
   else if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_FALLING)
   {
     neotrellisPressed[evt.bit.NUM] = false;
+    if (evt.bit.NUM < 16)
+      trellisOut.recall_main_buffer();
   }
 
   // neotrellis_show();
@@ -410,8 +413,7 @@ void trellis_show_arranger() // trellisOut implemented
       gridSongMode(arrangerpage);
       for (int y = 0; y < NUM_TRACKS; y++)
         trellisOut.get_main_buffer(trellisOut.getActiveScreen(), arrangerpage, y);
-      trellisOut.recall_main_buffer(trellisOut.getActiveScreen());
-      trellisOut.writeDisplay();
+      trellisOut.recall_main_buffer();
     }
   }
 }
@@ -457,8 +459,7 @@ void trellis_set_arranger()
 
         Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", t, bar, clipNr);
         trellis.clear();
-        trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
-        trellisOut.writeDisplay();
+        trellisOut.recall_main_buffer();
         return;
       }
     }
@@ -494,7 +495,7 @@ void trellis_set_arranger()
                   trellisPressed[nextKey] = false;
                   change_plugin_row = true;
                   Serial.printf("Tied Arranger track: %d, bar: %d, clip: %d\n", baseTrack + dt, baseBar + i, gridTouchY);
-                  trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+                  trellisOut.recall_main_buffer();
                   return;
                 }
               }
@@ -515,7 +516,7 @@ void trellis_set_arranger()
             }
 
             Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 2\n", track, bar, gridTouchY);
-            trellisOut.recall_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1);
+            trellisOut.recall_main_buffer();
             return;
           }
         }
@@ -795,8 +796,7 @@ void handleClipOrTrackSelection(int track, int clip)
   neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
   trellisOut.setActiveScreen(allTracks[active_track]->parameter[SET_CLIP2_EDIT]);
-  trellisOut.recall_main_buffer(trellisOut.getActiveScreen());
-  trellisOut.writeDisplay();
+  trellisOut.recall_main_buffer();
 }
 
 // trellis input stuff

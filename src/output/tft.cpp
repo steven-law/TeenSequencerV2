@@ -316,7 +316,7 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16, ILI9341_LIGHTGREY);
     tft.fillCircle(STEP_FRAME_W * (xPos + 1) + 16 * cos((2.5 * circlePos[XPos]) + 2.25),
                    STEP_FRAME_H * yPos + 16 * sin((2.5 * circlePos[XPos]) + 2.25), 4, color);
- 
+
     // Speichern der alten Werte
     circlePos_old[XPos] = circlePos[XPos];
 }
@@ -837,7 +837,11 @@ void draw_mixer()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        
+      //  trellisOut.clearMainGridNow();
+      //  for (int i = 0; i < NUM_TRACKS; i++)
+      //  {
+      //      trellisOut.drawMixerValue(i, allTracks[i]->mixGainPot);
+      //  }
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
@@ -863,7 +867,6 @@ void draw_mixer()
         drawPot(3, 2, allTracks[7]->mixGainPot, "Tr 8");
         draw_value_box(lastPotRow, 15, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[7]->muted);
         draw_value_box(lastPotRow, 16, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[7]->soloed);
-    
     }
 }
 void draw_mixer_FX_page1()

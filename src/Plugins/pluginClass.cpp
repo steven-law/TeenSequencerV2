@@ -90,7 +90,7 @@ void PluginControll::change_preset()
 }
 void PluginControll::PluginParameters(uint8_t row)
 {
-    // draw_plugin();
+     draw_plugin();
 
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
