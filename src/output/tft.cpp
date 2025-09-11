@@ -320,6 +320,12 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     //{
     //  tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16 + i, ILI9341_DARKGREY);
     //}
+    int n = XPos + (YPos * NUM_ENCODERS);
+    if (!(trellisOut.getActiveScreen() == TRELLIS_SCREEN_PERFORM ||
+          trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER ||
+          trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER1))
+        if (YPos == lastPotRow)
+            trellisOut.drawPotentiometerValue(n, dvalue);
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 13, (yPos * STEP_FRAME_H) - 3);
@@ -844,11 +850,12 @@ void draw_MIDI_CC(uint8_t XPos, uint8_t YPos)
 
 void draw_mixer()
 {
-
+    if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER1)
+        return;
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
+        drawPot(0, 0, allTracks[0]->mixGainPot, "Tr 1");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
         drawPot(1, 0, allTracks[1]->mixGainPot, "Tr 2");
@@ -876,14 +883,15 @@ void draw_mixer()
     }
 }
 void draw_mixer_FX_page1()
-{
+{if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
+    return;
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, allTracks[0]->mixDryPot, "Dry D");
-        drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 D");
-        drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 D");
-        drawPot(3, 0, allTracks[0]->mixFX3Pot, "FX3 D");
+        drawPot(0, 0, allTracks[0]->mixDryPot, "Dry 1");
+        drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 1");
+        drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 1");
+        drawPot(3, 0, allTracks[0]->mixFX3Pot, "FX3 1");
 
         drawPot(0, 1, allTracks[1]->mixDryPot, "Dry 2");
         drawPot(1, 1, allTracks[1]->mixFX1Pot, "FX1 2");
@@ -903,7 +911,8 @@ void draw_mixer_FX_page1()
 }
 void draw_mixer_FX_page2()
 {
-
+if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
+    return;
     if (change_plugin_row)
     {
         change_plugin_row = false;

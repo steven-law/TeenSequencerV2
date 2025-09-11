@@ -333,7 +333,7 @@ void MyTrellis::drawPotentiometerValue(uint8_t xpos, uint8_t value)
       trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, c, r + (xpos * 2), TRELLIS_BLACK);
     }
   }
-  trellisOut.writeDisplay();
+  //trellisOut.writeDisplay();
 
   // int oldValuePos = value / 4.12f;
   int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);

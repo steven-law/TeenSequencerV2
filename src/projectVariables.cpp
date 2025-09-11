@@ -7,7 +7,7 @@ const int FlashChipSelect = 6; // digital pin for flash chip CS pin
 int pixelTouchX;
 int gridTouchY;
 int parameterTouchX;
-int parameterTouchY;
+int parameterTouchY[NUM_ENCODERS];
 uint8_t lastPotRow;
 bool change_row;
 uint8_t activeScreen;
