@@ -86,8 +86,6 @@ public:
         touch_update();
         trellis_update();
     }
-    InputClass(/* args */);
-    ~InputClass();
 };
 
 extern InputClass inputs;
