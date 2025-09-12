@@ -9,7 +9,6 @@
 //#include "hardware/tftClass.h"
 
 #include "uClock.h"
-#include "input/encoder.h"
 #include <projectVariables.h>
 #include "output/tft.h"
 #include <MIDI.h>

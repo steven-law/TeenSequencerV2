@@ -40,8 +40,8 @@
 
 extern File myFile;
 // Encoder Pins
-extern bool enc_moved[4];
-extern int encoded[4];
+
+
 // extern int encoder_colour[4];
 extern bool change_plugin_row;
 extern uint8_t activeScreen;

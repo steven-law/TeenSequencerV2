@@ -1,7 +1,6 @@
 #ifndef TFT_H
 #define TFT_H
 #include "ownLibs/Adafruit_ST7796S_kbv.h"
-#include "input/touch.h"
 #include "Track.h"
 #include <projectVariables.h>
 

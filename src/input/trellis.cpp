@@ -568,10 +568,10 @@ void set_performCC(uint8_t XPos, uint8_t YPos, const char *name)
 {
   if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
   {
-    if (enc_moved[XPos])
+    if (inputs.enc_moved[XPos])
     {
       uint8_t _nr = XPos + (YPos * 4);
-      performCC[_nr] = constrain(performCC[_nr] + encoded[XPos], 0, 128);
+      performCC[_nr] = constrain(performCC[_nr] + inputs.encoded[XPos], 0, 128);
       drawPot(XPos, YPos, performCC[_nr], name);
     }
   }
@@ -902,10 +902,10 @@ void trellis_play_clipLauncher()
   if (trellisOut.getActiveScreen() != INPUT_FUNCTIONS_FOR_CLIPLAUNCHER)
     return;
 
-  if (enc_moved[0])
+  if (inputs.enc_moved[0])
   {
-    bar2edit = bar2edit + encoded[0];
-    enc_moved[0] = false;
+    bar2edit = bar2edit + inputs.encoded[0];
+    inputs.enc_moved[0] = false;
     draw_clip_launcher();
   }
   myClock.set_tempo(1);
@@ -981,12 +981,7 @@ void trellis_play_playmode()
     allTracks[active_track]->set_seqModValue(pot, value);
     revertPressedKey();
   }
-  if (tsTouched)
-  {
-    int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
-    int value = parameterTouchY[parameterTouchX];
-    allTracks[active_track]->set_seqModValue(pot, value);
-  }
+
 }
 
 uint8_t getPressedKey()

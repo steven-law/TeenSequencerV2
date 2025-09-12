@@ -9,6 +9,7 @@
 #include "ownLibs/mixers.h"
 
 #include "input/trellis.h"
+#include "input/InputClass.h"
 #include "output/tft.h"
 
 #define SAMPLE_ROOT 69
@@ -21,8 +22,8 @@
 extern float *note_frequency;
 extern int tuning;
 extern const char *filterName[4];
-extern bool enc_moved[4];
-extern int encoded[4];
+
+
 extern bool change_plugin_row;
 // void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 

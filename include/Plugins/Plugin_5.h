@@ -40,8 +40,8 @@
 // Pot 14: TomM
 // Pot 15: TomH
 // Pot 16: Decay
-extern bool enc_moved[4];
-extern int encoded[4];
+
+
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
