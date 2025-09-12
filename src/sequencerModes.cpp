@@ -5,11 +5,13 @@ extern MidiTrack myMidi[NUM_TRACKS];
 // hello test
 void Track::set_seqModValue(uint8_t param, uint8_t value)
 {
+    uint8_t mode = clip[parameter[SET_CLIP2_EDIT]].playMode;
+    seqMod_value[mode][PMpresetNr][param] = value;
     if (activeScreen != INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
         return;
-    uint8_t mode = clip[parameter[SET_CLIP2_EDIT]].playMode;
+
     uint8_t presetNr = play_presetNr_Playmode_ccChannel[external_clock_bar];
-    seqMod_value[mode][PMpresetNr][param] = value;
+
     int x = param % NUM_ENCODERS;
     int y = param / NUM_ENCODERS;
     const SeqModeParam &paramname = seqModeParams[mode][y][x];
@@ -18,6 +20,7 @@ void Track::set_seqModValue(uint8_t param, uint8_t value)
     {
         trellisOut.drawPotentiometerValue(x, value);
         drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], paramname.label);
+        Serial.printf("draw Sepmod pot: %d value: %d\n", x + y * 4, seqMod_value[mode][PMpresetNr][x + y * 4]);
     }
 }
 uint8_t Track::get_seqModValue(uint8_t param)
@@ -26,14 +29,75 @@ uint8_t Track::get_seqModValue(uint8_t param)
     uint8_t presetNr = play_presetNr_Playmode_ccChannel[external_clock_bar];
     return seqMod_value[mode][presetNr][param];
 }
-
+void Track::set_presetNr()
+{
+    if (inputs.enc_moved[PRESET_ENCODER])
+    {
+        PMpresetNr = constrain(PMpresetNr + inputs.encoded[PRESET_ENCODER], 0, NUM_PLUGIN_PRESETS - 1);
+        change_plugin_row = true;
+        Serial.println("change playmode preset");
+        draw_sequencer_modes(parameter[SET_SEQ_MODE]);
+    }
+}
 void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
 {
     if (inputs.active[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        set_seqModValue(n, inputs.getValueFromInput(n, seqMod_value[modeindex][PMpresetNr][n], max));
+        set_seqModValue(n, inputs.getValueFromInput(XPos, seqMod_value[modeindex][PMpresetNr][n], max)); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
     }
+}
+void Track::rotateIntArray(uint8_t arr[], int maxSteps, int rotation)
+{
+    int r = rotation * (-1);
+    int temp[MAX_TICKS]; // Hilfsarray für die Rotation
+    for (int i = 0; i < maxSteps; i++)
+    {
+        temp[i] = arr[(i - r + maxSteps) % maxSteps];
+        //  Serial.printf("rotation: %d,maxsteps. %d,i: %d arr[i]: %d, temp[i]: %d\n", rotation, maxSteps, i, arr[i], temp[i]);
+    }
+
+    for (int i = 0; i < maxSteps; i++)
+    {
+        arr[i] = temp[i];
+    }
+}
+uint8_t Track::get_random_Note_in_scale()
+{
+    int randomNote;
+    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
+
+    // Wiederhole, bis eine gültige Note gefunden wurde
+    do
+    {
+        randomNote = random(0, 12);
+    } while (!scales[clip[clipIndex].midiChOut][randomNote]);
+    return randomNote;
+}
+uint8_t Track::transpose_to_scale(uint8_t noteToChange)
+{
+    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
+    const uint8_t scaleChannel = clip[clipIndex].midiChOut;
+    uint8_t noteName = noteToChange % 12;
+
+    // Wenn Note bereits in Skala, zurückgeben
+    if (scales[scaleChannel][noteName])
+    {
+        return noteName;
+    }
+
+    // Suche nächsthöhere Note in Skala (zyklisch von 0–11)
+    for (uint8_t i = 1; i < 12; ++i)
+    {
+        uint8_t nextNote = (noteName + i) % 12;
+        if (scales[scaleChannel][nextNote])
+        {
+            return nextNote;
+        }
+    }
+
+    // Fallback (theoretisch unnötig, wenn Skala mindestens 1 Note enthält)
+    return noteName;
 }
 
 // Generische Parameter-Funktion
@@ -114,7 +178,8 @@ void Track::draw_seq_mode(uint8_t mode)
         {
             const SeqModeParam &param = seqModeParams[mode][y][x];
             if (strlen(param.label) > 0)
-                drawPot(x, y, seqMod_value[mode][PMpresetNr][x + (y * 4)], param.label);
+                drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], param.label);
+                Serial.printf("draw Sepmod whole pot: %d value: %d\n", x + y * 4, seqMod_value[mode][PMpresetNr][x + y * 4]);
         }
     }
     draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
@@ -546,8 +611,7 @@ void Track::set_seq_mode6_value(uint8_t XPos, uint8_t YPos)
 
     if (inputs.enc_moved[XPos] && neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
-        SeqMod6Value2[n] = inputs.getValueFromEncoder(n, SeqMod6Value2[n], MIDI_CC_RANGE);
-        // SeqMod6Value2[n] = constrain(SeqMod6Value2[n] + inputs.encoded[XPos], 0, MIDI_CC_RANGE + 1);
+        SeqMod6Value2[n] = constrain(SeqMod6Value2[n] + inputs.encoded[XPos], 0, MIDI_CC_RANGE + 1);
         drawPot(XPos, YPos, SeqMod6Value2[n], "offset");
         //  int _numSteps = map(seqMod_value[6][n], 0, 127, 0, NUM_STEPS);
         int _offset[MAX_VOICES];
@@ -624,8 +688,7 @@ void Track::set_seq_mode7_value(uint8_t XPos, uint8_t YPos)
     if (inputs.enc_moved[XPos])
     {
 
-        seqMod_value[7][PMpresetNr][n] = inputs.getValueFromEncoder(n, seqMod_value[7][PMpresetNr][n], MIDI_CC_RANGE);
-        // seqMod_value[7][PMpresetNr][n] = constrain(seqMod_value[7][PMpresetNr][n] + inputs.encoded[XPos], 0, MIDI_CC_RANGE);
+        seqMod_value[7][PMpresetNr][n] = constrain(seqMod_value[7][PMpresetNr][n] + inputs.encoded[XPos], 0, MIDI_CC_RANGE);
 
         if (n == 0)
         {
@@ -717,7 +780,7 @@ void Track::select_file(uint8_t XPos, uint8_t YPos)
     if (inputs.enc_moved[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        seqMod_value[8][PMpresetNr][n] = inputs.getValueFromEncoder(n, seqMod_value[8][PMpresetNr][n], MIDI_CC_RANGE);
+        seqMod_value[8][PMpresetNr][n] = constrain(seqMod_value[8][PMpresetNr][n] + inputs.encoded[XPos], 0, 127); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
         char filename[20];
         sprintf(filename, "%d.mid", seqMod_value[8][PMpresetNr][n]);
         loadMidiFile(filename, myMidi[my_Arranger_Y_axis - 1]);

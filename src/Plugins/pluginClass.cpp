@@ -5,6 +5,8 @@
 ////#include "hardware/tftClass.h"
 // class tftClass;
 
+
+
 extern bool change_plugin_row;
 // void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 //  plugins
@@ -162,19 +164,20 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 void PluginControll::set_Encoder_parameter(uint8_t pot)
 {
     uint8_t XPos = pot % NUM_ENCODERS;
+
     if (inputs.active[XPos])
     {
-        set_Potentiometer(pot, inputs.getValueFromInput(pot, potentiometer[presetNr][pot], MIDI_CC_RANGE));
-        // set_Potentiometer(pot, constrain(potentiometer[presetNr][pot] + inputs.encoded[XPos], 0, MIDI_CC_RANGE));
+        set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot], MIDI_CC_RANGE));
+        // set_Potentiometer(pot, constrain(potentiometer[presetNr][pot] + encoded[XPos], 0, MIDI_CC_RANGE));
 
         // assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
     }
-    if (potTouched[XPos])
-    {
-        int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
-        int value = parameterTouchY[parameterTouchX];
-        set_Potentiometer(pot, value);
-    }
+    // if (potTouched[XPos])
+    // {
+    //     int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
+    //     int value = parameterTouchY[parameterTouchX];
+    //     set_Potentiometer(pot, value);
+    // }
 }
 
 void PluginControll::save_plugin(uint8_t _songNr)
@@ -272,7 +275,6 @@ void PluginControll::draw_plugin()
                 int yPos = i / NUM_ENCODERS;
                 drawPot(xPos, yPos, potentiometer[presetNr][i], parameterNames[i]);
 
-               
                 // Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
             }
         }

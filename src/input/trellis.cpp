@@ -987,7 +987,7 @@ void trellis_play_playmode()
     int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
     int value = parameterTouchY[parameterTouchX];
     allTracks[active_track]->set_seqModValue(pot, value);
-  }*/
+  }
 }
 
 uint8_t getPressedKey()
@@ -1007,5 +1007,5 @@ void revertPressedKey()
     trellisIsPressed = false;
     lastPressedKey = 255;
     // Serial.println("trellisreverted");
-  }
+  }*/
 }

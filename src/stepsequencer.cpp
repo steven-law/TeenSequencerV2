@@ -193,7 +193,6 @@ void Track::set_stepSequencer_parameter_value(uint8_t XPos, uint8_t YPos, const 
 void Track::set_CCchannel(uint8_t XPos, uint8_t YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
-
     if (inputs.enc_moved[XPos])
     {
         CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + inputs.encoded[XPos], 1, 161);
@@ -366,10 +365,9 @@ void Track::rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int ma
 
 void Track::set_edit_preset_CC(uint8_t n, uint8_t &presetVar, const char *label, uint8_t position)
 {
-    if (inputs.active[n%NUM_ENCODERS])
+    if (inputs.enc_moved[n])
     {
-        presetVar = inputs.getValueFromEncoder(n, presetVar, NUM_PRESETS - 1);
-        // presetVar = constrain(presetVar + inputs.encoded[n], 0, NUM_PRESETS - 1);
+        presetVar = constrain(presetVar + inputs.encoded[n], 0, NUM_PRESETS - 1);
         change_plugin_row = true;
         draw_MIDI_CC_screen();
         draw_edit_presetNr_CC(label, presetVar, position);

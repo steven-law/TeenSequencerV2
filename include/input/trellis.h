@@ -5,6 +5,7 @@
 #include "Adafruit_NeoTrellis.h"
 #include "ownLibs/Adafruit_Trellis.h"
 #include <Wire.h>
+#include "input/inputClass.h"
 #include "projectVariables.h"
 #include "output/TrellisLED.h"
 #include "ownLibs/myClock.h"

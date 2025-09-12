@@ -129,9 +129,7 @@ void MyClock::set_start_of_loop(uint8_t n)
     if (inputs.enc_moved[n])
     {
         change_plugin_row = true;
-
-        startOfLoop = inputs.getValueFromEncoder(n, startOfLoop, 254);
-        // startOfLoop = constrain(startOfLoop + inputs.encoded[n], 0, 254);
+        startOfLoop = constrain(startOfLoop + inputs.encoded[n], 0, 254);
         draw_value_box(3, POSITION_START_LOOP_BUTTON, 0, 4, 4, startOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 
         // enc_moved[n] = false;
@@ -143,8 +141,7 @@ void MyClock::set_end_of_loop(uint8_t n)
     if (inputs.enc_moved[n])
     {
         change_plugin_row = true;
-        endOfLoop = inputs.getValueFromEncoder(n, endOfLoop, 254);
-        // endOfLoop = constrain(endOfLoop + inputs.encoded[n], 1, 255);
+        endOfLoop = constrain(endOfLoop + inputs.encoded[n], 1, 255);
 
         draw_value_box(3, POSITION_END_LOOP_BUTTON, 0, 4, 4, endOfLoop, NO_NAME, ILI9341_WHITE, 2, true, false);
 

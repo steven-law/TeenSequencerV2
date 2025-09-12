@@ -8,6 +8,7 @@
 #include <projectVariables.h>
 #include "ownLibs/mixers.h"
 
+#include "input/trellis.h"
 #include "input/InputClass.h"
 #include "output/tft.h"
 
