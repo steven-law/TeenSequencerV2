@@ -14,6 +14,8 @@ extern XPT2046_Touchscreen ts;
 #define TS_MAXY 3800
 
 extern bool tsTouched ;
+extern bool potTouched[NUM_ENCODERS] ;
+
 void touch_setup();
 void touch_update();
 
