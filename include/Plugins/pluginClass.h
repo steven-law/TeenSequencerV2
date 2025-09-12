@@ -9,7 +9,7 @@
 #include "ownLibs/mixers.h"
 
 #include "input/trellis.h"
-#include "input/InputClass.h"
+#include "input/InputSystem.h"
 #include "output/tft.h"
 
 #define SAMPLE_ROOT 69

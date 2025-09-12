@@ -6,7 +6,7 @@
 #include <MIDI.h>
 #include <SD.h>
 #include "projectVariables.h"
-#include "input/InputClass.h"
+#include "input/InputSystem.h"
 #include "output/tft.h"
 
 //

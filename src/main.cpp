@@ -12,7 +12,7 @@
 #include "projectVariables.h"
 
 #include "input/trellis.h"
-#include "input/InputClass.h"
+#include "input/InputSystem.h"
 
 #include "output/tft.h"
 #include "output/dac.h"

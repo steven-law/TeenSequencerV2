@@ -5,12 +5,12 @@
 #include "Adafruit_NeoTrellis.h"
 #include "ownLibs/Adafruit_Trellis.h"
 #include <Wire.h>
-#include "input/inputClass.h"
+#include "input/inputSystem.h"
 #include "projectVariables.h"
 #include "output/TrellisLED.h"
 #include "ownLibs/myClock.h"
 #include "output/tft.h"
-#include "input/InputClass.h"
+#include "input/InputSystem.h"
 #include "Track.h"
 extern Adafruit_TrellisSet trellis;
 void trellis_show_tft_mixer();
