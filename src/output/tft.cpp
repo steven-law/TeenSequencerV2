@@ -309,6 +309,17 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     // Zeichnen der Namenbox
     draw_value_box(YPos, xPos, yPos + 1, 6, 3, NO_VALUE, dname, color, 2, false, false);
 
+    // Zeichnen des Rechtecks
+    // tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
+
+    // Wert anzeigen
+    // tft.setFont(&FreeSans9pt7b);
+
+    // Kreis zeichnen (alte und neue Position)
+    // for (int i = -4; i <= 4; i++)
+    //{
+    //  tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16 + i, ILI9341_DARKGREY);
+    //}
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 13, (yPos * STEP_FRAME_H) - 3);
@@ -833,15 +844,11 @@ void draw_MIDI_CC(uint8_t XPos, uint8_t YPos)
 
 void draw_mixer()
 {
-
+    if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER1)
+        return;
     if (change_plugin_row)
     {
         change_plugin_row = false;
-      //  trellisOut.clearMainGridNow();
-      //  for (int i = 0; i < NUM_TRACKS; i++)
-      //  {
-      //      trellisOut.drawMixerValue(i, allTracks[i]->mixGainPot);
-      //  }
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
         draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
@@ -870,14 +877,15 @@ void draw_mixer()
     }
 }
 void draw_mixer_FX_page1()
-{
+{if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
+    return;
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, allTracks[0]->mixDryPot, "Dry D");
-        drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 D");
-        drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 D");
-        drawPot(3, 0, allTracks[0]->mixFX3Pot, "FX3 D");
+        drawPot(0, 0, allTracks[0]->mixDryPot, "Dry 1");
+        drawPot(1, 0, allTracks[0]->mixFX1Pot, "FX1 1");
+        drawPot(2, 0, allTracks[0]->mixFX2Pot, "FX2 1");
+        drawPot(3, 0, allTracks[0]->mixFX3Pot, "FX3 1");
 
         drawPot(0, 1, allTracks[1]->mixDryPot, "Dry 2");
         drawPot(1, 1, allTracks[1]->mixFX1Pot, "FX1 2");
@@ -897,7 +905,8 @@ void draw_mixer_FX_page1()
 }
 void draw_mixer_FX_page2()
 {
-
+if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
+    return;
     if (change_plugin_row)
     {
         change_plugin_row = false;

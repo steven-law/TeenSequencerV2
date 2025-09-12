@@ -57,9 +57,13 @@
 #define TRELLIS_SCREEN_ARRANGER_16 TRELLIS_SCREEN_ARRANGER_1 + 16
 #define TRELLIS_SCREEN_PLAYMODE TRELLIS_SCREEN_ARRANGER_16 + 8
 #define TRELLIS_SCREEN_PLUGIN TRELLIS_SCREEN_PLAYMODE + 1
+<<<<<<< HEAD
 #define TRELLIS_SCREEN_FX1 TRELLIS_SCREEN_PLUGIN + 1
 #define TRELLIS_SCREEN_FX2 TRELLIS_SCREEN_FX1 + 1
 #define TRELLIS_SCREEN_FX3 TRELLIS_SCREEN_FX2 + 1
+=======
+#define TRELLIS_SCREEN_FX TRELLIS_SCREEN_PLUGIN + 1
+>>>>>>> restore-519cafe2
 
 #define TRELLIS_SCREEN_SELECT_CLIP2EDIT 95
 #define TRELLIS_SCREEN_SELECT_MIXERPAGE 96
@@ -158,7 +162,12 @@ extern const char FLASHMEM *songNames[16];
 extern char _trackname[20];
 extern int pixelTouchX;
 extern int gridTouchY;
+<<<<<<< HEAD
 
+=======
+extern int parameterTouchX;
+extern int parameterTouchY[NUM_ENCODERS];
+>>>>>>> restore-519cafe2
 extern uint8_t lastPotRow;
 extern bool change_row;
 extern uint8_t activeScreen;

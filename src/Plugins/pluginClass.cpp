@@ -90,7 +90,7 @@ void PluginControll::change_preset()
 }
 void PluginControll::PluginParameters(uint8_t row)
 {
-     draw_plugin();
+    //draw_plugin();
 
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
@@ -168,6 +168,12 @@ void PluginControll::set_Encoder_parameter(uint8_t pot)
         // set_Potentiometer(pot, constrain(potentiometer[presetNr][pot] + inputs.encoded[XPos], 0, MIDI_CC_RANGE));
 
         // assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
+    }
+    if (potTouched[XPos])
+    {
+        int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
+        int value = parameterTouchY[parameterTouchX];
+        set_Potentiometer(pot, value);
     }
 }
 
@@ -257,6 +263,7 @@ void PluginControll::draw_plugin()
     {
         Serial.printf("draw plugin: %d %s\n", myID, name);
         change_plugin_row = false;
+        trellisOut.clearMainGridNow();
         for (int i = 0; i < NUM_PARAMETERS; i++)
         {
             if (strcmp(parameterNames[i], "0") != 0 && strcmp(parameterNames[i], "1") != 0)
@@ -264,6 +271,8 @@ void PluginControll::draw_plugin()
                 int xPos = i % NUM_ENCODERS;
                 int yPos = i / NUM_ENCODERS;
                 drawPot(xPos, yPos, potentiometer[presetNr][i], parameterNames[i]);
+
+               
                 // Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
             }
         }
