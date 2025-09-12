@@ -1,6 +1,5 @@
-#ifndef INPUTCLASS_H
-#define INPUTCLASS_H
-
+#ifndef INPUTSYSTEM
+#define INPUTSYSTEM
 #include "Arduino.h"
 #include "projectVariables.h"
 #include <Encoder.h>
@@ -40,8 +39,9 @@ extern MouseController mouse1;
 class InputClass
 {
 private:
-    uint8_t getValueFromTouch(uint8_t xpos, uint8_t max);
+    uint8_t getValueFromTouch(uint8_t pot, uint8_t max);
 
+    uint8_t getValueFromTrellis(uint8_t pot, uint8_t max);
     // encoder
     void encoder_setup(int dly);
     void readEncoders();
@@ -55,23 +55,27 @@ private:
     /* data */
 public:
     bool active[NUM_ENCODERS] = {false, false, false, false};
+    bool activeMixer[NUM_ENCODERS * 2] = {false, false, false, false, false, false, false, false};
     int parameterTouchX;
-    bool potTouched[NUM_ENCODERS] = {false, false, false, false};
+    bool isTouchedX[NUM_ENCODERS] = {false, false, false, false};
     int parameterTouchY[NUM_ENCODERS];
-    uint8_t getValueFromInput(uint8_t xpos, uint8_t oldValue, uint8_t max);
-    uint8_t getValueFromEncoder(uint8_t xpos, uint8_t oldValue, uint8_t max);
+    uint8_t getValueFromInput(uint8_t pot, uint8_t oldValue, uint8_t max);
+    uint8_t getValueFromEncoder(uint8_t pot, uint8_t oldValue, uint8_t max);
     bool enc_button[NUM_ENCODERS];
     bool enc_moved[NUM_ENCODERS]{0, 0, 0, 0};
     int encoded[NUM_ENCODERS];
     bool tsTouched = false;
     void encoder_SetCursor(uint8_t deltaX, uint8_t maxY);
 
-    void mouse_update();
+    void mouse_SetCursor(uint8_t deltaX, uint8_t maxY);
+    InputClass(/* args */);
+    ~InputClass();
 
     void setup()
     {
         encoder_setup(100);
         touch_setup();
+        // trellis started in TrellisOutClass
     }
     void update()
     {
@@ -80,8 +84,7 @@ public:
             active[i] = false;
         readEncoders();
         touch_update();
-        mouse_update();
-
+        trellis_update();
     }
     InputClass(/* args */);
     ~InputClass();
