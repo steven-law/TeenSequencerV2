@@ -6,28 +6,41 @@ Encoder Enc4(31, 32);
 Encoder *allEncoders[NUM_ENCODERS]{&Enc1, &Enc2, &Enc3, &Enc4};
 Bounce *encButtons = new Bounce[NUM_ENCODERS];
 XPT2046_Touchscreen ts(CS_PIN, 15);
-uint8_t InputClass::getValueFromInput(uint8_t xpos, uint8_t oldValue, uint8_t max)
+
+uint8_t InputClass::getValueFromInput(uint8_t pot, uint8_t oldValue, uint8_t max)
 {
-    if (potTouched[xpos])
+    if (ts.touched() && parameterTouchX == pot % NUM_ENCODERS)
     {
-        Serial.printf("input from touch pot: %d, value = %d\n", xpos, getValueFromTouch(xpos, max));
-        return getValueFromTouch(xpos, max);
+        Serial.printf("input from touch pot: %d, value = %d\n", pot, getValueFromTouch(pot, max));
+        return getValueFromTouch(pot, max);
     }
 
-    else if (enc_moved[xpos])
+    else if (enc_moved[pot % NUM_ENCODERS])
     {
-        Serial.printf("input from encoder pot: %d, value = %d\n", xpos, getValueFromEncoder(xpos, oldValue, max));
-        return getValueFromEncoder(xpos, oldValue, max);
+        Serial.printf("input from encoder pot: %d, value = %d\n", pot, getValueFromEncoder(pot, oldValue, max));
+        return getValueFromEncoder(pot, oldValue, max);
     }
+    else if (isPressed() && (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER1 || trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER))
+    {
+        int value = getValueFromTrellis(pot, max);
+        Serial.printf("input from trellis pot: %d, value = %d\n", pot, value);
+        // revertPressedKey();
+        return value;
+    }
+
 }
-uint8_t InputClass::getValueFromTouch(uint8_t xpos, uint8_t max)
+uint8_t InputClass::getValueFromTouch(uint8_t pot, uint8_t max)
 {
-    return constrain(parameterTouchY[xpos], 0, max);
+    return constrain(parameterTouchY[pot % NUM_ENCODERS], 0, max);
 }
 
-uint8_t InputClass::getValueFromEncoder(uint8_t xpos, uint8_t oldValue, uint8_t max)
+uint8_t InputClass::getValueFromEncoder(uint8_t pot, uint8_t oldValue, uint8_t max)
 {
-    return constrain(oldValue + encoded[xpos], 0, max);
+    return constrain(oldValue + encoded[pot % NUM_ENCODERS], 0, max);
+}
+uint8_t InputClass::getValueFromTrellis(uint8_t pot, uint8_t max)
+{
+    return map(getPressedKey() % 32, 0, 31, 0, max);
 }
 
 void InputClass::encoder_setup(int dly)
@@ -70,7 +83,7 @@ void InputClass::readEncoders()
                 change_plugin_row = true;
             enc_moved[i] = true;
             active[i] = true;
-
+            activeMixer[i] = true;
             updateTFTScreen = true;
             encoded[i] = (newEnc > oldEnc[i]) ? encMultiplier : -encMultiplier;
             oldEnc[i] = newEnc;
@@ -98,62 +111,40 @@ void InputClass::encoder_SetCursor(uint8_t deltaX, uint8_t maxY)
 
 void InputClass::touch_update()
 {
-    if (ts.touched())
+    if (!ts.touched())
     {
-        //
-        TS_Point p = ts.getPoint();
-        int pX = map(p.x, TS_MINX, TS_MAXX, 0, 480 - STEP_FRAME_W / 2);
-        if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER || activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
-        {
-            if (pX < SEQ_GRID_RIGHT)
-            {
-                tsTouched = true;
-                pixelTouchX = map(p.x, TS_MINX, TS_MAXX, 0, 480 - STEP_FRAME_W / 2);
-                if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
-                    gridTouchY = map(p.y, TS_MINY + 200, TS_MAXY - 400, 0, 8);
-                else
-                    gridTouchY = map(p.y, TS_MINY, TS_MAXY, 0, 14);
-            }
-            else if (pX >= SEQ_GRID_RIGHT)
-            {
-                lastPotRow = map(p.y, TS_MINY + 200, TS_MAXY - 400, 0, 3);
-                change_plugin_row = true;
-                change_row = true;
-            }
-        }
-        else
-        {
-            if (pX < SEQ_GRID_RIGHT)
-            {
-                tsTouched = true;
-                parameterTouchX = constrain(map(p.x, TS_MINX + 200, TS_MAXX - 600, 0, 3), 0, 3);
-                parameterTouchY[parameterTouchX] = constrain(map(p.y, TS_MINY + 150, TS_MAXY - 150, 127, 0), 0, 127);
-                for (int i = 0; i < NUM_ENCODERS; i++)
-                {
-                    potTouched[i] = false;
-                    active[i] = false;
-                }
-                active[parameterTouchX] = true;
-                potTouched[parameterTouchX] = true;
-                //  Serial.printf("parameterTouchX: %d, Y: %d\n", parameterTouchX, parameterTouchY[parameterTouchX]);
-            }
-            else if (pX >= SEQ_GRID_RIGHT)
-            {
-                lastPotRow = map(p.y, TS_MINY + 200, TS_MAXY - 400, 0, 3);
-                change_plugin_row = true;
-                change_row = true;
-            }
-        }
-    }
-    if (!ts.touched() && tsTouched)
-    {
-        tsTouched = false;
+        if (tsTouched)
+            tsTouched = false;
         for (int i = 0; i < NUM_ENCODERS; i++)
-        {
-            potTouched[i] = false;
-            active[i] = false;
-        }
+            isTouchedX[parameterTouchX] = false;
+        return;
     }
+
+    TS_Point p = ts.getPoint();
+    int pX = map(p.x, TS_MINX, TS_MAXX, 0, 480 - STEP_FRAME_W / 2);
+
+    if (pX < SEQ_GRID_RIGHT)
+    {
+        tsTouched = true;
+        pixelTouchX = pX;
+        parameterTouchX = constrain(map(p.x, TS_MINX + 200, TS_MAXX - 600, 0, 3), 0, 3);
+        parameterTouchY[parameterTouchX] = constrain(map(p.y, TS_MINY + 150, TS_MAXY - 150, 127, 0), 0, 127);
+        isTouchedX[parameterTouchX] = true;
+        if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
+            gridTouchY = map(p.y, TS_MINY + 200, TS_MAXY - 400, 0, 8);
+        else if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+            gridTouchY = map(p.y, TS_MINY, TS_MAXY, 0, 14);
+
+        Serial.printf("parameterTouchX: %d, Y: %d\n", parameterTouchX, parameterTouchY[parameterTouchX]);
+    }
+    else
+    {
+        lastPotRow = map(p.y, TS_MINY + 200, TS_MAXY - 400, 0, 3);
+        change_plugin_row = true;
+        change_row = true;
+    }
+
+    active[parameterTouchX] = true;
 }
 void InputClass::touch_setup()
 {
@@ -161,7 +152,7 @@ void InputClass::touch_setup()
     ts.setRotation(1);
 }
 
-void InputClass::mouse_update()
+void InputClass::mouse_SetCursor(uint8_t deltaX, uint8_t maxY)
 {
 
     if (mouse1.available())
@@ -171,7 +162,7 @@ void InputClass::mouse_update()
             neotrellisPressed[TRELLIS_POTROW] = true;
 
         // moving
-        pixelTouchX = constrain(pixelTouchX + mouse1.getMouseX(), 0, 304);
+        pixelTouchX = constrain(pixelTouchX + mouse1.getMouseX() * deltaX, 0, 304);
         active[pixelTouchX / 76] = true;
         static int countmouseY;
         int mouseY;
@@ -180,10 +171,7 @@ void InputClass::mouse_update()
             mouseY = mouse1.getMouseY();
         else
             mouseY = 0;
-        if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
-            gridTouchY = constrain((gridTouchY + mouseY), 0, 8);
-        else
-            gridTouchY = constrain((gridTouchY + mouseY), 0, 14);
+        gridTouchY = constrain((gridTouchY + mouseY), 0, maxY);
         // input for sequencer
         if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
         {
