@@ -44,6 +44,7 @@ public:
     void drawPlugin();
     void drawPotentiometerValue(uint8_t xpos, uint8_t value);
     void drawMixerValue(uint8_t track, uint8_t value);
+    void drawMixer(uint8_t track, uint8_t value);
 };
 
 extern MyTrellis trellisOut;

@@ -9,18 +9,14 @@ void Track::set_seqModValue(uint8_t param, uint8_t value)
     seqMod_value[mode][PMpresetNr][param] = value;
     if (activeScreen != INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
         return;
-
-    uint8_t presetNr = play_presetNr_Playmode_ccChannel[external_clock_bar];
-
     int x = param % NUM_ENCODERS;
     int y = param / NUM_ENCODERS;
     const SeqModeParam &paramname = seqModeParams[mode][y][x];
 
     if (strlen(paramname.label) > 0)
     {
-        trellisOut.drawPotentiometerValue(x, value);
+        trellisOut.drawPotentiometerValue(x, seqMod_value[mode][PMpresetNr][x + y * 4]);
         drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], paramname.label);
-        Serial.printf("draw Sepmod pot: %d value: %d\n", x + y * 4, seqMod_value[mode][PMpresetNr][x + y * 4]);
     }
 }
 uint8_t Track::get_seqModValue(uint8_t param)
@@ -47,6 +43,7 @@ void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, co
         set_seqModValue(n, inputs.getValueFromInput(XPos, seqMod_value[modeindex][PMpresetNr][n], max)); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
     }
 }
+
 void Track::rotateIntArray(uint8_t arr[], int maxSteps, int rotation)
 {
     int r = rotation * (-1);
@@ -179,76 +176,10 @@ void Track::draw_seq_mode(uint8_t mode)
             const SeqModeParam &param = seqModeParams[mode][y][x];
             if (strlen(param.label) > 0)
                 drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], param.label);
-                Serial.printf("draw Sepmod whole pot: %d value: %d\n", x + y * 4, seqMod_value[mode][PMpresetNr][x + y * 4]);
         }
     }
     draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Prset", ILI9341_BLUE, 2, false, false);
     draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, PMpresetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-}
-
-void Track::set_presetNr()
-{
-    if (inputs.active[PRESET_ENCODER])
-    {
-        PMpresetNr = inputs.getValueFromEncoder(PRESET_ENCODER, PMpresetNr, NUM_PLUGIN_PRESETS - 1);
-        // PMpresetNr = constrain(PMpresetNr + inputs.encoded[PRESET_ENCODER], 0, NUM_PLUGIN_PRESETS - 1);
-        change_plugin_row = true;
-        Serial.println("change playmode preset");
-        draw_sequencer_modes(parameter[SET_SEQ_MODE]);
-    }
-}
-
-void Track::rotateIntArray(uint8_t arr[], int maxSteps, int rotation)
-{
-    int r = rotation * (-1);
-    int temp[MAX_TICKS]; // Hilfsarray für die Rotation
-    for (int i = 0; i < maxSteps; i++)
-    {
-        temp[i] = arr[(i - r + maxSteps) % maxSteps];
-        //  Serial.printf("rotation: %d,maxsteps. %d,i: %d arr[i]: %d, temp[i]: %d\n", rotation, maxSteps, i, arr[i], temp[i]);
-    }
-
-    for (int i = 0; i < maxSteps; i++)
-    {
-        arr[i] = temp[i];
-    }
-}
-uint8_t Track::get_random_Note_in_scale()
-{
-    int randomNote;
-    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
-
-    // Wiederhole, bis eine gültige Note gefunden wurde
-    do
-    {
-        randomNote = random(0, 12);
-    } while (!scales[clip[clipIndex].midiChOut][randomNote]);
-    return randomNote;
-}
-uint8_t Track::transpose_to_scale(uint8_t noteToChange)
-{
-    const uint8_t clipIndex = clip_to_play[internal_clock_bar];
-    const uint8_t scaleChannel = clip[clipIndex].midiChOut;
-    uint8_t noteName = noteToChange % 12;
-
-    // Wenn Note bereits in Skala, zurückgeben
-    if (scales[scaleChannel][noteName])
-    {
-        return noteName;
-    }
-
-    // Suche nächsthöhere Note in Skala (zyklisch von 0–11)
-    for (uint8_t i = 1; i < 12; ++i)
-    {
-        uint8_t nextNote = (noteName + i) % 12;
-        if (scales[scaleChannel][nextNote])
-        {
-            return nextNote;
-        }
-    }
-
-    // Fallback (theoretisch unnötig, wenn Skala mindestens 1 Note enthält)
-    return noteName;
 }
 
 void Track::play_seq_mode0(uint8_t cloock)

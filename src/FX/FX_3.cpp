@@ -25,13 +25,13 @@ void FX_3::assign_parameter(uint8_t pot)
     {
     case 0:
     {
-        int time = map(get_Potentiometer(pot), 0, 127, 3, 500);
+        int time = map(get_Potentiometer(0), 0, 127, 3, 500);
         delay.delay(0, time);
     }
     break;
     case 1:
     {
-        float gain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float gain = get_Potentiometer(1) / MIDI_CC_RANGE_FLOAT;
         delayMixer.gain(1, gain);
     }
     break;

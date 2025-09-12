@@ -26,12 +26,12 @@ void FX_2::assign_parameter(uint8_t pot)
     {
     case 0:
  {
-         bitcrusher.bits(map(get_Potentiometer(pot), 0, 127, 1, 16));
+         bitcrusher.bits(map(get_Potentiometer(0), 0, 127, 1, 16));
     }
         break;
     case 1:
 {
-        bitcrusher.sampleRate(map(get_Potentiometer(pot), 0, 127, 1, 44100));
+        bitcrusher.sampleRate(map(get_Potentiometer(1), 0, 127, 1, 44100));
     }
         break;
     default:

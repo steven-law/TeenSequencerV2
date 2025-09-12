@@ -51,7 +51,6 @@ TrellisCallback blink(keyEvent evt)
     neotrellisPressed[evt.bit.NUM] = true;
     updateTFTScreen = true;
     change_plugin_row = true;
-    
   }
   else if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_FALLING)
   {
@@ -771,7 +770,7 @@ void neotrellis_set_fast_record()
 }
 void handleClipOrTrackSelection(int track, int clip)
 {
-  trellisOut.clearMainGridNow();
+
   neotrellisPressed[TRELLIS_BUTTON_SEQUENCER] = false;
 
   active_track = track;
@@ -789,12 +788,11 @@ void handleClipOrTrackSelection(int track, int clip)
     trellisOut.setActiveScreen(allTracks[active_track]->parameter[SET_CLIP2_EDIT]);
     neotrellisPressed[3 + (X_DIM * (track + 4))] = false;
   }
-
   drawStepSequencerStatic();
   draw_stepSequencer_parameters();
   draw_notes_in_grid();
   neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
-
+  trellisOut.clearMainGridNow();
   trellisOut.setActiveScreen(allTracks[active_track]->parameter[SET_CLIP2_EDIT]);
   trellisOut.recall_main_buffer();
 }
@@ -971,24 +969,6 @@ void trellis_save_load()
     revertPressedKey();
   }
 }
-void trellis_play_playmode()
-{
-  /*if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_PLAYMODE)
-    return;
-  if (isPressed())
-  {
-    int pot = getPressedKey() / (NUM_STEPS * 2) + (lastPotRow * NUM_ENCODERS);
-    int value = (getPressedKey() % (NUM_STEPS * 2)) * 4.12f;
-    allTracks[active_track]->set_seqModValue(pot, value);
-    revertPressedKey();
-  }
-  if (tsTouched)
-  {
-    int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
-    int value = parameterTouchY[parameterTouchX];
-    allTracks[active_track]->set_seqModValue(pot, value);
-  }
-}
 
 uint8_t getPressedKey()
 {
@@ -1007,5 +987,5 @@ void revertPressedKey()
     trellisIsPressed = false;
     lastPressedKey = 255;
     // Serial.println("trellisreverted");
-  }*/
+  }
 }

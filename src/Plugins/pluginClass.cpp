@@ -5,8 +5,6 @@
 ////#include "hardware/tftClass.h"
 // class tftClass;
 
-
-
 extern bool change_plugin_row;
 // void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 //  plugins
@@ -92,7 +90,6 @@ void PluginControll::change_preset()
 }
 void PluginControll::PluginParameters(uint8_t row)
 {
-    //draw_plugin();
 
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
@@ -130,6 +127,7 @@ void PluginControll::PluginParameters(uint8_t row)
             set_Encoder_parameter(15);
         }
     }
+
     if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         set_presetNr();
@@ -144,7 +142,7 @@ uint8_t PluginControll::get_Potentiometer(uint8_t pot)
 void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 {
     potentiometer[presetNr][pot] = value;
-    if (!(activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN || activeScreen == INPUT_FUNCTIONS_FOR_FX1 || activeScreen == INPUT_FUNCTIONS_FOR_FX2 || activeScreen == INPUT_FUNCTIONS_FOR_FX3))
+    if (!(activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN || activeScreen == INPUT_FUNCTIONS_FOR_FX1 || activeScreen == INPUT_FUNCTIONS_FOR_FX2 || activeScreen == INPUT_FUNCTIONS_FOR_FX3 || activeScreen == INPUT_FUNCTIONS_FOR_SGTL))
         return;
     int Xpos = pot % NUM_ENCODERS;
     int Ypos = pot / NUM_ENCODERS;
@@ -168,16 +166,7 @@ void PluginControll::set_Encoder_parameter(uint8_t pot)
     if (inputs.active[XPos])
     {
         set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot], MIDI_CC_RANGE));
-        // set_Potentiometer(pot, constrain(potentiometer[presetNr][pot] + encoded[XPos], 0, MIDI_CC_RANGE));
-
-        // assign_mixer_gain(get_Potentiometer(XPos, YPos), n);
     }
-    // if (potTouched[XPos])
-    // {
-    //     int pot = parameterTouchX + (lastPotRow * NUM_ENCODERS);
-    //     int value = parameterTouchY[parameterTouchX];
-    //     set_Potentiometer(pot, value);
-    // }
 }
 
 void PluginControll::save_plugin(uint8_t _songNr)
@@ -267,15 +256,18 @@ void PluginControll::draw_plugin()
         Serial.printf("draw plugin: %d %s\n", myID, name);
         change_plugin_row = false;
         trellisOut.clearMainGridNow();
-        for (int i = 0; i < NUM_PARAMETERS; i++)
+        int numpara = NUM_PARAMETERS;
+        if (myID >= 20)
+            numpara = 2;
+        for (int i = 0; i < numpara; i++)
         {
-            if (strcmp(parameterNames[i], "0") != 0 && strcmp(parameterNames[i], "1") != 0)
+            if (!(strcmp(parameterNames[i], "0") == 0 || strcmp(parameterNames[i], "1") == 0))
             {
                 int xPos = i % NUM_ENCODERS;
                 int yPos = i / NUM_ENCODERS;
                 drawPot(xPos, yPos, potentiometer[presetNr][i], parameterNames[i]);
 
-                // Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
+                Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
             }
         }
 

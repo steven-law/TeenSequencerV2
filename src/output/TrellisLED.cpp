@@ -358,5 +358,18 @@ void MyTrellis::drawMixerValue(uint8_t track, uint8_t value)
   set_main_buffer(TRELLIS_SCREEN_MIXER1, oldValueXPos, track, trackColor[track]);
   writeDisplay();
 }
+void MyTrellis::drawMixer(uint8_t track, uint8_t value)
+{
+  for (int c = 0; c < NUM_STEPS; c++)
+  {
+    set_main_buffer(TRELLIS_SCREEN_MIXER1, c, track, TRELLIS_BLACK);
+  }
+  int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 15);
+  int oldValueXPos = (oldValuePos % NUM_STEPS);
+
+  set_main_buffer(TRELLIS_SCREEN_MIXER1, oldValueXPos, track, trackColor[track]);
+  if (track == 7)
+    writeDisplay();
+}
 
 MyTrellis trellisOut;

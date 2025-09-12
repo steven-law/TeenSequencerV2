@@ -26,13 +26,13 @@ void FX_1::assign_parameter(uint8_t pot)
     {
     case 0:
     {
-        float size = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float size = get_Potentiometer(0) / MIDI_CC_RANGE_FLOAT;
         freeverb.roomsize(size);
     }
     break;
     case 1:
     {
-        float damp = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float damp = get_Potentiometer(1) / MIDI_CC_RANGE_FLOAT;
         freeverb.damping(damp);
     }
     break;

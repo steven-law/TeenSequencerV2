@@ -80,8 +80,6 @@ void revertPressedKey();
 
 void trellis_save_load();
 void trellis_play_piano();
-void trellis_play_playmode();
-void trellis_play_plugins();
 void draw_perform_page();
 // input stuff
 void trellis_read();

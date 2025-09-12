@@ -471,15 +471,13 @@ void input_behaviour()
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
     neotrellis_SetCursor(14);
-    trellis_play_playmode();
-    // trellis_setStepsequencer();
     allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
 
     break;
   }
   case INPUT_FUNCTIONS_FOR_PLUGIN:
   {
-
+    trellis_play_plugins();
     int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
     if (trackChannel <= NUM_MIDI_OUTPUTS)
       allTracks[active_track]->set_MIDI_CC(lastPotRow);
@@ -1273,9 +1271,8 @@ void trellis_play_mixer()
       allTracks[t]->mixGainPot = _gain[s];
       if (trackChannel > NUM_MIDI_OUTPUTS)
         allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->set_gain(_gain[s]);
-      for (int i = 0; i < NUM_STEPS; i++)
-        trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER1, i, t, TRELLIS_BLACK);
-      trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER1, allTracks[t]->mixGainPot / 8, t, trackColor[t]);
+      trellisOut.drawMixerValue(t, allTracks[t]->mixGainPot);
+
       Serial.printf("trellis play mixer track: %d, gain: %d, trackchannel: %d\n", t, _gain[s], trackChannel);
       char trackName[16];
       sprintf(trackName, "Tr %d", allTracks[t]->my_Arranger_Y_axis);
@@ -1652,18 +1649,12 @@ void set_sgtlControls(uint8_t row)
 }
 void draw_sgtlControls()
 {
-   if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_SQTL)
+  if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_SQTL)
     return;
   if (change_plugin_row)
   {
     change_plugin_row = false;
-    // trellisOut.clearMainGridNow();
-    // for (int i = 0; i < NUM_ENCODERS; i++)
-    //{
-    //   int n = i + (lastPotRow * NUM_ENCODERS);
-    //   trellisOut.drawPotentiometerValue(n, sgtlparameter[n]);
-    // }
-    //  Serial.println("drawing sgtlcontrol");
+
     drawPot(0, 0, sgtlparameter[0], "mxGain");
     drawPot(1, 0, sgtlparameter[1], "Response");
     drawPot(2, 0, sgtlparameter[2], "Soft/Hard");
@@ -1806,8 +1797,8 @@ uint8_t get_sgtl_potentiometer(uint8_t index, uint8_t min, uint8_t max, const ch
 
   sgtlparameter[index] = inputs.getValueFromInput(_xPos, sgtlparameter[index], MIDI_CC_RANGE);
   // Serial.printf("sgtl parameter: %d, value: %d\n", index, sgtlparameter[index]);
+  trellisOut.drawPotentiometerValue(_xPos, sgtlparameter[index]);
   drawPot(_xPos, _yPos, sgtlparameter[index], name);
-  trellisOut.drawPotentiometerValue(index, sgtlparameter[index]);
   return sgtlparameter[index];
 }
 

@@ -309,17 +309,8 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     // Zeichnen der Namenbox
     draw_value_box(YPos, xPos, yPos + 1, 6, 3, NO_VALUE, dname, color, 2, false, false);
 
-    // Zeichnen des Rechtecks
-    // tft.fillRect((xPos * STEP_FRAME_W), (yPos * STEP_FRAME_H) - 4, 2 * STEP_FRAME_W, 10, ILI9341_DARKGREY);
 
-    // Wert anzeigen
-    // tft.setFont(&FreeSans9pt7b);
 
-    // Kreis zeichnen (alte und neue Position)
-    // for (int i = -4; i <= 4; i++)
-    //{
-    //  tft.drawCircle(STEP_FRAME_W * (xPos + 1), STEP_FRAME_H * yPos, 16 + i, ILI9341_DARKGREY);
-    //}
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 13, (yPos * STEP_FRAME_H) - 3);
@@ -330,6 +321,7 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
 
     // Speichern der alten Werte
     circlePos_old[XPos] = circlePos[XPos];
+    Serial.printf("drawPot %s, %d, xpos: %d\n", dname, dvalue, XPos);
 }
 void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release)
 {
@@ -848,6 +840,8 @@ void draw_mixer()
         return;
     if (change_plugin_row)
     {
+        for (int i = 0; i < NUM_TRACKS; i++)
+            trellisOut.drawMixer(i, allTracks[i]->mixGainPot);
         change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
         draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
@@ -877,8 +871,9 @@ void draw_mixer()
     }
 }
 void draw_mixer_FX_page1()
-{if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
-    return;
+{
+    if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
+        return;
     if (change_plugin_row)
     {
         change_plugin_row = false;
@@ -905,8 +900,8 @@ void draw_mixer_FX_page1()
 }
 void draw_mixer_FX_page2()
 {
-if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
-    return;
+    if (trellisOut.getActiveScreen() != TRELLIS_SCREEN_MIXER)
+        return;
     if (change_plugin_row)
     {
         change_plugin_row = false;
