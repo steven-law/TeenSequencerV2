@@ -147,7 +147,10 @@ void setup()
   AudioMemory(330);
   delay(100);
   MasterOut.setup();
-
+  // for (int i=0; i<NUM_PLUGINS-1;i++)
+  {
+    // allPlugins[i]->change_preset();
+  }
   assign_PSRAM_variables();
   allPlugins[0]->change_preset();
   allPlugins[1]->change_preset();
@@ -924,7 +927,7 @@ void performpluginReso(uint8_t val, uint8_t cc)
       sendControlChange(cc, val, ch, s);
   }
 }
-void c(const char *label, int val, uint8_t cc)
+void printInfo(const char *label, int val, uint8_t cc)
 {
   set_infobox_background(750);
   tft.printf("%s = %d ", label, val);
