@@ -1,16 +1,7 @@
-
 #include <Plugins/Plugin_14.h>
-
-
-
-extern bool change_plugin_row;
-extern float *note_frequency;
-extern int tuning;
-extern const char *filterName[4];
 
 void Plugin_14::setup()
 {
-    IhaveADSR = true;
     dc.amplitude(1);
 
     playMem.begin();
@@ -63,7 +54,10 @@ void Plugin_14::setup()
     // SongVol.gain(1);
     _playFilename = "0.RAW";
     _recFilename = "0.RAW";
-    setParameterNames("Rec W~F", "Rec Vol", "Play W~F", "Play Vol", "0", "0", "0", "0", "Filter-Freq", "Resonance", "Sweep", "Type", "1", "1", "1", "1");
+    setParameterNames("Rec W~F", MIDI_CC_RANGE, "Rec Vol", MIDI_CC_RANGE, "Play W~F", MIDI_CC_RANGE, "Play Vol", MIDI_CC_RANGE,
+                      "0", 0, "0", 0, "0", 0, "0", 0,
+                      "Filter-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 2,
+                      "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
 }
 
 void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
@@ -107,33 +101,35 @@ void Plugin_14::assign_parameter(uint8_t pot)
         continueRecording();
         // drawActiveRect(CTRL_COL_1, CTRL_ROW_1, 2, 2, audio_rec_now, "Rec", ILI9341_RED);
     }
+    uint8_t value = get_Potentiometer(pot);
     switch (pot)
     {
     case 0:
     {
 
-        sprintf(_recFilename, "%d.raw", get_Potentiometer(pot));
+        sprintf(_recFilename, "%d.raw", value);
         // newdigate::flashloader loader;
         // sample = loader.loadSample(_recFileName);
     }
     break;
     case 1:
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         inputGain.gain(ampl);
     }
     break;
     case 2:
     {
-        sprintf(_playFilename, "%d.raw", get_Potentiometer(pot));
+        sprintf(_playFilename, "%d.raw", value);
     }
     break;
     case 3:
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
-        fMixer.gain(0, ampl);
-        fMixer.gain(1, ampl);
-        fMixer.gain(2, ampl);
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
+        fMixer.gain(0, 0);
+        fMixer.gain(1, 0);
+        fMixer.gain(2, 0);
+        fMixer.gain(get_Potentiometer(11), ampl);
     }
     break;
     case 4:
@@ -150,19 +146,19 @@ void Plugin_14::assign_parameter(uint8_t pot)
         break;
     case 8:
     {
-        int frequency = note_frequency[get_Potentiometer(pot)] * tuning;
+        int frequency = note_frequency[value] * tuning;
         filter.frequency(frequency);
     }
     break;
     case 9:
     {
-        float reso = get_Potentiometer(pot) / 25.40;
+        float reso = value / 25.40;
         filter.resonance(reso);
     }
     break;
     case 10:
     {
-        float swp = get_Potentiometer(pot) / 18.14;
+        float swp = value / 18.14;
         filter.octaveControl(swp);
     }
     break;
@@ -172,33 +168,33 @@ void Plugin_14::assign_parameter(uint8_t pot)
         fMixer.gain(1, 0);
         fMixer.gain(2, 0);
         fMixer.gain(3, 0);
-        fMixer.gain(get_Potentiometer(pot), 1);
+        fMixer.gain(value, get_Potentiometer(3));
     }
     break;
     case 12:
     {
-        int attack = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 1000);
+        int attack = map(value, 0, MIDI_CC_RANGE, 0, 1000);
         Fenv.attack(attack);
         Aenv.attack(attack);
     }
     break;
     case 13:
     {
-        int decay = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 500);
+        int decay = map(value, 0, MIDI_CC_RANGE, 0, 500);
         Fenv.decay(decay);
         Aenv.decay(decay);
     }
     break;
     case 14:
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         Fenv.sustain(ampl);
         Aenv.sustain(ampl);
     }
     break;
     case 15:
     {
-        int release = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
+        int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
         Fenv.release(release);
         Aenv.release(release);
     }

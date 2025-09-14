@@ -1,19 +1,5 @@
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
-
 #include <Plugins/Plugin_1.h>
-////#include "hardware/tftClass.h"
-// class tftClass;
 
-
-extern bool change_plugin_row;
-extern float *note_frequency;
-extern int tuning;
 
 void Plugin_1::setup()
 {
@@ -24,7 +10,10 @@ void Plugin_1::setup()
         potentiometer[presetNr][i] = 80;
     }
     MixGain.gain(1);
-    setParameterNames("Vol1", "Vol2", "Vol3", "Vol4", "Vol5", "Vol6", "Vol7", "Vol8", "Vol9", "Vol10", "Vol11", "Vol12", "0", "0", "0", "0");
+    setParameterNames("Vol1", MIDI_CC_RANGE, "Vol2", MIDI_CC_RANGE, "Vol3", MIDI_CC_RANGE, "Vol4", MIDI_CC_RANGE,
+                      "Vol5", MIDI_CC_RANGE, "Vol6", MIDI_CC_RANGE, "Vol7", MIDI_CC_RANGE, "Vol8", MIDI_CC_RANGE,
+                      "Vol9", MIDI_CC_RANGE, "Vol10", MIDI_CC_RANGE, "Vol11", MIDI_CC_RANGE, "Vol12", MIDI_CC_RANGE,
+                      "0", 0, "0", 0, "0", 0, "0", 0);
 
     // change_preset();
     // SongVol.gain(1);
@@ -47,7 +36,6 @@ void Plugin_1::assign_parameter(uint8_t pot)
     float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
     mixer.gain(pot, sustain);
 }
-
 
 Plugin_1 plugin_1("Strg", 1);
 // TeensyDAW: end automatically generated code

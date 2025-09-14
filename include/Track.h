@@ -252,7 +252,7 @@ private:
     void rotateVoiceInClip(clip_t &clip, int voiceIndex, int rotation, int maxTicks);
     // seqmodes
     void set_presetNr();
-    void set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max);
+    void set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, int max);
     uint8_t get_random_Note_in_scale();
     uint8_t transpose_to_scale(uint8_t noteToChange);
     void rotateIntArray(uint8_t arr[], int maxSteps, int rotation);

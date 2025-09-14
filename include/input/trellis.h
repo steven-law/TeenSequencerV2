@@ -71,7 +71,7 @@ void neotrellis_set_solo();
 void neotrellis_set_fast_record();
 void neotrellis_show_piano();
 
-void trellis_set_arranger();
+void trellis_setClipsToArranger();
 void trellis_setStepsToSequencer();
 
 uint8_t getPressedKey();
@@ -84,6 +84,6 @@ void draw_perform_page();
 // input stuff
 void trellis_read();
 void trellis_update();
-uint8_t getPluginValue(uint8_t pot);
+
 
 #endif

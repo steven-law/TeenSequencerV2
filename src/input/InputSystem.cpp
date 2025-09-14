@@ -6,28 +6,37 @@ Encoder Enc4(31, 32);
 Encoder *allEncoders[NUM_ENCODERS]{&Enc1, &Enc2, &Enc3, &Enc4};
 Bounce *encButtons = new Bounce[NUM_ENCODERS];
 XPT2046_Touchscreen ts(CS_PIN, 15);
-uint8_t InputClass::getValueFromInput(uint8_t xpos, uint8_t oldValue, uint8_t max)
+uint8_t InputClass::getValueFromInput(uint8_t xpos, uint8_t oldValue)
 {
     if (potTouched[xpos])
     {
-        Serial.printf("input from touch pot: %d, value = %d\n", xpos, getValueFromTouch(xpos, max));
-        return getValueFromTouch(xpos, max);
+        Serial.printf("input from touch pot: %d, value = %d\n", xpos, getValueFromTouch(xpos));
+        return getValueFromTouch(xpos);
     }
 
     else if (enc_moved[xpos])
     {
-        Serial.printf("input from encoder pot: %d, value = %d\n", xpos, getValueFromEncoder(xpos, oldValue, max));
-        return getValueFromEncoder(xpos, oldValue, max);
+        Serial.printf("input from encoder pot: %d, value = %d\n", xpos, getValueFromEncoder(xpos, oldValue));
+        return getValueFromEncoder(xpos, oldValue);
+    }
+    else if (isPressed() && !(trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER1 || trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER))
+    {
+        Serial.printf("input from trellis pot: %d, value = %d\n", xpos, getValueFromTrellisPot(xpos));
+        return getValueFromTrellisPot(xpos);
     }
 }
-uint8_t InputClass::getValueFromTouch(uint8_t xpos, uint8_t max)
+uint8_t InputClass::getValueFromTouch(uint8_t xpos)
 {
-    return constrain(parameterTouchY[xpos], 0, max);
+    return (parameterTouchY[xpos]);
 }
 
-uint8_t InputClass::getValueFromEncoder(uint8_t xpos, uint8_t oldValue, uint8_t max)
+uint8_t InputClass::getValueFromEncoder(uint8_t xpos, uint8_t oldValue)
 {
-    return constrain(oldValue + encoded[xpos], 0, max);
+    return constrain(oldValue + encoded[xpos], 0, MIDI_CC_RANGE);
+}
+uint8_t InputClass::getValueFromTrellisPot(uint8_t xpos)
+{
+    return map((getPressedKey() % 32), 0, 31, 0, 127);
 }
 
 void InputClass::encoder_setup(int dly)

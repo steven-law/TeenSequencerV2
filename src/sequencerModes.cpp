@@ -1,5 +1,3 @@
-#include <Arduino.h>
-#include "projectVariables.h"
 #include "Track.h"
 extern MidiTrack myMidi[NUM_TRACKS];
 // hello test
@@ -15,7 +13,7 @@ void Track::set_seqModValue(uint8_t param, uint8_t value)
 
     if (strlen(paramname.label) > 0)
     {
-        trellisOut.drawPotentiometerValue(x, seqMod_value[mode][PMpresetNr][x + y * 4]);
+        trellisOut.drawPotentiometerValue(x, value);
         drawPot(x, y, seqMod_value[mode][PMpresetNr][x + y * 4], paramname.label);
     }
 }
@@ -35,12 +33,13 @@ void Track::set_presetNr()
         draw_sequencer_modes(parameter[SET_SEQ_MODE]);
     }
 }
-void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, const char *name, int min, int max)
+void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos,  int max)
 {
     if (inputs.active[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
-        set_seqModValue(n, inputs.getValueFromInput(XPos, seqMod_value[modeindex][PMpresetNr][n], max)); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
+        uint8_t value = constrain(inputs.getValueFromInput(XPos, seqMod_value[modeindex][PMpresetNr][n]), 0, max);
+        set_seqModValue(n, value ); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
     }
 }
 
@@ -108,7 +107,7 @@ void Track::set_seqmode_parameters(uint8_t mode)
         {
             const SeqModeParam &param = seqModeParams[mode][lastPotRow][x];
             if (strlen(param.label) > 0)
-                set_seq_mode_value(mode, x, lastPotRow, param.label, param.min, param.max);
+                set_seq_mode_value(mode, x, lastPotRow, param.max);
         }
     }
     else

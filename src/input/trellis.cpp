@@ -416,7 +416,7 @@ void trellis_show_arranger() // trellisOut implemented
     }
   }
 }
-void trellis_set_arranger()
+void trellis_setClipsToArranger()
 {
   if (trellisOut.getActiveScreen() < TRELLIS_SCREEN_ARRANGER_1 || trellisOut.getActiveScreen() >= TRELLIS_SCREEN_ARRANGER_16)
   {
@@ -800,8 +800,6 @@ void handleClipOrTrackSelection(int track, int clip)
 // trellis input stuff
 void trellis_update()
 {
-  // trellis_perform();
-  // trellis_play_mixer();
   trellis_save_load();
   trellis_play_piano();
   trellis_show_arranger();

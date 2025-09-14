@@ -39,7 +39,7 @@ extern MouseController mouse1;
 class InputClass
 {
 private:
-    uint8_t getValueFromTouch(uint8_t xpos, uint8_t max);
+    uint8_t getValueFromTouch(uint8_t xpos);
 
     // encoder
     void encoder_setup(int dly);
@@ -57,8 +57,9 @@ public:
     int parameterTouchX;
     bool potTouched[NUM_ENCODERS] = {false, false, false, false};
     int parameterTouchY[NUM_ENCODERS];
-    uint8_t getValueFromInput(uint8_t pot, uint8_t oldValue, uint8_t max);
-    uint8_t getValueFromEncoder(uint8_t pot, uint8_t oldValue, uint8_t max);
+    uint8_t getValueFromInput(uint8_t pot, uint8_t oldValue);
+    uint8_t getValueFromEncoder(uint8_t pot, uint8_t oldValue);
+    uint8_t getValueFromTrellisPot(uint8_t pot);
     bool enc_button[NUM_ENCODERS];
     bool enc_moved[NUM_ENCODERS]{0, 0, 0, 0};
     int encoded[NUM_ENCODERS];

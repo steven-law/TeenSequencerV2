@@ -1,6 +1,4 @@
 
-#include <Arduino.h>
-#include <projectVariables.h>
 #include <Plugins/pluginClass.h>
 ////#include "hardware/tftClass.h"
 // class tftClass;
@@ -10,15 +8,14 @@ extern bool change_plugin_row;
 //  plugins
 float *note_frequency;
 int tuning = 440;
-const char *filterName[4]{"LPF", "BPF", "HPF", "LPF2"};
 void PluginControll::setup() {}
 void PluginControll::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void PluginControll::noteOff(uint8_t notePlayed, uint8_t voice) {}
 
-void PluginControll::setParameterNames(const char *para1, const char *para2, const char *para3, const char *para4,
-                                       const char *para5, const char *para6, const char *para7, const char *para8,
-                                       const char *para9, const char *para10, const char *para11, const char *para12,
-                                       const char *para13, const char *para14, const char *para15, const char *para16)
+void PluginControll::setParameterNames(const char *para1, const uint8_t max1, const char *para2, const uint8_t max2, const char *para3, const uint8_t max3, const char *para4, const uint8_t max4,
+                                       const char *para5, const uint8_t max5, const char *para6, const uint8_t max6, const char *para7, const uint8_t max7, const char *para8, const uint8_t max8,
+                                       const char *para9, const uint8_t max9, const char *para10, const uint8_t max10, const char *para11, const uint8_t max11, const char *para12, const uint8_t max12,
+                                       const char *para13, const uint8_t max13, const char *para14, const uint8_t max14, const char *para15, const uint8_t max15, const char *para16, const uint8_t max16)
 {
     parameterNames[0] = para1;
     parameterNames[1] = para2;
@@ -36,6 +33,22 @@ void PluginControll::setParameterNames(const char *para1, const char *para2, con
     parameterNames[13] = para14;
     parameterNames[14] = para15;
     parameterNames[15] = para16;
+    parameterMax[0] = max1;
+    parameterMax[1] = max2;
+    parameterMax[2] = max3;
+    parameterMax[3] = max4;
+    parameterMax[4] = max5;
+    parameterMax[5] = max6;
+    parameterMax[6] = max7;
+    parameterMax[7] = max8;
+    parameterMax[8] = max9;
+    parameterMax[9] = max10;
+    parameterMax[10] = max11;
+    parameterMax[11] = max12;
+    parameterMax[12] = max13;
+    parameterMax[13] = max14;
+    parameterMax[14] = max15;
+    parameterMax[15] = max16;
     Serial.printf("my ID: %d\n", myID);
     // for (int i = 0; i < NUM_PARAMETERS; i++)
     // {
@@ -141,7 +154,7 @@ uint8_t PluginControll::get_Potentiometer(uint8_t pot)
 }
 void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
 {
-    potentiometer[presetNr][pot] = value;
+    potentiometer[presetNr][pot] = constrain(value, 0, parameterMax[pot]);
     if (!(activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN || activeScreen == INPUT_FUNCTIONS_FOR_FX1 || activeScreen == INPUT_FUNCTIONS_FOR_FX2 || activeScreen == INPUT_FUNCTIONS_FOR_FX3 || activeScreen == INPUT_FUNCTIONS_FOR_SGTL))
         return;
     int Xpos = pot % NUM_ENCODERS;
@@ -151,13 +164,13 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
     trellisOut.drawPotentiometerValue(Xpos, value);
     Serial.printf("set_Potentiometer for Plugin: %d %s, Parameter: %s, Value =  %d, PotNr: %d\n", myID, name, parameterNames[pot], potentiometer[presetNr][pot], pot);
 
-    if (strcmp(parameterNames[pot], "0") != 0 && strcmp(parameterNames[pot], "1") != 0)
+    if (strcmp(parameterNames[pot], "0") != 0 && strcmp(parameterNames[pot], "ADSR") != 0)
     {
-        drawPot(Xpos, Ypos, value, parameterNames[pot]);
+        drawPot(Xpos, Ypos, potentiometer[presetNr][pot], parameterNames[pot]);
     }
-    if (strcmp(parameterNames[pot], "1") == 0)
-        drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
-                     potentiometer[presetNr][14], potentiometer[presetNr][15]);
+    if (strcmp(parameterNames[pot], "ADSR") == 0)
+        drawEnvelope(Ypos, potentiometer[presetNr][(Ypos * NUM_ENCODERS)], potentiometer[presetNr][(Ypos * NUM_ENCODERS) + 1],
+                     potentiometer[presetNr][(Ypos * NUM_ENCODERS) + 2], potentiometer[presetNr][(Ypos * NUM_ENCODERS) + 3]);
 }
 void PluginControll::set_Encoder_parameter(uint8_t pot)
 {
@@ -165,7 +178,7 @@ void PluginControll::set_Encoder_parameter(uint8_t pot)
 
     if (inputs.active[XPos])
     {
-        set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot], MIDI_CC_RANGE));
+        set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot]));
     }
 }
 
@@ -261,23 +274,24 @@ void PluginControll::draw_plugin()
             numpara = 2;
         for (int i = 0; i < numpara; i++)
         {
-            if (!(strcmp(parameterNames[i], "0") == 0 || strcmp(parameterNames[i], "1") == 0))
-            {
-                int xPos = i % NUM_ENCODERS;
-                int yPos = i / NUM_ENCODERS;
-                drawPot(xPos, yPos, potentiometer[presetNr][i], parameterNames[i]);
+            int xPos = i % NUM_ENCODERS;
+            int yPos = i / NUM_ENCODERS;
 
+            if (!(strcmp(parameterNames[i], "0") == 0 || strcmp(parameterNames[i], "ADSR") == 0))
+            {
+                drawPot(xPos, yPos, potentiometer[presetNr][i], parameterNames[i]);
                 Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
+            }
+            else if (strcmp(parameterNames[i], "ADSR") == 0 && xPos == 0)
+            {
+                drawEnvelope(yPos, potentiometer[presetNr][(yPos * NUM_ENCODERS)], potentiometer[presetNr][(yPos * NUM_ENCODERS) + 1],
+                             potentiometer[presetNr][(yPos * NUM_ENCODERS) + 2], potentiometer[presetNr][(yPos * NUM_ENCODERS) + 3]);
+                Serial.printf("Adsr parameter: %d, name: %s\n", i, parameterNames[i]);
             }
         }
 
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 11, 4, 4, NO_VALUE, "Preset", ILI9341_BLUE, 2, false, false);
         draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, 12, 4, 4, presetNr, NO_NAME, ILI9341_BLUE, 2, true, false);
-        if (IhaveADSR)
-        {
-            drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
-                         potentiometer[presetNr][14], potentiometer[presetNr][15]);
-        }
     }
 }
 void PluginControll::set_gain(uint8_t gain)

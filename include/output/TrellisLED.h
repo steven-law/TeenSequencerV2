@@ -10,7 +10,7 @@
 extern Adafruit_TrellisSet trellis;
 extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 extern const uint8_t TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
-
+uint8_t getPluginValue(uint8_t pot);
 class MyTrellis
 {
 public:

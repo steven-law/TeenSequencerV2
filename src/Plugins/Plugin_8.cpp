@@ -1,22 +1,7 @@
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
-
 #include <Plugins/Plugin_8.h>
-
-
-
-extern bool change_plugin_row;
-extern float *note_frequency;
-extern int tuning;
 
 void Plugin_8::setup()
 {
-IhaveADSR = true;
     dc.amplitude(1);
 
     waveform.begin(WAVEFORM_SINE);
@@ -52,7 +37,10 @@ IhaveADSR = true;
 
     MixGain.gain(1);
     // SongVol.gain(1);
-    setParameterNames("W~Form", "Detune", "Volume 1", "0", "W~Form", "Detune", "Volume 2", "0", "Filt-Freq", "Resonance", "Sweep", "Type", "1", "1", "1", "1");
+    setParameterNames("W~Form", 12, "Detune", MIDI_CC_RANGE, "Volume 1", MIDI_CC_RANGE, "0", 0,
+                      "W~Form", 12, "Detune", MIDI_CC_RANGE, "Volume 2", MIDI_CC_RANGE, "0", 0,
+                      "Filt-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 2,
+                      "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
 }
 void Plugin_8::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -71,22 +59,23 @@ void Plugin_8::noteOff(uint8_t notePlayed, uint8_t voice)
 }
 void Plugin_8::assign_parameter(uint8_t pot)
 {
+    uint8_t value = get_Potentiometer(pot);
     switch (pot)
     {
     case 0:
     {
-        int walveform = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 12);
-        waveform.begin(walveform);
+   
+        waveform.begin(value);
     }
     break;
     case 1:
     {
-        detune1 = (float)((note_frequency[get_Potentiometer(pot)] * 0.01));
+        detune1 = (float)((note_frequency[value] * 0.01));
     }
     break;
     case 2:
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         waveform.amplitude(ampl);
     }
     break;
@@ -94,19 +83,18 @@ void Plugin_8::assign_parameter(uint8_t pot)
         break;
     case 4:
     {
-        int walveform = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 12);
-        waveform1.begin(walveform);
+        waveform1.begin(value);
     }
     break;
     case 5:
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         waveform1.amplitude(ampl);
     }
     break;
     case 6:
     {
-        detune2 = (float)((note_frequency[get_Potentiometer(pot)] * 0.01));
+        detune2 = (float)((note_frequency[value] * 0.01));
     }
     break;
 
@@ -115,19 +103,19 @@ void Plugin_8::assign_parameter(uint8_t pot)
         break;
     case 8:
     {
-        int frequency = note_frequency[get_Potentiometer(pot)] * tuning;
+        int frequency = note_frequency[value] * tuning;
         filter.frequency(frequency);
     }
     break;
     case 9:
     {
-        float reso = get_Potentiometer(pot) / 25.40;
+        float reso = value / 25.40;
         filter.resonance(reso);
     }
     break;
     case 10:
     {
-        float swp = get_Potentiometer(pot) / 18.14;
+        float swp = value / 18.14;
         filter.octaveControl(swp);
     }
     break;
@@ -136,33 +124,33 @@ void Plugin_8::assign_parameter(uint8_t pot)
         fMixer.gain(0, 0);
         fMixer.gain(1, 0);
         fMixer.gain(2, 0);
-        fMixer.gain(get_Potentiometer(pot), 1);
+        fMixer.gain(value, 1);
     }
     break;
     case 12:
     {
-        int attack = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 1000);
+        int attack = map(value, 0, MIDI_CC_RANGE, 0, 1000);
         Fenv.attack(attack);
         Aenv.attack(attack);
     }
     break;
     case 13:
     {
-        int decay = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 500);
+        int decay = map(value, 0, MIDI_CC_RANGE, 0, 500);
         Fenv.decay(decay);
         Aenv.decay(decay);
     }
     break;
     case 14:
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         Fenv.sustain(ampl);
         Aenv.sustain(ampl);
     }
     break;
     case 15:
     {
-        int release = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
+        int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
         Fenv.release(release);
         Aenv.release(release);
     }
@@ -171,7 +159,5 @@ void Plugin_8::assign_parameter(uint8_t pot)
         break;
     }
 }
-
-
 
 Plugin_8 plugin_8("dTune", 8);

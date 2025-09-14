@@ -1,24 +1,7 @@
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
-
 #include <Plugins/Plugin_2.h>
-////#include "hardware/tftClass.h"
-// class tftClass;
-
-
-extern bool change_plugin_row;
-extern float *note_frequency;
-extern int tuning;
-extern const char *filterName[4];
 
 void Plugin_2::setup()
 {
-    IhaveADSR = true;
     dc.amplitude(1);
 
     waveform.begin(WAVEFORM_SINE);
@@ -57,7 +40,10 @@ void Plugin_2::setup()
     potentiometer[presetNr][13] = 0;
     potentiometer[presetNr][14] = 127;
     potentiometer[presetNr][15] = 20;
-    this->setParameterNames("W~Form", "Vol", "LFO-Freq", "LFO-Lvl", "Env-Lvl", "LFO W~F", "LFO-Freq", "LFO-Lvl", "Filt-Frq", "Resonance", "Sweep", "LPF", "1", "1", "1", "1");
+    this->setParameterNames("W~Form", 12, "Vol", MIDI_CC_RANGE, "LFO-Freq", MIDI_CC_RANGE, "LFO-Lvl", MIDI_CC_RANGE,
+                            "Env-Lvl", MIDI_CC_RANGE, "LFO W~F", 12, "LFO-Freq", MIDI_CC_RANGE, "LFO-Lvl", MIDI_CC_RANGE,
+                            "Filt-Frq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "LPF", 3,
+                            "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
 
     change_preset();
     // SongVol.gain(1);
@@ -79,105 +65,104 @@ void Plugin_2::noteOff(uint8_t notePlayed, uint8_t voice)
 }
 void Plugin_2::assign_parameter(uint8_t pot)
 {
+    uint8_t value = get_Potentiometer(pot);
     switch (pot)
     {
-    case 0:
+    case 0: // W~Form
     {
-        uint8_t walveform = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 12);
-        waveform.begin(walveform);
+        waveform.begin(value);
     }
     break;
-    case 1:
+    case 1: // Vol
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         waveform.amplitude(ampl);
     }
     break;
-    case 2:
+    case 2: // LFO Freq
     {
-        Lfo2Vco.frequency(get_Potentiometer(pot) + 1);
+        Lfo2Vco.frequency(value + 1);
     }
     break;
-    case 3:
+    case 3: // LFO Lvl
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         Lfo2Vco.amplitude(ampl);
     }
     break;
-    case 4:
+    case 4: // ENV Lvl
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         dc.amplitude(ampl);
     }
     break;
-    case 5:
+    case 5: // LFO W~Form
     {
-        uint8_t walveform = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 12);
-        LFO.begin(walveform);
+        LFO.begin(value);
     }
     break;
-    case 6:
+    case 6: // LFO Freq
     {
-        LFO.frequency(get_Potentiometer(pot) + 1);
+        LFO.frequency(value + 1);
     }
     break;
-    case 7:
+    case 7: // LFO Lvl
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         fEnvMixer.gain(1, ampl);
     }
     break;
-    case 8:
+    case 8: // Filter Freq
     {
-        int frequency = note_frequency[get_Potentiometer(pot)] * tuning;
+        int frequency = note_frequency[value] * tuning;
         filter.frequency(frequency);
     }
     break;
-    case 9:
+    case 9: // Reso
     {
-        float reso = get_Potentiometer(pot) / 25.40;
+        float reso = value / 25.40;
         filter.resonance(reso);
     }
     break;
-    case 10:
+    case 10: // Sweep
     {
-        float swp = get_Potentiometer(pot) / 18.14;
+        float swp = value / 18.14;
         filter.octaveControl(swp);
     }
     break;
-    case 11:
+    case 11: // Type
     {
         fMixer.gain(0, 0);
         fMixer.gain(1, 0);
         fMixer.gain(2, 0);
         fMixer.gain(3, 0);
-        fMixer.gain(get_Potentiometer(pot), 1);
+        fMixer.gain(value, 1);
     }
     break;
     case 12:
     {
-        int attack = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 1000);
+        int attack = map(value, 0, MIDI_CC_RANGE, 0, 1000);
         Fenv.attack(attack);
         Aenv.attack(attack);
     }
     break;
     case 13:
     {
-        int decay = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 500);
+        int decay = map(value, 0, MIDI_CC_RANGE, 0, 500);
         Fenv.decay(decay);
         Aenv.decay(decay);
     }
     break;
     case 14:
     {
-        float ampl = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         Fenv.sustain(ampl);
         Aenv.sustain(ampl);
     }
     break;
     case 15:
     {
-        int release = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
+        int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
         Fenv.release(release);
         Aenv.release(release);
     }

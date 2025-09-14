@@ -1,23 +1,7 @@
-
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
-
 #include <Plugins/Plugin_3.h>
-
-
-
-extern bool change_plugin_row;
-extern float *note_frequency;
-extern int tuning;
 
 void Plugin_3::setup()
 {
-    IhaveADSR = true;
     modulator.begin(WAVEFORM_SINE);
     modulator.frequency(440);
     modulator.amplitude(1);
@@ -57,7 +41,10 @@ void Plugin_3::setup()
     potentiometer[presetNr][9] = 0;
     potentiometer[presetNr][10] = 127;
     potentiometer[presetNr][11] = 20;
-    setParameterNames("mW~Form", "mRatio", "mVolume", "cW~Form", "mAttack", "mDecay", "mSustain", "mRelease", "0", "0", "0", "0", "1", "1", "1", "1");
+    setParameterNames("mW~Form", 12, "mRatio", NUM_RATIOS, "mVolume", MIDI_CC_RANGE, "cW~Form", 12,
+                      "mAttack", MIDI_CC_RANGE, "mDecay", MIDI_CC_RANGE, "mSustain", MIDI_CC_RANGE, "mRelease", MIDI_CC_RANGE,
+                      "0", 0, "0", 0, "0", 0, "0", 0,
+                      "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
     change_preset();
     // SongVol.gain(1);
 }
@@ -81,19 +68,18 @@ void Plugin_3::noteOff(uint8_t notePlayed, uint8_t voice)
 
 void Plugin_3::assign_parameter(uint8_t pot)
 {
-    uint value = get_Potentiometer(0);
+    uint8_t value = get_Potentiometer(pot);
     switch (pot)
     {
     case 0:
     {
-        int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-        modulator.begin(walveform);
+        modulator.begin(value);
     }
     break;
     case 1:
     {
-        int rationem = map(value, 0, MIDI_CC_RANGE, 0, NUM_RATIOS);
-        modulator_ratio = ratios[rationem];
+
+        modulator_ratio = ratios[value];
     }
     break;
     case 2:
@@ -104,8 +90,7 @@ void Plugin_3::assign_parameter(uint8_t pot)
     break;
     case 3:
     {
-        int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-        carrier.begin(walveform);
+        carrier.begin(value);
     }
     break;
     case 4:

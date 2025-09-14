@@ -1,18 +1,4 @@
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
-
 #include <Plugins/Plugin_5.h>
-
-
-
-extern bool change_plugin_row;
-extern float *note_frequency;
-extern int tuning;
 
 void Plugin_5::setup()
 {
@@ -38,7 +24,10 @@ void Plugin_5::setup()
   tomM.pitchMod(0.7);
   tomH.secondMix(0);
   tomH.pitchMod(0.7);
-  setParameterNames("Freq", "Sweep", "O-Drive", "Decay", "Freq", "Sweep", "Noise", "Decay", "Freq", "Reso", "Attack", "Decay", "TomL", "TomM", "TomH", "Decay");
+  setParameterNames("Freq", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "O-Drive", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
+                    "Freq", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Noise", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
+                    "Freq", MIDI_CC_RANGE, "Reso", MIDI_CC_RANGE, "Attack", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
+                    "TomL", MIDI_CC_RANGE, "TomM", MIDI_CC_RANGE, "TomH", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE);
 }
 void Plugin_5::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -71,78 +60,79 @@ void Plugin_5::noteOff(uint8_t notePlayed, uint8_t voice)
 }
 void Plugin_5::assign_parameter(uint8_t pot)
 {
+  uint8_t value = get_Potentiometer(pot);
   switch (pot)
   {
   case 0:
   {
-    int freq = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 10, 300);
+    int freq = map(value, 0, MIDI_CC_RANGE, 10, 300);
     fm_drum.frequency(freq);
   }
   break;
   case 1:
   {
-    float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+    float sustain = value / MIDI_CC_RANGE_FLOAT;
     fm_drum.fm(sustain);
   }
   break;
   case 2:
   {
-    float sustain = (float)(get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT);
+    float sustain = (float)(value / MIDI_CC_RANGE_FLOAT);
     fm_drum.overdrive(sustain);
   }
   break;
   case 3:
   {
-    float sustain = (float)(get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT);
+    float sustain = (float)(value / MIDI_CC_RANGE_FLOAT);
     fm_drum.decay(sustain);
   }
   break;
   case 4:
   {
-    int freq = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 10, 300);
+    int freq = map(value, 0, MIDI_CC_RANGE, 10, 300);
     fm_snare.frequency(freq);
   }
   break;
   case 5:
   {
-    float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+    float sustain = value/ MIDI_CC_RANGE_FLOAT;
     fm_snare.fm(sustain);
   }
   break;
   case 6:
   {
-    float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+    float sustain = value / MIDI_CC_RANGE_FLOAT;
     fm_snare.noise(sustain);
     fm_snare.overdrive(sustain);
   }
   break;
   case 7:
   {
-    float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+    float sustain = value / MIDI_CC_RANGE_FLOAT;
     fm_snare.decay(sustain);
   }
   break;
   case 8:
   {
-    int frequency = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 1000, 8000);
+    int frequency = map(value, 0, MIDI_CC_RANGE, 1000, 8000);
     filter.frequency(frequency);
   }
   break;
   case 9:
   {
-    float reso = (float)(get_Potentiometer(pot) / (MIDI_CC_RANGE_FLOAT / MAX_RESONANCE));
+    float reso = (float)(value / (MIDI_CC_RANGE_FLOAT / MAX_RESONANCE));
     filter.resonance(reso);
   }
   break;
   case 10:
   {
-    int attack = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 50);
+    int attack = map(value, 0, MIDI_CC_RANGE, 0, 50);
     hhEnv.attack(attack);
   }
   break;
   case 11:
   {
-    int release = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
+    int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
     hhEnv.release(release);
     hhFilterEnv.release(release);
     hhEnv.decay(release / 4);
@@ -151,25 +141,25 @@ void Plugin_5::assign_parameter(uint8_t pot)
   break;
   case 12:
   {
-    int freq = note_frequency[get_Potentiometer(pot)] * tuning;
+    int freq = note_frequency[value] * tuning;
     tomL.frequency(freq);
   }
   break;
   case 13:
   {
-    int freq = note_frequency[get_Potentiometer(pot)] * tuning;
+    int freq = note_frequency[value] * tuning;
     tomM.frequency(freq);
   }
   break;
   case 14:
   {
-    int freq = note_frequency[get_Potentiometer(pot)] * tuning;
+    int freq = note_frequency[value] * tuning;
     tomH.frequency(freq);
   }
   break;
   case 15:
   {
-    int decay = map(get_Potentiometer(pot), 0, MIDI_CC_RANGE, 0, 2000);
+    int decay = map(value, 0, MIDI_CC_RANGE, 0, 2000);
     tomL.length(decay);
     tomM.length(decay);
     tomH.length(decay);

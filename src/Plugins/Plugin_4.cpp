@@ -1,18 +1,4 @@
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
-
 #include <Plugins/Plugin_4.h>
-
-
-
-extern bool change_plugin_row;
-extern float *note_frequency;
-extern int tuning;
 
 void Plugin_4::setup()
 {
@@ -34,10 +20,12 @@ void Plugin_4::setup()
         potentiometer[presetNr][i] = 10;
         potentiometer[presetNr][i + 8] = 127;
     }
-    setParameterNames("Bk K", "Bk C", "Bk H", "Bk S", "Bk P", "Bk F", "Bk X", "Bk *", "Vol", "Vol", "Vol", "Vol", "Vol", "Vol", "Vol", "Vol");
+    setParameterNames("Bk K", MIDI_CC_RANGE, "Bk C", MIDI_CC_RANGE, "Bk H", MIDI_CC_RANGE, "Bk S", MIDI_CC_RANGE,
+                      "Bk P", MIDI_CC_RANGE, "Bk F", MIDI_CC_RANGE, "Bk X", MIDI_CC_RANGE, "Bk *", MIDI_CC_RANGE,
+                      "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE,
+                      "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE);
 
-    // change_preset();
-    // SongVol.gain(1);
+
 }
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -45,10 +33,6 @@ void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
     AEnv[voice].sustain(velocity);
     playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize, 1);
     AEnv[voice].noteOn();
-    // playMem[voice].play(_fileName[voice]);
-    //  playMem[voice].playRaw(sample[voice]->sampledata,1);
-
-    // Serial.printf("pl4 play %s on voice %d\n", _fileName[voice], voice);
     Serial.printf("pl4 play %s on voice %d, velocity: %02f\n", _fileName[voice], voice, velocity);
 }
 void Plugin_4::noteOff(uint8_t notePlayed, uint8_t voice)
@@ -59,16 +43,16 @@ void Plugin_4::noteOff(uint8_t notePlayed, uint8_t voice)
 
 void Plugin_4::assign_parameter(uint8_t pot)
 {
-
+    uint8_t value = get_Potentiometer(pot);
     if (pot < 8)
     {
-        sprintf(_fileName[pot], "%s%d.raw", bankNames[pot], get_Potentiometer(pot));
+        sprintf(_fileName[pot], "%s%d.raw", bankNames[pot], value);
         newdigate::flashloader loader;
         sample[pot] = loader.loadSample(_fileName[pot]);
     }
     else
     {
-        float sustain = get_Potentiometer(pot) / MIDI_CC_RANGE_FLOAT;
+        float sustain = value / MIDI_CC_RANGE_FLOAT;
         mixer.gain(pot - 8, sustain);
     }
 }

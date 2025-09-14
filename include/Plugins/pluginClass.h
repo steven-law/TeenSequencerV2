@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
+#include <ownLibs/effect_dynamics.h>
 #include <projectVariables.h>
 #include "ownLibs/mixers.h"
 
@@ -15,15 +16,11 @@
 #define SAMPLE_ROOT 69
 #define MAX_RESONANCE 5.00
 #define MAX_FILTERSWEEP 7.00
-////#include "hardware/tftClass.h"
-////class tftClass;
+
 
 // extern AudioInputI2S audioInput;
 extern float *note_frequency;
 extern int tuning;
-extern const char *filterName[4];
-
-
 extern bool change_plugin_row;
 // void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname);
 
@@ -33,11 +30,11 @@ public:
     uint8_t myID;
     uint8_t potentiometer[NUM_PLUGIN_PRESETS][16];
     const char *parameterNames[NUM_PARAMETERS];
+     uint8_t parameterMax[NUM_PARAMETERS];
     uint8_t presetNr = 0;
     uint8_t MixerGain = 1;
     AudioFilterStateVariable performFilter;
     AudioAmplifier MixGain;
-    bool IhaveADSR = false;
     bool IamPoly = false;
     // AudioAnalyzePeak dacOut;
 
@@ -76,10 +73,10 @@ public:
     virtual void set_FilterReso(uint8_t value);
     virtual uint8_t get_Potentiometer(uint8_t pot);
     virtual void set_Potentiometer(uint8_t pot, uint8_t value);
-    virtual void setParameterNames(const char *para1, const char *para2, const char *para3, const char *para4,
-                                   const char *para5, const char *para6, const char *para7, const char *para8,
-                                   const char *para9, const char *para10, const char *para11, const char *para12,
-                                   const char *para13, const char *para14, const char *para15, const char *para16);
+    virtual void setParameterNames(const char *para1, const uint8_t max1, const char *para2, const uint8_t max2, const char *para3, const uint8_t max3, const char *para4, const uint8_t max4,
+                                   const char *para5, const uint8_t max5, const char *para6, const uint8_t max6, const char *para7, const uint8_t max7, const char *para8, const uint8_t max8,
+                                   const char *para9, const uint8_t max9, const char *para10, const uint8_t max10, const char *para11, const uint8_t max11, const char *para12, const uint8_t max12,
+                                   const char *para13, const uint8_t max13, const char *para14, const uint8_t max14, const char *para15, const uint8_t max15, const char *para16, const uint8_t max16);
     virtual void setFXParameterNames(const char *para1, const char *para2);
 };
 extern PluginControll *allPlugins[NUM_PLUGINS];
