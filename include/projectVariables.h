@@ -109,8 +109,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define INPUT_FUNCTIONS_FOR_CLIPLAUNCHER 15
 #define INPUT_FUNCTIONS_FOR_SGTL 25
 // clips
-#define MAX_CLIPS 9
-#define NUM_USER_CLIPS 7
+#define MAX_CLIPS 8
 #define NUM_PRESETS 8
 #define MAX_TICKS 96
 #define TICKS_PER_STEP 6

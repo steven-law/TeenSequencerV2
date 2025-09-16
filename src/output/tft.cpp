@@ -309,8 +309,6 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
     // Zeichnen der Namenbox
     draw_value_box(YPos, xPos, yPos + 1, 6, 3, NO_VALUE, dname, color, 2, false, false);
 
-
-
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor((STEP_FRAME_W * xPos) + 13, (yPos * STEP_FRAME_H) - 3);
@@ -535,7 +533,7 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
     int _trelliscolor = TRELLIS_BLACK;
 
     // Falls Clip existiert, Farbe anpassen
-    if (clip < MAX_CLIPS - 1)
+    if (clip < MAX_CLIPS )
     {
         int baseColorIndex = track->my_Arranger_Y_axis - 1;
         _color = trackColor[baseColorIndex] + (clip * 20);
@@ -566,7 +564,7 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
     }
 
     // Falls ein Clip existiert, Werte einzeichnen
-    if (clip < MAX_CLIPS - 1)
+    if (clip < MAX_CLIPS )
     {
 
         draw_arrangerLine_value(_trackNr, _bar, clip, POSITION_TEXT_ARRANGERLINE_TOP);
@@ -938,7 +936,7 @@ void draw_clip_launcher()
     tft.printf("BAR:%d\n", bar2edit);
     for (int t = 0; t < NUM_TRACKS; t++)
     {
-        for (int c = 0; c < MAX_CLIPS; c++)
+        for (int c = 0; c <= MAX_CLIPS; c++)
         {
             char *dname = "0";
             //  Serial.println("draw clip launcher");
@@ -954,5 +952,30 @@ void draw_clip_launcher()
                 trellisOut.set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, c, t, TRELLIS_BLACK);
             }
         }
+    }
+}
+void draw_active_clip_launcher(uint8_t track, uint8_t clip)
+{
+    Serial.println("drawing cliplauncher");
+    tft.fillRect(10 * STEP_FRAME_W, 11 * STEP_FRAME_H, 80, 17, ILI9341_DARKGREY);
+    // tft.setFont(&FreeSans18pt7b);
+    tft.setTextSize(3);
+    tft.setCursor(8 * STEP_FRAME_W, 11 * STEP_FRAME_H);
+    tft.setTextColor(ILI9341_BLUE);
+    tft.printf("BAR:%d\n", bar2edit);
+
+    char *dname = "0";
+    //  Serial.println("draw clip launcher");
+
+    for (int i = 0; i <= MAX_CLIPS; i++)
+    {
+        draw_value_box(5, i * 2 + 2, track + 2, 0, 3, NO_VALUE, dname, ILI9341_DARKGREY, 2, false, false);
+        trellisOut.set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, i, track, TRELLIS_BLACK);
+    }
+    sprintf(dname, "T%d-C%d\0", track, clip);
+    if (allTracks[track]->clip_to_play[bar2edit] == clip)
+    {
+        draw_value_box(5, clip * 2 + 2, track + 2, 0, 3, NO_VALUE, dname, trackColor[track], 2, true, true);
+        trellisOut.set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, clip, track, trellisTrackColor[track]);
     }
 }

@@ -265,7 +265,7 @@ void InputClass::mouse_update()
                 if (mouse1.getButtons() == 2)
                 {
                     enc_moved[2] = true;
-                    encoded[2] = MAX_CLIPS - 1;
+                    encoded[2] = MAX_CLIPS ;
                 }
             }
         }

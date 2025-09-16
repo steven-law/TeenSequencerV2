@@ -130,7 +130,7 @@ void Track::load_track(uint8_t songNr)
         barProbabilty[i] = myTrackFile.read();
         play_presetNr_Playmode_ccChannel[i] = myTrackFile.read();
         play_presetNr_Plugin_ccValue[i] = myTrackFile.read();
-        if (clip_to_play[i] <= NUM_USER_CLIPS)
+        if (clip_to_play[i] <MAX_CLIPS)
         {
             // Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
             trellisOut.set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
@@ -213,7 +213,7 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     //   Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
-        if (clip_to_play[external_clock_bar] <= NUM_USER_CLIPS)
+        if (clip_to_play[external_clock_bar] < MAX_CLIPS)
         {
 
             {
@@ -342,7 +342,7 @@ void Track::set_arranger_parameters()
     {
     case 0:
         inputs.encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
-        set_bar_parameter(2, pixelTouchX, clip_to_play, 0, NUM_USER_CLIPS + 1, "Clip");
+        set_bar_parameter(2, pixelTouchX, clip_to_play, 0, MAX_CLIPS, "Clip");
         set_bar_parameter(3, pixelTouchX, noteOffset, -99, 99, "Trns");
         break;
     case 1:
@@ -413,7 +413,7 @@ void Track::clear_arrangment()
     {
         for (int i = 0; i < MAX_BARS; i++)
         {
-            clip_to_play[i] = MAX_CLIPS - 1;
+            clip_to_play[i] = MAX_CLIPS ;
             noteOffset[i] = 0;
             barVelocity[i] = 0;
             barProbabilty[i] = 128;

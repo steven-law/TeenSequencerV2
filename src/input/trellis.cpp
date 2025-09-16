@@ -459,7 +459,7 @@ void trellis_setClipsToArranger()
         Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", t, bar, clipNr);
         trellis.clear();
         trellisOut.recall_main_buffer();
-        return;
+        //return;
       }
     }
     else
@@ -501,7 +501,7 @@ void trellis_setClipsToArranger()
             }
           }
 
-          else if (trellisPressed[key])
+           if (trellisPressed[key])
           {
             uint8_t bar = x + arrangerpage * 16;
             uint8_t track = y;
@@ -635,7 +635,7 @@ void neo_trellis_select_trackClips()
     }
 
     // Clip-Auswahl
-    for (int x = 0; x <= NUM_USER_CLIPS; x++)
+    for (int x = 0; x < MAX_CLIPS; x++)
     {
       if (trellisPressed[x + (TRELLIS_PADS_X_DIM * y)])
       {
@@ -908,10 +908,11 @@ void trellis_play_clipLauncher()
   myClock.set_tempo(1);
   myClock.set_start_of_loop(2);
   myClock.set_end_of_loop(3);
+
   for (int t = 0; t < NUM_TRACKS; t++)
   {
     allTracks[t]->bar_to_edit = bar2edit;
-    for (int c = 0; c < MAX_CLIPS; c++)
+    for (int c = 0; c <= MAX_CLIPS; c++)
     {
       uint8_t _nr = c + (t * TRELLIS_PADS_X_DIM);
       if (trellisPressed[_nr])
@@ -921,7 +922,7 @@ void trellis_play_clipLauncher()
 
         allTracks[t]->clip_to_play[bar2edit] = c;
 
-        draw_clip_launcher();
+        draw_active_clip_launcher(t, c);
         break;
       }
     }

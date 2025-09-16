@@ -242,7 +242,7 @@ void Track::play_seq_mode1(uint8_t cloock)
         uint8_t StepFX = random(seqMod_value[1][playPresetNr][8], seqMod_value[1][playPresetNr][9]);
         sendControlChange(parameter[14], StepFX, clip[clipIndex].midiChOut, my_Arranger_Y_axis - 1);
         noteOn(noteToPlay[0], Velo, clip[clipIndex].midiChOut); // Send a Note
-        Serial.printf("pl1 Note: %d, Velo: %d, StartTick: %d, EndTick: %d, StepFX: %d\n", noteToPlay[0], Velo, tick.startTick[0], noteOffAt[0], StepFX);
+        Serial.printf("sm1 Note: %d, Velo: %d, StartTick: %d, EndTick: %d, StepFX: %d\n", noteToPlay[0], Velo, tick.startTick[0], noteOffAt[0], StepFX);
 
         // save new note into array
         if (!useMemory)

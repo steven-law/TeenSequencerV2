@@ -6,7 +6,6 @@
 
 #include <ownLibs/myClock.h>
 
-
 // Startscreen
 #define POSITION_ARR_BUTTON 18
 
@@ -16,7 +15,7 @@
 #define POSITION_STOP_BUTTON 10
 #define POSITION_PLAY_BUTTON 8
 #define POSITION_RECORD_BUTTON 7
-//#define POSITION_POTROW_BUTTON 6
+// #define POSITION_POTROW_BUTTON 6
 #define POSITION_POTROW_BUTTON 475
 #define STARTUPSCREEN 0
 #define STEP_SEQUENCER_VIEW 1
@@ -51,8 +50,6 @@
 
 #define OCTAVE_CHANGE_TEXT 3
 
-
-
 // extern ILI9341_t3n tft;
 extern Adafruit_ST7796S_kbv tft;
 
@@ -74,8 +71,8 @@ void set_infobox_background(int _DisplayTime);
 void reset_infobox_background();
 void set_infobox_next_line(uint8_t _lineNumber); //_lineNumber must be bigger 0
 void show_active_page_info(const char *_pagename, uint8_t _pagenumber);
-void draw_infobox(const char *info1, int8_t value1, const char *info2,int8_t value2);
-void draw_infobox_text(const char *info1, const char * value1);
+void draw_infobox(const char *info1, int8_t value1, const char *info2, int8_t value2);
+void draw_infobox_text(const char *info1, const char *value1);
 void moveCursor(int pixelOnX, int pixelOnY, int cursorDeltaX, int cursorDeltaY);
 void draw_potRow();
 void tft_show();
@@ -112,7 +109,6 @@ void draw_notes_in_grid();
 void erase_note_on_tick(uint8_t _voice, uint8_t _when, uint8_t note_length);
 void erase_notes_in_grid(uint8_t _voice, uint8_t _when);
 
-
 void draw_MIDI_CC(uint8_t XPos, uint8_t YPos);
 void draw_MIDI_CC_screen();
 void draw_edit_presetNr_CC(const char *label, uint8_t value, uint8_t row_offset);
@@ -122,5 +118,6 @@ void draw_mixer_FX_page1();
 void draw_mixer_FX_page2();
 
 void draw_clip_launcher();
+void draw_active_clip_launcher(uint8_t track, uint8_t clip);
 
 #endif
