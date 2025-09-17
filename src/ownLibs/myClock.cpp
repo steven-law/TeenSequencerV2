@@ -33,7 +33,11 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
     // Send MIDI_CLOCK to external gears
     // Serial.write(MIDI_CLOCK);
     tick = tick % (MAX_TICKS);
-    clock_to_notes(tick);
+    for (int t = 0; t < NUM_TRACKS; t++)
+    {
+        allTracks[t]->play_sequencer_mode(tick, myClock.startOfLoop, myClock.endOfLoop);
+    }
+    // clock_to_notes(tick);
     MIDITick = tick;
     // Serial.printf("tick: %d\n", tick);
     if (syncToExtern)

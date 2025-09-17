@@ -533,7 +533,7 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
     int _trelliscolor = TRELLIS_BLACK;
 
     // Falls Clip existiert, Farbe anpassen
-    if (clip < MAX_CLIPS )
+    if (clip < MAX_CLIPS-1 )
     {
         int baseColorIndex = track->my_Arranger_Y_axis - 1;
         _color = trackColor[baseColorIndex] + (clip * 20);
@@ -564,7 +564,7 @@ void draw_arrangment_line(uint8_t _trackNr, uint8_t _bar)
     }
 
     // Falls ein Clip existiert, Werte einzeichnen
-    if (clip < MAX_CLIPS )
+    if (clip < MAX_CLIPS-1 )
     {
 
         draw_arrangerLine_value(_trackNr, _bar, clip, POSITION_TEXT_ARRANGERLINE_TOP);
@@ -936,7 +936,7 @@ void draw_clip_launcher()
     tft.printf("BAR:%d\n", bar2edit);
     for (int t = 0; t < NUM_TRACKS; t++)
     {
-        for (int c = 0; c <= MAX_CLIPS; c++)
+        for (int c = 0; c < MAX_CLIPS; c++)
         {
             char *dname = "0";
             //  Serial.println("draw clip launcher");
@@ -967,7 +967,7 @@ void draw_active_clip_launcher(uint8_t track, uint8_t clip)
     char *dname = "0";
     //  Serial.println("draw clip launcher");
 
-    for (int i = 0; i <= MAX_CLIPS; i++)
+    for (int i = 0; i < MAX_CLIPS; i++)
     {
         draw_value_box(5, i * 2 + 2, track + 2, 0, 3, NO_VALUE, dname, ILI9341_DARKGREY, 2, false, false);
         trellisOut.set_main_buffer(TRELLIS_SCREEN_CLIPLAUNCHER, i, track, TRELLIS_BLACK);

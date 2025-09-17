@@ -109,7 +109,7 @@ extern const int FlashChipSelect; // digital pin for flash chip CS pin
 #define INPUT_FUNCTIONS_FOR_CLIPLAUNCHER 15
 #define INPUT_FUNCTIONS_FOR_SGTL 25
 // clips
-#define MAX_CLIPS 8
+#define MAX_CLIPS 9
 #define NUM_PRESETS 8
 #define MAX_TICKS 96
 #define TICKS_PER_STEP 6
@@ -192,7 +192,8 @@ extern uint8_t sgtlparameter[16];
 #define ILI9341_PURPLE 0x780F      /* 128,   0, 128 */
 #define ILI9341_OLIVE 0x7BE0       /* 128, 128,   0 */
 #define ILI9341_LIGHTGREY 0xC618   /* 192, 192, 192 */
-#define ILI9341_DARKGREY 0x7BEF    /* 128, 128, 128 */
+#define ILI9341_DARKGREY 0x0000    /* 128, 128, 128 */
+//#define ILI9341_DARKGREY 0x7BEF    /* 128, 128, 128 */
 #define ILI9341_BLUE 0x001F        /*   0,   0, 255 */
 #define ILI9341_GREEN 0x07E0       /*   0, 255,   0 */
 #define ILI9341_CYAN 0x07FF        /*   0, 255, 255 */

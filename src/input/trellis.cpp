@@ -635,7 +635,7 @@ void neo_trellis_select_trackClips()
     }
 
     // Clip-Auswahl
-    for (int x = 0; x < MAX_CLIPS; x++)
+    for (int x = 0; x < MAX_CLIPS-1; x++)
     {
       if (trellisPressed[x + (TRELLIS_PADS_X_DIM * y)])
       {
@@ -912,7 +912,7 @@ void trellis_play_clipLauncher()
   for (int t = 0; t < NUM_TRACKS; t++)
   {
     allTracks[t]->bar_to_edit = bar2edit;
-    for (int c = 0; c <= MAX_CLIPS; c++)
+    for (int c = 0; c < MAX_CLIPS; c++)
     {
       uint8_t _nr = c + (t * TRELLIS_PADS_X_DIM);
       if (trellisPressed[_nr])

@@ -35,7 +35,7 @@ void Track::set_stepSequencer_parameters()
         {
             copy_clip();
         }
-        set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, MAX_CLIPS-1);
+        set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, MAX_CLIPS-2);
 
         break;
     case 3:
