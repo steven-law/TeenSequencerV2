@@ -400,7 +400,7 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
     int existingStartTick = tickPtr[_startTick].startTick[_voice];
     int existingLength = tickPtr[existingStartTick].noteLength[_voice];
     int trellisColor = TRELLIS_BLACK;
-    Serial.printf("trelliscolor: %d\n", trellisColor);
+   // Serial.printf("trelliscolor: %d\n", trellisColor);
     // Serial.println(isNewNote ? "true" : "false");
     // Serial.printf("existingNote = %d, newNote = %d\n", existingNote, note2set);
     // Prüfen, ob _startTick innerhalb einer bestehenden Note liegt
@@ -427,18 +427,18 @@ void Track::set_note_on_tick(int _startTick, int _note, int length)
                 {
                     trellisColor = TRELLIS_WHITE;
                     // trellisColor = trellisTrackColor[my_Arranger_Y_axis - 1];
-                    Serial.printf("voice: %d, note: %d, trelliscolor: %d\n", v, get_note_parameter(tickPtr[tickToClear].voice, v), trellisColor);
+                  //  Serial.printf("voice: %d, note: %d, trelliscolor: %d\n", v, get_note_parameter(tickPtr[tickToClear].voice, v), trellisColor);
                     break;
                 }
             }
             trellisOut.set_main_buffer(parameter[SET_CLIP2_EDIT], tickToClear / TICKS_PER_STEP, my_Arranger_Y_axis - 1, trellisColor);
         }
-        Serial.printf("note is erased: note: %d, startTick: %d, length: %d, velo: %d, stepFx: %d\n",
-                      tickPtr[_startTick].voice[_voice],
-                      tickPtr[_startTick].startTick[_voice],
-                      tickPtr[_startTick].noteLength[_voice],
-                      tickPtr[_startTick].velo[_voice],
-                      tickPtr[_startTick].stepFX);
+       // Serial.printf("note is erased: note: %d, startTick: %d, length: %d, velo: %d, stepFx: %d\n",
+        //              tickPtr[_startTick].voice[_voice],
+        //              tickPtr[_startTick].startTick[_voice],
+        //              tickPtr[_startTick].noteLength[_voice],
+        //              tickPtr[_startTick].velo[_voice],
+        //              tickPtr[_startTick].stepFX);
         tickPtr[existingStartTick].noteLength[_voice] = 0;
 
         // Eventuell noch die Note-Visualisierung löschen

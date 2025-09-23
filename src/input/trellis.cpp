@@ -268,12 +268,12 @@ void neotrellis_set_potRow()
     lastPotRow = (lastPotRow + 1) % 4;
     if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLAYMODE)
     {
-      trellisOut.clearMainGridNow();
+     // trellisOut.clearMainGridNow();
       trellisOut.drawPlaymode();
     }
     if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLUGIN)
     {
-      trellisOut.clearMainGridNow();
+     // trellisOut.clearMainGridNow();
       trellisOut.drawPlugin();
     }
   }

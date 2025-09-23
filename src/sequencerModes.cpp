@@ -33,13 +33,13 @@ void Track::set_presetNr()
         draw_sequencer_modes(parameter[SET_SEQ_MODE]);
     }
 }
-void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos,  int max)
+void Track::set_seq_mode_value(uint8_t modeindex, uint8_t XPos, uint8_t YPos, int max)
 {
     if (inputs.active[XPos])
     {
         int n = XPos + (YPos * NUM_ENCODERS);
         uint8_t value = constrain(inputs.getValueFromInput(XPos, seqMod_value[modeindex][PMpresetNr][n]), 0, max);
-        set_seqModValue(n, value ); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
+        set_seqModValue(n, value); // mode 3 =MIDI_CC_RANGE * 2 //mode4 =NO_NOTE //others=MIDI_CC_RANGE
     }
 }
 
@@ -156,8 +156,12 @@ void Track::set_seqmode_parameters(uint8_t mode)
         {
             for (int s = 0; s < NUM_STEPS; s++)
             {
-                int _note = seqModNoteMemory[v][s];
-                set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
+                if (seqModNoteMemory[v][s] < NO_NOTE)
+                {
+                    int _note = seqModNoteMemory[v][s];
+                    Serial.printf("copy to clip note: %d, step: %d\n", _note, s);
+                    set_note_on_tick(s * TICKS_PER_STEP, _note, parameter[SET_STEP_LENGTH]);
+                }
             }
         }
     }
@@ -345,15 +349,9 @@ void Track::play_seq_mode3(uint8_t cloock)
     for (int v = 0; v < MAX_VOICES; v++)
     {
 
-        if (bitRead(seqMod_value[3][playPresetNr][v], seq3_clock) && cloock % (TICKS_PER_STEP * 2) == 0 && random(126) < barProbabilty[external_clock_bar])
+        if (bitRead(seqMod_value[3][playPresetNr][v] * 4, seq3_clock) && cloock % (TICKS_PER_STEP * 2) == 0 && random(126) < barProbabilty[external_clock_bar])
         {
-            //  if (note_is_on[v])
-            //  {
-            //      note_is_on[v] = false;
-            //      noteOff(noteToPlay[v], 0, parameter[clip[clipIndex].midiChOut]); // Send a Note (pitch 42, velo 127 on channel 1)
-            //        Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
-            //  }
-            if (!note_is_on[v] && seqMod_value[3][playPresetNr][v] < NO_NOTE)
+            if (!note_is_on[v])
             {
                 noteToPlay[v] = v + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE) + noteOffset[external_clock_bar] + performNoteOffset;
                 seqModNoteMemory[v][cloock / TICKS_PER_STEP] = noteToPlay[v];

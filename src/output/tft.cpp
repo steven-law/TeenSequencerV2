@@ -319,7 +319,7 @@ void drawPot(int XPos, uint8_t YPos, int dvalue, const char *dname)
 
     // Speichern der alten Werte
     circlePos_old[XPos] = circlePos[XPos];
-    Serial.printf("drawPot %s, %d, xpos: %d\n", dname, dvalue, XPos);
+   // Serial.printf("drawPot %s, %d, xpos: %d\n", dname, dvalue, XPos);
 }
 void drawEnvelope(uint8_t YPos, uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release)
 {
