@@ -18,7 +18,6 @@
 #define NOTES_PER_OCTAVE 12
 #define MIDI_CC_RANGE 127
 
-
 #define MAX_BARS 256
 // potrow 0
 #define ENCODER_STEP_FX 2
@@ -36,10 +35,8 @@
 #define ENCODER_PROBABILITY 0
 #define ENCODER_HUMANIZE 1
 
-
 extern File myFile;
 // Encoder Pins
-
 
 // extern int encoder_colour[4];
 extern bool change_plugin_row;
@@ -113,7 +110,7 @@ public:
     bool performIsActive = false;
     int performNoteOffset = 0;
     int performClockDivision = 0;
-    float performSeqLengthDiv=1;
+    float performSeqLengthDiv = 1;
     int bar_to_edit = 0;
     int tick_to_edit;
     int voice_to_edit;
@@ -187,6 +184,8 @@ public:
             {
                 CCchannel[p][t] = 129;
                 CCvalue[p][t] = 0;
+                if (p < NUM_PRESETS)
+                    seqMod_value[4][p][t] = 128;
             }
         }
         if (my_Arranger_Y_axis == 1)
@@ -221,8 +220,8 @@ public:
     void draw_sequencer_modes(uint8_t mode);
     void play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end);
     void set_seq_mode_parameters(uint8_t row);
-    void set_seqModValue(uint8_t param,uint8_t value);//value 0-127
-    uint8_t get_seqModValue(uint8_t param);//value 0-127
+    void set_seqModValue(uint8_t param, uint8_t value); // value 0-127
+    uint8_t get_seqModValue(uint8_t param);             // value 0-127
     // midi CC
     void set_MIDI_CC(uint8_t row);
 

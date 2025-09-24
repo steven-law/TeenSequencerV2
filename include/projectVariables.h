@@ -286,7 +286,7 @@ const SeqModeParam seqModeParams[12][4][4] = {
         {{"Vol -", MIDI_CC_RANGE}, {"Vol +", MIDI_CC_RANGE}, {"StepFX -", MIDI_CC_RANGE + 1}, {"StepFX +", MIDI_CC_RANGE + 1}}},
     // PotS
     {
-        {{"ADSR", NO_NOTE}, {"2", NO_NOTE}, {"3", NO_NOTE}, {"4", NO_NOTE}},
+        {{"1", NO_NOTE}, {"2", NO_NOTE}, {"3", NO_NOTE}, {"4", NO_NOTE}},
         {{"5", NO_NOTE}, {"6", NO_NOTE}, {"7", NO_NOTE}, {"8", NO_NOTE}},
         {{"9", NO_NOTE}, {"10", NO_NOTE}, {"11", NO_NOTE}, {"12", NO_NOTE}},
         {{"13", NO_NOTE}, {"14", NO_NOTE}, {"15", NO_NOTE}, {"16", NO_NOTE}}},
