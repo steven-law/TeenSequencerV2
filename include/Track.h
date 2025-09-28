@@ -193,6 +193,15 @@ public:
             parameter[SET_OCTAVE] = 5;
             parameter[SET_MIDICH_OUT] = 13;
         }
+        for (int v = 0; v < MAX_VOICES; v++)
+        {
+            for (int s = 0; s < NUM_STEPS; s++)
+            {
+                seqModNoteMemory[v][s] = NO_NOTE;
+                tempNoteMemory[s]=NO_NOTE;
+                seqModVeloMemory[v][s] = 127;
+            }
+        }
     }
 
     // update
@@ -212,7 +221,7 @@ public:
     void copy_bar();
     void clear_arrangment();
     // stepsequencer
-    void set_note_on_tick(int _startTick, int _note, int length);
+    void set_note_on_tick(int _startTick, int _note, int length, uint8_t velo);
     uint8_t get_note_parameter(const uint8_t *parameterArray, uint8_t _voice);
     void set_stepSequencer_parameters();
     void clear_active_clip();
@@ -221,6 +230,7 @@ public:
     void play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end);
     void set_seq_mode_parameters(uint8_t row);
     void set_seqModValue(uint8_t param, uint8_t value); // value 0-127
+    void set_seqModValue2(uint8_t param, uint8_t value); // value 0-127
     uint8_t get_seqModValue(uint8_t param);             // value 0-127
     // midi CC
     void set_MIDI_CC(uint8_t row);
@@ -237,6 +247,8 @@ private:
     bool note_is_on[MAX_VOICES] = {false, false, true, true, true, true, true, true, true, true, true, true};
     uint8_t seqMod_value[NUM_PLAYMODES][NUM_PRESETS][16];
     uint8_t seqModNoteMemory[MAX_VOICES][NUM_STEPS];
+    uint8_t seqModVeloMemory[MAX_VOICES][NUM_STEPS];
+    uint8_t tempNoteMemory[NUM_STEPS];
     uint8_t SeqMod6Value2[16];
     uint8_t PMpresetNr = 0;
     uint8_t maxVal;

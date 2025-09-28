@@ -383,7 +383,7 @@ void input_behaviour()
     {
       int tempTick = (pixelTouchX - SEQ_GRID_LEFT) / PIXEL_PER_TICK;
       int _note = (gridTouchY - 1) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-      allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
+      allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH], allTracks[active_track]->parameter[SET_VELO2SET]);
       neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
     }
     if (neotrellisPressed[TRELLIS_BUTTON_ENTER] && neotrellisPressed[TRELLIS_BUTTON_SHIFT])
@@ -402,7 +402,7 @@ void input_behaviour()
       if (tempTick % allTracks[active_track]->parameter[SET_STEP_LENGTH] == 0)
       {
         int _note = (gridTouchY - 1) + (allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-        allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH]);
+        allTracks[active_track]->set_note_on_tick(tempTick, _note, allTracks[active_track]->parameter[SET_STEP_LENGTH], allTracks[active_track]->parameter[SET_VELO2SET]);
         updateTFTScreen = true;
         delay(70);
       }
@@ -673,7 +673,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-     Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+    Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -688,7 +688,7 @@ void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), Note % 12);
-   Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+  Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
 }
 void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel, uint8_t fromTrack = 255)
 {
@@ -1397,7 +1397,7 @@ void set_mixer_gain(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn
   if (inputs.active[XPos])
   {
     int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-    allTracks[trackn]->mixGainPot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixGainPot);
+    allTracks[trackn]->mixGainPot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixGainPot, MIDI_CC_RANGE);
     allTracks[trackn]->mixGain = (float)(allTracks[trackn]->mixGainPot / MIDI_CC_RANGE_FLOAT);
     if (trackChannel > NUM_MIDI_OUTPUTS)
       allPlugins[trackChannel - (NUM_MIDI_OUTPUTS + 1)]->set_gain(allTracks[trackn]->mixGainPot);
@@ -1492,7 +1492,7 @@ void set_mixer_dry(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
     if (inputs.active[XPos])
     {
       int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-      allTracks[trackn]->mixDryPot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixDryPot);
+      allTracks[trackn]->mixDryPot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixDryPot, MIDI_CC_RANGE);
       allTracks[trackn]->mixDry = (float)allTracks[trackn]->mixDryPot / MIDI_CC_RANGE_FLOAT;
       for (int i = 0; i < NUM_PLUGINS; i++)
         if (trackChannel == CH_PLUGIN_1 + i)
@@ -1513,7 +1513,7 @@ void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   if (inputs.active[XPos])
   {
     int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-    allTracks[trackn]->mixFX1Pot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixFX1Pot);
+    allTracks[trackn]->mixFX1Pot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixFX1Pot, MIDI_CC_RANGE);
     allTracks[trackn]->mixFX1 = (float)allTracks[trackn]->mixFX1Pot / MIDI_CC_RANGE_FLOAT;
     for (int i = 0; i < NUM_PLUGINS; i++)
       if (trackChannel == CH_PLUGIN_1 + i)
@@ -1533,7 +1533,7 @@ void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   if (inputs.active[XPos])
   {
     int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-    allTracks[trackn]->mixFX2Pot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixFX2Pot);
+    allTracks[trackn]->mixFX2Pot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixFX2Pot, MIDI_CC_RANGE);
     allTracks[trackn]->mixFX2 = (float)allTracks[trackn]->mixFX2Pot / MIDI_CC_RANGE_FLOAT;
     for (int i = 0; i < NUM_PLUGINS; i++)
       if (trackChannel == CH_PLUGIN_1 + i)
@@ -1553,7 +1553,7 @@ void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
   if (inputs.active[XPos])
   {
     int trackChannel = allTracks[trackn]->clip[allTracks[trackn]->clip_to_play[allTracks[trackn]->internal_clock_bar]].midiChOut;
-    allTracks[trackn]->mixFX3Pot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixFX3Pot);
+    allTracks[trackn]->mixFX3Pot = inputs.getValueFromInput(XPos, allTracks[trackn]->mixFX3Pot, MIDI_CC_RANGE);
     allTracks[trackn]->mixFX3 = (float)allTracks[trackn]->mixFX3Pot / MIDI_CC_RANGE_FLOAT;
     for (int i = 0; i < NUM_PLUGINS; i++)
       if (trackChannel == CH_PLUGIN_1 + i)
@@ -1775,7 +1775,7 @@ uint8_t get_sgtl_potentiometer(uint8_t index, uint8_t min, uint8_t max, const ch
   uint8_t _xPos = index % NUM_ENCODERS;
   uint8_t _yPos = index / NUM_ENCODERS;
 
-  sgtlparameter[index] = constrain(inputs.getValueFromInput(_xPos, sgtlparameter[index]), 0, max);
+  sgtlparameter[index] = constrain(inputs.getValueFromInput(_xPos, sgtlparameter[index], MIDI_CC_RANGE), 0, max);
   // Serial.printf("sgtl parameter: %d, value: %d\n", index, sgtlparameter[index]);
   trellisOut.drawPotentiometerValue(_xPos, sgtlparameter[index]);
   drawPot(_xPos, _yPos, sgtlparameter[index], name);
@@ -1838,7 +1838,7 @@ void assign_PSRAM_variables()
   {
     beatArray[i] = new bool[NUM_STEPS];
   }
-  for (int i = 0; i < BEAT_ARRAY_SIZE; i++)
+  for (int i = 5; i < BEAT_ARRAY_SIZE; i++)
   {
     Serial.print(i);
     for (int j = 0; j < NUM_STEPS; j++)
@@ -1859,40 +1859,33 @@ void assign_PSRAM_variables()
     beatArray[2][j] = 0;            // 0 für false, 1 für true
     beatArray[2][j] = (j % 4 == 0); // 0 für false, 1 für true
     beatArray[2][14] = 1;           // 0 für false, 1 für true
-    int bucket = 0;
-    bucket += 5;
-    if (bucket >= NUM_STEPS)
-    {
-      beatArray[3][j] = 1; // Beat
-      bucket -= NUM_STEPS;
-    }
-    else
-    {
-      beatArray[3][j] = 0; // Kein Beat
-    }
-    bucket += 7;
-    if (bucket >= NUM_STEPS)
-    {
-      beatArray[4][j] = 1; // Beat
-      bucket -= NUM_STEPS;
-    }
-    else
-    {
-      beatArray[4][j] = 0; // Kein Beat
-    }
+    beatArray[3][j] = 0;            // 0 für false, 1 für true
   }
+  beatArray[3][4] = 1;  // 0 für false, 1 für true
+  beatArray[3][12] = 1; // 0 für false, 1 für true
+  beatArray[4][2] = 1;  // 0 für false, 1 für true
+  beatArray[4][6] = 1;  // 0 für false, 1 für true
+  beatArray[4][10] = 1; // 0 für false, 1 für true
+  beatArray[4][14] = 1; // 0 für false, 1 für true
 
-  beatArrayPM6 = new bool *[MAX_VOICES];
-  for (int i = 0; i < MAX_VOICES; i++)
+  beatArrayPM6 = new bool **[NUM_PRESETS];
+  for (int p = 0; p < NUM_PRESETS; p++)
   {
-    beatArrayPM6[i] = new bool[NUM_STEPS];
-  }
-  for (int i = 0; i < MAX_VOICES; i++)
-  {
-    for (int j = 0; j < NUM_STEPS; j++)
+    beatArrayPM6[p] = new bool *[MAX_VOICES];
+    for (int v = 0; v < MAX_VOICES; v++)
     {
-      // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
-      beatArrayPM6[i][j] = 0; // 0 für false, 1 für true
+      beatArrayPM6[p][v] = new bool[NUM_STEPS];
+    }
+  }
+  for (int p = 0; p < NUM_PRESETS; p++)
+  {
+    for (int i = 0; i < MAX_VOICES; i++)
+    {
+      for (int j = 0; j < NUM_STEPS; j++)
+      {
+        // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
+        beatArrayPM6[p][i][j] = 0; // 0 für false, 1 für true
+      }
     }
   }
   beatArrayPM7 = new bool[NUM_STEPS];

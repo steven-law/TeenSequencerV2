@@ -333,7 +333,7 @@ void Track::record_noteOff(uint8_t Note, uint8_t Velo, uint8_t Channel)
 
                 Serial.printf("recorded notelength: %d\n", _length);
             }
-        set_note_on_tick(_start, Note, _length);
+        set_note_on_tick(_start, Note, _length, Velo);
         // set_note_on_tick(clip[parameter[SET_CLIP2_EDIT]].tick[recordStartTick[recordVoice]].startTick[recordVoice], Note, clip[parameter[SET_CLIP2_EDIT]].tick[recordStartTick[recordVoice]].noteLength[recordVoice]);
     }
 }

@@ -173,7 +173,7 @@ extern uint16_t tftRAM[16][16];
 #define BEAT_ARRAY_SIZE 128
 // extern const bool seqM_Beats[BEAT_ARRAY_SIZE][NUM_STEPS];
 extern bool **beatArray;
-extern bool **beatArrayPM6;
+extern bool ***beatArrayPM6;
 extern bool *beatArrayPM7;
 extern uint8_t sgtlparameter[16];
 #define Y_DIM 12 // number of rows of key
@@ -184,16 +184,16 @@ extern uint8_t sgtlparameter[16];
 #define NUMTRELLIS 8
 
 // Color definitions
-#define ILI9341_BLACK 0x0000       /*   0,   0,   0 */
-#define ILI9341_NAVY 0x000F        /*   0,   0, 128 */
-#define ILI9341_DARKGREEN 0x03E0   /*   0, 128,   0 */
-#define ILI9341_DARKCYAN 0x03EF    /*   0, 128, 128 */
-#define ILI9341_MAROON 0x7800      /* 128,   0,   0 */
-#define ILI9341_PURPLE 0x780F      /* 128,   0, 128 */
-#define ILI9341_OLIVE 0x7BE0       /* 128, 128,   0 */
-#define ILI9341_LIGHTGREY 0xC618   /* 192, 192, 192 */
-#define ILI9341_DARKGREY 0x0000    /* 128, 128, 128 */
-//#define ILI9341_DARKGREY 0x7BEF    /* 128, 128, 128 */
+#define ILI9341_BLACK 0x0000     /*   0,   0,   0 */
+#define ILI9341_NAVY 0x000F      /*   0,   0, 128 */
+#define ILI9341_DARKGREEN 0x03E0 /*   0, 128,   0 */
+#define ILI9341_DARKCYAN 0x03EF  /*   0, 128, 128 */
+#define ILI9341_MAROON 0x7800    /* 128,   0,   0 */
+#define ILI9341_PURPLE 0x780F    /* 128,   0, 128 */
+#define ILI9341_OLIVE 0x7BE0     /* 128, 128,   0 */
+#define ILI9341_LIGHTGREY 0xC618 /* 192, 192, 192 */
+#define ILI9341_DARKGREY 0x0000  /* 128, 128, 128 */
+// #define ILI9341_DARKGREY 0x7BEF    /* 128, 128, 128 */
 #define ILI9341_BLUE 0x001F        /*   0,   0, 255 */
 #define ILI9341_GREEN 0x07E0       /*   0, 255,   0 */
 #define ILI9341_CYAN 0x07FF        /*   0, 255, 255 */
@@ -262,15 +262,15 @@ struct SeqModeParam
 const SeqModeParam seqModeParams[12][4][4] = {
     // Step
     {
-        {{"Oct -",  11}, {"Oct +", 11}, {"Vol -",  MIDI_CC_RANGE}, {"Vol +",  MIDI_CC_RANGE}},
-        {{"maxSteps",  NUM_STEPS}, {"Dejavu",  MIDI_CC_RANGE}, {"Rotate",  32}, {"",  0}},
-        {{"StepFX -",  MIDI_CC_RANGE + 1}, {"StepFX +",  MIDI_CC_RANGE + 1}, {"",  0}, {"",  0}},
-        {{"",  0}, {"",  0}, {"",  0}, {"",  0}}},
+        {{"Oct -", 11}, {"Oct +", 11}, {"Vol -", MIDI_CC_RANGE}, {"Vol +", MIDI_CC_RANGE}},
+        {{"maxSteps", NUM_STEPS}, {"Dejavu", MIDI_CC_RANGE}, {"Rotate", 32}, {"", 0}},
+        {{"StepFX -", MIDI_CC_RANGE + 1}, {"StepFX +", MIDI_CC_RANGE + 1}, {"", 0}, {"", 0}},
+        {{"", 0}, {"", 0}, {"", 0}, {"", 0}}},
     // Random
     {
-        {{"Oct -",  11}, {"Oct +",  11}, {"Vol -",  MIDI_CC_RANGE}, {"Vol +",  MIDI_CC_RANGE}},
-        {{"maxSteps",  NUM_STEPS}, {"Dejavu",  MIDI_CC_RANGE}, {"Rotate",  32}, {"",  0}},
-        {{"StepFX -",  MIDI_CC_RANGE + 1}, {"StepFX +",  MIDI_CC_RANGE + 1}, {"",  0}, {"",  0}},
+        {{"Oct -", 11}, {"Oct +", 11}, {"Vol -", MIDI_CC_RANGE}, {"Vol +", MIDI_CC_RANGE}},
+        {{"maxSteps", NUM_STEPS}, {"Dejavu", MIDI_CC_RANGE}, {"Rotate", 32}, {"", 0}},
+        {{"StepFX -", MIDI_CC_RANGE + 1}, {"StepFX +", MIDI_CC_RANGE + 1}, {"", 0}, {"", 0}},
         {{"", 0}, {"", 0}, {"", 0}, {"", 0}}},
     // Dropseq
     {
@@ -292,26 +292,26 @@ const SeqModeParam seqModeParams[12][4][4] = {
         {{"13", NO_NOTE}, {"14", NO_NOTE}, {"15", NO_NOTE}, {"16", NO_NOTE}}},
     // Beats
     {
-        {{"ADSR", MIDI_CC_RANGE}, {"2", MIDI_CC_RANGE}, {"3", MIDI_CC_RANGE}, {"4", MIDI_CC_RANGE}},
+        {{"1", MIDI_CC_RANGE}, {"2", MIDI_CC_RANGE}, {"3", MIDI_CC_RANGE}, {"4", MIDI_CC_RANGE}},
         {{"5", MIDI_CC_RANGE}, {"6", MIDI_CC_RANGE}, {"7", MIDI_CC_RANGE}, {"8", MIDI_CC_RANGE}},
         {{"9", MIDI_CC_RANGE}, {"10", MIDI_CC_RANGE}, {"11", MIDI_CC_RANGE}, {"12", MIDI_CC_RANGE}},
         {{"Vol -", MIDI_CC_RANGE}, {"Vol +", MIDI_CC_RANGE}, {"StepFX -", MIDI_CC_RANGE + 1}, {"StepFX +", MIDI_CC_RANGE + 1}}},
     // EuClid
     {
-        {{"ADSR", MIDI_CC_RANGE + 1}, {"2", MIDI_CC_RANGE + 1}, {"3", MIDI_CC_RANGE + 1}, {"4", MIDI_CC_RANGE + 1}},
-        {{"5", MIDI_CC_RANGE + 1}, {"6", MIDI_CC_RANGE + 1}, {"7", MIDI_CC_RANGE + 1}, {"8", MIDI_CC_RANGE + 1}},
-        {{"9", MIDI_CC_RANGE + 1}, {"10", MIDI_CC_RANGE + 1}, {"11", MIDI_CC_RANGE + 1}, {"12", MIDI_CC_RANGE + 1}},
+        {{"1", NUM_STEPS}, {"2", NUM_STEPS}, {"3", NUM_STEPS}, {"4", NUM_STEPS}},
+        {{"5", NUM_STEPS}, {"6", NUM_STEPS}, {"7", NUM_STEPS}, {"8", NUM_STEPS}},
+        {{"9", NUM_STEPS}, {"10", NUM_STEPS}, {"11", NUM_STEPS}, {"12", NUM_STEPS}},
         {{"Vol -", MIDI_CC_RANGE + 1}, {"Vol +", MIDI_CC_RANGE + 1}, {"StepFX -", MIDI_CC_RANGE + 1}, {"StepFX +", MIDI_CC_RANGE + 1}}},
     // Rclid
     {
-        {{"Steps", MIDI_CC_RANGE}, {"Offset", MIDI_CC_RANGE}, {"DejaVu", MIDI_CC_RANGE}, {"rotate", MIDI_CC_RANGE}},
-        {{"Oct -", MIDI_CC_RANGE}, {"Oct +", MIDI_CC_RANGE}, {"Velo -", MIDI_CC_RANGE}, {"Velo +", MIDI_CC_RANGE}},
+        {{"Steps", NUM_STEPS}, {"Offset", MIDI_CC_RANGE}, {"DejaVu", MIDI_CC_RANGE}, {"rotate", MIDI_CC_RANGE}},
+        {{"Oct -", 11}, {"Oct +", 11}, {"Velo -", MIDI_CC_RANGE}, {"Velo +", MIDI_CC_RANGE}},
         {{"FX -", MIDI_CC_RANGE}, {"FX +", MIDI_CC_RANGE}, {"", 0}, {"", 0}},
         {{"", 0}, {"", 0}, {"", 0}, {"", 0}}},
     // Midi
     {
-        {{"File", 127}, {"StepFX -", MIDI_CC_RANGE + 1}, {"StepFX +", MIDI_CC_RANGE + 1}, {"CMult",  MIDI_CC_RANGE}},
-        {{"StartBar", 255}, {"loopBars",  255}, {"", 0}, {"", 0}},
+        {{"File", 127}, {"StepFX -", MIDI_CC_RANGE + 1}, {"StepFX +", MIDI_CC_RANGE + 1}, {"CMult", MIDI_CC_RANGE}},
+        {{"StartBar", 255}, {"loopBars", 255}, {"", 0}, {"", 0}},
         {{"", 0}, {"", 0}, {"", 0}, {"", 0}},
         {{"", 0}, {"", 0}, {"", 0}, {"", 0}}},
     // LFO

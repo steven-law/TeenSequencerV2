@@ -340,7 +340,7 @@ void MyTrellis::drawPotentiometerValue(uint8_t xpos, uint8_t value)
   trellisOut.writeDisplay();
 
   // int oldValuePos = value / 4.12f;
-  int oldValuePos = map(value, 0, MIDI_CC_RANGE, 0, 31);
+  int oldValuePos = map(constrain(value, 0, MIDI_CC_RANGE), 0, MIDI_CC_RANGE, 0, 31);
 
   int oldValueXPos = (oldValuePos % NUM_STEPS);
   int oldValueYPos = ((oldValuePos / NUM_STEPS) + (xpos * 2)) % NUM_TRACKS;

@@ -222,7 +222,7 @@ const uint8_t chordVolumes[NUM_CHORD_VOLUMES][4]{
 
 };
 bool **beatArray;
-bool **beatArrayPM6;
+bool ***beatArrayPM6;
 bool *beatArrayPM7;
 uint8_t sgtlparameter[16];
 // touch

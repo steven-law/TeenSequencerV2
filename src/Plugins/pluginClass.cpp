@@ -178,7 +178,7 @@ void PluginControll::set_Encoder_parameter(uint8_t pot)
 
     if (inputs.active[XPos])
     {
-        set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot]));
+        set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot],parameterMax[pot]));
     }
 }
 
