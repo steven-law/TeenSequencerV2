@@ -742,7 +742,7 @@ void Track::refresh_mode8()
     char filename[20];
     sprintf(filename, "%d.mid", seqMod_value[8][play_presetNr_Playmode_ccChannel[external_clock_bar]][0]);
     loadMidiFile(filename, myMidi[my_Arranger_Y_axis - 1]);
-    seqMod_value[8][play_presetNr_Playmode_ccChannel[myClock.barTick]][3] = getPPQN(myMidi[my_Arranger_Y_axis - 1]) / 24;
+    //seqMod_value[8][play_presetNr_Playmode_ccChannel[myClock.barTick]][3] = getPPQN(myMidi[my_Arranger_Y_axis - 1]) / 24;
     Serial.printf("play filename: %s, value: %d, PMpresetNr: %d\n", filename, seqMod_value[8][play_presetNr_Playmode_ccChannel[external_clock_bar]][0], play_presetNr_Playmode_ccChannel[external_clock_bar]);
     if (my_Arranger_Y_axis == 1)
     {

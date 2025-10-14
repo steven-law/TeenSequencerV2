@@ -58,7 +58,7 @@ void PluginControll::setParameterNames(const char *para1, const uint8_t max1, co
     Serial.println();
     Serial.println();
 }
-void PluginControll::setFXParameterNames(const char *para1, const char *para2)
+void PluginControll::setFXParameterNames(const char *para1, const uint8_t max1, const char *para2, const uint8_t max2)
 {
     parameterNames[0] = para1;
     parameterNames[1] = para2;
@@ -76,13 +76,22 @@ void PluginControll::setFXParameterNames(const char *para1, const char *para2)
     parameterNames[13] = "0";
     parameterNames[14] = "0";
     parameterNames[15] = "0";
-    // Serial.printf("my ID: %d\n", myID);
-    // for (int i = 0; i < 2; i++)
-    //{
-    //     Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
-    // }
-    Serial.println();
-    Serial.println();
+    parameterMax[0] = max1;
+    parameterMax[1] = max2;
+    parameterMax[2] = 0;
+    parameterMax[3] = 0;
+    parameterMax[4] = 0;
+    parameterMax[5] = 0;
+    parameterMax[6] = 0;
+    parameterMax[7] = 0;
+    parameterMax[8] = 0;
+    parameterMax[9] = 0;
+    parameterMax[10] = 0;
+    parameterMax[11] = 0;
+    parameterMax[12] = 0;
+    parameterMax[13] = 0;
+    parameterMax[14] = 0;
+    parameterMax[15] = 0;
 }
 
 void PluginControll::set_presetNr()
@@ -178,7 +187,7 @@ void PluginControll::set_Encoder_parameter(uint8_t pot)
 
     if (inputs.active[XPos])
     {
-        set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot],parameterMax[pot]));
+        set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot], parameterMax[pot]));
     }
 }
 

@@ -24,12 +24,11 @@ void Plugin_4::setup()
                       "Bk P", MIDI_CC_RANGE, "Bk F", MIDI_CC_RANGE, "Bk X", MIDI_CC_RANGE, "Bk *", MIDI_CC_RANGE,
                       "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE,
                       "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE);
-
-
 }
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
-
+    if (voice >= PL4_VOICES)
+        return;
     AEnv[voice].sustain(velocity);
     playMem[voice].playRaw(sample[voice]->sampledata, sample[voice]->samplesize, 1);
     AEnv[voice].noteOn();
@@ -37,6 +36,8 @@ void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 }
 void Plugin_4::noteOff(uint8_t notePlayed, uint8_t voice)
 {
+    if (voice >= PL4_VOICES)
+        return;
     AEnv[voice].noteOff();
     // Serial.printf("pl4 Note Off voice: %d\n", voice);
 }

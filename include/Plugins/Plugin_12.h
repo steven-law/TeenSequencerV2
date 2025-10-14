@@ -50,7 +50,6 @@ class Plugin_12 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
-    // AudioSynthWaveform waveform;
     AudioPlaySdResmp waveform;
     AudioEffectEnvelope Fenv;
     AudioFilterStateVariable filter;
@@ -69,12 +68,11 @@ public:
         patchCord[pci++] = new AudioConnection(waveform, 0, filter, 0);
         patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
         patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
-
         patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
+
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-
         patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
     }
     virtual ~Plugin_12() = default;

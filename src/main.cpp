@@ -173,9 +173,9 @@ void setup()
   }
   for (int i = 0; i < NUM_PLUGINS; i++)
   {
-    fx_1.pl[i].gain(0);
-    fx_2.pl[i].gain(0);
-    fx_3.pl[i].gain(0);
+    fx_1.FX_mixer.gain(i,0);
+    fx_2.FX_mixer.gain(i,0);
+    fx_3.FX_mixer.gain(i,0);
   }
   // MasterOut.finalFilter.frequency(5500);
   // MasterOut.finalFilter.resonance(0);
@@ -673,7 +673,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -688,7 +688,7 @@ void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), Note % 12);
-  Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+  // Serial.printf("Note Off: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
 }
 void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel, uint8_t fromTrack = 255)
 {
@@ -1264,7 +1264,7 @@ void trellis_play_mixer()
         if (getPressedKey() % TRELLIS_PADS_X_DIM == c + 4)
         {
           Serial.printf("fx1 channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-          fx_1.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+          fx_1.FX_mixer.gain(trackChannel - (NUM_MIDI_OUTPUTS + 1), _gain[c]);
           allTracks[t]->mixFX1Pot = (c * 42);
           sprintf(trackName, "FX1 %d", allTracks[t]->my_Arranger_Y_axis);
           potVal = (c * 42);
@@ -1275,7 +1275,7 @@ void trellis_play_mixer()
         if (getPressedKey() % TRELLIS_PADS_X_DIM == c + 8)
         {
           Serial.printf("fx2 channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-          fx_2.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+          fx_2.FX_mixer.gain(trackChannel - (NUM_MIDI_OUTPUTS + 1), _gain[c]);
           allTracks[t]->mixFX2Pot = (c * 42);
           sprintf(trackName, "FX2 %d", allTracks[t]->my_Arranger_Y_axis);
           potVal = (c * 42);
@@ -1286,7 +1286,7 @@ void trellis_play_mixer()
         if (getPressedKey() % TRELLIS_PADS_X_DIM == c + 12)
         {
           Serial.printf("fx3 channel = %d, track channel : %d\n", trackChannel - (NUM_MIDI_OUTPUTS + 1), trackChannel);
-          fx_3.pl[trackChannel - (NUM_MIDI_OUTPUTS + 1)].gain(_gain[c]);
+          fx_3.FX_mixer.gain(trackChannel - (NUM_MIDI_OUTPUTS + 1), _gain[c]);
           allTracks[t]->mixFX3Pot = (c * 42);
           sprintf(trackName, "FX3 %d", allTracks[t]->my_Arranger_Y_axis);
           potVal = (c * 42);
@@ -1517,7 +1517,7 @@ void set_mixer_FX1(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
     allTracks[trackn]->mixFX1 = (float)allTracks[trackn]->mixFX1Pot / MIDI_CC_RANGE_FLOAT;
     for (int i = 0; i < NUM_PLUGINS; i++)
       if (trackChannel == CH_PLUGIN_1 + i)
-        fx_1.pl[i].gain(allTracks[trackn]->mixFX1);
+        fx_1.FX_mixer.gain(i, allTracks[trackn]->mixFX1);
     for (int i = 0; i < 4; i++)
       trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, i + 4, trackn, TRELLIS_BLACK);
     trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, (allTracks[trackn]->mixFX1Pot / 42) + 4, trackn, TRELLIS_PINK);
@@ -1537,7 +1537,7 @@ void set_mixer_FX2(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
     allTracks[trackn]->mixFX2 = (float)allTracks[trackn]->mixFX2Pot / MIDI_CC_RANGE_FLOAT;
     for (int i = 0; i < NUM_PLUGINS; i++)
       if (trackChannel == CH_PLUGIN_1 + i)
-        fx_2.pl[i].gain(allTracks[trackn]->mixFX2);
+        fx_2.FX_mixer.gain(i, allTracks[trackn]->mixFX2);
     for (int i = 0; i < 4; i++)
       trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, i + 8, trackn, TRELLIS_BLACK);
     trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, (allTracks[trackn]->mixFX2Pot / 42) + 8, trackn, TRELLIS_PINK);
@@ -1557,7 +1557,7 @@ void set_mixer_FX3(uint8_t XPos, uint8_t YPos, const char *name, uint8_t trackn)
     allTracks[trackn]->mixFX3 = (float)allTracks[trackn]->mixFX3Pot / MIDI_CC_RANGE_FLOAT;
     for (int i = 0; i < NUM_PLUGINS; i++)
       if (trackChannel == CH_PLUGIN_1 + i)
-        fx_3.pl[i].gain(allTracks[trackn]->mixFX3);
+        fx_3.FX_mixer.gain(i, allTracks[trackn]->mixFX3);
     for (int i = 0; i < 4; i++)
       trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, i + 12, trackn, TRELLIS_BLACK);
     trellisOut.set_main_buffer(TRELLIS_SCREEN_MIXER, (allTracks[trackn]->mixFX3Pot / 42) + 12, trackn, TRELLIS_PINK);

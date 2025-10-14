@@ -16,7 +16,7 @@ void FX_1::setup()
     FX_mixer.gain(2, 1);
     FX_mixer.gain(3, 1);
     FX_mixer.gain(4, 1);
-    setFXParameterNames("Roomsize", "Damping");
+    setFXParameterNames("Roomsize", MIDI_CC_RANGE, "Damping", MIDI_CC_RANGE);
 }
 void FX_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void FX_1::noteOff(uint8_t notePlayed, uint8_t voice) {}

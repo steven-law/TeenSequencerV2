@@ -103,13 +103,13 @@ public:
             fx_section.dry[pluginNr].gain(gain);
             break;
         case 1:
-            fx_1.pl[pluginNr].gain(gain);
+            fx_1.FX_mixer.gain(pluginNr, gain); 
             break;
         case 2:
-            fx_2.pl[pluginNr].gain(gain);
+            fx_2.FX_mixer.gain(pluginNr, gain); 
             break;
         case 3:
-            fx_3.pl[pluginNr].gain(gain);
+            fx_3.FX_mixer.gain(pluginNr, gain); 
             break;
         default:
             break;

@@ -1,39 +1,13 @@
 #ifndef PLUGIN_4_H
 #define PLUGIN_4_H
 
-#define PL4_VOICES 8
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include "ownLibs/mixers.h"
+
 #include <Plugins/pluginClass.h>
 #include "TeensyVariablePlayback.h"
 #include <Plugins/AudioSamples/AudioSamples.h>
 #include "flashloader.h"
-////#include "hardware/tftClass.h"
-// class tftClass;
-//  TeensyDAW: begin automatically generated code
-//  Name: mDrm
-//  Description: Plays 12 Samplesounds stored on Flash (PROGMEM)
-//  Voices: 12
 
-// Pot 1: Vol1
-// Pot 2: Vol2
-// Pot 3: Vol3
-// Pot 4: Vol4
-
-// Pot 5: Vol5
-// Pot 6: Vol6
-// Pot 7: Vol7
-// Pot 8: Vol8
-
-// Pot 9: Vol9
-// Pot 10: Vol10
-// Pot 11: Vol11
-// Pot 12: Vol12
+#define PL4_VOICES 8
 bool compareFiles(File &file, SerialFlashFile &ffile);
 void error(const char *message);
 

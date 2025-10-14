@@ -1,18 +1,8 @@
 #ifndef FX_3_H
 #define FX_3_H
 
-#include <Arduino.h>
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
 #include <Plugins/pluginClass.h>
 #include <Plugins/plugin_List.h>
-
-#include "ownLibs/mixers.h"
-
-
 
 extern bool change_plugin_row;
 extern float *note_frequency;
@@ -21,20 +11,18 @@ extern int tuning;
 class FX_3 : public PluginControll
 {
 public:
-    AudioAmplifier pl[NUM_PLUGINS];
     AudioEffectDelay delay;
     AudioMixer4 delayMixer;
     AudioMixer16 FX_mixer;
 
-    AudioConnection *patchCord[NUM_PLUGINS * 2 + 3]; // total patchCordCount:46 including array typed ones.
+    AudioConnection *patchCord[NUM_PLUGINS + 3]; // total patchCordCount:46 including array typed ones.
     FX_3(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
         for (int i = 0; i < NUM_PLUGINS; i++)
         {
-            patchCord[pci++] = new AudioConnection(allPlugins[i]->performFilter, 0, pl[i], 0);
-            patchCord[pci++] = new AudioConnection(pl[i], 0, FX_mixer, i);
+            patchCord[pci++] = new AudioConnection(allPlugins[i]->performFilter, 0, FX_mixer, i);
         }
 
         patchCord[pci++] = new AudioConnection(FX_mixer, 0, delayMixer, 0);

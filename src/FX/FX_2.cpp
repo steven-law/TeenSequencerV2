@@ -16,7 +16,7 @@ void FX_2::setup()
     FX_mixer.gain(2, 1);
     FX_mixer.gain(3, 1);
     FX_mixer.gain(4, 1);
-    setFXParameterNames("BitDepth", "SmpRate");
+    setFXParameterNames("BitDepth", MIDI_CC_RANGE, "SmpRate", MIDI_CC_RANGE);
 }
 void FX_2::noteOn(uint8_t notePlayed, float velocity, uint8_t voice) {}
 void FX_2::noteOff(uint8_t notePlayed, uint8_t voice) {}
