@@ -46,7 +46,6 @@ void Plugin_2::setup()
                             "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
 
     change_preset();
-    // SongVol.gain(1);
 }
 void Plugin_2::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -139,28 +138,28 @@ void Plugin_2::assign_parameter(uint8_t pot)
         fMixer.gain(value, 1);
     }
     break;
-    case 12:
+    case 12: // Attack
     {
         int attack = map(value, 0, MIDI_CC_RANGE, 0, 1000);
         Fenv.attack(attack);
         Aenv.attack(attack);
     }
     break;
-    case 13:
+    case 13: // Decay
     {
         int decay = map(value, 0, MIDI_CC_RANGE, 0, 500);
         Fenv.decay(decay);
         Aenv.decay(decay);
     }
     break;
-    case 14:
+    case 14: // Sustain
     {
         float ampl = value / MIDI_CC_RANGE_FLOAT;
         Fenv.sustain(ampl);
         Aenv.sustain(ampl);
     }
     break;
-    case 15:
+    case 15: // Release
     {
         int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
         Fenv.release(release);

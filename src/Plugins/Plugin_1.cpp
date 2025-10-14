@@ -1,6 +1,5 @@
 #include <Plugins/Plugin_1.h>
 
-
 void Plugin_1::setup()
 {
     IamPoly = true;
@@ -14,9 +13,6 @@ void Plugin_1::setup()
                       "Vol5", MIDI_CC_RANGE, "Vol6", MIDI_CC_RANGE, "Vol7", MIDI_CC_RANGE, "Vol8", MIDI_CC_RANGE,
                       "Vol9", MIDI_CC_RANGE, "Vol10", MIDI_CC_RANGE, "Vol11", MIDI_CC_RANGE, "Vol12", MIDI_CC_RANGE,
                       "0", 0, "0", 0, "0", 0, "0", 0);
-
-    // change_preset();
-    // SongVol.gain(1);
 }
 void Plugin_1::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {

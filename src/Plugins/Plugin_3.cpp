@@ -23,8 +23,6 @@ void Plugin_3::setup()
     outEnv.sustain(1);
     outEnv.release(200);
 
-    // mixer.gain(0, 1);
-
     MixGain.gain(1);
 
     potentiometer[presetNr][0] = 17;
@@ -46,7 +44,6 @@ void Plugin_3::setup()
                       "0", 0, "0", 0, "0", 0, "0", 0,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
     change_preset();
-    // SongVol.gain(1);
 }
 void Plugin_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -71,47 +68,47 @@ void Plugin_3::assign_parameter(uint8_t pot)
     uint8_t value = get_Potentiometer(pot);
     switch (pot)
     {
-    case 0:
+    case 0: // modulator waveform
     {
         modulator.begin(value);
     }
     break;
-    case 1:
+    case 1: // modulator ratio
     {
 
         modulator_ratio = ratios[value];
     }
     break;
-    case 2:
+    case 2: // modulator amplitude
     {
         float ampl = (float)(value / MIDI_CC_RANGE_FLOAT);
         modulator.amplitude(ampl);
     }
     break;
-    case 3:
+    case 3: // carrier waveform
     {
         carrier.begin(value);
     }
     break;
-    case 4:
+    case 4: // mod attack
     {
         int attack = map(value, 0, MIDI_CC_RANGE, 0, 1000);
         modEnv.attack(attack);
     }
     break;
-    case 5:
+    case 5: // mod decay
     {
         int decay = map(value, 0, MIDI_CC_RANGE, 0, 500);
         modEnv.decay(decay);
     }
     break;
-    case 6:
+    case 6: // mod sustain
     {
         float sustain = (float)(value / MIDI_CC_RANGE_FLOAT);
         modEnv.sustain(sustain);
     }
     break;
-    case 7:
+    case 7: // mod release
     {
         int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
         modEnv.release(release);
@@ -129,25 +126,25 @@ void Plugin_3::assign_parameter(uint8_t pot)
     case 11:
         /* code */
         break;
-    case 12:
+    case 12: // Attack
     {
         int attack = map(value, 0, MIDI_CC_RANGE, 0, 1000);
         outEnv.attack(attack);
     }
     break;
-    case 13:
+    case 13: // decay
     {
         int decay = map(value, 0, MIDI_CC_RANGE, 0, 500);
         outEnv.decay(decay);
     }
     break;
-    case 14:
+    case 14: // sustain
     {
         float ampl = value / MIDI_CC_RANGE_FLOAT;
         outEnv.sustain(ampl);
     }
     break;
-    case 15:
+    case 15: // release
     {
         int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
         outEnv.release(release);
