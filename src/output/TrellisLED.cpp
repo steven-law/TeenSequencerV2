@@ -301,11 +301,13 @@ void MyTrellis::drawPlaymode()
     // Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", ValueXPos, ValueYPos, Value, pot);
     trellisOut.set_main_buffer(TRELLIS_SCREEN_PLAYMODE, ValueXPos, ValueYPos, encoder_colour[i]);
   }
+  Serial.println("drwan playmode");
   writeDisplay();
 }
 
 void MyTrellis::drawPlugin()
 {
+
   int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
   if (trackChannel <= NUM_MIDI_OUTPUTS)
     return;
@@ -326,10 +328,14 @@ void MyTrellis::drawPlugin()
     // Serial.printf("drawPot x= %d, y= %d, value = %d, pot= %d \n", oldValueXPos, oldValueYPos, oldValuePos, pot);
     trellisOut.set_main_buffer(TRELLIS_SCREEN_PLUGIN, oldValueXPos, oldValueYPos, encoder_colour[i]);
   }
+  Serial.println("drwan plugin");
+
   writeDisplay();
 }
 void MyTrellis::drawPotentiometerValue(uint8_t xpos, uint8_t value)
 {
+  if (getActiveScreen() == TRELLIS_SCREEN_PIANO)
+    return;
   for (int r = 0; r < 2; r++)
   {
     for (int c = 0; c < NUM_STEPS; c++)

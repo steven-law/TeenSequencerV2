@@ -124,11 +124,14 @@ int fillNoteInfoAtTick(MidiTrack &track, int miditick);
 
 void setup()
 {
-  // while (!Serial)
+
+  Serial.begin(115200);
+  Serial.println("Hello2");
+  //while (!Serial)
   {
     /* code */
   }
-  Serial.begin(115200);
+  Serial.println("Los");
   Wire.begin();
   Wire.setClock(180000);
   Wire1.begin();
@@ -142,16 +145,22 @@ void setup()
   Serial.println("neotrellis Setup done");
   delay(1500);
   midi_setup(100);
-
+  assign_PSRAM_variables();
   myClock.setup();
   AudioMemory(330);
+  // Reset codec
+  MasterOut.sgtl5000.disable();
+  delay(100);
+  MasterOut.sgtl5000.enable();
+
+  delay(100);
   delay(100);
   MasterOut.setup();
   // for (int i=0; i<NUM_PLUGINS-1;i++)
   {
     // allPlugins[i]->change_preset();
   }
-  assign_PSRAM_variables();
+
   allPlugins[0]->change_preset();
   allPlugins[1]->change_preset();
   allPlugins[2]->change_preset();
@@ -164,25 +173,29 @@ void setup()
   allPlugins[11]->change_preset();
   for (int i = 0; i < NUM_TRACKS; i++)
   {
+    allTracks[i]->mixDry = 1;
     allTracks[i]->mixFX1 = 0;
     allTracks[i]->mixFX2 = 0;
     allTracks[i]->mixFX3 = 0;
+    allTracks[i]->mixDryPot = 0;
     allTracks[i]->mixFX1Pot = 0;
     allTracks[i]->mixFX2Pot = 0;
     allTracks[i]->mixFX3Pot = 0;
   }
   for (int i = 0; i < NUM_PLUGINS; i++)
   {
-    fx_1.FX_mixer.gain(i,0);
-    fx_2.FX_mixer.gain(i,0);
-    fx_3.FX_mixer.gain(i,0);
+    MasterOut.fx_section.dry_mixer.gain(i, 1);
+    fx_1.FX_mixer.gain(i, 0);
+    fx_2.FX_mixer.gain(i, 0);
+    fx_3.FX_mixer.gain(i, 0);
   }
   // MasterOut.finalFilter.frequency(5500);
   // MasterOut.finalFilter.resonance(0);
-  MasterOut.sgtl5000.dacVolume(.5);
+
+  MasterOut.sgtl5000.volume(0.3);      // headphone volume low for harsh waveform!
+  MasterOut.sgtl5000.lineOutLevel(13); // turn up line out to max
   Serial.println("Audio & MIDI Setup done");
 
-  assign_PSRAM_variables();
   // if (!SerialFlash.begin(FlashChipSelect))
   {
     //  error("Unable to access SPI Flash chip");
@@ -328,7 +341,7 @@ void loop()
     // Serial.println("shift pressed");
     if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval && !i2c_busy)
     {
-      // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisScreen);
+      // Serial.printf("loop activeScrren:%d, trellisScreen: %D\n", activeScreen, trellisOut.getActiveScreen());
       trellisReadPreviousMillis = neotrellisCurrentMillis;
       neotrellis_recall_control_buffer();
       neotrellis_show();
@@ -671,9 +684,9 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMIDI.sendNoteOn(Note, Velo, Channel - 16);
     if (Channel > 32 && Channel <= 48)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
-    if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
+    if (Channel >= 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+    Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -731,7 +744,7 @@ void sendControlChange(uint8_t control, uint8_t value, uint8_t Channel, uint8_t 
 void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
-  if (channel < 9 && !allTracks[channel - 1]->muted && channel != trackChannel % 16)
+  if (channel < 9 && !allTracks[channel - 1]->muted)
   {
     Serial.printf("recieve note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 
@@ -790,8 +803,8 @@ void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
 void myUSBNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
-  if (trackChannel < 48 && trackChannel > NUM_MIDI_OUTPUTS)
-    myNoteOn(channel, note, velocity);
+  // if ( channel != trackChannel % 16)
+  myNoteOn(channel, note, velocity);
 }
 void myUSBNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
@@ -1898,7 +1911,7 @@ void assign_PSRAM_variables()
   note_frequency = new float[128];
   for (int r = 0; r < 128; r++)
   {
-    note_frequency[r] = pow(2.0, ((double)((r + 12) - SAMPLE_ROOT) / 12.0));
+    note_frequency[r] = pow(2.0, ((double)((r)-SAMPLE_ROOT) / 12.0));
   }
 }
 void error(const char *message)

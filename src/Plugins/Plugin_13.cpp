@@ -33,25 +33,18 @@ void Plugin_13::setup()
     Aenv.sustain(1);
     Aenv.release(200);
 
-    // mixer.gain(0, 1);
-
     MixGain.gain(1);
-    potentiometer[presetNr][0] = 1;
-    potentiometer[presetNr][1] = 48;
-    potentiometer[presetNr][8] = 60;
-    potentiometer[presetNr][9] = 0;
-    potentiometer[presetNr][10] = 30;
-    potentiometer[presetNr][11] = 0;
-    potentiometer[presetNr][12] = 5;
-    potentiometer[presetNr][13] = 0;
-    potentiometer[presetNr][14] = 127;
-    potentiometer[presetNr][15] = 20;
+
     setParameterNames("W~Form", MIDI_CC_RANGE, "Volume", MIDI_CC_RANGE, "0", 0, "0", 0,
                       "0", 0, "0", 0, "0", 0, "0", 0,
                       "Filter-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 3,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
-
-    // SongVol.gain(1);
+    set_preset(0,
+               1, 80, 0, 0,
+               0, 0, 0, 0,
+               60, 0, 30, 0,
+               0, 0, 127, 20);
+    change_preset();
 }
 void Plugin_13::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -99,17 +92,29 @@ void Plugin_13::assign_parameter(uint8_t pot)
 
         break;
     case 4:
-
-        break;
+    {
+        if (ts.touched())
+            draw_voice_waveform(1, 1);
+    }
+    break;
     case 5:
-
-        break;
+    {
+        if (ts.touched())
+            draw_voice_waveform(1, 1);
+    }
+    break;
     case 6:
-
-        break;
+    {
+        if (ts.touched())
+            draw_voice_waveform(1, 1);
+    }
+    break;
     case 7:
-
-        break;
+    {
+        if (ts.touched())
+            draw_voice_waveform(1, 1);
+    }
+    break;
     case 8:
     {
         int frequency = note_frequency[value] * tuning;

@@ -46,7 +46,7 @@ public:
         {
             for (int i = 0; i < 16; i++)
             {
-                potentiometer[p][i] = 1;
+                potentiometer[p][i] = 0;
             }
         }
         MixGain.gain(1);
@@ -64,6 +64,12 @@ public:
     virtual void set_Encoder_parameter(uint8_t pot);
     virtual void PluginParameters(uint8_t row);
     virtual void set_presetNr();
+    virtual void set_preset(uint8_t preset, 
+        uint8_t val0, uint8_t val1, uint8_t val2, uint8_t val3, 
+        uint8_t val4, uint8_t val5, uint8_t val6, uint8_t val7, 
+        uint8_t val8, uint8_t val9, uint8_t val10, uint8_t val11, 
+        uint8_t val12, uint8_t val13, uint8_t val14, uint8_t val15);
+
     virtual void change_preset();
     virtual void save_plugin(uint8_t _songNr);
     virtual void load_plugin(uint8_t _songNr);

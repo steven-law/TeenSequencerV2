@@ -23,7 +23,7 @@ public:
     AudioMixer4 fMixer;
     AudioEffectEnvelope Aenv;
 
-    AudioConnection *patchCord[18]; // total patchCordCount:122 including array typed ones.
+    AudioConnection *patchCord[16]; // total patchCordCount:122 including array typed ones.
 
     Plugin_9(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
@@ -38,16 +38,14 @@ public:
         patchCord[pci++] = new AudioConnection(fEnvMixer, 0, ladder, 1);
         patchCord[pci++] = new AudioConnection(vcoMixer, 0, filter, 0);
         patchCord[pci++] = new AudioConnection(vcoMixer, 0, ladder, 0);
-        patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
-
-        patchCord[pci++] = new AudioConnection(Fenv, 0, ladder, 1);
         patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
+
         patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
         patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
         patchCord[pci++] = new AudioConnection(ladder, 0, fMixer, 3);
-        
         patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
+
         patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
     }
     virtual ~Plugin_9() = default;

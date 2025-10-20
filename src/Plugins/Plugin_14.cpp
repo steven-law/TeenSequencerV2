@@ -39,18 +39,6 @@ void Plugin_14::setup()
     MixGain.gain(0, 1);
     MixGain.gain(1, 1);
 
-    potentiometer[presetNr][0] = 0;
-    potentiometer[presetNr][1] = 0;
-    potentiometer[presetNr][2] = 0;
-    potentiometer[presetNr][3] = 127;
-    potentiometer[presetNr][8] = 60;
-    potentiometer[presetNr][9] = 0;
-    potentiometer[presetNr][10] = 30;
-    potentiometer[presetNr][11] = 0;
-    potentiometer[presetNr][12] = 5;
-    potentiometer[presetNr][13] = 0;
-    potentiometer[presetNr][14] = 127;
-    potentiometer[presetNr][15] = 20;
     // SongVol.gain(1);
     _playFilename = "0.RAW";
     _recFilename = "0.RAW";
@@ -58,6 +46,12 @@ void Plugin_14::setup()
                       "0", 0, "0", 0, "0", 0, "0", 0,
                       "Filter-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 2,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
+    set_preset(0,
+               1, 127, 1, 80,
+               0, 0, 0, 0,
+               60, 0, 30, 0,
+               0, 0, 127, 20);
+    change_preset();
 }
 
 void Plugin_14::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
@@ -85,6 +79,7 @@ void Plugin_14::assign_parameter(uint8_t pot)
 {
 
     show_peak();
+    draw_actual_waveform(1);
     for (int i = 0; i < NUM_TRACKS; i++)
     {
         int trackChannel = allTracks[i]->clip[allTracks[i]->parameter[SET_CLIP2_EDIT]].midiChOut;
@@ -133,17 +128,21 @@ void Plugin_14::assign_parameter(uint8_t pot)
     }
     break;
     case 4:
-
-        break;
+    {
+    }
+    break;
     case 5:
-
-        break;
+    {
+    }
+    break;
     case 6:
-
-        break;
+    {
+    }
+    break;
     case 7:
-
-        break;
+    {
+    }
+    break;
     case 8:
     {
         int frequency = note_frequency[value] * tuning;

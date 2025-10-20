@@ -64,7 +64,7 @@ public:
     }
     void noteOn(uint8_t note, uint8_t velo, uint8_t _channel, uint8_t voice)
     {
-        // Serial.printf("recieve NoteON channel:%d, velocity: %d\n", _channel, velo);
+         Serial.printf("recieve NoteON channel:%d, velocity: %d\n", _channel, velo);
 
         allPlugins[_channel]->noteOn(note, velo / MIDI_CC_RANGE_FLOAT, voice);
     }

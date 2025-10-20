@@ -5,7 +5,7 @@ void Plugin_5::setup()
 
   for (int i = 0; i < MAX_VOICES; i++)
   {
-    mixer.gain(i, 1);
+    mixer.gain(i, 3);
   }
   pink.amplitude(1);
   hhEnv.delay(0);
@@ -24,10 +24,34 @@ void Plugin_5::setup()
   tomM.pitchMod(0.7);
   tomH.secondMix(0);
   tomH.pitchMod(0.7);
+
+
   setParameterNames("Freq", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "O-Drive", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
                     "Freq", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Noise", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
                     "Freq", MIDI_CC_RANGE, "Reso", MIDI_CC_RANGE, "Attack", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
                     "TomL", MIDI_CC_RANGE, "TomM", MIDI_CC_RANGE, "TomH", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE);
+
+  set_preset(0,
+             16, 4, 29, 49,
+             55, 0, 90, 86,
+             60, 127, 0, 20,
+             18, 23, 28, 25);
+  set_preset(1,
+             28, 15, 116, 87,
+             63, 22, 127, 30,
+             37, 127, 16, 37,
+             39, 46, 50, 18);
+  set_preset(2,
+             21, 0, 58, 31,
+             55, 7, 0, 50,
+             40, 60, 0, 50,
+             60, 65, 70, 30);
+  set_preset(3,
+             45, 10, 20, 40,
+             60, 2, 60, 30,
+             90, 110, 10, 100,
+             50, 53, 56, 25);
+  change_preset();
 }
 void Plugin_5::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -52,7 +76,7 @@ void Plugin_5::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 }
 void Plugin_5::noteOff(uint8_t notePlayed, uint8_t voice)
 {
-  if (notePlayed == 50)
+  if (voice == 2)
   {
     hhEnv.noteOff();
     hhFilterEnv.noteOff();
@@ -95,7 +119,7 @@ void Plugin_5::assign_parameter(uint8_t pot)
   break;
   case 5:
   {
-    float sustain = value/ MIDI_CC_RANGE_FLOAT;
+    float sustain = value / MIDI_CC_RANGE_FLOAT;
     fm_snare.fm(sustain);
   }
   break;

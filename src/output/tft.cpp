@@ -427,20 +427,32 @@ void draw_value_box(uint8_t lastPRow, uint8_t XPos, uint8_t YPos, uint8_t offest
 void drawsongmodepageselector(int songpageNumber)
 {
     // draw 16 rects of 16x16px in the 13th row
+
     for (int pages = 2; pages < 18; pages++)
     {
         // drawActiveRect(pages, 13, 1, 1, selectPage == pages + 8, "", ILI9341_LIGHTGREY);
-        tft.fillRect(STEP_FRAME_W * pages, STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
-        if (pages == songpageNumber + 2)
-            tft.fillRect(STEP_FRAME_W * (songpageNumber + 2), STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_LIGHTGREY);
 
+        tft.fillRect(STEP_FRAME_W * pages, STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
         tft.drawRect(STEP_FRAME_W * pages, STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
-        // tft.setFont(&FreeSans9pt7b);
-        tft.setTextSize(2);
-        tft.setTextColor(ILI9341_BLACK);
-        tft.setCursor(STEP_FRAME_W * pages + 1, STEP_FRAME_H * 13 + 8);
-        tft.print((pages - 1));
+        // tft.setCursor(STEP_FRAME_W * pages + 1, STEP_FRAME_H * 13 + 8);
+        // tft.print((pages - 1));
     }
+    for (int i = 0; i < NUM_TRACKS; i++)
+    {
+        for (int b = 0; b < 256; b++)
+        {
+            if (allTracks[i]->clip_to_play[b] < MAX_CLIPS - 1)
+            {
+                tft.drawFastHLine(STEP_FRAME_W * 2 + (b * 1.5), STEP_FRAME_H * 13 + 7 + (i * 2), 2, trackColor[i]);
+                tft.drawFastHLine(STEP_FRAME_W * 2 + (b * 1.5), STEP_FRAME_H * 13 + 8 + (i * 2), 2, trackColor[i]);
+            }
+        }
+    }
+    tft.drawRect(STEP_FRAME_W * (songpageNumber + 2), STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_BLUE);
+    tft.setTextSize(2);
+    tft.setTextColor(ILI9341_BLUE);
+    tft.setCursor(STEP_FRAME_W * (songpageNumber + 2), STEP_FRAME_H * 13 + 8);
+    tft.print((songpageNumber + 1));
 }
 void gridSongMode(int songpageNumber)
 { // static Display rendering
@@ -462,7 +474,10 @@ void gridSongMode(int songpageNumber)
         }
     }
     for (int i = 0; i < NUM_TRACKS; i++)
+    {
         draw_arrangment_lines(i, songpageNumber);
+    }
+
     change_plugin_row = true;
     draw_arranger_parameters();
     drawsongmodepageselector(songpageNumber);

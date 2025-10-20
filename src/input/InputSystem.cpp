@@ -8,6 +8,7 @@ Bounce *encButtons = new Bounce[NUM_ENCODERS];
 XPT2046_Touchscreen ts(CS_PIN, 15);
 uint8_t InputClass::getValueFromInput(uint8_t xpos, uint8_t oldValue, uint8_t max)
 {
+    uint8_t activeScreenLocal = trellisOut.getActiveScreen();
     if (potTouched[xpos])
     {
         Serial.printf("input from touch pot: %d, value = %d\n", xpos, getValueFromTouch(xpos, max));
@@ -19,24 +20,28 @@ uint8_t InputClass::getValueFromInput(uint8_t xpos, uint8_t oldValue, uint8_t ma
         Serial.printf("input from encoder pot: %d, value = %d\n", xpos, getValueFromEncoder(xpos, oldValue, max));
         return getValueFromEncoder(xpos, oldValue, max);
     }
-    else if (isPressed() && !(trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER1 || trellisOut.getActiveScreen() == TRELLIS_SCREEN_MIXER))
+    else if (isPressed() && !(activeScreenLocal == TRELLIS_SCREEN_MIXER1 || activeScreenLocal == TRELLIS_SCREEN_MIXER))
     {
-        Serial.printf("input from trellis pot: %d, value = %d\n", xpos, getValueFromTrellisPot(xpos));
-        return getValueFromTrellisPot(xpos);
+        if (activeScreenLocal != TRELLIS_SCREEN_PIANO)
+        {
+            Serial.printf("input from trellis pot: %d, value = %d, screen: %d\n", xpos, getValueFromTrellisPot(xpos), trellisOut.getActiveScreen());
+            return getValueFromTrellisPot(xpos);
+        }
     }
+    return oldValue;
 }
 uint8_t InputClass::getValueFromTouch(uint8_t xpos, uint8_t max)
 {
-    return map(parameterTouchY[xpos],0,MIDI_CC_RANGE, 0, max);
+    return map(parameterTouchY[xpos], 0, MIDI_CC_RANGE, 0, max);
 }
 
-uint8_t InputClass::getValueFromEncoder(uint8_t xpos, uint8_t oldValue,uint8_t max)
+uint8_t InputClass::getValueFromEncoder(uint8_t xpos, uint8_t oldValue, uint8_t max)
 {
     return constrain(oldValue + encoded[xpos], 0, max);
 }
 uint8_t InputClass::getValueFromTrellisPot(uint8_t xpos)
 {
-    return map((getPressedKey() % 32), 0, 31, 0, 127);
+        return map((getPressedKey() % 32), 0, 31, 0, 127);
 }
 
 void InputClass::encoder_setup(int dly)
@@ -151,6 +156,16 @@ void InputClass::touch_update()
                 lastPotRow = map(p.y, TS_MINY + 200, TS_MAXY - 400, 0, 3);
                 change_plugin_row = true;
                 change_row = true;
+                if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLAYMODE)
+                {
+                    // trellisOut.clearMainGridNow();
+                    trellisOut.drawPlaymode();
+                }
+                if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLUGIN)
+                {
+                    // trellisOut.clearMainGridNow();
+                    trellisOut.drawPlugin();
+                }
             }
         }
     }
@@ -265,7 +280,7 @@ void InputClass::mouse_update()
                 if (mouse1.getButtons() == 2)
                 {
                     enc_moved[2] = true;
-                    encoded[2] = MAX_CLIPS ;
+                    encoded[2] = MAX_CLIPS;
                 }
             }
         }

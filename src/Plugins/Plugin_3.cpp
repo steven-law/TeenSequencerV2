@@ -11,7 +11,7 @@ void Plugin_3::setup()
     modEnv.hold(0);
     modEnv.decay(0);
     modEnv.sustain(1);
-    modEnv.release(200);
+    modEnv.release(2000);
 
     carrier.begin(WAVEFORM_SINE);
     carrier.amplitude(1);
@@ -24,25 +24,33 @@ void Plugin_3::setup()
     outEnv.release(200);
 
     MixGain.gain(1);
-
-    potentiometer[presetNr][0] = 17;
-    potentiometer[presetNr][1] = 53;
-    potentiometer[presetNr][2] = 5;
-    potentiometer[presetNr][3] = 10;
-
-    potentiometer[presetNr][4] = 0;
-    potentiometer[presetNr][5] = 0;
-    potentiometer[presetNr][6] = 127;
-    potentiometer[presetNr][7] = 127;
-
-    potentiometer[presetNr][8] = 0;
-    potentiometer[presetNr][9] = 0;
-    potentiometer[presetNr][10] = 127;
-    potentiometer[presetNr][11] = 20;
     setParameterNames("mW~Form", 12, "mRatio", NUM_RATIOS, "mVolume", MIDI_CC_RANGE, "cW~Form", 12,
                       "mAttack", MIDI_CC_RANGE, "mDecay", MIDI_CC_RANGE, "mSustain", MIDI_CC_RANGE, "mRelease", MIDI_CC_RANGE,
                       "0", 0, "0", 0, "0", 0, "0", 0,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
+
+    set_preset(0,
+               0, 3, 15, 0,
+               0, 0, 127, 127,
+               0, 0, 0, 0,
+               0, 0, 127, 20);
+    set_preset(1,
+               1, 10, 26, 2,
+               0, 0, 127, 127,
+               0, 0, 0, 0,
+               0, 0, 127, 20);
+    set_preset(2,
+               0, 10, 73, 0,
+               0, 30, 0, 0,
+               0, 0, 0, 0,
+               0, 43, 0, 20);
+    set_preset(3,
+               0, 10, 26, 0,
+               36, 41, 80, 4,
+               0, 0, 0, 0,
+               0, 0, 127, 20);
+
+
     change_preset();
 }
 void Plugin_3::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)

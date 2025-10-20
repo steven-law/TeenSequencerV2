@@ -33,26 +33,33 @@ void Plugin_12::setup()
   Aenv.sustain(1);
   Aenv.release(200);
 
-  // mixer.gain(0, 1);
-
   MixGain.gain(1);
-  potentiometer[presetNr][0] = 0;
-  potentiometer[presetNr][1] = 1;
-  potentiometer[presetNr][1] = 48;
-  potentiometer[presetNr][8] = 60;
-  potentiometer[presetNr][9] = 0;
-  potentiometer[presetNr][10] = 30;
-  potentiometer[presetNr][11] = 0;
-  potentiometer[presetNr][12] = 5;
-  potentiometer[presetNr][13] = 0;
-  potentiometer[presetNr][14] = 127;
-  potentiometer[presetNr][15] = 20;
+
   setParameterNames("Bank", NUM_SAMPLE_BANKS, "File", MIDI_CC_RANGE, "Volume", MIDI_CC_RANGE, "0", 0,
                     "0", 0, "0", 0, "0", 0, "0", 0,
                     "Filter-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 3,
                     "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
-
-  // SongVol.gain(1);
+  set_preset(0,
+             0, 1, 80, 0,
+             0, 0, 0, 0,
+             127, 0, 0, 0,
+             0, 0, 127, 20);
+  set_preset(1,
+             2, 39, 80, 0,
+             0, 0, 0, 0,
+             127, 0, 0, 0,
+             0, 0, 127, 20);
+  set_preset(2,
+             5, 19, 80, 0,
+             0, 0, 0, 0,
+             127, 0, 0, 0,
+             0, 0, 127, 20);
+  set_preset(3,
+             7, 15, 80, 0,
+             0, 0, 0, 0,
+             30, 127, 110, 0,
+             5, 20, 110, 25);
+  change_preset();
 }
 void Plugin_12::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -85,7 +92,7 @@ void Plugin_12::assign_parameter(uint8_t pot)
   break;
   case 1:
   {
-    sprintf(_filename, "%s%d.raw", bankNames[value], get_Potentiometer(pot));
+    sprintf(_filename, "%s%d.raw", bankNames[potentiometer[presetNr][0]], value);
   }
   break;
   case 2:

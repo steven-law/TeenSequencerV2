@@ -101,7 +101,31 @@ void PluginControll::set_presetNr()
         presetNr = constrain(presetNr + inputs.encoded[PRESET_ENCODER], 0, NUM_PLUGIN_PRESETS - 1);
         change_plugin_row = true;
         draw_plugin();
+        change_preset();
     }
+}
+void PluginControll::set_preset(uint8_t preset,
+                                uint8_t val0, uint8_t val1, uint8_t val2, uint8_t val3,
+                                uint8_t val4, uint8_t val5, uint8_t val6, uint8_t val7,
+                                uint8_t val8, uint8_t val9, uint8_t val10, uint8_t val11,
+                                uint8_t val12, uint8_t val13, uint8_t val14, uint8_t val15)
+{
+    potentiometer[preset][0] = val0;
+    potentiometer[preset][1] = val1;
+    potentiometer[preset][2] = val2;
+    potentiometer[preset][3] = val3;
+    potentiometer[preset][4] = val4;
+    potentiometer[preset][5] = val5;
+    potentiometer[preset][6] = val6;
+    potentiometer[preset][7] = val7;
+    potentiometer[preset][8] = val8;
+    potentiometer[preset][9] = val9;
+    potentiometer[preset][10] = val10;
+    potentiometer[preset][11] = val11;
+    potentiometer[preset][12] = val12;
+    potentiometer[preset][13] = val13;
+    potentiometer[preset][14] = val14;
+    potentiometer[preset][15] = val15;
 }
 void PluginControll::change_preset()
 {
@@ -170,7 +194,7 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
     int Ypos = pot / NUM_ENCODERS;
 
     assign_parameter(pot);
-    trellisOut.drawPotentiometerValue(Xpos, value);
+
     Serial.printf("set_Potentiometer for Plugin: %d %s, Parameter: %s, Value =  %d, PotNr: %d\n", myID, name, parameterNames[pot], potentiometer[presetNr][pot], pot);
 
     if (strcmp(parameterNames[pot], "0") != 0 && strcmp(parameterNames[pot], "ADSR") != 0)
@@ -180,11 +204,13 @@ void PluginControll::set_Potentiometer(uint8_t pot, uint8_t value)
     if (strcmp(parameterNames[pot], "ADSR") == 0)
         drawEnvelope(Ypos, potentiometer[presetNr][(Ypos * NUM_ENCODERS)], potentiometer[presetNr][(Ypos * NUM_ENCODERS) + 1],
                      potentiometer[presetNr][(Ypos * NUM_ENCODERS) + 2], potentiometer[presetNr][(Ypos * NUM_ENCODERS) + 3]);
+
+    trellisOut.drawPotentiometerValue(Xpos, value);
 }
 void PluginControll::set_Encoder_parameter(uint8_t pot)
 {
-    uint8_t XPos = pot % NUM_ENCODERS;
 
+    uint8_t XPos = pot % NUM_ENCODERS;
     if (inputs.active[XPos])
     {
         set_Potentiometer(pot, inputs.getValueFromInput(XPos, potentiometer[presetNr][pot], parameterMax[pot]));
@@ -277,7 +303,7 @@ void PluginControll::draw_plugin()
     {
         Serial.printf("draw plugin: %d %s\n", myID, name);
         change_plugin_row = false;
-        trellisOut.clearMainGridNow();
+        // trellisOut.clearMainGridNow();
         int numpara = NUM_PARAMETERS;
         if (myID >= 20)
             numpara = 2;
@@ -291,7 +317,7 @@ void PluginControll::draw_plugin()
                 drawPot(xPos, yPos, potentiometer[presetNr][i], parameterNames[i]);
                 Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);
             }
-            else if (strcmp(parameterNames[i], "ADSR") == 0 && xPos == 0)
+            else if (strcmp(parameterNames[i], "ADSR") == 0)
             {
                 drawEnvelope(yPos, potentiometer[presetNr][(yPos * NUM_ENCODERS)], potentiometer[presetNr][(yPos * NUM_ENCODERS) + 1],
                              potentiometer[presetNr][(yPos * NUM_ENCODERS) + 2], potentiometer[presetNr][(yPos * NUM_ENCODERS) + 3]);

@@ -41,6 +41,27 @@ void Plugin_8::setup()
                       "W~Form", 12, "Detune", MIDI_CC_RANGE, "Volume 2", MIDI_CC_RANGE, "0", 0,
                       "Filt-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 2,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
+    set_preset(0,
+               1, 0, 56, 0,
+               1, 90, 56, 0,
+               60, 0, 30, 0,
+               0, 0, 127, 20);
+    set_preset(1,
+               3, 0, 65, 0,
+               0, 65, 65, 0,
+               60, 0, 30, 0,
+               20, 0, 127, 20);
+    set_preset(2,
+               2, 0, 65, 0,
+               2, 80, 65, 0,
+               50, 100, 46, 1,
+               0, 0, 127, 20);
+    set_preset(3,
+               5, 0, 95, 0,
+               5, 64, 95, 0,
+               50, 55, 46, 2,
+               0, 0, 127, 20);
+    change_preset();
 }
 void Plugin_8::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -60,11 +81,12 @@ void Plugin_8::noteOff(uint8_t notePlayed, uint8_t voice)
 void Plugin_8::assign_parameter(uint8_t pot)
 {
     uint8_t value = get_Potentiometer(pot);
+    Serial.println(pot);
     switch (pot)
     {
     case 0:
     {
-   
+
         waveform.begin(value);
     }
     break;
@@ -80,7 +102,9 @@ void Plugin_8::assign_parameter(uint8_t pot)
     }
     break;
     case 3:
-        break;
+    {
+    }
+    break;
     case 4:
     {
         waveform1.begin(value);
@@ -88,19 +112,19 @@ void Plugin_8::assign_parameter(uint8_t pot)
     break;
     case 5:
     {
-        float ampl = value / MIDI_CC_RANGE_FLOAT;
-        waveform1.amplitude(ampl);
+        detune2 = (float)((note_frequency[value] * 0.01));
     }
     break;
     case 6:
     {
-        detune2 = (float)((note_frequency[value] * 0.01));
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
+        waveform1.amplitude(ampl);
     }
     break;
-
     case 7:
-
-        break;
+    {
+    }
+    break;
     case 8:
     {
         int frequency = note_frequency[value] * tuning;

@@ -175,6 +175,8 @@ extern uint16_t tftRAM[16][16];
 extern bool **beatArray;
 extern bool ***beatArrayPM6;
 extern bool *beatArrayPM7;
+extern float waveshapeArray[65];
+extern int waveshapeLength[16];
 extern uint8_t sgtlparameter[16];
 #define Y_DIM 12 // number of rows of key
 #define X_DIM 4  // number of columns of keys

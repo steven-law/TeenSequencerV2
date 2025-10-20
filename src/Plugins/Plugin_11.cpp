@@ -40,25 +40,32 @@ void Plugin_11::setup()
     Aenv.sustain(1);
     Aenv.release(200);
     MixGain.gain(1);
-    // mixer.gain(0, 1);
-    potentiometer[presetNr][0] = 50;
-    potentiometer[presetNr][1] = 60;
-    potentiometer[presetNr][4] = 1;
-    potentiometer[presetNr][5] = 50;
-    potentiometer[presetNr][6] = 50;
-    potentiometer[presetNr][7] = 20;
-    potentiometer[presetNr][8] = 60;
-    potentiometer[presetNr][9] = 0;
-    potentiometer[presetNr][10] = 30;
-    potentiometer[presetNr][11] = 0;
-    potentiometer[presetNr][12] = 5;
-    potentiometer[presetNr][13] = 0;
-    potentiometer[presetNr][14] = 127;
-    potentiometer[presetNr][15] = 20;
+
     setParameterNames("PW", MIDI_CC_RANGE, "Volume", MIDI_CC_RANGE, "PWM-Freq", MIDI_CC_RANGE, "PWM-Lvl", MIDI_CC_RANGE,
                       "Env-Lvl", MIDI_CC_RANGE, "LFO W~F", 12, "LFO-Freq", MIDI_CC_RANGE, "LFO-Lvl", MIDI_CC_RANGE,
                       "Filter-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 3,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
+    set_preset(0,
+               65, 70, 4, 55,
+               116, 0, 5, 0,
+               127, 0, 0, 0,
+               5, 0, 127, 20);
+    set_preset(1,
+               65, 70, 16, 9,
+               127, 0, 8, 7,
+               60, 102, 48, 1,
+               5, 0, 127, 20);
+    set_preset(2,
+               31, 70, 16, 51,
+               76, 0, 0, 50,
+               30, 28, 48, 1,
+               5, 0, 127, 20);
+    set_preset(3,
+               95, 70, 113, 44,
+               26, 2, 90, 50,
+               0, 0, 0, 2,
+               5, 0, 127, 20);
+    change_preset();
 }
 void Plugin_11::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 
@@ -69,6 +76,7 @@ void Plugin_11::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
     waveform.frequency(frequency);
     Fenv.noteOn();
     Aenv.noteOn();
+    Serial.printf("pl11 Note: %d, velocity: %d\n", notePlayed, velo);
 }
 void Plugin_11::noteOff(uint8_t notePlayed, uint8_t voice)
 {
@@ -95,12 +103,12 @@ void Plugin_11::assign_parameter(uint8_t pot)
     break;
     case 2:
     {
-        Lfo2Vco.frequency(value + 1);
+        Lfo2Vco.frequency((value + 1) / 16.0f);
     }
     break;
     case 3:
     {
-        float ampl = value / MIDI_CC_RANGE_FLOAT;
+        float ampl = value / (MIDI_CC_RANGE_FLOAT * 2);
         Lfo2Vco.amplitude(ampl);
     }
     break;
@@ -118,7 +126,7 @@ void Plugin_11::assign_parameter(uint8_t pot)
     break;
     case 6:
     {
-        LFO.frequency(value + 1);
+        LFO.frequency((value + 1) / 16.0f);
     }
     break;
     case 7:
@@ -170,7 +178,7 @@ void Plugin_11::assign_parameter(uint8_t pot)
     break;
     case 14:
     {
-        float ampl = value/ MIDI_CC_RANGE_FLOAT;
+        float ampl = value / MIDI_CC_RANGE_FLOAT;
         Fenv.sustain(ampl);
         Aenv.sustain(ampl);
     }

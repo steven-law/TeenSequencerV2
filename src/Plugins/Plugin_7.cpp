@@ -12,11 +12,18 @@ void Plugin_7::setup()
     dynamics.autoMakeupGain(6.0f);
     dynamics.makeupGain(6.0f);
     MixGain.gain(1);
+
     // SongVol.gain(1);
     setParameterNames("Sweep", MIDI_CC_RANGE, "Noise", MIDI_CC_RANGE, "Q-Drive", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
                       "Thrshld", MIDI_CC_RANGE, "Attack", MIDI_CC_RANGE, "Release", MIDI_CC_RANGE, "Hysteresis", MIDI_CC_RANGE,
                       "Ratio", MIDI_CC_RANGE, "Knewdth", MIDI_CC_RANGE, "AmakUpG", MIDI_CC_RANGE, "makUpG", MIDI_CC_RANGE,
                       "0", 0, "0", 0, "0", 0, "Gain", MIDI_CC_RANGE);
+    set_preset(0,
+               0, 0, 90, 120,
+               120, 0, 123, 116,
+               12, 0, 126, 0,
+               0, 0, 0, 127);
+    change_preset();
 }
 void Plugin_7::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {

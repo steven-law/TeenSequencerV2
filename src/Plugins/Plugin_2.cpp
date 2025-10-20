@@ -25,25 +25,30 @@ void Plugin_2::setup()
     Aenv.delay(0);
     Aenv.hold(0);
     MixGain.gain(1);
-    // mixer.gain(0, 1);
-    potentiometer[presetNr][0] = 1;
-    potentiometer[presetNr][1] = 48;
-    potentiometer[presetNr][4] = 1;
-    potentiometer[presetNr][5] = 1;
-    potentiometer[presetNr][6] = 50;
-    potentiometer[presetNr][7] = 20;
-    potentiometer[presetNr][8] = 60;
-    potentiometer[presetNr][9] = 0;
-    potentiometer[presetNr][10] = 30;
-    potentiometer[presetNr][11] = 0;
-    potentiometer[presetNr][12] = 5;
-    potentiometer[presetNr][13] = 0;
-    potentiometer[presetNr][14] = 127;
-    potentiometer[presetNr][15] = 20;
     this->setParameterNames("W~Form", 12, "Vol", MIDI_CC_RANGE, "LFO-Freq", MIDI_CC_RANGE, "LFO-Lvl", MIDI_CC_RANGE,
                             "Env-Lvl", MIDI_CC_RANGE, "LFO W~F", 12, "LFO-Freq", MIDI_CC_RANGE, "LFO-Lvl", MIDI_CC_RANGE,
-                            "Filt-Frq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "LPF", 3,
+                            "Filt-Frq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "LPF", 2,
                             "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
+    set_preset(0,
+               1, 80, 1, 0,
+               127, 0, 1, 0,
+               60, 0, 30, 0,
+               0, 0, 127, 10);
+    set_preset(1,
+               2, 80, 1, 0,
+               127, 0, 0, 0,
+               35, 127, 71, 0,
+               16, 43, 0, 10);
+    set_preset(2,
+               1, 80, 45, 1,
+               80, 0, 52, 31,
+               35, 0, 45, 1,
+               30, 45, 75, 25);
+    set_preset(3,
+               1, 80, 5, 1,
+               80, 0, 0, 0,
+               60, 127, 77, 2,
+               5, 40, 64, 30);
 
     change_preset();
 }
@@ -80,13 +85,13 @@ void Plugin_2::assign_parameter(uint8_t pot)
     break;
     case 2: // LFO Freq
     {
-        Lfo2Vco.frequency(value + 1);
+        Lfo2Vco.frequency((value + 1) / 2);
     }
     break;
     case 3: // LFO Lvl
     {
         float ampl = value / MIDI_CC_RANGE_FLOAT;
-        Lfo2Vco.amplitude(ampl);
+        Lfo2Vco.amplitude(ampl / 4.0f);
     }
     break;
     case 4: // ENV Lvl
@@ -102,7 +107,7 @@ void Plugin_2::assign_parameter(uint8_t pot)
     break;
     case 6: // LFO Freq
     {
-        LFO.frequency(value + 1);
+        LFO.frequency((value + 1) / 2);
     }
     break;
     case 7: // LFO Lvl

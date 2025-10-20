@@ -11,12 +11,25 @@ class Plugin_1 : public PluginControll
 public:
     AudioSynthKarplusStrong string[MAX_VOICES];
     AudioMixer12 mixer;
-    AudioConnection *patchCord[MAX_VOICES + 2]; // total patchCordCount:14 including array typed ones.
+    AudioEffectWaveshaper waveshape;
+   AudioMixer2 distortionMix;
+   AudioEffectMultiply vca;
+   AudioSynthWaveform lfo;
+   AudioSynthWaveformDc dc;
+   AudioMixer2 modMix;
+    AudioConnection *patchCord[MAX_VOICES + 5]; // total patchCordCount:14 including array typed ones.
     Plugin_1(const char *Name, uint8_t ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
-        patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
+        patchCord[pci++] = new AudioConnection(mixer, 0, waveshape, 0);
+        patchCord[pci++] = new AudioConnection(mixer, 0, distortionMix, 0);
+        patchCord[pci++] = new AudioConnection(waveshape, 0, distortionMix, 1);
+        patchCord[pci++] = new AudioConnection(distortionMix, 0, vca, 1);
+        patchCord[pci++] = new AudioConnection(lfo, 0, modMix, 0);
+        patchCord[pci++] = new AudioConnection(dc, 0, modMix, 1);
+        patchCord[pci++] = new AudioConnection(modMix, 0, vca, 0);
+        patchCord[pci++] = new AudioConnection(vca, 0, MixGain, 0);
         patchCord[pci++] = new AudioConnection(MixGain, 0, performFilter, 0);
 
         for (int i = 0; i < MAX_VOICES; i++)

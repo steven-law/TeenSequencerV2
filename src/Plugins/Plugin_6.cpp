@@ -33,31 +33,33 @@ void Plugin_6::setup()
     Aenv.release(200);
 
     MixGain.gain(1);
-    // SongVol.gain(1);
-    potentiometer[presetNr][0] = 0;
-    potentiometer[presetNr][1] = 0;
-    potentiometer[presetNr][2] = 0;
-    potentiometer[presetNr][3] = 0;
-
-    potentiometer[presetNr][4] = 0;
-    potentiometer[presetNr][5] = 3;
-    potentiometer[presetNr][6] = 7;
-    potentiometer[presetNr][7] = 10;
-
-    potentiometer[presetNr][8] = 32;
-    potentiometer[presetNr][9] = 32;
-    potentiometer[presetNr][10] = 32;
-    potentiometer[presetNr][11] = 32;
-
-    potentiometer[presetNr][12] = 40;
-    potentiometer[presetNr][13] = 0;
-    potentiometer[presetNr][14] = 0;
-    potentiometer[presetNr][15] = 10;
 
     setParameterNames("W~F 1", 12, "W~F 2", 12, "W~F 3", 12, "W~F 4", 12,
                       "Chord", NUM_CHORDS, "Volumes", NUM_CHORD_VOLUMES, "0", 0, "0", 0,
                       "Filt-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "0", 0,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
+    set_preset(0,
+               0, 0, 0, 0,
+               0, 44, 0, 0,
+               74, 0, 30, 0,
+               0, 0, 127, 10);
+    set_preset(1,
+               2, 2, 2, 2,
+               2, 41, 0, 0,
+               0, 30, 95, 0,
+               5, 30, 60, 51);
+    set_preset(2,
+               1, 1, 3, 3,
+               11, 41, 0, 0,
+               73, 38, 95, 0,
+               22, 30, 100, 38);
+    set_preset(3,
+               2, 2, 5, 5,
+               0, 41, 0, 0,
+               117, 0, 0, 0,
+               5, 25, 55, 40);
+
+    change_preset();
 }
 void Plugin_6::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {

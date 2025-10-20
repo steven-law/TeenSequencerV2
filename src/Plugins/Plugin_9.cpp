@@ -42,27 +42,33 @@ void Plugin_9::setup()
   Aenv.release(200);
 
   MixGain.gain(1);
-  // SongVol.gain(1);
-  potentiometer[presetNr][0] = 0;
-  potentiometer[presetNr][1] = 0;
-  potentiometer[presetNr][2] = 41;
-  potentiometer[presetNr][3] = 65;
-  potentiometer[presetNr][4] = 41;
-  potentiometer[presetNr][5] = 65;
-  potentiometer[presetNr][6] = 9;
-  potentiometer[presetNr][7] = 20;
-  potentiometer[presetNr][8] = 45;
-  potentiometer[presetNr][9] = 0;
-  potentiometer[presetNr][10] = 24;
-  potentiometer[presetNr][11] = 0;
-  potentiometer[presetNr][12] = 5;
-  potentiometer[presetNr][13] = 0;
-  potentiometer[presetNr][14] = 127;
-  potentiometer[presetNr][15] = 20;
+
   setParameterNames("W~Form", 12, "W~Form2", 12, "Detune", MIDI_CC_RANGE, "VCO Mix", MIDI_CC_RANGE,
                     "Env-Lvl", MIDI_CC_RANGE, "LFO W~F", 12, "LFO-Freq", MIDI_CC_RANGE, "LFO-Lvl", MIDI_CC_RANGE,
                     "Filt-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 3,
                     "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
+  set_preset(0,
+             0, 0, 41, 65,
+             41, 0, 9, 20,
+             45, 0, 24, 0,
+             5, 0, 127, 20);
+  set_preset(1,
+             2, 2, 40, 65,
+             55, 2, 5, 115,
+             94, 0, 25, 0,
+             5, 0, 127, 20);
+  set_preset(2,
+             2, 0, 0, 0,
+             127, 0, 0, 0,
+             40, 70, 80, 3,
+             0, 35, 0, 0);
+  set_preset(3,
+             6, 1, 0, 45,
+             61, 0, 0, 75,
+             63, 70, 65, 0,
+             0, 35, 60, 10);
+
+  change_preset();
 }
 void Plugin_9::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -82,7 +88,7 @@ void Plugin_9::noteOff(uint8_t notePlayed, uint8_t voice)
 }
 void Plugin_9::assign_parameter(uint8_t pot)
 {
-   uint8_t value = get_Potentiometer(pot);
+  uint8_t value = get_Potentiometer(pot);
   switch (pot)
   {
   case 0:
@@ -110,7 +116,7 @@ void Plugin_9::assign_parameter(uint8_t pot)
   break;
   case 4:
   {
-    float ampl = value/ MIDI_CC_RANGE_FLOAT;
+    float ampl = value / MIDI_CC_RANGE_FLOAT;
     dc.amplitude(ampl);
   }
   break;
@@ -131,18 +137,21 @@ void Plugin_9::assign_parameter(uint8_t pot)
   case 8:
   {
     float frequency = note_frequency[value] * tuning;
+    ladder.frequency(frequency);
     filter.frequency(frequency);
   }
   break;
   case 9:
   {
     float reso = value / 25.40;
+    ladder.resonance(reso);
     filter.resonance(reso);
   }
   break;
   case 10:
   {
     float swp = value / 18.14;
+    ladder.octaveControl(swp);
     filter.octaveControl(swp);
   }
   break;

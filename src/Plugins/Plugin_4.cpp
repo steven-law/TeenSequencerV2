@@ -15,15 +15,17 @@ void Plugin_4::setup()
     }
 
     MixGain.gain(1);
-    for (int i = 0; i < PL4_VOICES; i++)
-    {
-        potentiometer[presetNr][i] = 10;
-        potentiometer[presetNr][i + 8] = 127;
-    }
+
     setParameterNames("Bk K", MIDI_CC_RANGE, "Bk C", MIDI_CC_RANGE, "Bk H", MIDI_CC_RANGE, "Bk S", MIDI_CC_RANGE,
                       "Bk P", MIDI_CC_RANGE, "Bk F", MIDI_CC_RANGE, "Bk X", MIDI_CC_RANGE, "Bk *", MIDI_CC_RANGE,
                       "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE,
                       "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE);
+    set_preset(0,
+               16, 9, 39, 10,
+               17, 8, 27, 7,
+               127, 127, 127, 127,
+               127, 127, 127, 127);
+    change_preset();
 }
 void Plugin_4::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {

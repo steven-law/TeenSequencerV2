@@ -33,25 +33,33 @@ void Plugin_10::setup()
     Aenv.sustain(1);
     Aenv.release(200);
 
-    // mixer.gain(0, 1);
-
     MixGain.gain(1);
-    potentiometer[presetNr][0] = 1;
-    potentiometer[presetNr][1] = 48;
-    potentiometer[presetNr][8] = 60;
-    potentiometer[presetNr][9] = 0;
-    potentiometer[presetNr][10] = 30;
-    potentiometer[presetNr][11] = 0;
-    potentiometer[presetNr][12] = 5;
-    potentiometer[presetNr][13] = 0;
-    potentiometer[presetNr][14] = 127;
-    potentiometer[presetNr][15] = 20;
+
     setParameterNames("W~Form", 27, "Volume", MIDI_CC_RANGE, "0", 0, "0", 0,
                       "0", 0, "0", 0, "0", 0, "0", 0,
                       "Filt-Freq", MIDI_CC_RANGE, "Resonance", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Type", 3,
                       "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE, "ADSR", MIDI_CC_RANGE);
-
-    // SongVol.gain(1);
+    set_preset(0,
+               1, 80, 0, 0,
+               0, 0, 0, 0,
+               117, 0, 0, 0,
+               5, 0, 127, 20);
+    set_preset(1,
+               15, 80, 0, 0,
+               0, 0, 0, 0,
+               38, 127, 45, 0,
+               5, 0, 127, 20);
+    set_preset(2,
+               21, 127, 0, 0,
+               0, 0, 0, 0,
+               117, 0, 0, 0,
+               5, 0, 127, 20);
+    set_preset(3,
+               27, 127, 0, 0,
+               0, 0, 0, 0,
+               117, 0, 0, 0,
+               5, 0, 127, 127);
+    change_preset();
 }
 void Plugin_10::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
 {
@@ -171,7 +179,7 @@ void Plugin_10::assign_parameter(uint8_t pot)
 
 void Plugin_10::assign_voice_waveform(uint8_t value)
 {
-    uint8_t walveform = map(value, 0, MIDI_CC_RANGE, 0, 27);
+    uint8_t walveform = value;
 
     switch (walveform)
     {
