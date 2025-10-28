@@ -25,7 +25,18 @@ void Plugin_5::setup()
   tomH.secondMix(0);
   tomH.pitchMod(0.7);
 
-
+  modulator.amplitude(1);
+  sine.frequency(5000);
+  sine.amplitude(1);
+  noise.amplitude(0.5);
+  noiseFilter.setHighpass(0, 4000);
+  noiseFilter.setHighpass(1, 3000);
+  noiseFilter.setHighpass(2, 2000);
+  envelope.attack(4);
+  envelope.sustain(0);
+  envelope.release(1);
+  HHmixer.gain(0, 1);
+  HHmixer.gain(1, 0.3);
   setParameterNames("Freq", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "O-Drive", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
                     "Freq", MIDI_CC_RANGE, "Sweep", MIDI_CC_RANGE, "Noise", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
                     "Freq", MIDI_CC_RANGE, "Reso", MIDI_CC_RANGE, "Attack", MIDI_CC_RANGE, "Decay", MIDI_CC_RANGE,
@@ -33,7 +44,7 @@ void Plugin_5::setup()
 
   set_preset(0,
              16, 4, 29, 49,
-             55, 0, 90, 86,
+             80, 0, 90, 27,
              60, 127, 0, 20,
              18, 23, 28, 25);
   set_preset(1,
@@ -68,10 +79,14 @@ void Plugin_5::noteOn(uint8_t notePlayed, float velocity, uint8_t voice)
     hhFilterEnv.noteOn();
   }
   if (voice == 3)
-    tomL.noteOn();
+  {
+    envelope.noteOn();
+  }
   if (voice == 4)
-    tomM.noteOn();
+    tomL.noteOn();
   if (voice == 5)
+    tomM.noteOn();
+  if (voice == 6)
     tomH.noteOn();
 }
 void Plugin_5::noteOff(uint8_t notePlayed, uint8_t voice)
@@ -80,6 +95,10 @@ void Plugin_5::noteOff(uint8_t notePlayed, uint8_t voice)
   {
     hhEnv.noteOff();
     hhFilterEnv.noteOff();
+  }
+  if (voice == 3)
+  {
+    envelope.noteOff();
   }
 }
 void Plugin_5::assign_parameter(uint8_t pot)
@@ -140,27 +159,33 @@ void Plugin_5::assign_parameter(uint8_t pot)
   {
     int frequency = map(value, 0, MIDI_CC_RANGE, 1000, 8000);
     filter.frequency(frequency);
+    int mappedFrequency = map(value, 0, MIDI_CC_RANGE, 1100, 2500);
+    modulator.frequency(mappedFrequency);
   }
   break;
   case 9:
   {
     float reso = (float)(value / (MIDI_CC_RANGE_FLOAT / MAX_RESONANCE));
     filter.resonance(reso);
+    unsigned int mappedTone = map(value, 0, MIDI_CC_RANGE, 16000, 1000);
+    HHfilter.setHighpass(0, mappedTone);
   }
   break;
   case 10:
   {
-    int attack = map(value, 0, MIDI_CC_RANGE, 0, 50);
+    int attack = map(value, 0, MIDI_CC_RANGE, 0, 300);
     hhEnv.attack(attack);
+    envelope.attack(attack);
   }
   break;
   case 11:
   {
-    int release = map(value, 0, MIDI_CC_RANGE, 0, 2000);
+    int release = map(value, 0, MIDI_CC_RANGE, 0, 1000);
     hhEnv.release(release);
     hhFilterEnv.release(release);
     hhEnv.decay(release / 4);
     hhFilterEnv.decay(release / 4);
+    envelope.decay(release);
   }
   break;
   case 12:

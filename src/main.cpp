@@ -126,12 +126,10 @@ void setup()
 {
 
   Serial.begin(115200);
-  Serial.println("Hello2");
-  //while (!Serial)
+  // while (!Serial)
   {
     /* code */
   }
-  Serial.println("Los");
   Wire.begin();
   Wire.setClock(180000);
   Wire1.begin();
@@ -424,7 +422,6 @@ void input_behaviour()
     {
       change_plugin_row = true;
       draw_stepSequencer_parameters();
-      Serial.printf("active screen: %d, activeTrack: %d\n", activeScreen, active_track);
       neotrellisPressed[TRELLIS_POTROW] = false;
     }
     allTracks[active_track]->set_stepSequencer_parameters();
@@ -446,7 +443,6 @@ void input_behaviour()
     draw_arranger_parameters();
     if (neotrellisPressed[TRELLIS_POTROW])
     {
-      Serial.printf("active screen: %d, arrangerpage: %d\n", activeScreen, arrangerpage);
       change_plugin_row = true;
 
       // draw_arrangment_lines(gridTouchY - 1, arrangerpage);
@@ -463,7 +459,6 @@ void input_behaviour()
     if (pixelTouchX == 0 && inputs.enc_moved[3] == true)
     {
       int tempTrack = (gridTouchY)-1;
-      Serial.printf("encmoved: %s, track: %d\n", inputs.enc_moved[3] ? "true" : "false", tempTrack);
       inputs.enc_moved[3] = false;
 
       trellisTrackColor[tempTrack] = trellisTrackColor[tempTrack] + inputs.encoded[3];
@@ -686,7 +681,7 @@ void sendNoteOn(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
       usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
     if (Channel >= 48 && Channel <= 48 + NUM_PLUGINS)
       MasterOut.noteOn(Note, Velo, Channel - (NUM_MIDI_OUTPUTS + 1), Note % 12);
-    Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
+    // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d @tick: %d\n", Channel, Note, Velo, myClock.MIDITick);
   }
 }
 void sendNoteOff(uint8_t _track, uint8_t Note, uint8_t Velo, uint8_t Channel)
@@ -746,13 +741,13 @@ void myNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
   int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
-    Serial.printf("recieve note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
+    // Serial.printf("recieve note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 
-    allTracks[channel - 1]->noteOn(note, velocity, trackChannel);
+    allTracks[channel - 1]->noteOn(note + allTracks[channel - 1]->noteOffset[allTracks[channel - 1]->external_clock_bar] + allTracks[channel - 1]->performNoteOffset, velocity, trackChannel);
   }
   if (channel >= 9)
     sendNoteOn(channel - 1, note, velocity, channel);
-  Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
+  // Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 }
 
 void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
@@ -760,57 +755,58 @@ void myNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
   if (channel < 9 && !allTracks[channel - 1]->muted)
   {
     int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
-    allTracks[channel - 1]->noteOff(note, velocity, trackChannel);
+    allTracks[channel - 1]->noteOff(note + allTracks[channel - 1]->noteOffset[allTracks[channel - 1]->external_clock_bar] + allTracks[channel - 1]->performNoteOffset, velocity, trackChannel);
+    // allTracks[channel - 1]->noteOff(note, velocity, trackChannel);
   }
   if (channel >= 9)
     sendNoteOff(channel - 1, note, velocity, channel);
 }
 void myControlChange(uint8_t channel, uint8_t control, uint8_t value)
 {
-  if (channel < 9)
-  {
-
-    for (int i = 0; i < NUM_PARAMETERS; i++)
-    {
-
-      if (control == i + 25)
-      {
-        allTracks[channel - 1]->parameter[i] = value;
-        change_plugin_row = true;
-        updateTFTScreen = true;
-        break;
-      }
-      if (control == i + 80)
-      {
-        int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
-        int _pluginCh = trackChannel - (NUM_MIDI_OUTPUTS + 1);
-        if (trackChannel > NUM_MIDI_OUTPUTS)
-        {
-          allPlugins[_pluginCh]->potentiometer[allPlugins[_pluginCh]->presetNr][i] = value;
-          Serial.printf("MIDI pluginCh = %d\n", _pluginCh);
-          change_plugin_row = true;
-          updateTFTScreen = true;
-          break;
-        }
-        allPlugins[_pluginCh]->change_preset();
-      }
-      // delay(10);
-    }
-  }
-  if (channel >= 9)
-    sendControlChange(control, value, channel, channel - 1);
+  // if (channel < 9)
+  // {
+  //
+  //   for (int i = 0; i < NUM_PARAMETERS; i++)
+  //   {
+  //
+  //     if (control == i + 25)
+  //     {
+  //       allTracks[channel - 1]->parameter[i] = value;
+  //       change_plugin_row = true;
+  //       updateTFTScreen = true;
+  //       break;
+  //     }
+  //     if (control == i + 80)
+  //     {
+  //       int trackChannel = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].midiChOut;
+  //       int _pluginCh = trackChannel - (NUM_MIDI_OUTPUTS + 1);
+  //       if (trackChannel > NUM_MIDI_OUTPUTS)
+  //       {
+  //         allPlugins[_pluginCh]->potentiometer[allPlugins[_pluginCh]->presetNr][i] = value;
+  //         Serial.printf("MIDI pluginCh = %d\n", _pluginCh);
+  //         change_plugin_row = true;
+  //         updateTFTScreen = true;
+  //         break;
+  //       }
+  //       allPlugins[_pluginCh]->change_preset();
+  //     }
+  //     // delay(10);
+  //   }
+  // }
+  // if (channel >= 9)
+  //   sendControlChange(control, value, channel, channel - 1);
 }
 void myUSBNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
   // if ( channel != trackChannel % 16)
-  myNoteOn(channel, note, velocity);
+  myNoteOn(channel, note + allTracks[channel - 1]->noteOffset[allTracks[channel - 1]->external_clock_bar] + allTracks[channel - 1]->performNoteOffset, velocity);
 }
 void myUSBNoteOff(uint8_t channel, uint8_t note, uint8_t velocity)
 {
   int trackChannel = allTracks[channel - 1]->clip[allTracks[channel - 1]->parameter[SET_CLIP2_EDIT]].midiChOut;
   if (trackChannel < 48 && trackChannel > NUM_MIDI_OUTPUTS)
-    myNoteOff(channel, note, velocity);
+    myNoteOff(channel, note + allTracks[channel - 1]->noteOffset[allTracks[channel - 1]->external_clock_bar] + allTracks[channel - 1]->performNoteOffset, velocity);
 }
 
 void myMIDIClock()
@@ -1881,26 +1877,53 @@ void assign_PSRAM_variables()
   beatArray[4][10] = 1; // 0 für false, 1 für true
   beatArray[4][14] = 1; // 0 für false, 1 für true
 
-  beatArrayPM6 = new bool **[NUM_PRESETS];
-  for (int p = 0; p < NUM_PRESETS; p++)
+  // contiguous allocation for beatArrayPM6 to reduce fragmentation and make free easier
+  size_t total = (size_t)NUM_PRESETS * MAX_VOICES * NUM_STEPS;
+  bool *beatArrayPM6_block = nullptr;
+  if (total > 0)
+    beatArrayPM6_block = new (std::nothrow) bool[total];
+
+  if (!beatArrayPM6_block)
   {
-    beatArrayPM6[p] = new bool *[MAX_VOICES];
-    for (int v = 0; v < MAX_VOICES; v++)
-    {
-      beatArrayPM6[p][v] = new bool[NUM_STEPS];
-    }
+    Serial.println("ERROR: beatArrayPM6 allocation failed");
+    beatArrayPM6 = nullptr;
   }
-  for (int p = 0; p < NUM_PRESETS; p++)
+  else
   {
-    for (int i = 0; i < MAX_VOICES; i++)
+    // top-level pointer array
+    beatArrayPM6 = new bool **[NUM_PRESETS];
+    for (int p = 0; p < NUM_PRESETS; p++)
     {
-      for (int j = 0; j < NUM_STEPS; j++)
+      beatArrayPM6[p] = new bool *[MAX_VOICES];
+      for (int v = 0; v < MAX_VOICES; v++)
       {
-        // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
-        beatArrayPM6[p][i][j] = 0; // 0 für false, 1 für true
+        size_t offset = ((size_t)p * MAX_VOICES + v) * NUM_STEPS;
+        beatArrayPM6[p][v] = beatArrayPM6_block + offset;
+        // init
+        memset(beatArrayPM6[p][v], 0, NUM_STEPS * sizeof(bool));
       }
     }
   }
+  // beatArrayPM6 = new bool **[NUM_PRESETS];
+  // for (int p = 0; p < NUM_PRESETS; p++)
+  // {
+  //   beatArrayPM6[p] = new bool *[MAX_VOICES];
+  //   for (int v = 0; v < MAX_VOICES; v++)
+  //   {
+  //     beatArrayPM6[p][v] = new bool[NUM_STEPS];
+  //   }
+  // }
+  // for (int p = 0; p < NUM_PRESETS; p++)
+  // {
+  //   for (int i = 0; i < MAX_VOICES; i++)
+  //   {
+  //     for (int j = 0; j < NUM_STEPS; j++)
+  //     {
+  //       // Beispiel: Füllen mit zufälligen booleschen Werten (true oder false)
+  //       beatArrayPM6[p][i][j] = 0; // 0 für false, 1 für true
+  //     }
+  //   }
+  // }
   beatArrayPM7 = new bool[NUM_STEPS];
   for (int j = 0; j < NUM_STEPS; j++)
   {

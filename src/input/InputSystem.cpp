@@ -11,20 +11,20 @@ uint8_t InputClass::getValueFromInput(uint8_t xpos, uint8_t oldValue, uint8_t ma
     uint8_t activeScreenLocal = trellisOut.getActiveScreen();
     if (potTouched[xpos])
     {
-        Serial.printf("input from touch pot: %d, value = %d\n", xpos, getValueFromTouch(xpos, max));
+        // Serial.printf("input from touch pot: %d, value = %d\n", xpos, getValueFromTouch(xpos, max));
         return getValueFromTouch(xpos, max);
     }
 
     else if (enc_moved[xpos])
     {
-        Serial.printf("input from encoder pot: %d, value = %d\n", xpos, getValueFromEncoder(xpos, oldValue, max));
+        // Serial.printf("input from encoder pot: %d, value = %d\n", xpos, getValueFromEncoder(xpos, oldValue, max));
         return getValueFromEncoder(xpos, oldValue, max);
     }
     else if (isPressed() && !(activeScreenLocal == TRELLIS_SCREEN_MIXER1 || activeScreenLocal == TRELLIS_SCREEN_MIXER))
     {
         if (activeScreenLocal != TRELLIS_SCREEN_PIANO)
         {
-            Serial.printf("input from trellis pot: %d, value = %d, screen: %d\n", xpos, getValueFromTrellisPot(xpos), trellisOut.getActiveScreen());
+            //  Serial.printf("input from trellis pot: %d, value = %d, screen: %d\n", xpos, getValueFromTrellisPot(xpos), trellisOut.getActiveScreen());
             return getValueFromTrellisPot(xpos);
         }
     }
@@ -41,7 +41,7 @@ uint8_t InputClass::getValueFromEncoder(uint8_t xpos, uint8_t oldValue, uint8_t 
 }
 uint8_t InputClass::getValueFromTrellisPot(uint8_t xpos)
 {
-        return map((getPressedKey() % 32), 0, 31, 0, 127);
+    return map((getPressedKey() % 32), 0, 31, 0, 127);
 }
 
 void InputClass::encoder_setup(int dly)
@@ -71,7 +71,6 @@ void InputClass::readEncoders()
         {
             updateTFTScreen = true;
             enc_button[i] = true;
-            Serial.printf("EncButton: %d\n", i);
         }
         else if (encButtons[i].rose())
         {

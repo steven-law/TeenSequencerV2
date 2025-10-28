@@ -21,8 +21,8 @@ void Plugin_4::setup()
                       "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE,
                       "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE, "Vol", MIDI_CC_RANGE);
     set_preset(0,
-               16, 9, 39, 10,
-               17, 8, 27, 7,
+               12, 9, 39, 10,
+               17, 21, 27, 7,
                127, 127, 127, 127,
                127, 127, 127, 127);
     change_preset();

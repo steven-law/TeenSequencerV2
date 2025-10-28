@@ -28,7 +28,7 @@ void Track::save_track(uint8_t songNr)
 
     uint16_t color = trackColor[my_Arranger_Y_axis - 1];
     myTrackFile.write((uint8_t *)&color, sizeof(color));
-    for (int c = 0; c < MAX_CLIPS-1; c++)
+    for (int c = 0; c < MAX_CLIPS - 1; c++)
     {
         myTrackFile.write(clip[c].seqLength);
         myTrackFile.write(clip[c].clockDivision);
@@ -98,7 +98,7 @@ void Track::load_track(uint8_t songNr)
     myTrackFile.read((uint8_t *)&color, sizeof(color));
     trackColor[my_Arranger_Y_axis - 1] = color;
     trellisTrackColor[my_Arranger_Y_axis - 1] = rgb565to24(color);
-    for (int c = 0; c < MAX_CLIPS-1; c++)
+    for (int c = 0; c < MAX_CLIPS - 1; c++)
     {
         clip[c].seqLength = myTrackFile.read();
         clip[c].clockDivision = myTrackFile.read();
@@ -130,7 +130,7 @@ void Track::load_track(uint8_t songNr)
         barProbabilty[i] = myTrackFile.read();
         play_presetNr_Playmode_ccChannel[i] = myTrackFile.read();
         play_presetNr_Plugin_ccValue[i] = myTrackFile.read();
-        if (clip_to_play[i] < MAX_CLIPS-1)
+        if (clip_to_play[i] < MAX_CLIPS - 1)
         {
             // Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
             trellisOut.set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (my_Arranger_Y_axis - 1), trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[i] * 20));
@@ -213,15 +213,15 @@ void Track::play_sequencer_mode(uint8_t cloock, uint8_t start, uint8_t end)
     //   Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
-        if (clip_to_play[external_clock_bar] < MAX_CLIPS-1)
+        if (clip_to_play[external_clock_bar] < MAX_CLIPS - 1)
         {
 
             {
 
                 if (internal_clock != cloock)
                 {
-                    Serial.printf("track: %d, internalClock=%d, externalClock= %d                internalbar=%d, externalbar= %d\n", my_Arranger_Y_axis - 1, internal_clock, cloock, internal_clock_bar, external_clock_bar);
-                                }
+                    //  Serial.printf("track: %d, internalClock=%d, externalClock= %d                internalbar=%d, externalbar= %d\n", my_Arranger_Y_axis - 1, internal_clock, cloock, internal_clock_bar, external_clock_bar);
+                }
                 switch (clip[clip_to_play[internal_clock_bar]].playMode)
                 {
                 case 0:
@@ -345,7 +345,7 @@ void Track::set_arranger_parameters()
     {
     case 0:
         inputs.encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
-        set_bar_parameter(2, pixelTouchX, clip_to_play, 0, MAX_CLIPS-1, "Clip");
+        set_bar_parameter(2, pixelTouchX, clip_to_play, 0, MAX_CLIPS - 1, "Clip");
         set_bar_parameter(3, pixelTouchX, noteOffset, -99, 99, "Trns");
         break;
     case 1:
@@ -402,10 +402,10 @@ void Track::change_presets() // change presets, happens when the next bar starts
         if (CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i] < 128)
         {
             int trackChannel = clip[clip_to_play[internal_clock_bar]].midiChOut;
-            Serial.print("cc:");
-            Serial.println(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i]);
+            //  Serial.print("cc:");
+            // Serial.println(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i]);
             sendControlChange(CCchannel[play_presetNr_Playmode_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_Plugin_ccValue[internal_clock_bar]][i], trackChannel, my_Arranger_Y_axis - 1);
-            Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
+            //  Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
         }
     }
     refresh_mode8();

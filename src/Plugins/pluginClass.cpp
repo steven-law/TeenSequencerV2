@@ -49,7 +49,6 @@ void PluginControll::setParameterNames(const char *para1, const uint8_t max1, co
     parameterMax[13] = max14;
     parameterMax[14] = max15;
     parameterMax[15] = max16;
-    Serial.printf("my ID: %d\n", myID);
     // for (int i = 0; i < NUM_PARAMETERS; i++)
     // {
     //     Serial.printf("parameter: %d, name: %s\n", i, parameterNames[i]);

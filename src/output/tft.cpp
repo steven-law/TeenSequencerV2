@@ -778,7 +778,7 @@ void draw_note_on_tick(uint8_t _voice, uint8_t _when)
     int startY = map(velo, 127, 0, 0, STEP_FRAME_H / 3);
     int sizeY = map(velo, 0, 127, 0, (STEP_FRAME_H / 3)) * 2;
     int radius = map(stepFX, 128, 0, 0, STEP_FRAME_H / 3);
-    Serial.printf("draw Note %d,  on Tick %d, length: %d, velo: %d, stepFX: %d\n", note, _when, length, velo, stepFX);
+    // Serial.printf("draw Note %d,  on Tick %d, length: %d, velo: %d, stepFX: %d\n", note, _when, length, velo, stepFX);
     tft.fillRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, _color);
     tft.drawRoundRect(xPos, yPos - ((STEP_FRAME_H / 3) - startY), PIXEL_PER_TICK * length, sizeY + 1, radius, ILI9341_BLACK);
 }
@@ -942,7 +942,7 @@ void draw_mixer_FX_page2()
 
 void draw_clip_launcher()
 {
-    Serial.println("drawing cliplauncher");
+    // Serial.println("drawing cliplauncher");
     tft.fillRect(10 * STEP_FRAME_W, 11 * STEP_FRAME_H, 80, 17, ILI9341_DARKGREY);
     // tft.setFont(&FreeSans18pt7b);
     tft.setTextSize(3);
@@ -971,7 +971,7 @@ void draw_clip_launcher()
 }
 void draw_active_clip_launcher(uint8_t track, uint8_t clip)
 {
-    Serial.println("drawing cliplauncher clip");
+    //  Serial.println("drawing cliplauncher clip");
     // tft.fillRect(10 * STEP_FRAME_W, 11 * STEP_FRAME_H, 80, 17, ILI9341_DARKGREY);
     // tft.setFont(&FreeSans18pt7b);
     tft.setTextSize(3);

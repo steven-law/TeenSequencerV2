@@ -268,12 +268,12 @@ void neotrellis_set_potRow()
     lastPotRow = (lastPotRow + 1) % 4;
     if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLAYMODE)
     {
-     // trellisOut.clearMainGridNow();
+      // trellisOut.clearMainGridNow();
       trellisOut.drawPlaymode();
     }
     if (trellisOut.getActiveScreen() == TRELLIS_SCREEN_PLUGIN)
     {
-     // trellisOut.clearMainGridNow();
+      // trellisOut.clearMainGridNow();
       trellisOut.drawPlugin();
     }
   }
@@ -429,7 +429,7 @@ void trellis_setClipsToArranger()
 
     if (neotrellisPressed[trackButton])
     {
-      Serial.printf("track = %d\n", t);
+      // Serial.printf("track = %d\n", t);
       trellis.clear();
       for (int x = 0; x < TRELLIS_PADS_X_DIM; x++)
       {
@@ -456,10 +456,10 @@ void trellis_setClipsToArranger()
           allTracks[t]->set_clip_to_play_trellis(bar + i, clipNr);
         }
 
-        Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", t, bar, clipNr);
+        //  Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d method 1\n", t, bar, clipNr);
         trellis.clear();
         trellisOut.recall_main_buffer();
-        //return;
+        // return;
       }
     }
     else
@@ -501,7 +501,7 @@ void trellis_setClipsToArranger()
             }
           }
 
-           if (trellisPressed[key])
+          if (trellisPressed[key])
           {
             uint8_t bar = x + arrangerpage * 16;
             uint8_t track = y;
@@ -635,7 +635,7 @@ void neo_trellis_select_trackClips()
     }
 
     // Clip-Auswahl
-    for (int x = 0; x < MAX_CLIPS-1; x++)
+    for (int x = 0; x < MAX_CLIPS - 1; x++)
     {
       if (trellisPressed[x + (TRELLIS_PADS_X_DIM * y)])
       {
@@ -831,8 +831,8 @@ void trellis_read()
           updateTFTScreen = true;
           trellisPressed[i] = true;
           trellisIsPressed = true;
-          Serial.print("nr");
-          Serial.println(i);
+          // Serial.print("nr");
+          // Serial.println(i);
         }
 
         if (trellis.isKeyPressed(TrellisLED[i]))
@@ -917,7 +917,7 @@ void trellis_play_clipLauncher()
       uint8_t _nr = c + (t * TRELLIS_PADS_X_DIM);
       if (trellisPressed[_nr])
       {
-        Serial.printf("tp=%d\n", _nr);
+        // Serial.printf("tp=%d\n", _nr);
         trellisPressed[_nr] = false;
 
         allTracks[t]->clip_to_play[bar2edit] = c;

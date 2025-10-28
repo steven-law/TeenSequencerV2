@@ -50,6 +50,8 @@ public:
             }
         }
         MixGain.gain(1);
+        performFilter.frequency(6272);
+      //  performFilter.resonance(0.7f);
     }
     virtual ~PluginControll() = default;
     virtual const char *get_Name() { return name; }
